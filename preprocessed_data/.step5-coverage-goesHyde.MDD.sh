@@ -1,0 +1,56 @@
+#!/bin/bash
+#$ -cwd
+#$ -l mem_free=60G,h_vmem=60G,h_fsize=100G
+#$ -N step5-coverage-goesHyde.MDD
+#$ -o logs/coverage-goesHyde.$TASK_ID.txt
+#$ -e logs/coverage-goesHyde.$TASK_ID.txt
+#$ -t 570
+#$ -tc 25
+#$ -hold_jid pipeline_setup,step3-hisat2-goesHyde.MDD,step3b-infer-strandness-goesHyde.MDD
+#$ -m a
+echo "**** Job starts ****"
+date
+
+echo "**** JHPCE info ****"
+echo "User: ${USER}"
+echo "Job id: ${JOB_ID}"
+echo "Job name: ${JOB_NAME}"
+echo "Hostname: ${HOSTNAME}"
+echo "Task id: ${SGE_TASK_ID}"
+echo "****"
+echo "Sample id: $(cat samples.manifest | awk '{print $NF}' | awk "NR==${SGE_TASK_ID}")"
+echo "****"
+
+# ## Force R 3.3.x in JHPCE (to avoid some issues with conda_R)
+# module unload conda_R
+# module load R/3.3.x
+
+# if [ ! -f "inferred_strandness_pattern.txt" ]
+# then
+    # echo "Missing the file inferred_strandness_pattern.txt"
+    # exit 1
+# fi
+
+FILE1=$(awk 'BEGIN {FS="\t"} {print $1}' samples.manifest | awk "NR==${SGE_TASK_ID}")
+if [[ TRUE == "TRUE" ]]
+then
+    FILE2=$(awk 'BEGIN {FS="\t"} {print $3}' samples.manifest | awk "NR==${SGE_TASK_ID}")
+fi
+ID=$(cat samples.manifest | awk '{print $NF}' | awk "NR==${SGE_TASK_ID}")
+# STRANDRULE=$(cat inferred_strandness_pattern.txt)
+
+## Normalizing bigwigs to 40 million 100 bp reads
+module load python/2.7.9
+module load ucsctools
+
+python ~/.local/bin/bam2wig.py -s /dcl01/lieber/ajaffe/Emily/RNAseq-pipeline/Annotation/hg38.chrom.sizes.gencode -i /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/preprocessed_data/HISAT2_out/${ID}_accepted_hits.sorted.bam -t 4000000000 -o /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/preprocessed_data/Coverage/${ID} -d "1+-,1-+,2++,2--"
+
+## Remove temp files
+rm /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/preprocessed_data/Coverage/${ID}*.wig
+
+echo "**** Job ends ****"
+date
+
+
+
+
