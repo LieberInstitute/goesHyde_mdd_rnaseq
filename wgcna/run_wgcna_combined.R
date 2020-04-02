@@ -1,4 +1,4 @@
-####### 
+#######
 library(SummarizedExperiment)
 library(jaffelab)
 library(recount)
@@ -11,16 +11,16 @@ allowWGCNAThreads(8)
 dir.create("rdas")
 
 ## load data
-load("../data/zandiHypde_bipolar_rseGene_n511.rda")
-load("../data/degradation_rse_BipSeq_BothRegions.rda")
+load("../data/rse_gene_GoesZandi_n1093.rda")
+load("../data/degradation_rse_MDDseq_BiPSeq_BothRegions.Rdata")
 
 ## checks
 identical(colnames(rse_gene), colnames(cov_rse)) # TRUE
-rse_gene$Dx = factor(ifelse(rse_gene$PrimaryDx == "Control", "Control","Bipolar"), 
+rse_gene$Dx = factor(ifelse(rse_gene$PrimaryDx == "Control", "Control","Bipolar"),
 				levels = c("Control", "Bipolar"))
-				
-## add ancestry 
-load("../genotype_data/zandiHyde_bipolar_MDS_n511.rda")
+
+## add ancestry
+load("../genotype_data/goesHyde_bipolarMdd_Genotypes_n588_mds.rda")
 mds = mds[rse_gene$BrNum,1:5]
 colnames(mds) = paste0("snpPC", 1:5)
 colData(rse_gene) = cbind(colData(rse_gene), mds)
@@ -34,8 +34,8 @@ rse_gene = rse_gene[geneIndex,]
 ##########
 ## model #
 ##########
-modJoint = model.matrix(~Dx*BrainRegion + AgeDeath + Sex + snpPC1 + snpPC2 + snpPC3 + 
-	mitoRate + rRNA_rate + totalAssignedGene + RIN + ERCCsumLogErr, 
+modJoint = model.matrix(~Dx*BrainRegion + AgeDeath + Sex + snpPC1 + snpPC2 + snpPC3 +
+	mitoRate + rRNA_rate + totalAssignedGene + RIN + ERCCsumLogErr,
 	data=colData(rse_gene))
 
 degExprs = log2(assays(cov_rse)$count+1)
@@ -69,15 +69,15 @@ save(net, fNames, file = "rdas/constructed_network_signed_bicor.rda")
 
 ########################
 ## by region
-modRegion =  model.matrix(~Dx + AgeDeath + Sex + snpPC1 + snpPC2 + snpPC3 + 
-	mitoRate + rRNA_rate + totalAssignedGene + RIN + ERCCsumLogErr, 
+modRegion =  model.matrix(~Dx + AgeDeath + Sex + snpPC1 + snpPC2 + snpPC3 +
+	mitoRate + rRNA_rate + totalAssignedGene + RIN + ERCCsumLogErr,
 	data=colData(rse_gene))
 rIndexes = splitit(rse_gene$BrainRegion)
 
 ## clean by region
 geneExprs_list = mclapply(rIndexes, function(ii) {
 	degExprs = log2(assays(cov_rse[,ii])$count+1)
-	k = num.sv(degExprs, modRegion[ii,]) 
+	k = num.sv(degExprs, modRegion[ii,])
 	m = cbind(modRegion[ii,], prcomp(t(degExprs))$x[,1:k])
 	cleaningY(geneExprs[,ii], m, P=3)
 },mc.cores=2)
