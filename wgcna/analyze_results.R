@@ -272,7 +272,7 @@ palette(brewer.pal(4,"Paired"))
 par(mar=c(3,6,4,2), cex.axis=2,cex.lab=1.8,cex.main = 1.8)
 for(i in 1:ncol(MEs)) {
 	boxplot(MEs[,i] ~ lab, outline = FALSE, xlab="",
-		ylim = quantile(unlist(MEs),c(0.002,0.998)),main = colnames(MEs)[i],
+		ylim = quantile(unlist(MEs),c(0.001,0.999)),main = colnames(MEs)[i],
 		names = gsub(":", "\n", levels(lab)), ylab = "Module Eigengene")
 	points(MEs[,i] ~ jitter(as.numeric(lab),amount=0.1), pch=21, bg=lab)
 	legend("top", c(paste0("Region p=", signif(regionEffect[i,5],3)), 
@@ -292,7 +292,7 @@ palette(brewer.pal(4,"Paired"))
 par(mar=c(3,6,4,2), cex.axis=2,cex.lab=1.8,cex.main = 1.8)
 for(i in 1:ncol(clean_ME)) {
 	boxplot(clean_ME[,i] ~ rse_gene$Dx, outline = FALSE, xlab="",
-		ylim = quantile(unlist(clean_ME),c(0.002,0.998)),main = colnames(MEs)[i],
+		ylim = quantile(unlist(clean_ME),c(0.001,0.999)),main = colnames(MEs)[i],
 		ylab = "Module Eigengene (Adj)")
 	points(clean_ME[,i] ~ jitter(as.numeric(rse_gene$Dx),amount=0.1), pch=21, bg=lab)
 	legend("top", paste0("Dx p=", signif(MDDEffect[i,5],3)),cex=1.4)
