@@ -6,10 +6,11 @@ library(WGCNA)
 library(sva)
 library(sessioninfo)
 
+
 ## multithread
 allowWGCNAThreads(8)
 
-dir.create("rdas")
+dir.create("rdas", showWarnings = FALSE)
 
 ## load data
 load("../exprs_cutoff/rse_gene.Rdata", verbose = TRUE)
@@ -205,3 +206,4 @@ Sys.time()
 proc.time()
 options(width = 120)
 session_info()
+
