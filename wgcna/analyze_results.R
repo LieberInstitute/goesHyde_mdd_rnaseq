@@ -5,46 +5,69 @@ library(SummarizedExperiment)
 library(jaffelab)
 library(WGCNA)
 library(broom)
+#BiocManager::install("clusterProfiler")
 library(clusterProfiler)
 library(readxl)
 library(RColorBrewer)
+library(sessioninfo)
+
 
 ## load data
 
-load("../data/zandiHypde_bipolar_rseGene_n511.rda")
-load("../data/degradation_rse_BipSeq_BothRegions.rda")
+load("../exprs_cutoff/rse_gene.Rdata", verbose = TRUE)
+load("../data/degradation_rse_MDDseq_BiPSeq_BothRegions.Rdata", verbose = TRUE)
 
 ## checks
 identical(colnames(rse_gene), colnames(cov_rse)) # TRUE
-rse_gene$Dx = factor(ifelse(rse_gene$PrimaryDx == "Control", "Control","Bipolar"), 
-				levels = c("Control", "Bipolar"))
-			
-## add ancestry 
-load("../genotype_data/zandiHyde_bipolar_MDS_n511.rda")
+
+rse_gene <- rse_gene[, rse_gene$PrimaryDx %in% c("Control", "MDD")]
+cov_rse <- cov_rse[, cov_rse$PrimaryDx %in% c("Control", "MDD")]
+
+rse_gene$Dx <- droplevels(rse_gene$PrimaryDx)
+cov_rse$Dx <- droplevels(cov_rse$PrimaryDx)
+
+## add ancestry
+load("../genotype_data/goesHyde_bipolarMdd_Genotypes_n588_mds.rda", verbose = TRUE)
+
+## keep samples with genotypes
+rse_gene <- rse_gene[, rse_gene$BrNum %in% rownames(mds)]
+cov_rse <- cov_rse[, cov_rse$BrNum %in% rownames(mds)]
+
+#### reorders according to rse_gene$BrNum
 mds = mds[rse_gene$BrNum,1:5]
-colnames(mds) = paste0("snpPC", 1:5)
+
 colData(rse_gene) = cbind(colData(rse_gene), mds)
+colData(cov_rse) = cbind(colData(cov_rse), mds)
 
 ###########
-# filter ##
+#compute RPKM
 assays(rse_gene)$rpkm = recount::getRPKM(rse_gene, 'Length')
-geneIndex = rowMeans(assays(rse_gene)$rpkm) > 0.25  ## both regions
-rse_gene = rse_gene[geneIndex,]
 
 ##########
 ## model #
 ##########
-modJoint = model.matrix(~Dx*BrainRegion + AgeDeath + Sex + snpPC1 + snpPC2 + snpPC3 + 
-	mitoRate + rRNA_rate + totalAssignedGene + RIN + ERCCsumLogErr, 
-	data=colData(rse_gene))
 
-## qsva
+### removed ERCCsumLogErr term
+modJoint = model.matrix(~Dx*BrainRegion + AgeDeath + Sex + snpPC1 + snpPC2 + snpPC3 +
+                          mitoRate + rRNA_rate + totalAssignedGene + RIN,
+                        data=colData(rse_gene))
+
+## counts from degrafation into log2 scale
 degExprs = log2(assays(cov_rse)$count+1)
-k = num.sv(degExprs, modJoint) # 18
+k = num.sv(degExprs, modJoint)
+print(k) # 22
 qSV_mat = prcomp(t(degExprs))$x[,1:k]
 
-## join and move around region, dx and interaction for cleaning
-modQsva = cbind(modJoint[,c(1:4,14,5:13)], qSV_mat)
+colnames(modJoint)
+# [1] "(Intercept)"               "DxControl"
+# [3] "BrainRegionsACC"           "AgeDeath"
+# [5] "SexM"                      "snpPC1"
+# [7] "snpPC2"                    "snpPC3"
+# [9] "mitoRate"                  "rRNA_rate"
+# [11] "totalAssignedGene"         "RIN"
+# [13] "DxControl:BrainRegionsACC"
+
+modQsva = cbind(modJoint[,c(1:3,13,4:12)], qSV_mat)
 
 #########################
 ## load wgcna output ####
@@ -204,3 +227,12 @@ magmaSig = magma[which(magma$P_JOINT
 ## line up
 mm = match(rowData(rse_gene)$Symbol, magma$SYMBOL)
 magGenes = split(magma$SYMBOL[mm], net$colorsLab)
+
+## Reproducibility information
+print('Reproducibility information:')
+Sys.time()
+proc.time()
+options(width = 120)
+session_info()
+
+
