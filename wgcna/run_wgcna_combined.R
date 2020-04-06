@@ -156,7 +156,9 @@ net = blockwiseModules(t(geneExprsClean), power = sftthresh1$powerEstimate,
                             saveTOMs = TRUE, verbose = 5, maxBlockSize = 30000,
                             saveTOMFileBase = "rdas/wgcna_signed_TOM")
 fNames = rownames(geneExprs)
-save(net, fNames, file = "rdas/constructed_network_signed_bicor.rda")
+
+### saved in later command
+#save(net, fNames, file = "rdas/constructed_network_signed_bicor.rda")
 
 ########################
 ## by region remove ERCCsumLogErr
@@ -170,14 +172,22 @@ colnames(modRegion)
 # [7] "snpPC3"            "mitoRate"          "rRNA_rate"
 # [10] "totalAssignedGene" "RIN"
 
-###jaffe lab function
+###jaffe lab function  splits by brain region 
 rIndexes = splitit(rse_gene$BrainRegion)
 
+### output of splitit 2 list 
 ## clean by region ## changed P=3 to P=2 since not clear why to protect AgeDeath
+### loop for each brain region
+
+
 geneExprs_list = mclapply(rIndexes, function(ii) {
-	degExprs = log2(assays(cov_rse[,ii])$count+1)
+##extract the deg exp for each brain region samples
+  	degExprs = log2(assays(cov_rse[,ii])$count+1)
+#run number of svs for each brain region samples  	
 	k = num.sv(degExprs, modRegion[ii,])
+#combine model terms/matrix with qSVs *(prcom is a principal component function)l PC on degradation data 	
 	m = cbind(modRegion[ii,], prcomp(t(degExprs))$x[,1:k])
+#regress out all the effects for gene expression except for intercept and DxControl for each brain region  	
 	cleaningY(geneExprs[,ii], m, P=2)
 },mc.cores=2)
 
