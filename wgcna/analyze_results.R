@@ -29,7 +29,7 @@ cov_rse$Dx <- droplevels(cov_rse$PrimaryDx)
 ## add ancestry
 load("../genotype_data/goesHyde_bipolarMdd_Genotypes_n588_mds.rda", verbose = TRUE)
 
-## keep samples with genotypes
+## keep samples with genotypes (remember that rse_gene is summarized experiment, so BrNum is in colData)
 rse_gene <- rse_gene[, rse_gene$BrNum %in% rownames(mds)]
 cov_rse <- cov_rse[, cov_rse$BrNum %in% rownames(mds)]
 
@@ -98,6 +98,18 @@ colnames(modQsva)
 ## load
 load("rdas/constructed_network_signed_bicor.rda", verbose=TRUE)
 
+
+
+### added code to create dendogram from WGCNA Tutorial
+mergedColors = labels2colors(net$colors)
+
+plotDendroAndColors(net$dendrograms[[1]], mergedColors[net$blockGenes[[1]]],
+"Module colors",
+dendroLabels = FALSE, hang = 0.03,
+addGuide = TRUE, guideHang = 0.05)
+
+#########
+
 # get colors LOOK AT WGCNA Instructions
 net$colorsLab = labels2colors(net$colors)
 colorDat = data.frame(num = net$colors, col = net$colorsLab, 
@@ -151,7 +163,8 @@ save(go, file = "rdas/go_enrichment_MDD_Control_wgcna.rda")
 goDf = as.data.frame(go)
 ## below specific for bipolar classes 
 #goCheck = goDf[goDf$Cluster %in% c("red", "pink", "magenta", "royalblue") &
-goCheck = goDf[goDf$Cluster %in% c("red", "pink", "magenta") &
+### changed to include nominally significant categories for the association with depression
+goCheck = goDf[goDf$Cluster %in% c("grey60", "yellow", "black", "pink", "salmon", "blue", "grey", "cyan", "turquoise", "red") &
 	goDf$qvalue < 0.05,]
 goCheck  =goCheck[order(goCheck$pvalue),]
 write.csv(goCheck, file = "go_enrichment_MDD_Control_wgcna_three_TEST_CandidateModules.csv")
