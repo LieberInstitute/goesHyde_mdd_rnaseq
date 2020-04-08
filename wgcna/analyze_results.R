@@ -69,12 +69,13 @@ colnames(modJoint)
 # [11] "totalAssignedGene"         "RIN"
 # [13] "DxControl:BrainRegionsACC"
 
-modQsva = cbind(modJoint[,c(1:3,13,4:12)], qSV_mat)
+modQsva = cbind(modJoint[,c(1:4,13,5:12)], qSV_mat)
+
 colnames(modQsva)
 
 #  [1] "(Intercept)"               "DxControl"
-#  [3] "BrainRegionsACC"           "DxControl:BrainRegionsACC"
-#  [5] "AgeDeath"                  "SexM"
+#  [3] "BrainRegionsACC"           "AgeDeath"
+#  [5] "DxControl:BrainRegionsACC" "SexM"
 #  [7] "snpPC1"                    "snpPC2"
 #  [9] "snpPC3"                    "mitoRate"
 # [11] "rRNA_rate"                 "totalAssignedGene"
@@ -121,7 +122,7 @@ colorDat$numGenes = table(net$colors)[as.character(colorDat$num)]
 
 dim(colorDat)
 # [1] 18  4
-
+### WILL CHANGE WITH AGE PROTECTED
 colorDat
 
 #                    num          col Label numGenes
@@ -170,7 +171,7 @@ goCheck  =goCheck[order(goCheck$pvalue),]
 write.csv(goCheck, file = "go_enrichment_MDD_Control_wgcna_three_TEST_CandidateModules.csv")
 ##############
 ## associate eigengenes with brain region
-m = modQsva[,1:4] # this is what was protected
+m = modQsva[,1:5] # this is what was protected
 
 #### look up MEs in WGCNA 
 MEs = net$MEs
@@ -182,7 +183,7 @@ MEs = MEs[,colorDat$col]
 statList = lapply(MEs, function(x) summary(lmer(x ~ m + (1|rse_gene$BrNum) - 1))$coef)
 
 statList[[1]]
-#                                 Estimate  Std. Error       df    t value
+#    WILL CHANGE                 Estimate  Std. Error       df    t value
 # m(Intercept)               -0.0006301415 0.002246288 641.3682 -0.2805257
 # mDxControl                 -0.0080397674 0.003359925 672.6521 -2.3928413
 # mBrainRegionsACC            0.0035551921 0.002087894 390.5075  1.7027648
@@ -196,17 +197,18 @@ statList[[1]]
 # modified extract information from lme object
 MDDEffect = as.data.frame(t(sapply(statList, function(x) x[2,])))
 regionEffect = as.data.frame(t(sapply(statList, function(x) x[3,])))
-## since we did not protect age we cannot 
-#ageEffect = as.data.frame(t(sapply(statList, function(x) x[4,])))  interaction effect
-intEffect = as.data.frame(t(sapply(statList, function(x) x[4,])))
+## now protect age we cannot 
+ageEffect = as.data.frame(t(sapply(statList, function(x) x[4,])))  
+#interaction effect
+intEffect = as.data.frame(t(sapply(statList, function(x) x[5,])))
 #colnames(MDDEffect)= colnames(regionEffect) = colnames(ageEffect) = colnames(intEffect) = c(
 #	"slope", "se", "df", "t", "pvalue")
 
 colnames(MDDEffect)= colnames(regionEffect) = colnames(intEffect) = c(
 	"slope", "se", "df", "t", "pvalue")
 
-
-signif(MDDEffect, 3)
+print_effect <- function(x) { signif(cbind(x, FDR = p.adjust(x$pvalue, 'fdr')), 3) }
+print_effect(MDDEffect)
 
 #                 slope      se  df       t   pvalue
 # grey         -0.00804 0.00336 673 -2.3900 0.017000
@@ -228,7 +230,9 @@ signif(MDDEffect, 3)
 # lightcyan    -0.00281 0.00316 830 -0.8910 0.373000
 # grey60       -0.01090 0.00319 823 -3.4300 0.000637
 
-signif(regionEffect, 3)
+#signif(regionEffect, 3)
+print_effect(regionEffect)
+
 #                  slope      se  df       t    pvalue
 # grey          0.003560 0.00209 391   1.700  8.94e-02
 # turquoise     0.059700 0.00131 399  45.400 1.22e-159
@@ -251,7 +255,7 @@ signif(regionEffect, 3)
 
 
 #signif(ageEffect, 3)
-signif(intEffect, 3)
+print_effect(ageEffect)
 
 #                  slope      se  df      t  pvalue
 # grey          0.009330 0.00317 406  2.940 0.00343
@@ -272,6 +276,11 @@ signif(intEffect, 3)
 # midnightblue  0.005490 0.00405 424  1.360 0.17600
 # lightcyan     0.004220 0.00430 428  0.979 0.32800
 # grey60        0.002750 0.00420 414  0.654 0.51300
+
+
+print_effect(intEffect)
+
+
 
 ##################
 # make boxplots ##
@@ -294,7 +303,7 @@ for(i in 1:ncol(MEs)) {
 dev.off()
 
 colnames(m)
-# > colnames(m)
+# > colnames(m)  WILL CHANGE 
 # [1] "(Intercept)"               "DxControl"
 # [3] "BrainRegionsACC"           "DxControl:BrainRegionsACC"
 

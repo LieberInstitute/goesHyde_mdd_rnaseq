@@ -111,14 +111,15 @@ colnames(modJoint)
 # [11] "totalAssignedGene"         "RIN"
 # [13] "DxControl:BrainRegionsACC"
 
-modQsva = cbind(modJoint[,c(1:3,13,4:12)], qSV_mat)
+modQsva = cbind(modJoint[,c(1:4,13,5:12)], qSV_mat)
 
 colnames(modQsva)
-# [1] "(Intercept)"               "DxControl"
-# [3] "BrainRegionsACC"           "DxControl:BrainRegionsACC"
-# [5] "AgeDeath"                  "SexM"
-# [7] "snpPC1"                    "snpPC2"
-# [9] "snpPC3"                    "mitoRate"
+
+#  [1] "(Intercept)"               "DxControl"
+#  [3] "BrainRegionsACC"           "AgeDeath"
+#  [5] "DxControl:BrainRegionsACC" "SexM"
+#  [7] "snpPC1"                    "snpPC2"
+#  [9] "snpPC3"                    "mitoRate"
 # [11] "rRNA_rate"                 "totalAssignedGene"
 # [13] "RIN"                       "PC1"
 # [15] "PC2"                       "PC3"
@@ -132,13 +133,13 @@ colnames(modQsva)
 # [31] "PC18"                      "PC19"
 # [33] "PC20"                      "PC21"
 # [35] "PC22"
-
+# >
 
 ## clean expression
 geneExprs = log2(recount::getRPKM(rse_gene, "Length")+1)
 
-### regress out after variable 4 (protect 1,2,3,4)
-geneExprsClean = cleaningY(geneExprs, modQsva, P=4)
+### regress out after variable 5 (protect 1,2,3,4, 5)
+geneExprsClean = cleaningY(geneExprs, modQsva, P=5)
 
 #########################
 ## get power
