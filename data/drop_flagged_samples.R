@@ -36,6 +36,7 @@ save(rse_jxn, file = file.path("without_flagged", "rse_jxn_bp_mdd.Rdata"))
 save(rse_tx, file = file.path("without_flagged", "rse_tx_bp_mdd.Rdata"))
 
 
+#sgejobs::job_single('drop_flagged_samples', create_shell = TRUE, memory = '40G', command = "Rscript drop_flagged_samples.R")
 
 
 ## Reproducibility information
