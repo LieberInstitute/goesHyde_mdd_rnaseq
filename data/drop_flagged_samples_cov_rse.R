@@ -1,0 +1,123 @@
+library("sessioninfo")
+library("SummarizedExperiment")
+
+# load data
+load("degradation_rse_MDDseq_BiPSeq_BothRegions.Rdata", verbose = TRUE)
+
+## Find samples to drop
+load("../genotype_data/flagged_samples_mddseq.Rdata", verbose = TRUE)
+
+## phenotype data
+
+pd <- colData(cov_rse)
+keep_samples <- !pd$RNum %in% checks$SAMPLE_ID
+table(keep_samples)
+dim(checks)
+length(unique(checks$SAMPLE_ID))
+
+#### subset samples
+dim(cov_rse)
+cov_rse <- cov_rse[, keep_samples]
+dim(cov_rse)
+
+# Save data
+save(cov_rse, file = file.path("without_flagged", "degradation_rse_MDDseq_BiPSeq_BothRegions.Rdata"))
+
+# sgejobs::job_single('drop_flagged_samples_cov_rse', create_shell = TRUE, memory = '40G', command = "Rscript drop_flagged_samples_cov_rse.R")
+
+
+## Reproducibility information
+print("Reproducibility information:")
+Sys.time()
+proc.time()
+options(width = 120)
+session_info()
+#
+# [1] "Reproducibility information:"
+# > Sys.time()
+# [1] "2020-05-04 12:01:54 EDT"
+# > proc.time()
+#     user   system  elapsed
+#  383.822   51.117 1325.577
+# > options(width = 120)
+# > session_info()
+# ??? Session info ?????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
+#  setting  value
+#  version  R version 3.6.1 Patched (2019-10-31 r77350)
+#  os       CentOS Linux 7 (Core)
+#  system   x86_64, linux-gnu
+#  ui       X11
+#  language (EN)
+#  collate  en_US.UTF-8
+#  ctype    en_US.UTF-8
+#  tz       US/Eastern
+#  date     2020-05-04
+#
+# ??? Packages ?????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
+#  !  package              * version  date       lib source
+#     assertthat             0.2.1    2019-03-21 [2] CRAN (R 3.6.1)
+#     backports              1.1.5    2019-10-02 [2] CRAN (R 3.6.1)
+#     Biobase              * 2.46.0   2019-10-29 [2] Bioconductor
+#     BiocGenerics         * 0.32.0   2019-10-29 [2] Bioconductor
+#     BiocParallel         * 1.20.1   2019-12-21 [2] Bioconductor
+#     bitops                 1.0-6    2013-08-17 [2] CRAN (R 3.6.1)
+#     callr                  3.4.2    2020-02-12 [2] CRAN (R 3.6.1)
+#     cli                    2.0.2    2020-02-28 [1] CRAN (R 3.6.1)
+#     codetools              0.2-16   2018-12-24 [3] CRAN (R 3.6.1)
+#     colorout             * 1.2-2    2020-04-23 [1] Github (jalvesaq/colorout@726d681)
+#     crayon                 1.3.4    2017-09-16 [2] CRAN (R 3.6.1)
+#     curl                   4.3      2019-12-02 [2] CRAN (R 3.6.1)
+#     DelayedArray         * 0.12.2   2020-01-06 [2] Bioconductor
+#     dplyr                  0.8.5    2020-03-07 [1] CRAN (R 3.6.1)
+#     ellipsis               0.3.0    2019-09-20 [2] CRAN (R 3.6.1)
+#     fansi                  0.4.1    2020-01-08 [2] CRAN (R 3.6.1)
+#     generics               0.0.2    2018-11-29 [2] CRAN (R 3.6.1)
+#     GenomeInfoDb         * 1.22.0   2019-10-29 [2] Bioconductor
+#     GenomeInfoDbData       1.2.2    2019-10-28 [2] Bioconductor
+#     GenomicRanges        * 1.38.0   2019-10-29 [2] Bioconductor
+#     glue                   1.4.0    2020-04-03 [1] CRAN (R 3.6.1)
+#     hms                    0.5.3    2020-01-08 [2] CRAN (R 3.6.1)
+#     IRanges              * 2.20.2   2020-01-13 [2] Bioconductor
+#     lattice                0.20-38  2018-11-04 [3] CRAN (R 3.6.1)
+#     lifecycle              0.2.0    2020-03-06 [1] CRAN (R 3.6.1)
+#     lubridate              1.7.8    2020-04-06 [1] CRAN (R 3.6.1)
+#     magrittr               1.5      2014-11-22 [2] CRAN (R 3.6.1)
+#     Matrix                 1.2-17   2019-03-22 [3] CRAN (R 3.6.1)
+#     matrixStats          * 0.55.0   2019-09-07 [2] CRAN (R 3.6.1)
+#     pillar                 1.4.3    2019-12-20 [2] CRAN (R 3.6.1)
+#     pkgbuild               1.0.6    2019-10-09 [2] CRAN (R 3.6.1)
+#     pkgconfig              2.0.3    2019-09-22 [2] CRAN (R 3.6.1)
+#     prettyunits            1.1.1    2020-01-24 [2] CRAN (R 3.6.1)
+#     processx               3.4.2    2020-02-09 [2] CRAN (R 3.6.1)
+#     pryr                   0.1.4    2018-02-18 [2] CRAN (R 3.6.1)
+#     ps                     1.3.2    2020-02-13 [2] CRAN (R 3.6.1)
+#     purrr                  0.3.4    2020-04-17 [1] CRAN (R 3.6.1)
+#     R6                     2.4.1    2019-11-12 [2] CRAN (R 3.6.1)
+#     Rcpp                   1.0.4.6  2020-04-09 [1] CRAN (R 3.6.1)
+#     RCurl                  1.98-1.1 2020-01-19 [2] CRAN (R 3.6.1)
+#     readr                  1.3.1    2018-12-21 [2] CRAN (R 3.6.1)
+#     remotes                2.1.1    2020-02-15 [2] CRAN (R 3.6.1)
+#     rlang                  0.4.6    2020-05-02 [1] CRAN (R 3.6.1)
+#     rprojroot              1.3-2    2018-01-03 [2] CRAN (R 3.6.1)
+#     S4Vectors            * 0.24.3   2020-01-18 [2] Bioconductor
+#     sessioninfo          * 1.1.1    2018-11-05 [2] CRAN (R 3.6.1)
+#     sgejobs                0.99.1   2020-05-04 [1] Github (LieberInstitute/sgejobs@f5ab0ca)
+#     stringi                1.4.6    2020-02-17 [2] CRAN (R 3.6.1)
+#     stringr                1.4.0    2019-02-10 [2] CRAN (R 3.6.1)
+#     SummarizedExperiment * 1.16.1   2019-12-19 [2] Bioconductor
+#     tibble                 3.0.1    2020-04-20 [1] CRAN (R 3.6.1)
+#     tidyr                  1.0.2    2020-01-24 [2] CRAN (R 3.6.1)
+#     tidyselect             1.0.0    2020-01-27 [2] CRAN (R 3.6.1)
+#     vctrs                  0.2.4    2020-03-10 [1] CRAN (R 3.6.1)
+#  VP withr                  2.1.2    2020-04-20 [2] CRAN (R 3.6.1)
+#     XVector                0.26.0   2019-10-29 [2] Bioconductor
+#     zlibbioc               1.32.0   2019-10-29 [2] Bioconductor
+#
+# [1] /users/lhuuki/R/3.6.x
+# [2] /jhpce/shared/jhpce/core/conda/miniconda3-4.6.14/envs/svnR-3.6.x/R/3.6.x/lib64/R/site-library
+# [3] /jhpce/shared/jhpce/core/conda/miniconda3-4.6.14/envs/svnR-3.6.x/R/3.6.x/lib64/R/library
+#
+#  V ?????? Loaded and on-disk version mismatch.
+#  P ?????? Loaded and on-disk path mismatch.
+# >
+# nda/miniconda3-4.6.14/envs/svnR-3.6.x/R/3.6.x/lib64/R/lib -L/jhpce/sh
