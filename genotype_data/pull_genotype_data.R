@@ -40,9 +40,10 @@ BrUniqueSwapped = unique(BrNums)
 # fam file ##
 
 ### read in fam
-bfile="/dcl01/lieber/ajaffe/Brain/Imputation/Merged/LIBD_merged_h650_1M_Omni5M_Onmi2pt5_Macrogen_Quads"
+bfile="/dcl01/lieber/ajaffe/Brain/Imputation/Merged/LIBD_merged_h650_1M_Omni5M_Onmi2pt5_Macrogen_QuadsPlus"
 fam = read.table(paste0(bfile, ".fam"), as.is=TRUE)
 colnames(fam) = c("FID", "IID", "MID", "PID", "SEX","PHENO")
+## fix 5 digit Brain numbers
 ## fix 5 digit Brain numbers
 fam$BrNum = ss(fam$FID,"_")
 fam$Batch = ss(fam$FID,"_",2)
@@ -60,7 +61,7 @@ write.table(famOut[,1:2], "samples_to_extract.txt",
 	
 #### overall extraction
 # bfile = "/dcs01/ajaffe/Imputation/Merged/LIBD_Brain_Illumina_h650_1M_Omni5M_Omni2pt5_Macrogen_imputed_maf005_hwe1e6_geno10"
-newbfile = "goesHyde_mdd_Genotypes_n588_maf01_geno10_hwe1e6"
+newbfile = "goesHyde_mdd_Genotypes_n593_maf01_geno10_hwe1e6"
 
 ## extract
 system(paste("plink --bfile", bfile, 
@@ -220,8 +221,8 @@ rownames(mds) = colnames(snp) = BrUniqueOriginal[mm_brain]
 #############
 ## save #####
 save(mds, snp, snpMap, compress=TRUE,
-	file = "goesHyde_bipolarMdd_Genotypes_n588.rda")
+	file = "goesHyde_bipolarMdd_Genotypes_n593.rda")
 save(mds, compress=TRUE,
-	file = "goesHyde_bipolarMdd_Genotypes_n588_mds.rda")
+	file = "goesHyde_bipolarMdd_Genotypes_n593_mds.rda")
 	
 	
