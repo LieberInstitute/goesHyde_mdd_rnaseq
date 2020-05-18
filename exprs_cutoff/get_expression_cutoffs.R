@@ -26,13 +26,13 @@ exprs <- list(
 seed <- 20191217
 seeds <- seed + 0:3
 names(seeds) <- names(exprs)
-cutoffs <- sapply(names(exprs), function(type) {  
+cutoffs <- sapply(names(exprs), function(type) {
     message(type)
     # pdf(paste0('suggested_expr_cutoffs_', tolower(type), '.pdf'), width = 12)
     cuts <- jaffelab::expression_cutoff(exprs[[type]], seed = seeds[type])
     message(paste(cuts, collapse = ' '))
     cut <- max(cuts)
-    # dev.off()   
+    # dev.off()
     return(cut)
 })
 # Gene
@@ -79,6 +79,7 @@ save(rse_tx, file = 'rse_tx.Rdata')
 
 
 
+# sgejobs::job_single('get_expression_cutoffs', create_shell = TRUE, queue= 'bluejay', memory = '50G', command = "get_expression_cutoffs.R")
 
 
 

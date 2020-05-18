@@ -1,4 +1,22 @@
-#####################################
+if (!requireNamespace("BiocManager", quietly = TRUE))
+
+    install.packages("BiocManager")
+
+
+BiocManager::install("SummarizedExperiment")
+
+BiocManager::install("rtracklayer")
+
+BiocManager::install("SingleCellExperiment")
+
+
+## Optional:
+
+BiocManager::install("iSEE")
+
+BiocManager::install("recount")
+
+BiocManager::install("spatialLIBD")#####################################
 
 library(jaffelab)
 library(SummarizedExperiment)
@@ -20,7 +38,7 @@ rse_mdd$Experiment = "GoesMDD"
 load("/dcl01/lieber/ajaffe/lab/zandiHyde_bipolar_rnaseq/data/zandiHypde_bipolar_rseGene_n511.rda", verbose=TRUE)
 rse_bip = rse_gene					# 511
 rse_bip$Experiment = "ZandiBPD"
-## 9 Control samples also got used in Goes -> drop from Zandi so there's no duplicates					
+## 9 Control samples also got used in Goes -> drop from Zandi so there's no duplicates
 rse_bip = rse_bip[,-which(rse_bip$RNum %in% colnames(rse_mdd))]	# 502
 
 ## combine
@@ -44,10 +62,10 @@ rse_both = cbind(rse_mdd, rse_bip)
 qc = read.csv("../qc_checks/qc_dropping_results.csv", stringsAsFactors = FALSE)
 qc = qc[rowSums(qc[,13:16])>0,]
 qc = rbind(qc, "R17779")	# Tiny # of reads
-rse_both = rse_both[,-which(rse_both$RNum %in% qc$SAMPLE_ID | rse_both$RNum %in% c("R17538","R18853") | 
-						rse_both$PrimaryDx == "Other" | 
+rse_both = rse_both[,-which(rse_both$RNum %in% qc$SAMPLE_ID | rse_both$RNum %in% c("R17538","R18853") |
+						rse_both$PrimaryDx == "Other" |
 						rse_both$overallMapRate <0.5) ]
-						
+
 rse_both$PrimaryDx = droplevels(rse_both$PrimaryDx)
 rse_both$PrimaryDx = relevel(rse_both$PrimaryDx, ref="MDD")
 
@@ -192,8 +210,5 @@ rse_tx = rse_tx[,rownames(colData(rse_gene))]
 # save(rse_tx, file="rse_tx_GoesZandi_n1093.rda")
 
 
-
-
-
-
+# sgejobs::job_single('clean_data', create_shell = TRUE, queue= 'bluejay', memory = '50G', command = "clean_data.R")
 

@@ -26,7 +26,7 @@ table(rse_bip$RNum %in% rse_mdd$SAMPLE_ID)
 # FALSE  TRUE
 #   502     9
 
-## 9 Control samples also got used in Goes -> drop from Zandi so there's no duplicates					
+## 9 Control samples also got used in Goes -> drop from Zandi so there's no duplicates
 rse_bip <- rse_bip[, -which(rse_bip$RNum %in% colnames(rse_mdd))]	# 502
 
 ## combine
@@ -44,10 +44,10 @@ rse_both <- cbind(rse_mdd, rse_bip)
 qc <- read.csv("../qc_checks/qc_dropping_results.csv", stringsAsFactors = FALSE)
 qc <- qc[rowSums(qc[,13:16])>0,]
 qc <- rbind(qc, "R17779")	# Tiny # of reads
-rse_both <- rse_both[,-which(rse_both$RNum %in% qc$SAMPLE_ID | rse_both$RNum %in% c("R17538","R18853") | 
-						rse_both$PrimaryDx == "Other" | 
+rse_both <- rse_both[,-which(rse_both$RNum %in% qc$SAMPLE_ID | rse_both$RNum %in% c("R17538","R18853") |
+						rse_both$PrimaryDx == "Other" |
 						rse_both$overallMapRate <0.5) ]
-						
+
 rse_both$PrimaryDx <- droplevels(rse_both$PrimaryDx)
 rse_both$PrimaryDx <- relevel(rse_both$PrimaryDx, ref="MDD")
 
@@ -79,6 +79,8 @@ Sys.time()
 proc.time()
 options(width = 120)
 session_info()
+
+# sgejobs::job_single('merge_MDDseq_BiPseq_degradation', create_shell = TRUE, queue= 'bluejay', memory = '50G', command = "merge_MDDseq_BiPseq_degradation.R")
 
 # ─ Session info ───────────────────────────────────────────────────────────────────────────────────────────────────────
 #  setting  value

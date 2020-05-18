@@ -28,11 +28,11 @@ pd = colData(rse_gene)
 table(pd$Experiment)
  # GoesMDD ZandiBPD
      # 593      500
-	 
+
 table(pd$BrainRegion)
 # Amygdala     sACC
      # 541      552
-	 
+
 table(pd$BrainRegion, pd$Sex)
             # F   M
   # Amygdala 163 378
@@ -73,11 +73,11 @@ load("../data/degradation_rse_MDDseq_BiPSeq_BothRegions.Rdata", verbose = TRUE)
 # colKeep = c("RNum","BrNum","Sex","Race","AgeDeath","BrainRegion","RIN","PrimaryDx","overallMapRate","totalAssignedGene","mitoRate","rRNA_rate")
 # colData(cov_rsemdd) = colData(cov_rsemdd)[,colKeep]
 # colData(cov_rsebip) = colData(cov_rsebip)[,colKeep]
-# 
+#
 # cov_rseboth = cbind(cov_rsemdd, cov_rsebip)
 # cov_rseboth = cov_rseboth[,match(rse_gene$RNum,cov_rseboth$RNum)]	# put in order / drop dropped samples
 # stopifnot(identical(cov_rseboth$RNum, rse_gene$RNum))
-# 
+#
 # cov_rse = cov_rseboth
 
 
@@ -105,9 +105,9 @@ colData(cov_rse) = cbind(colData(cov_rse), mds)
 ##### get qSVs
 ###################
 
-# modJoint = model.matrix(~PrimaryDx + AgeDeath + Sex + mitoRate + rRNA_rate + 
+# modJoint = model.matrix(~PrimaryDx + AgeDeath + Sex + mitoRate + rRNA_rate +
 # 				totalAssignedGene + RIN, data = colData(rse_gene))
-# 
+#
 ### replaced from run_wgcna_combined
 
 modJoint = model.matrix(~PrimaryDx*BrainRegion + AgeDeath + Sex + snpPC1 + snpPC2 + snpPC3 +
@@ -130,7 +130,7 @@ k = num.sv(degExprs, modJoint) # 23
 print(k) #24
 qSV_mat = prcomp(t(degExprs))$x[,1:k]
 varExplQsva = jaffelab::getPcaVars(prcomp(t(degExprs)))
-varExplQsva[1:k] 
+varExplQsva[1:k]
 
 #  [1] 67.600  4.820  2.990  2.000  1.420  1.230  1.130  0.805  0.775  0.671
 # [11]  0.587  0.528  0.482  0.435  0.351  0.336  0.327  0.296  0.249  0.235
@@ -167,10 +167,10 @@ mod_Amyg = cbind(modSep[Amyg_Index,], qSV_mat[Amyg_Index, ])
 #################
 
 ##### sACC ######
-dge_sACC = DGEList(counts = assays(rse_gene[,sACC_Index])$counts, 
+dge_sACC = DGEList(counts = assays(rse_gene[,sACC_Index])$counts,
 	genes = rowData(rse_gene))
 dge_sACC = calcNormFactors(dge_sACC)
-### borrows information for 
+### borrows information for
 vGene_sACC = voom(dge_sACC,mod_sACC, plot=FALSE)
 
 ### limma commads
@@ -182,7 +182,7 @@ outGene_sACC = topTable(eBGene_sACC,coef=2:3,
 	p.value = 1,number=nrow(rse_gene))
 #### reorderoing based on genes in rse_gene
 outGene_sACC = outGene_sACC[rownames(rse_gene),]
-	
+
 ## significance levels EXTRACT INDIVIDUAL COMPARISON P-VALUES THAT ARE NOT IN TOP TABLE
 pvalMat = as.matrix(eBGene_sACC$p.value)[,2:3]
 
@@ -191,7 +191,7 @@ pvalMat = as.matrix(eBGene_sACC$p.value)[,2:3]
 head(pvalMat[order(pvalMat[,"PrimaryDxControl"]), ])
 
 qvalMat = pvalMat
-qvalMat[,1:2] = p.adjust(pvalMat[,1:2],method="fdr") 
+qvalMat[,1:2] = p.adjust(pvalMat[,1:2],method="fdr")
 colnames(pvalMat) = paste0("P_",colnames(pvalMat))
 colnames(qvalMat) = paste0("q_",colnames(qvalMat))
 
@@ -214,7 +214,7 @@ sum(outGene_sACC$q_PrimaryDxBipolar < 0.01)
 
 
 ##### Amygdala ######
-dge_Amyg = DGEList(counts = assays(rse_gene[,Amyg_Index])$counts, 
+dge_Amyg = DGEList(counts = assays(rse_gene[,Amyg_Index])$counts,
 	genes = rowData(rse_gene))
 dge_Amyg = calcNormFactors(dge_Amyg)
 vGene_Amyg = voom(dge_Amyg,mod_Amyg, plot=FALSE)
@@ -228,7 +228,7 @@ outGene_Amyg = outGene_Amyg[rownames(rse_gene),]
 ## significance levels
 pvalMat = as.matrix(eBGene_Amyg$p.value)[,2:3]
 qvalMat = pvalMat
-qvalMat[,1:2] = p.adjust(pvalMat[,1:2],method="fdr") 
+qvalMat[,1:2] = p.adjust(pvalMat[,1:2],method="fdr")
 colnames(pvalMat) = paste0("P_",colnames(pvalMat))
 colnames(qvalMat) = paste0("q_",colnames(qvalMat))
 
@@ -255,7 +255,7 @@ save(outGene_Amyg, outGene_sACC, file="qSVA_MDD_gene_DEresults.rda")
 #################
 
 ##### sACC ######
-dge_sACC = DGEList(counts = assays(rse_exon[,sACC_Index])$counts, 
+dge_sACC = DGEList(counts = assays(rse_exon[,sACC_Index])$counts,
 	genes = rowData(rse_exon))
 dge_sACC = calcNormFactors(dge_sACC)
 vGene_sACC = voom(dge_sACC,mod_sACC, plot=FALSE)
@@ -265,11 +265,11 @@ eBGene_sACC = eBayes(fitGene_sACC)
 outExon_sACC = topTable(eBGene_sACC,coef=2:3,
 	p.value = 1,number=nrow(rse_exon))
 outExon_sACC = outExon_sACC[rownames(rse_exon),]
-	
+
 ## significance levels
 pvalMat = as.matrix(eBGene_sACC$p.value)[,2:3]
 qvalMat = pvalMat
-qvalMat[,1:2] = p.adjust(pvalMat[,1:2],method="fdr") 
+qvalMat[,1:2] = p.adjust(pvalMat[,1:2],method="fdr")
 colnames(pvalMat) = paste0("P_",colnames(pvalMat))
 colnames(qvalMat) = paste0("q_",colnames(qvalMat))
 
@@ -294,7 +294,7 @@ length(unique(outExon_sACC[which(outExon_sACC$q_PrimaryDxBipolar < 0.05),]$ensem
 
 
 ##### Amygdala ######
-dge_Amyg = DGEList(counts = assays(rse_exon[,Amyg_Index])$counts, 
+dge_Amyg = DGEList(counts = assays(rse_exon[,Amyg_Index])$counts,
 	genes = rowData(rse_exon))
 dge_Amyg = calcNormFactors(dge_Amyg)
 vGene_Amyg = voom(dge_Amyg,mod_Amyg, plot=FALSE)
@@ -308,7 +308,7 @@ outExon_Amyg = outExon_Amyg[rownames(rse_exon),]
 ## significance levels
 pvalMat = as.matrix(eBGene_Amyg$p.value)[,2:3]
 qvalMat = pvalMat
-qvalMat[,1:2] = p.adjust(pvalMat[,1:2],method="fdr") 
+qvalMat[,1:2] = p.adjust(pvalMat[,1:2],method="fdr")
 colnames(pvalMat) = paste0("P_",colnames(pvalMat))
 colnames(qvalMat) = paste0("q_",colnames(qvalMat))
 
@@ -341,7 +341,7 @@ save(outExon_Amyg, outExon_sACC, file="qSVA_MDD_exon_DEresults.rda")
 #################
 
 ##### sACC ######
-dge_sACC = DGEList(counts = assays(rse_jxn[,sACC_Index])$counts, 
+dge_sACC = DGEList(counts = assays(rse_jxn[,sACC_Index])$counts,
 	genes = rowData(rse_jxn))
 dge_sACC = calcNormFactors(dge_sACC)
 vGene_sACC = voom(dge_sACC,mod_sACC, plot=FALSE)
@@ -351,11 +351,11 @@ eBGene_sACC = eBayes(fitGene_sACC)
 outJxn_sACC = topTable(eBGene_sACC,coef=2:3,
 	p.value = 1,number=nrow(rse_jxn))
 outJxn_sACC = outJxn_sACC[rownames(rse_jxn),]
-	
+
 ## significance levels
 pvalMat = as.matrix(eBGene_sACC$p.value)[,2:3]
 qvalMat = pvalMat
-qvalMat[,1:2] = p.adjust(pvalMat[,1:2],method="fdr") 
+qvalMat[,1:2] = p.adjust(pvalMat[,1:2],method="fdr")
 colnames(pvalMat) = paste0("P_",colnames(pvalMat))
 colnames(qvalMat) = paste0("q_",colnames(qvalMat))
 
@@ -365,7 +365,7 @@ sum(outJxn_sACC$q_PrimaryDxControl < 0.05)
 
 
 ##### Amygdala ######
-dge_Amyg = DGEList(counts = assays(rse_jxn[,Amyg_Index])$counts, 
+dge_Amyg = DGEList(counts = assays(rse_jxn[,Amyg_Index])$counts,
 	genes = rowData(rse_jxn))
 dge_Amyg = calcNormFactors(dge_Amyg)
 vGene_Amyg = voom(dge_Amyg,mod_Amyg, plot=FALSE)
@@ -379,7 +379,7 @@ outJxn_Amyg = outJxn_Amyg[rownames(rse_jxn),]
 ## significance levels
 pvalMat = as.matrix(eBGene_Amyg$p.value)[,2:3]
 qvalMat = pvalMat
-qvalMat[,1:2] = p.adjust(pvalMat[,1:2],method="fdr") 
+qvalMat[,1:2] = p.adjust(pvalMat[,1:2],method="fdr")
 colnames(pvalMat) = paste0("P_",colnames(pvalMat))
 colnames(qvalMat) = paste0("q_",colnames(qvalMat))
 
@@ -388,7 +388,7 @@ sum(outJxn_Amyg$q_PrimaryDxControl < 0.05)
 # 529
 
 
-## remove novel  
+## remove novel
 outJxn_sACC_anno = outJxn_sACC[which(outJxn_sACC$Class != "Novel"),]
 outJxn_Amyg_anno = outJxn_Amyg[which(outJxn_Amyg$Class != "Novel"),]
 
@@ -435,7 +435,7 @@ save(outJxn_Amyg,outJxn_Amyg_anno, outJxn_sACC,outJxn_sACC_anno, file="qSVA_MDD_
 
 #################
 ### Tx ########
-## we do not use voom  which  required count data 
+## we do not use voom  which  required count data
 #################
 
 txExprs = log2(assays(rse_tx)$tpm + 1)
@@ -446,11 +446,11 @@ eBGene_sACC = eBayes(fitGene_sACC)
 outTx_sACC = topTable(eBGene_sACC,coef=2:3,
 	p.value = 1,number=nrow(rse_tx))
 outTx_sACC = outTx_sACC[rownames(rse_tx),]
-	
+
 ## significance levels
 pvalMat = as.matrix(eBGene_sACC$p.value)[,2:3]
 qvalMat = pvalMat
-qvalMat[,1:2] = p.adjust(pvalMat[,1:2],method="fdr") 
+qvalMat[,1:2] = p.adjust(pvalMat[,1:2],method="fdr")
 colnames(pvalMat) = paste0("P_",colnames(pvalMat))
 colnames(qvalMat) = paste0("q_",colnames(qvalMat))
 
@@ -485,7 +485,7 @@ outTx_Amyg = outTx_Amyg[rownames(rse_tx),]
 ## significance levels
 pvalMat = as.matrix(eBGene_Amyg$p.value)[,2:3]
 qvalMat = pvalMat
-qvalMat[,1:2] = p.adjust(pvalMat[,1:2],method="fdr") 
+qvalMat[,1:2] = p.adjust(pvalMat[,1:2],method="fdr")
 colnames(pvalMat) = paste0("P_",colnames(pvalMat))
 colnames(qvalMat) = paste0("q_",colnames(qvalMat))
 
@@ -511,14 +511,6 @@ length(unique(outTx_Amyg[which(outTx_Amyg$q_PrimaryDxBipolar < 0.05),]$gene_id))
 # [1] 2135
 
 save(outTx_Amyg, outTx_sACC, file="qSVA_MDD_tx_DEresults.rda")
-
-
-
-
-
-
-
-
 
 
 

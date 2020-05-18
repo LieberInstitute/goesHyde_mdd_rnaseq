@@ -1,10 +1,9 @@
 #!/bin/bash
 #$ -cwd
-#$ -l mem_free=80G,h_vmem=80G,h_fsize=100G
-#$ -N qSV_model_DE_analysis
-#$ -o logs/qSV_model_DE_analysis.txt
-#$ -e logs/qSV_model_DE_analysis.txt
-#$ -hold_jid get_expression_cutoffs
+#$ -l bluejay,mem_free=50G,h_vmem=50G,h_fsize=100G
+#$ -N get_degredation_regions
+#$ -o logs/get_degredation_regions.txt
+#$ -e logs/get_degredation_regions.txt
 #$ -m e
 
 echo "**** Job starts ****"
@@ -24,7 +23,7 @@ module load conda_R
 module list
 
 ## Edit with your job command
-Rscript qSV_model_DE_analysis.R
+get_degredation_regions.R
 
 echo "**** Job ends ****"
 date

@@ -5,6 +5,7 @@
 #$ -N run_wgcna_combined
 #$ -o logs/run_wgcna_combined.txt
 #$ -e logs/run_wgcna_combined.txt
+#$ -hold_jid get_expression_cuttoff,merge_MDDseq_BiPseq_degredation
 #$ -m e
 
 echo "**** Job starts ****"

@@ -1,10 +1,10 @@
 #!/bin/bash
 #$ -cwd
-#$ -l mem_free=80G,h_vmem=80G,h_fsize=100G
-#$ -N qSV_model_DE_analysis
-#$ -o logs/qSV_model_DE_analysis.txt
-#$ -e logs/qSV_model_DE_analysis.txt
-#$ -hold_jid get_expression_cutoffs
+#$ -l bluejay,mem_free=50G,h_vmem=50G,h_fsize=100G
+#$ -N merge_MDDseq_BiPseq_degradation
+#$ -o logs/merge_MDDseq_BiPseq_degradation.txt
+#$ -e logs/merge_MDDseq_BiPseq_degradation.txt
+#$ -hold_jid clean_data,get_expression_cuttoff,get_degredation_regions
 #$ -m e
 
 echo "**** Job starts ****"
@@ -24,7 +24,7 @@ module load conda_R
 module list
 
 ## Edit with your job command
-Rscript qSV_model_DE_analysis.R
+merge_MDDseq_BiPseq_degradation.R
 
 echo "**** Job ends ****"
 date
