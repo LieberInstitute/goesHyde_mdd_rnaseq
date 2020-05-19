@@ -16,7 +16,7 @@ load(here("exprs_cutoff", "rse_exon.Rdata"), verbose = TRUE)
 load(here("exprs_cutoff", "rse_jxn.Rdata"), verbose = TRUE)
 load(here("exprs_cutoff", "rse_tx.Rdata"), verbose = TRUE)
 
-regInd <- which(colData(rse_gene)$BrainRegion == "Amygdala")
+regInd <- which(colData(rse_gene)$BrainRegion == "sACC")
 rse_gene <- rse_gene[, regInd]
 rse_exon <- rse_exon[, regInd]
 rse_jxn <- rse_jxn[, regInd]
