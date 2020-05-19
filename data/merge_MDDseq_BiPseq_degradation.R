@@ -73,6 +73,7 @@ testthat::expect_equivalent(colData(rse_gene), colData(rse_both))
 cov_rse <- rse_both
 save(cov_rse, file = 'degradation_rse_MDDseq_BiPSeq_BothRegions.Rdata')
 
+
 ## Reproducibility information
 print('Reproducibility information:')
 Sys.time()
@@ -80,7 +81,7 @@ proc.time()
 options(width = 120)
 session_info()
 
-# sgejobs::job_single('merge_MDDseq_BiPseq_degradation', create_shell = TRUE, queue= 'bluejay', memory = '50G', command = "merge_MDDseq_BiPseq_degradation.R")
+# sgejobs::job_single('merge_MDDseq_BiPseq_degradation', create_shell = TRUE, queue= 'bluejay', memory = '50G', command = "Rscript merge_MDDseq_BiPseq_degradation.R")
 
 # ─ Session info ───────────────────────────────────────────────────────────────────────────────────────────────────────
 #  setting  value

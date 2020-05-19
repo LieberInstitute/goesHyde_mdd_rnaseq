@@ -4,7 +4,7 @@
 #$ -N merge_MDDseq_BiPseq_degradation
 #$ -o logs/merge_MDDseq_BiPseq_degradation.txt
 #$ -e logs/merge_MDDseq_BiPseq_degradation.txt
-#$ -hold_jid clean_data,get_expression_cuttoff,get_degredation_regions
+#$ -hold_jid clean_data,get_expression_cuttoff,get_degradation_regions
 #$ -m e
 
 echo "**** Job starts ****"
@@ -24,7 +24,7 @@ module load conda_R
 module list
 
 ## Edit with your job command
-merge_MDDseq_BiPseq_degradation.R
+Rscript merge_MDDseq_BiPseq_degradation.R
 
 echo "**** Job ends ****"
 date

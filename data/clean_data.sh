@@ -23,7 +23,7 @@ module load conda_R
 module list
 
 ## Edit with your job command
-clean_data.R
+Rscript clean_data.R
 
 echo "**** Job ends ****"
 date

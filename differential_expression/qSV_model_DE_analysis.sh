@@ -4,7 +4,7 @@
 #$ -N qSV_model_DE_analysis
 #$ -o logs/qSV_model_DE_analysis.txt
 #$ -e logs/qSV_model_DE_analysis.txt
-#$ -hold_jid get_expression_cutoffs
+#$ -hold_jid get_expression_cutoffs,merge_MDDseqBiPseq_degradation
 #$ -m e
 
 echo "**** Job starts ****"

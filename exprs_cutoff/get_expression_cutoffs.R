@@ -79,7 +79,7 @@ save(rse_tx, file = 'rse_tx.Rdata')
 
 
 
-# sgejobs::job_single('get_expression_cutoffs', create_shell = TRUE, queue= 'bluejay', memory = '50G', command = "get_expression_cutoffs.R")
+# sgejobs::job_single('get_expression_cutoffs', create_shell = TRUE, queue= 'bluejay', memory = '50G', command = "Rscript get_expression_cutoffs.R")
 
 
 

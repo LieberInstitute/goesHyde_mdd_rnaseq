@@ -29,7 +29,7 @@ rm logs/qSV_model_DE_analysis.txt
 qsub qSV_model_DE_analysis.sh
 
 ## Run wgna scripts
-cd ${MAINDIR}/wgna
+cd ${MAINDIR}/wgcna
 rm logs/run_wgcna_combined.txt
 qsub run_wgcna_combined.sh
 

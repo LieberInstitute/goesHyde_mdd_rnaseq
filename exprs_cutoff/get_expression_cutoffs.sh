@@ -24,7 +24,7 @@ module load conda_R
 module list
 
 ## Edit with your job command
-get_expression_cutoffs.R
+Rscript get_expression_cutoffs.R
 
 echo "**** Job ends ****"
 date

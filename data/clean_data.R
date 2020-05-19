@@ -1,22 +1,4 @@
-if (!requireNamespace("BiocManager", quietly = TRUE))
-
-    install.packages("BiocManager")
-
-
-BiocManager::install("SummarizedExperiment")
-
-BiocManager::install("rtracklayer")
-
-BiocManager::install("SingleCellExperiment")
-
-
-## Optional:
-
-BiocManager::install("iSEE")
-
-BiocManager::install("recount")
-
-BiocManager::install("spatialLIBD")#####################################
+#####################################
 
 library(jaffelab)
 library(SummarizedExperiment)
@@ -210,5 +192,5 @@ rse_tx = rse_tx[,rownames(colData(rse_gene))]
 # save(rse_tx, file="rse_tx_GoesZandi_n1093.rda")
 
 
-# sgejobs::job_single('clean_data', create_shell = TRUE, queue= 'bluejay', memory = '50G', command = "clean_data.R")
+# sgejobs::job_single('clean_data', create_shell = TRUE, queue= 'bluejay', memory = '50G', command = "Rscript clean_data.R")
 
