@@ -5,18 +5,31 @@ library(SummarizedExperiment)
 library(jaffelab)
 library(MatrixEQTL)
 library(sva)
+library(sessioninfo)
+library(here)
 
 ## load
-load("/dcl01/lieber/ajaffe/lab/zandiHyde_bipolar_rnaseq/eqtl_exprs_cutoffs/eQTL_expressed_rse_amygdala.rda")
+# load("/dcl01/lieber/ajaffe/lab/zandiHyde_bipolar_rnaseq/eqtl_exprs_cutoffs/eQTL_expressed_rse_amygdala.rda")
 
-### make "Other" dx bipolar
+load(here("exprs_cutoff", "rse_gene.Rdata"), verbose = TRUE)
+load(here("exprs_cutoff", "rse_exon.Rdata"), verbose = TRUE)
+load(here("exprs_cutoff", "rse_jxn.Rdata"), verbose = TRUE)
+load(here("exprs_cutoff", "rse_tx.Rdata"), verbose = TRUE)
+
+## filter brain region
+regInd <- which(colData(rse_gene)$BrainRegion == "Amygdala")
+rse_gene <- rse_gene[, regInd]
+rse_exon <- rse_exon[, regInd]
+rse_jxn <- rse_jxn[, regInd]
+rse_tx <- rse_tx[, regInd]
+
 pd = colData(rse_gene)
-pd$PrimaryDx[pd$PrimaryDx=="Other"] = "Bipolar"
+
 
 ## load SNP data
-load("rdas/overlappingSNPs.rda")  # snpMapKeep
-load("../../genotype_data/zandiHyde_bipolar_Genotypes_n511.rda")
-snpMap$pos_hg19 = paste0(snpMap$CHR, ":", snpMap$POS)
+load(here("exprs_cutoff", "rdas", "overlappingSNPs.rda"), verbose = TRUE) # snpMapKeep
+load(here("genotype_data", "goesHyde_bipolarMdd_Genotypes_n593.rda"), verbose = TRUE)
+snpMap$pos_hg19 <- paste0(snpMap$CHR, ":", snpMap$POS)
 
 snpInd = which(rownames(snpMap) %in% rownames(snpMapKeep) & !is.na(snpMap$pos_hg38))
 snpMap = snpMap[snpInd,]
@@ -30,14 +43,14 @@ mds = mds[pd$BrNum,]
 snp = snp[,pd$BrNum]
 rownames(mds) = colnames(snp) = pd$RNum
 
-snpMap$maf = rowSums(snp, na.rm=TRUE)/(2*rowSums(!is.na(snp))) 
+snpMap$maf = rowSums(snp, na.rm=TRUE)/(2*rowSums(!is.na(snp)))
 
 
 ######################
 # statistical model ##
 ######################
 pd$PrimaryDx = factor(pd$PrimaryDx,
-	levels = c("Control", "Bipolar"))
+	levels = c("Control", "Bipolar", "MDD"))
 
 mod = model.matrix(~PrimaryDx + Sex + as.matrix(mds[,1:5]), data = pd)
 colnames(mod)[4:8] = colnames(mds)[1:5]
@@ -79,7 +92,7 @@ colnames(snpspos) = c("name","chr","pos")
 # kTx = num.sv(log2(txTpm+1), mod, vfilter=50000)
 # txPCs = pcaTx$x[,1:kTx]
 
-# save(genePCs, exonPCs, jxnPCs, txPCs, 
+# save(genePCs, exonPCs, jxnPCs, txPCs,
 	# file="rdas/pcs_4features_amyg.rda")
 load("rdas/pcs_4features_amyg.rda")
 
@@ -98,18 +111,18 @@ posGene = as.data.frame(rowRanges(rse_gene))[,1:3]
 posGene$name = rownames(posGene)
 posGene = posGene[,c(4,1:3)]
 
-##### exon level 
+##### exon level
 posExon = as.data.frame(rowRanges(rse_exon))[,1:3]
 posExon$name = rownames(posExon)
 posExon = posExon[,c(4,1:3)]
 
-##### junction level 
+##### junction level
 posJxn = as.data.frame(rowRanges(rse_jxn))[,1:3]
 posJxn$name = rownames(posJxn)
 posJxn = posJxn[,c(4,1:3)]
 names(posJxn)[2:4] = c("Chr", "Start","End")
 
-##### transcript level 
+##### transcript level
 posTx = as.data.frame(rowRanges(rse_tx))[,1:3]
 posTx$name = rownames(posTx)
 posTx = posTx[,c(4,1:3)]
@@ -134,42 +147,42 @@ txSlice$ResliceCombined(sliceSize = 5000)
 
 print("Starting eQTLs")
 
-meGene = Matrix_eQTL_main(snps=theSnps, gene = geneSlice, 
+meGene = Matrix_eQTL_main(snps=theSnps, gene = geneSlice,
 	cvrt = covsGene, output_file_name.cis =  ".ctxt" ,
 	pvOutputThreshold.cis = .1,  pvOutputThreshold=0,
-	snpspos = snpspos, genepos = posGene, 
+	snpspos = snpspos, genepos = posGene,
 	useModel = modelLINEAR,	cisDist=5e5,
-	pvalue.hist = 100,min.pv.by.genesnp = TRUE)	
-save(meGene, file="matrixEqtl_output_amyg_genomewide_gene.rda")	
+	pvalue.hist = 100,min.pv.by.genesnp = TRUE)
+save(meGene, file="matrixEqtl_output_amyg_genomewide_gene.rda")
 
-meExon = Matrix_eQTL_main(snps=theSnps, gene = exonSlice, 
+meExon = Matrix_eQTL_main(snps=theSnps, gene = exonSlice,
 	cvrt = covsExon, output_file_name.cis =  ".ctxt" ,
 	pvOutputThreshold.cis = .1,  pvOutputThreshold=0,
-	snpspos = snpspos, genepos = posExon, 
+	snpspos = snpspos, genepos = posExon,
 	useModel = modelLINEAR,	cisDist=5e5,
-	pvalue.hist = 100,min.pv.by.genesnp = TRUE)	
+	pvalue.hist = 100,min.pv.by.genesnp = TRUE)
 save(meExon, file="matrixEqtl_output_amyg_genomewide_exon.rda")
 
-meJxn = Matrix_eQTL_main(snps=theSnps, gene = jxnSlice, 
+meJxn = Matrix_eQTL_main(snps=theSnps, gene = jxnSlice,
 	cvrt = covsJxn, output_file_name.cis =  ".ctxt" ,
 	pvOutputThreshold.cis = .1,  pvOutputThreshold=0,
-	snpspos = snpspos, genepos = posJxn, 
+	snpspos = snpspos, genepos = posJxn,
 	useModel = modelLINEAR,	cisDist=5e5,
-	pvalue.hist = 100,min.pv.by.genesnp = TRUE)	
-save(meJxn, file="matrixEqtl_output_amyg_genomewide_jxn.rda")	
+	pvalue.hist = 100,min.pv.by.genesnp = TRUE)
+save(meJxn, file="matrixEqtl_output_amyg_genomewide_jxn.rda")
 
-meTx = Matrix_eQTL_main(snps=theSnps, gene = txSlice, 
+meTx = Matrix_eQTL_main(snps=theSnps, gene = txSlice,
 	cvrt = covsTx, output_file_name.cis =  ".ctxt" ,
 	pvOutputThreshold.cis = .1,  pvOutputThreshold=0,
-	snpspos = snpspos, genepos = posTx, 
+	snpspos = snpspos, genepos = posTx,
 	useModel = modelLINEAR,	cisDist=5e5,
-	pvalue.hist = 100,min.pv.by.genesnp = TRUE)	
-save(meTx, file="matrixEqtl_output_amyg_genomewide_tx.rda")	
+	pvalue.hist = 100,min.pv.by.genesnp = TRUE)
+save(meTx, file="matrixEqtl_output_amyg_genomewide_tx.rda")
 
 # save(meGene, meExon, meJxn, meTx,
 	# file="matrixEqtl_output_amyg_genomewide_4features.rda")
 
-	
+
 ######################
 ###### annotate ######
 
@@ -225,7 +238,7 @@ txEqtl = DataFrame(txEqtl)
 
 # merge
 allEqtl = rbind(geneEqtl, exonEqtl, jxnEqtl, txEqtl)
-allEqtl$gencodeTx = CharacterList(c(as.list(rowRanges(rse_gene)$gencodeTx[match(geneEqtl$gene, 
+allEqtl$gencodeTx = CharacterList(c(as.list(rowRanges(rse_gene)$gencodeTx[match(geneEqtl$gene,
 	rownames(rse_gene))]),
 	as.list(rowRanges(rse_exon)$gencodeTx[match(exonEqtl$gene, rownames(rse_exon))]),
 	as.list(rowRanges(rse_jxn)$gencodeTx[match(jxnEqtl$gene, rownames(rse_jxn))]),
@@ -238,7 +251,12 @@ save(allEqtlFDR01, file="mergedEqtl_output_amyg_genomewide_4features_FDR01.rda",
 
 
 
-
+## Reproducibility information
+print("Reproducibility information:")
+Sys.time()
+proc.time()
+options(width = 120)
+session_info()
 
 
 
