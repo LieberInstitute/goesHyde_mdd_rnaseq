@@ -27,11 +27,12 @@ pd = colData(rse_gene)
 
 
 ## load SNP data
-load(here("exprs_cutoff", "rdas", "overlappingSNPs.rda"), verbose = TRUE) # snpMapKeep
-load(here("genotype_data", "goesHyde_bipolarMdd_Genotypes_n593.rda"), verbose = TRUE)
+# load(here("exprs_cutoff", "rdas", "overlappingSNPs.rda"), verbose = TRUE) # snpMapKeep
+load(here("genotype_data", "goesHyde_bipolarMdd_Genotypes_n593.rda"), verbose = TRUE) # need ~50G memory to load
 snpMap$pos_hg19 <- paste0(snpMap$CHR, ":", snpMap$POS)
 
-snpInd = which(rownames(snpMap) %in% rownames(snpMapKeep) & !is.na(snpMap$pos_hg38))
+# snpInd = which(rownames(snpMap) %in% rownames(snpMapKeep) & !is.na(snpMap$pos_hg38))
+snpInd = which(!is.na(snpMap$pos_hg38))
 snpMap = snpMap[snpInd,]
 snp = snp[snpInd,]
 
@@ -40,7 +41,7 @@ snp = snp[snpInd,]
 # make mds and snp dimensions equal to N
 # (repeat rows or columns for BrNum replicates)
 mds = mds[pd$BrNum,]
-snp = snp[,pd$BrNum]
+snp = snp[,pd$BrNum] # snp is missing BR1843
 rownames(mds) = colnames(snp) = pd$RNum
 
 snpMap$maf = rowSums(snp, na.rm=TRUE)/(2*rowSums(!is.na(snp)))
@@ -67,33 +68,37 @@ snpspos = snpMap[,c("SNP","chr_hg38","pos_hg38")]
 colnames(snpspos) = c("name","chr","pos")
 
 
+#####################
+## calculate rpkm ##
+####################
+
+geneRpkm = recount::getRPKM(rse_gene, 'Length')
+exonRpkm = recount::getRPKM(rse_exon, 'Length')
+rowData(rse_jxn)$Length = 100
+jxnRp10m = recount::getRPKM(rse_jxn, "Length")
+txTpm = recount::getTPM(res_tx, )
+
 #######################
 ####### do PCA ########
 #######################
 
-# geneRpkm = assays(rse_gene)$rpkm
-# exonRpkm = assays(rse_exon)$rpkm
-# jxnRp10m = assays(rse_jxn)$rp10m
-# txTpm = assays(rse_tx)$tpm
+pcaGene = prcomp(t(log2(geneRpkm+1)))
+kGene = num.sv(log2(geneRpkm+1), mod)
+genePCs = pcaGene$x[,1:kGene]
 
-# pcaGene = prcomp(t(log2(geneRpkm+1)))
-# kGene = num.sv(log2(geneRpkm+1), mod)
-# genePCs = pcaGene$x[,1:kGene]
+pcaExon = prcomp(t(log2(exonRpkm+1)))
+kExon = num.sv(log2(exonRpkm+1), mod, vfilter=50000)
+exonPCs = pcaExon$x[,1:kExon]
 
-# pcaExon = prcomp(t(log2(exonRpkm+1)))
-# kExon = num.sv(log2(exonRpkm+1), mod, vfilter=50000)
-# exonPCs = pcaExon$x[,1:kExon]
+pcaJxn = prcomp(t(log2(jxnRp10m+1)))
+kJxn = num.sv(log2(jxnRp10m+1), mod, vfilter=50000)
+jxnPCs = pcaJxn$x[,1:kJxn]
 
-# pcaJxn = prcomp(t(log2(jxnRp10m+1)))
-# kJxn = num.sv(log2(jxnRp10m+1), mod, vfilter=50000)
-# jxnPCs = pcaJxn$x[,1:kJxn]
+pcaTx = prcomp(t(log2(txTpm+1)))
+kTx = num.sv(log2(txTpm+1), mod, vfilter=50000)
+txPCs = pcaTx$x[,1:kTx]
 
-# pcaTx = prcomp(t(log2(txTpm+1)))
-# kTx = num.sv(log2(txTpm+1), mod, vfilter=50000)
-# txPCs = pcaTx$x[,1:kTx]
-
-# save(genePCs, exonPCs, jxnPCs, txPCs,
-	# file="rdas/pcs_4features_amyg.rda")
+save(genePCs, exonPCs, jxnPCs, txPCs, file="rdas/pcs_4features_amyg.rda")
 load("rdas/pcs_4features_amyg.rda")
 
 covsGene = SlicedData$new(t(cbind(mod[,-1],genePCs)))
