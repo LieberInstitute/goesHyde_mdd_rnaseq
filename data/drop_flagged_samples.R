@@ -1,5 +1,6 @@
 library("sessioninfo")
 library("SummarizedExperiment")
+library("jaffelab")
 
 ## style this script
 #styler::style_file("drop_flagged_samples.R", transformers = styler::tidyverse_style(indent_by = 4))
@@ -88,12 +89,12 @@ tapply(pd$ERCCsumLogErr, pd$Experiment, summary)
 # $GoesMDD
 #     Min.  1st Qu.   Median     Mean  3rd Qu.     Max.
 # -64.9605 -18.6245 -14.9598 -15.8102 -11.8254  -0.4339
-# 
+#
 # $ZandiBPD
 #    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
 # -36.992  -4.586   3.903  10.526  29.208  47.363
 
-## add ERCC 
+## add ERCC
 colData(rse_gene) <- pd
 colData(rse_exon) <- pd
 colData(rse_jxn) <- pd
@@ -109,6 +110,43 @@ dim(rse_gene)
 rse_exon <- rse_exon[, keep_samples]
 rse_jxn <- rse_jxn[, keep_samples]
 rse_tx <- rse_tx[, keep_samples]
+
+## add ancestry
+load("../genotype_data/goesHyde_bipolarMdd_Genotypes_n588_mds.rda", verbose = TRUE)
+class(mds)
+dim(mds)
+corner(mds)
+table(rse_gene$BrNum %in% rownames(mds))
+
+# FALSE  TRUE
+# 12   836
+## 6 individual, 12 brain regions absent in mds file
+
+table(rse_gene$BrNum %in% rownames(mds), rse_gene$BrainRegion)
+# Amygdala sACC
+# FALSE        6    6
+# TRUE       415  421
+
+## keep samples with genotypes
+rse_gene <- rse_gene[, rse_gene$BrNum %in% rownames(mds)]
+cov_rse <- cov_rse[, cov_rse$BrNum %in% rownames(mds)]
+
+dim(rse_gene)
+# [1] 25212   836
+addmargins(table(rse_gene$Dx, rse_gene$BrainRegion))
+# Amygdala sACC Sum
+# MDD          234  227 461
+# Control      181  194 375
+# Sum          415  421 836
+
+#### reorders according to rse_gene$BrNum
+mds = mds[rse_gene$BrNum,1:5]
+dim(mds)
+# [1] 836   5
+
+#colnames(mds) = paste0("snpPC", 1:5)
+colData(rse_gene) = cbind(colData(rse_gene), mds)
+
 
 ## save data
 dir.create("without_flagged", showWarnings = FALSE)
