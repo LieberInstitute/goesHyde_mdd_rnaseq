@@ -21,7 +21,7 @@ rm(snp, mds)
 
 ind <- which(snpMap$SNP %in% snpMap_amyg$SNP)
 snpMap <- snpMap[ind, ]
-snpMap_amyg <- snpMap_amyg[rownames(snpMap2), ]
+snpMap_amyg <- snpMap_amyg[rownames(snpMap), ]
 
 # ## check
 stopifnot(identical(snpMap$POS, snpMap_amyg$POS))
