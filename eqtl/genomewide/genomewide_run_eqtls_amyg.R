@@ -9,8 +9,6 @@ library(sessioninfo)
 library(here)
 
 ## load
-# load("/dcl01/lieber/ajaffe/lab/zandiHyde_bipolar_rnaseq/eqtl_exprs_cutoffs/eQTL_expressed_rse_amygdala.rda")
-
 load(here("exprs_cutoff", "rse_gene.Rdata"), verbose = TRUE)
 load(here("exprs_cutoff", "rse_exon.Rdata"), verbose = TRUE)
 load(here("exprs_cutoff", "rse_jxn.Rdata"), verbose = TRUE)
@@ -40,10 +38,13 @@ snp = snp[snpInd,]
 # filter brain region
 # make mds and snp dimensions equal to N
 # (repeat rows or columns for BrNum replicates)
+
+table(pd$BrNum %in% colnames(snp))
+
 mds = mds[pd$BrNum,]
 snp = snp[,pd$BrNum] # snp is missing BR1843
 rownames(mds) = colnames(snp) = pd$RNum
-
+rownames(mds)= pd$RNum
 snpMap$maf = rowSums(snp, na.rm=TRUE)/(2*rowSums(!is.na(snp)))
 
 
@@ -98,6 +99,7 @@ pcaTx = prcomp(t(log2(txTpm+1)))
 kTx = num.sv(log2(txTpm+1), mod, vfilter=50000)
 txPCs = pcaTx$x[,1:kTx]
 
+# is this how we want to save this?
 save(genePCs, exonPCs, jxnPCs, txPCs, file="rdas/pcs_4features_amyg.rda")
 load("rdas/pcs_4features_amyg.rda")
 
@@ -151,7 +153,7 @@ txSlice$ResliceCombined(sliceSize = 5000)
 ##########################
 
 print("Starting eQTLs")
-
+#takes a long time
 meGene = Matrix_eQTL_main(snps=theSnps, gene = geneSlice,
 	cvrt = covsGene, output_file_name.cis =  ".ctxt" ,
 	pvOutputThreshold.cis = .1,  pvOutputThreshold=0,

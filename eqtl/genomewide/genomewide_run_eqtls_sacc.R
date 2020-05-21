@@ -9,21 +9,22 @@ library(RColorBrewer)
 library(sessioninfo)
 library(here)
 
-
 ## load
 load(here("exprs_cutoff", "rse_gene.Rdata"), verbose = TRUE)
 load(here("exprs_cutoff", "rse_exon.Rdata"), verbose = TRUE)
 load(here("exprs_cutoff", "rse_jxn.Rdata"), verbose = TRUE)
 load(here("exprs_cutoff", "rse_tx.Rdata"), verbose = TRUE)
 
+## filter brain region
 regInd <- which(colData(rse_gene)$BrainRegion == "sACC")
 rse_gene <- rse_gene[, regInd]
 rse_exon <- rse_exon[, regInd]
 rse_jxn <- rse_jxn[, regInd]
 rse_tx <- rse_tx[, regInd]
 
-### make "Other" dx bipolar
 pd <- colData(rse_gene)
+
+### make "Other" dx bipolar
 # pd$PrimaryDx[pd$PrimaryDx=="Other"] = "Bipolar"
 
 ## load SNP data
