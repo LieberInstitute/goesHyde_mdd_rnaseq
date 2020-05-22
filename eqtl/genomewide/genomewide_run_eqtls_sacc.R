@@ -40,6 +40,14 @@ snp <- snp[snpInd, ]
 # filter brain region
 # make mds and snp dimensions equal to N
 # (repeat rows or columns for BrNum replicates)
+#
+table(pd$BrNum %in% colnames(snp))
+table(pd$BrNum %in% rownames(mds))
+# pd$BrNum [!pd$BrNum %in% rownames(mds)]
+# rownames(mds)[grep("Br18", rownames(mds))]
+
+has_genotype <- pd$BrNum %in% rownames(mds) # snp and mds are m
+
 mds <- mds[pd$BrNum, ]
 snp <- snp[, pd$BrNum]
 rownames(mds) <- colnames(snp) <- pd$RNum
@@ -48,8 +56,32 @@ snpMap$maf <- rowSums(snp, na.rm = TRUE) / (2 * rowSums(!is.na(snp)))
 
 ## missing code https://github.com/LieberInstitute/zandiHyde_bipolar_rnaseq/blob/65a0ef6ee48462e1417155fae11dffae9bede13d/eqtl/genomewide/genomewide_run_eqtls_amyg.R#L36
 
+######################
+# statistical model ##
+######################
+pd$PrimaryDx <- factor(pd$PrimaryDx,
+    levels = c("Control", "Bipolar", "MDD")
+)
+
+mod <- model.matrix(~ PrimaryDx + Sex + as.matrix(mds[, 1:5]), data = pd)
+colnames(mod)[4:8] <- colnames(mds)[1:5]
+
+
+######################
+# create SNP objects #
+######################
+
+theSnps <- SlicedData$new(as.matrix(snp))
+theSnps$ResliceCombined(sliceSize = 50000)
+
+snpspos <- snpMap[, c("SNP", "chr_hg38", "pos_hg38")]
+colnames(snpspos) <- c("name", "chr", "pos")
+
+
 ################
 ## load table
+
+# not sure where this is saved in Zandi code
 load("mergedEqtl_output_sacc_genomewide_4features_FDR01.rda", verbose = TRUE)
 sacc <- allEqtlFDR01
 
@@ -64,11 +96,18 @@ mod <- model.matrix(~ PrimaryDx + Sex + as.matrix(mds[, 1:5]), data = pd)
 ################
 ## load expression
 ## dlpfc
+# not sure where this is saved in Zandi code
 load("/dcl01/lieber/ajaffe/lab/zandiHyde_bipolar_rnaseq/eqtl_exprs_cutoffs/eQTL_expressed_rse_sacc.rda")
-geneRpkm <- assays(rse_gene)$rpkm
-exonRpkm <- assays(rse_exon)$rpkm
-jxnRp10m <- assays(rse_jxn)$rp10m
-txTpm <- assays(rse_tx)$tpm
+
+####################
+## calculate rpkm ##
+####################
+
+geneRpkm <- recount::getRPKM(rse_gene, "Length")
+exonRpkm <- recount::getRPKM(rse_exon, "Length")
+rowData(rse_jxn)$Length <- 100
+jxnRp10m <- recount::getRPKM(rse_jxn, "Length")
+txTpm <- recount::getTPM(res_tx, )
 
 ## residualize expression
 gExprs <- log2(geneRpkm + 1)
@@ -220,6 +259,8 @@ sacc2 <- cbind(cbind(cbind(snpMap_temp, featMap_temp), geneMap_temp), sacc)
 sacc3 <- sacc2[, c(1:4, 16, 10, 5:9, 12:14, 17:20)]
 
 write.csv(sacc3, file = "genomewide_snps_sacc_eqtls_top1000.csv")
+
+# sgejobs::job_single("genomewide_run_eqtls_sacc", memory = "100G",create_shell = TRUE, command = "Rscript genomewide_run_eqtls_sacc.R")
 
 ## Reproducibility information
 print("Reproducibility information:")

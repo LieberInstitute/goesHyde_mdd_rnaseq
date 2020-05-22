@@ -9,7 +9,7 @@ dir.create(here("eqtl", "genomewide", "rdas"), showWarnings = FALSE)
 ## load SNP data
 
 ## Amyg / sACC snps
-load(here("genotype_data", "goesHyde_bipolarMdd_Genotypes_n593.rda"), verbose = TRUE) # need ~50G memory to load
+load(here("genotype_data", "goesHyde_bipolarMdd_Genotypes_n593.rda"), verbose = TRUE) # need ~50G ram to load
 snpMap$pos_hg19 <- paste0(snpMap$CHR, ":", snpMap$POS)
 snpMap_amyg <- snpMap
 
@@ -32,7 +32,7 @@ snpMapKeep <- snpMap
 
 save(snpMapKeep, file = here("eqtl", "genomewide", "rdas", "overlappingSNPs.rda"))
 
-#sgejobs::job_single("get_genomewide_SNP_list", memory = "150G",create_shell = TRUE, command = "Rscript get_genomewide_SNP_list.R")
+# sgejobs::job_single("get_genomewide_SNP_list", memory = "150G",create_shell = TRUE, command = "Rscript get_genomewide_SNP_list.R")
 
 ## Reproducibility information
 print("Reproducibility information:")

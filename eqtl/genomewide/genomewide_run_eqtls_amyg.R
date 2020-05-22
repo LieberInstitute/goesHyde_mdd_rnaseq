@@ -44,14 +44,14 @@ table(pd$BrNum %in% rownames(mds))
 # pd$BrNum [!pd$BrNum %in% rownames(mds)]
 # rownames(mds)[grep("Br18", rownames(mds))]
 
-has_genotype <- pd$BrNum %in% rownames(mds)
+has_genotype <- pd$BrNum %in% rownames(mds) # snp and mds are missing BR1843
 rse_gene <- rse_gene[, has_genotype]
 rse_exon <- rse_exon[, has_genotype]
 rse_jxn <- rse_jxn[, has_genotype]
 rse_tx <- rse_tx[, has_genotype]
 pd <- pd[has_genotype,]
 mds <- mds[pd$BrNum, ]
-snp <- snp[, pd$BrNum] # snp is missing BR1843
+snp <- snp[, pd$BrNum]
 rownames(mds) <- colnames(snp) <- pd$RNum
 snpMap$maf <- rowSums(snp, na.rm = TRUE) / (2 * rowSums(!is.na(snp)))
 
@@ -146,10 +146,10 @@ names(posTx)[2:4] <- c("Chr", "Start", "End")
 
 #############################
 ### sliced expression data ##
-geneSlice <- SlicedData$new(log2(assays(rse_gene)$rpkm + 1))
-exonSlice <- SlicedData$new(log2(assays(rse_exon)$rpkm + 1))
-jxnSlice <- SlicedData$new(log2(assays(rse_jxn)$rp10m + 1))
-txSlice <- SlicedData$new(log2(assays(rse_tx)$tpm + 1))
+geneSlice <- SlicedData$new(log2(geneRpkm + 1))
+exonSlice <- SlicedData$new(log2(exonRpkm + 1))
+jxnSlice <- SlicedData$new(log2(jxnRp10m + 1))
+txSlice <- SlicedData$new(log2(txTpm + 1))
 
 geneSlice$ResliceCombined(sliceSize = 5000)
 exonSlice$ResliceCombined(sliceSize = 5000)
@@ -277,7 +277,7 @@ save(allEqtl, file = "mergedEqtl_output_amyg_genomewide_4features.rda", compress
 allEqtlFDR01 <- allEqtl[which(allEqtl$FDR < 0.01), ]
 save(allEqtlFDR01, file = "mergedEqtl_output_amyg_genomewide_4features_FDR01.rda", compress = TRUE)
 
-
+# sgejobs::job_single("genomewide_run_eqtls_amyg", memory = "100G",create_shell = TRUE, command = "Rscript genomewide_run_eqtls_amyg.R")
 
 ## Reproducibility information
 print("Reproducibility information:")
