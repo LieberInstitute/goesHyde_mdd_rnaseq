@@ -227,7 +227,7 @@ sacc <- sacc_merged
 sacc$EnsemblGeneID <- ss(sacc$EnsemblGeneID, "\\.")
 
 ## snpMap
-load("../../genotype_data/zandiHyde_bipolar_Genotypes_n511.rda")
+load(here("genotype_data","zandiHyde_bipolar_Genotypes_n511.rda"))
 snpMap$hg19POS <- paste0(snpMap$CHR, ":", snpMap$POS)
 # snpMap = snpMap[which(rownames(snpMap) %in% c(amyg$snps,sacc$snps,dlp$snps) ),c("SNP","chr_hg38","pos_hg38","hg19POS")]
 
