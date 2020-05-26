@@ -22,12 +22,17 @@ message(Sys.time(), " Get snp index")
 ind <- which(snpMap$SNP %in% snpMap_amyg$SNP)
 message(Sys.time(), " Filter snpMap")
 snpMap <- snpMap[ind, ]
-message(Sys.time(), " Filter snpMap_amyg")
-snpMap_amyg <- snpMap_amyg[rownames(snpMap), ]
 
 message(Sys.time(), " Save snpMapKeep data")
 snpMapKeep <- snpMap
 save(snpMapKeep, file = here("eqtl", "genomewide", "rdas", "overlappingSNPs.rda"))
+
+
+message(Sys.time(), " Get amyg snp index")
+indAmyg <-  match(snpMap$SNP, snpMap_amyg$SNP)
+message(Sys.time(), " Filter snpMap_amyg")
+snpMap_amyg <- snpMap_amyg[indAmyg, ]
+
 
 ## Reproducibility information
 print("Reproducibility information:")
