@@ -33,7 +33,7 @@ snpMap$pos_hg19 <- paste0(snpMap$CHR, ":", snpMap$POS)
 snpInd <- which(!is.na(snpMap$pos_hg38))
 snpMap <- snpMap[snpInd, ]
 snp <- snp[snpInd, ]
-
+snp <- snp[seq_len(1e5),] # try subset for testing
 #####################
 # filter brain region
 # make mds and snp dimensions equal to N
@@ -64,7 +64,7 @@ pd$PrimaryDx <- factor(pd$PrimaryDx,
 )
 
 mod <- model.matrix(~ PrimaryDx + Sex + as.matrix(mds[, 1:5]), data = pd)
-colnames(mod)[4:8] <- colnames(mds)[1:5]
+colnames(mod)[grep("snp",colnames(mod))] <- colnames(mds)[1:5]
 
 
 ######################
@@ -86,7 +86,7 @@ geneRpkm <- recount::getRPKM(rse_gene, "Length")
 exonRpkm <- recount::getRPKM(rse_exon, "Length")
 rowData(rse_jxn)$Length <- 100
 jxnRp10m <- recount::getRPKM(rse_jxn, "Length")
-txTpm <- recount::getTPM(res_tx, )
+txTpm <- recount::getTPM(res_tx, "Length")
 
 #######################
 ####### do PCA ########
@@ -110,7 +110,6 @@ txPCs <- pcaTx$x[, 1:kTx]
 
 # is this how we want to save this?
 save(genePCs, exonPCs, jxnPCs, txPCs, file = here("rdas","pcs_4features_amyg.rda"))
-load(here("rdas","pcs_4features_amyg.rda"))
 
 covsGene <- SlicedData$new(t(cbind(mod[, -1], genePCs)))
 covsExon <- SlicedData$new(t(cbind(mod[, -1], exonPCs)))
@@ -203,9 +202,6 @@ meTx <- Matrix_eQTL_main(
 )
 save(meTx, file = "matrixEqtl_output_amyg_genomewide_tx.rda")
 
-# save(meGene, meExon, meJxn, meTx,
-# file="matrixEqtl_output_amyg_genomewide_4features.rda")
-
 
 ######################
 ###### annotate ######
@@ -234,7 +230,7 @@ txEqtl$snps <- as.character(txEqtl$snps)
 geneEqtl$Symbol <- rowRanges(rse_gene)$Symbol[match(geneEqtl$gene, rownames(rse_gene))]
 geneEqtl$EnsemblGeneID <- rowRanges(rse_gene)$ensemblID[match(geneEqtl$gene, rownames(rse_gene))]
 geneEqtl$Type <- "Gene"
-geneEqtl$Class <- "InGen"
+geneEqtl$Class <- "InGen" # in gencode
 geneEqtl <- DataFrame(geneEqtl)
 # geneEqtl$gene_type = rowRanges(rse_gene)$gene_type[match(geneEqtl$gene, rownames(rse_gene))]
 
@@ -262,15 +258,16 @@ txEqtl <- DataFrame(txEqtl)
 
 # merge
 allEqtl <- rbind(geneEqtl, exonEqtl, jxnEqtl, txEqtl)
-allEqtl$gencodeTx <- CharacterList(c(
-    as.list(rowRanges(rse_gene)$gencodeTx[match(
-        geneEqtl$gene,
-        rownames(rse_gene)
-    )]),
-    as.list(rowRanges(rse_exon)$gencodeTx[match(exonEqtl$gene, rownames(rse_exon))]),
-    as.list(rowRanges(rse_jxn)$gencodeTx[match(jxnEqtl$gene, rownames(rse_jxn))]),
-    as.list(txEqtl$gene)
-))
+rm(geneEqtl, exonEqtl, jxnEqtl, txEqtl)
+# allEqtl$gencodeTx <- CharacterList(c(
+#     as.list(rowRanges(rse_gene)$gencodeTx[match(
+#         geneEqtl$gene,
+#         rownames(rse_gene)
+#     )]),
+#     as.list(rowRanges(rse_exon)$gencodeTx[match(exonEqtl$gene, rownames(rse_exon))]),
+#     as.list(rowRanges(rse_jxn)$gencodeTx[match(jxnEqtl$gene, rownames(rse_jxn))]),
+#     as.list(txEqtl$gene)
+# ))
 save(allEqtl, file = "mergedEqtl_output_amyg_genomewide_4features.rda", compress = TRUE)
 
 

@@ -64,7 +64,7 @@ pd$PrimaryDx <- factor(pd$PrimaryDx,
 )
 
 mod <- model.matrix(~ PrimaryDx + Sex + as.matrix(mds[, 1:5]), data = pd)
-colnames(mod)[4:8] <- colnames(mds)[1:5]
+colnames(mod)[4:8] <- colnames(mds)[1:5] #change to grep
 
 
 ######################
