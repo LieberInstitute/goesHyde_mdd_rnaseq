@@ -1,6 +1,6 @@
 #!/bin/bash
 #$ -cwd
-#$ -l mem_free=150G,h_vmem=150G,h_fsize=100G
+#$ -l mem_free=90G,h_vmem=90G,h_fsize=100G
 #$ -N get_genomewide_SNP_list
 #$ -o logs/get_genomewide_SNP_list.txt
 #$ -e logs/get_genomewide_SNP_list.txt
