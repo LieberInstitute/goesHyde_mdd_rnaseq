@@ -28,10 +28,11 @@ pd <- colData(rse_gene)
 # pd$PrimaryDx[pd$PrimaryDx=="Other"] = "Bipolar"
 
 ## load SNP data
-load(here("exprs_cutoff", "rdas", "overlappingSNPs.rda"), verbose = TRUE) # snpMapKeep
+load(here("eqtl","genomewide","rdas", "overlappingSNPs.rda"), verbose = TRUE) # snpMapKeep
 load(here("genotype_data", "goesHyde_bipolarMdd_Genotypes_n593.rda"), verbose = TRUE)
 snpMap$pos_hg19 <- paste0(snpMap$CHR, ":", snpMap$POS)
 
+rownames(snpMap) <- snpMap$SNP
 snpInd <- which(rownames(snpMap) %in% rownames(snpMapKeep) & !is.na(snpMap$pos_hg38))
 snpMap <- snpMap[snpInd, ]
 snp <- snp[snpInd, ]
@@ -64,8 +65,7 @@ pd$PrimaryDx <- factor(pd$PrimaryDx,
 )
 
 mod <- model.matrix(~ PrimaryDx + Sex + as.matrix(mds[, 1:5]), data = pd)
-colnames(mod)[4:8] <- colnames(mds)[1:5] #change to grep
-
+colnames(mod)[grep("snpPC",colnames(mod))] <- colnames(mds)[1:5]
 
 ######################
 # create SNP objects #

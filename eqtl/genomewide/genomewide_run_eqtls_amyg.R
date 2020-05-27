@@ -25,12 +25,12 @@ pd <- colData(rse_gene)
 
 
 ## load SNP data
-# load(here("exprs_cutoff", "rdas", "overlappingSNPs.rda"), verbose = TRUE) # snpMapKeep
+load(here("eqtl","genomewide","rdas", "overlappingSNPs.rda"), verbose = TRUE) # snpMapKeep
 load(here("genotype_data", "goesHyde_bipolarMdd_Genotypes_n593.rda"), verbose = TRUE) # need ~50G memory to load
 snpMap$pos_hg19 <- paste0(snpMap$CHR, ":", snpMap$POS)
 
-# snpInd = which(rownames(snpMap) %in% rownames(snpMapKeep) & !is.na(snpMap$pos_hg38))
-snpInd <- which(!is.na(snpMap$pos_hg38))
+rownames(snpMap) <- snpMap$SNP
+snpInd = which(rownames(snpMap) %in% rownames(snpMapKeep) & !is.na(snpMap$pos_hg38))
 snpMap <- snpMap[snpInd, ]
 snp <- snp[snpInd, ]
 snp <- snp[seq_len(1e5),] # try subset for testing
@@ -64,7 +64,7 @@ pd$PrimaryDx <- factor(pd$PrimaryDx,
 )
 
 mod <- model.matrix(~ PrimaryDx + Sex + as.matrix(mds[, 1:5]), data = pd)
-colnames(mod)[grep("snp",colnames(mod))] <- colnames(mds)[1:5]
+colnames(mod)[grep("snpPC",colnames(mod))] <- colnames(mds)[1:5]
 
 
 ######################
