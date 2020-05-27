@@ -23,7 +23,6 @@ rse_tx <- rse_tx[, regInd]
 
 pd <- colData(rse_gene)
 
-
 ## load SNP data
 load(here("eqtl","genomewide","rdas", "overlappingSNPs.rda"), verbose = TRUE) # snpMapKeep
 load(here("genotype_data", "goesHyde_bipolarMdd_Genotypes_n593.rda"), verbose = TRUE) # need ~50G memory to load
@@ -33,7 +32,9 @@ rownames(snpMap) <- snpMap$SNP
 snpInd = which(rownames(snpMap) %in% rownames(snpMapKeep) & !is.na(snpMap$pos_hg38))
 snpMap <- snpMap[snpInd, ]
 snp <- snp[snpInd, ]
-snp <- snp[seq_len(1e5),] # try subset for testing
+# try subset for testing
+snp <- snp[seq_len(1e5),]
+snpMap <- snpMap[seq_len(1e5),]
 #####################
 # filter brain region
 # make mds and snp dimensions equal to N
@@ -77,6 +78,8 @@ theSnps$ResliceCombined(sliceSize = 50000)
 snpspos <- snpMap[, c("SNP", "chr_hg38", "pos_hg38")]
 colnames(snpspos) <- c("name", "chr", "pos")
 
+#remove snpMap snp mds
+rm(snpMap, snp, mds)
 
 #####################
 ## calculate rpkm ##
@@ -87,6 +90,7 @@ exonRpkm <- recount::getRPKM(rse_exon, "Length")
 rowData(rse_jxn)$Length <- 100
 jxnRp10m <- recount::getRPKM(rse_jxn, "Length")
 txTpm <- recount::getTPM(res_tx, "Length")
+
 
 #######################
 ####### do PCA ########
@@ -255,6 +259,8 @@ txEqtl$Class <- "InGen"
 txEqtl <- DataFrame(txEqtl)
 # txEqtl$gene_type = rowRanges(rse_tx)$gene_type[match(txEqtl$gene, rownames(rse_tx))]
 
+#remove rse objects
+rm(rse_gene, rse_exon, rse_jxn, rse_tx)
 
 # merge
 allEqtl <- rbind(geneEqtl, exonEqtl, jxnEqtl, txEqtl)
