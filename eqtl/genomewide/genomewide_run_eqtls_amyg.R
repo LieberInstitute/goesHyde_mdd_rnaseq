@@ -24,17 +24,17 @@ rse_tx <- rse_tx[, regInd]
 pd <- colData(rse_gene)
 
 ## load SNP data
-load(here("eqtl","genomewide","rdas", "overlappingSNPs.rda"), verbose = TRUE) # snpMapKeep
+load(here("eqtl", "genomewide", "rdas", "overlappingSNPs.rda"), verbose = TRUE) # snpMapKeep
 load(here("genotype_data", "goesHyde_bipolarMdd_Genotypes_n593.rda"), verbose = TRUE) # need ~50G memory to load
 snpMap$pos_hg19 <- paste0(snpMap$CHR, ":", snpMap$POS)
 
 rownames(snpMap) <- snpMap$SNP
-snpInd = which(rownames(snpMap) %in% rownames(snpMapKeep) & !is.na(snpMap$pos_hg38))
+snpInd <- which(rownames(snpMap) %in% rownames(snpMapKeep) & !is.na(snpMap$pos_hg38))
 snpMap <- snpMap[snpInd, ]
 snp <- snp[snpInd, ]
 # try subset for testing
-snp <- snp[seq_len(1e5),]
-snpMap <- snpMap[seq_len(1e5),]
+snp <- snp[seq_len(1e5), ]
+snpMap <- snpMap[seq_len(1e5), ]
 #####################
 # filter brain region
 # make mds and snp dimensions equal to N
@@ -50,7 +50,8 @@ rse_gene <- rse_gene[, has_genotype]
 rse_exon <- rse_exon[, has_genotype]
 rse_jxn <- rse_jxn[, has_genotype]
 rse_tx <- rse_tx[, has_genotype]
-pd <- pd[has_genotype,]
+
+pd <- pd[has_genotype, ]
 mds <- mds[pd$BrNum, ]
 snp <- snp[, pd$BrNum]
 rownames(mds) <- colnames(snp) <- pd$RNum
@@ -65,7 +66,7 @@ pd$PrimaryDx <- factor(pd$PrimaryDx,
 )
 
 mod <- model.matrix(~ PrimaryDx + Sex + as.matrix(mds[, 1:5]), data = pd)
-colnames(mod)[grep("snpPC",colnames(mod))] <- colnames(mds)[1:5]
+colnames(mod)[grep("snpPC", colnames(mod))] <- colnames(mds)[1:5]
 
 
 ######################
@@ -78,7 +79,7 @@ theSnps$ResliceCombined(sliceSize = 50000)
 snpspos <- snpMap[, c("SNP", "chr_hg38", "pos_hg38")]
 colnames(snpspos) <- c("name", "chr", "pos")
 
-#remove snpMap snp mds
+# remove snpMap snp mds
 rm(snpMap, snp, mds)
 
 #####################
@@ -113,7 +114,7 @@ kTx <- num.sv(log2(txTpm + 1), mod, vfilter = 50000)
 txPCs <- pcaTx$x[, 1:kTx]
 
 # is this how we want to save this?
-save(genePCs, exonPCs, jxnPCs, txPCs, file = here("rdas","pcs_4features_amyg.rda"))
+save(genePCs, exonPCs, jxnPCs, txPCs, file = here("rdas", "pcs_4features_amyg.rda"))
 
 covsGene <- SlicedData$new(t(cbind(mod[, -1], genePCs)))
 covsExon <- SlicedData$new(t(cbind(mod[, -1], exonPCs)))
@@ -259,7 +260,7 @@ txEqtl$Class <- "InGen"
 txEqtl <- DataFrame(txEqtl)
 # txEqtl$gene_type = rowRanges(rse_tx)$gene_type[match(txEqtl$gene, rownames(rse_tx))]
 
-#remove rse objects
+# remove rse objects
 rm(rse_gene, rse_exon, rse_jxn, rse_tx)
 
 # merge
