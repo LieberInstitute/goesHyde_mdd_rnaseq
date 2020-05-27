@@ -33,8 +33,8 @@ snpInd <- which(rownames(snpMap) %in% rownames(snpMapKeep) & !is.na(snpMap$pos_h
 snpMap <- snpMap[snpInd, ]
 snp <- snp[snpInd, ]
 # try subset for testing
-snp <- snp[seq_len(1e5), ]
-snpMap <- snpMap[seq_len(1e5), ]
+# snp <- snp[seq_len(1e5), ]
+# snpMap <- snpMap[seq_len(1e5), ]
 #####################
 # filter brain region
 # make mds and snp dimensions equal to N
@@ -61,6 +61,7 @@ snpMap$maf <- rowSums(snp, na.rm = TRUE) / (2 * rowSums(!is.na(snp)))
 ######################
 # statistical model ##
 ######################
+message(Sys.time(), " Get statistical model")
 pd$PrimaryDx <- factor(pd$PrimaryDx,
     levels = c("Control", "Bipolar", "MDD")
 )
@@ -85,7 +86,7 @@ rm(snpMap, snp, mds)
 #####################
 ## calculate rpkm ##
 ####################
-
+message(Sys.time(), " Get rpkm values")
 geneRpkm <- recount::getRPKM(rse_gene, "Length")
 exonRpkm <- recount::getRPKM(rse_exon, "Length")
 rowData(rse_jxn)$Length <- 100
@@ -96,6 +97,7 @@ txTpm <- recount::getTPM(res_tx, "Length")
 #######################
 ####### do PCA ########
 #######################
+message(Sys.time(), " Do PCA")
 
 pcaGene <- prcomp(t(log2(geneRpkm + 1)))
 kGene <- num.sv(log2(geneRpkm + 1), mod)
@@ -164,6 +166,7 @@ txSlice$ResliceCombined(sliceSize = 5000)
 ##########################
 ### Run EQTLs ############
 ##########################
+message(Sys.time(), " EQTLs")
 
 print("Starting eQTLs")
 # takes a long time
@@ -210,27 +213,30 @@ save(meTx, file = "matrixEqtl_output_amyg_genomewide_tx.rda")
 
 ######################
 ###### annotate ######
+#####################
 
+message(Sys.time(), " Annotate and Save")
 # extract
 geneEqtl <- meGene$cis$eqtls
-geneEqtl$gene <- as.character(geneEqtl$gene)
-geneEqtl$snps <- as.character(geneEqtl$snps)
+# geneEqtl$gene <- as.character(geneEqtl$gene)
+# geneEqtl$snps <- as.character(geneEqtl$snps)
 
 exonEqtl <- meExon$cis$eqtls
-exonEqtl$gene <- as.character(exonEqtl$gene)
-exonEqtl$snps <- as.character(exonEqtl$snps)
+# exonEqtl$gene <- as.character(exonEqtl$gene)
+# exonEqtl$snps <- as.character(exonEqtl$snps)
 
 jxnEqtl <- meJxn$cis$eqtls
-jxnEqtl$gene <- as.character(jxnEqtl$gene)
-jxnEqtl$snps <- as.character(jxnEqtl$snps)
+# jxnEqtl$gene <- as.character(jxnEqtl$gene)
+# jxnEqtl$snps <- as.character(jxnEqtl$snps)
 
 txEqtl <- meTx$cis$eqtls
-txEqtl$gene <- as.character(txEqtl$gene)
-txEqtl$snps <- as.character(txEqtl$snps)
+# txEqtl$gene <- as.character(txEqtl$gene)
+# txEqtl$snps <- as.character(txEqtl$snps)
 
 ################################
 # add gene annotation info #####
 ################################
+
 
 geneEqtl$Symbol <- rowRanges(rse_gene)$Symbol[match(geneEqtl$gene, rownames(rse_gene))]
 geneEqtl$EnsemblGeneID <- rowRanges(rse_gene)$ensemblID[match(geneEqtl$gene, rownames(rse_gene))]
@@ -281,7 +287,7 @@ save(allEqtl, file = "mergedEqtl_output_amyg_genomewide_4features.rda", compress
 allEqtlFDR01 <- allEqtl[which(allEqtl$FDR < 0.01), ]
 save(allEqtlFDR01, file = "mergedEqtl_output_amyg_genomewide_4features_FDR01.rda", compress = TRUE)
 
-# sgejobs::job_single("genomewide_run_eqtls_amyg", memory = "100G",create_shell = TRUE, command = "Rscript genomewide_run_eqtls_amyg.R")
+# sgejobs::job_single("genomewide_run_eqtls_amyg", memory = "150G",create_shell = TRUE, command = "Rscript genomewide_run_eqtls_amyg.R")
 
 ## Reproducibility information
 print("Reproducibility information:")
