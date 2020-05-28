@@ -116,7 +116,7 @@ kTx <- num.sv(log2(txTpm + 1), mod, vfilter = 50000)
 txPCs <- pcaTx$x[, 1:kTx]
 
 # is this how we want to save this?
-save(genePCs, exonPCs, jxnPCs, txPCs, file = here("rdas", "pcs_4features_amyg.rda"))
+save(genePCs, exonPCs, jxnPCs, txPCs, file = here("eqtl", "genomewide", "rdas", "pcs_4features_amyg.rda"))
 
 covsGene <- SlicedData$new(t(cbind(mod[, -1], genePCs)))
 covsExon <- SlicedData$new(t(cbind(mod[, -1], exonPCs)))
