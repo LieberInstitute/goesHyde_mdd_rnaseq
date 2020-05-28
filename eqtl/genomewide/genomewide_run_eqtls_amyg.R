@@ -118,7 +118,6 @@ if(!file.exists(pca_rda_file)){
     kTx <- num.sv(log2(txTpm + 1), mod, vfilter = 50000)
     txPCs <- pcaTx$x[, 1:kTx]
 
-    # is this how we want to save this?
     save(genePCs, exonPCs, jxnPCs, txPCs, file = pca_rda_file)
 
 }else{
@@ -202,7 +201,7 @@ if(!file.exists(meExon_rda)){
         useModel = modelLINEAR, cisDist = 5e5,
         pvalue.hist = 100, min.pv.by.genesnp = TRUE
     )
-    save(meExon, file = )
+    save(meExon, file = meExon_rda)
 }else{
     load(meExon_rda, verbose = TRUE)
 }
@@ -232,7 +231,7 @@ if(!file.exists(meTx_rda)){
         useModel = modelLINEAR, cisDist = 5e5,
         pvalue.hist = 100, min.pv.by.genesnp = TRUE
     )
-    save(meTx, file = )
+    save(meTx, file = meTx_rda)
 }else{
     load(meTx_rda, verbose = TRUE)
 }
@@ -245,20 +244,9 @@ if(!file.exists(meTx_rda)){
 message(Sys.time(), " Annotate and Save")
 # extract
 geneEqtl <- meGene$cis$eqtls
-# geneEqtl$gene <- as.character(geneEqtl$gene)
-# geneEqtl$snps <- as.character(geneEqtl$snps)
-
 exonEqtl <- meExon$cis$eqtls
-# exonEqtl$gene <- as.character(exonEqtl$gene)
-# exonEqtl$snps <- as.character(exonEqtl$snps)
-
 jxnEqtl <- meJxn$cis$eqtls
-# jxnEqtl$gene <- as.character(jxnEqtl$gene)
-# jxnEqtl$snps <- as.character(jxnEqtl$snps)
-
 txEqtl <- meTx$cis$eqtls
-# txEqtl$gene <- as.character(txEqtl$gene)
-# txEqtl$snps <- as.character(txEqtl$snps)
 
 ################################
 # add gene annotation info #####
