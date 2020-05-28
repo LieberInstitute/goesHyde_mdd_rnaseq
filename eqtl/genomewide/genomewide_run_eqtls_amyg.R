@@ -91,7 +91,7 @@ geneRpkm <- recount::getRPKM(rse_gene, "Length")
 exonRpkm <- recount::getRPKM(rse_exon, "Length")
 rowData(rse_jxn)$Length <- 100
 jxnRp10m <- recount::getRPKM(rse_jxn, "Length")
-txTpm <- recount::getTPM(res_tx, "Length")
+txTpm <- recount::getTPM(rse_tx, "Length")
 
 
 #######################
