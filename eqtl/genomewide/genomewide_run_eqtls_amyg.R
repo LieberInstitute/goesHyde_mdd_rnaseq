@@ -99,24 +99,31 @@ txTpm <- assays(rse_tx)$tpm
 #######################
 message(Sys.time(), " Do PCA")
 
-pcaGene <- prcomp(t(log2(geneRpkm + 1)))
-kGene <- num.sv(log2(geneRpkm + 1), mod)
-genePCs <- pcaGene$x[, 1:kGene]
+pca_rda_file <- here("eqtl", "genomewide", "rdas", "pcs_4features_amyg.rda")
 
-pcaExon <- prcomp(t(log2(exonRpkm + 1)))
-kExon <- num.sv(log2(exonRpkm + 1), mod, vfilter = 50000)
-exonPCs <- pcaExon$x[, 1:kExon]
+if(!file.exists(pca_rda_file)){
+    pcaGene <- prcomp(t(log2(geneRpkm + 1)))
+    kGene <- num.sv(log2(geneRpkm + 1), mod)
+    genePCs <- pcaGene$x[, 1:kGene]
 
-pcaJxn <- prcomp(t(log2(jxnRp10m + 1)))
-kJxn <- num.sv(log2(jxnRp10m + 1), mod, vfilter = 50000)
-jxnPCs <- pcaJxn$x[, 1:kJxn]
+    pcaExon <- prcomp(t(log2(exonRpkm + 1)))
+    kExon <- num.sv(log2(exonRpkm + 1), mod, vfilter = 50000)
+    exonPCs <- pcaExon$x[, 1:kExon]
 
-pcaTx <- prcomp(t(log2(txTpm + 1)))
-kTx <- num.sv(log2(txTpm + 1), mod, vfilter = 50000)
-txPCs <- pcaTx$x[, 1:kTx]
+    pcaJxn <- prcomp(t(log2(jxnRp10m + 1)))
+    kJxn <- num.sv(log2(jxnRp10m + 1), mod, vfilter = 50000)
+    jxnPCs <- pcaJxn$x[, 1:kJxn]
 
-# is this how we want to save this?
-save(genePCs, exonPCs, jxnPCs, txPCs, file = here("eqtl", "genomewide", "rdas", "pcs_4features_amyg.rda"))
+    pcaTx <- prcomp(t(log2(txTpm + 1)))
+    kTx <- num.sv(log2(txTpm + 1), mod, vfilter = 50000)
+    txPCs <- pcaTx$x[, 1:kTx]
+
+    # is this how we want to save this?
+    save(genePCs, exonPCs, jxnPCs, txPCs, file = pca_rda_file)
+
+}else{
+    load(pcs_rda_file, verbose = TRUE)
+}
 
 covsGene <- SlicedData$new(t(cbind(mod[, -1], genePCs)))
 covsExon <- SlicedData$new(t(cbind(mod[, -1], exonPCs)))
@@ -170,45 +177,65 @@ message(Sys.time(), " EQTLs")
 
 print("Starting eQTLs")
 # takes a long time
-meGene <- Matrix_eQTL_main(
-    snps = theSnps, gene = geneSlice,
-    cvrt = covsGene, output_file_name.cis = ".ctxt",
-    pvOutputThreshold.cis = .1, pvOutputThreshold = 0,
-    snpspos = snpspos, genepos = posGene,
-    useModel = modelLINEAR, cisDist = 5e5,
-    pvalue.hist = 100, min.pv.by.genesnp = TRUE
-)
-save(meGene, file = "matrixEqtl_output_amyg_genomewide_gene.rda")
+meGene_rda <- "matrixEqtl_output_amyg_genomewide_gene.rda"
+if(!file.exists(meGene_rda)){
+    meGene <- Matrix_eQTL_main(
+        snps = theSnps, gene = geneSlice,
+        cvrt = covsGene, output_file_name.cis = ".ctxt",
+        pvOutputThreshold.cis = .1, pvOutputThreshold = 0,
+        snpspos = snpspos, genepos = posGene,
+        useModel = modelLINEAR, cisDist = 5e5,
+        pvalue.hist = 100, min.pv.by.genesnp = TRUE
+    )
+    save(meGene, file = meGene_rda)
+}else{
+    load(meGene_rda, verbose = TRUE)
+}
 
-meExon <- Matrix_eQTL_main(
-    snps = theSnps, gene = exonSlice,
-    cvrt = covsExon, output_file_name.cis = ".ctxt",
-    pvOutputThreshold.cis = .1, pvOutputThreshold = 0,
-    snpspos = snpspos, genepos = posExon,
-    useModel = modelLINEAR, cisDist = 5e5,
-    pvalue.hist = 100, min.pv.by.genesnp = TRUE
-)
-save(meExon, file = "matrixEqtl_output_amyg_genomewide_exon.rda")
+meExon_rda <- "matrixEqtl_output_amyg_genomewide_exon.rda"
+if(!file.exists(meExon_rda)){
+    meExon <- Matrix_eQTL_main(
+        snps = theSnps, gene = exonSlice,
+        cvrt = covsExon, output_file_name.cis = ".ctxt",
+        pvOutputThreshold.cis = .1, pvOutputThreshold = 0,
+        snpspos = snpspos, genepos = posExon,
+        useModel = modelLINEAR, cisDist = 5e5,
+        pvalue.hist = 100, min.pv.by.genesnp = TRUE
+    )
+    save(meExon, file = )
+}else{
+    load(meExon_rda, verbose = TRUE)
+}
 
-meJxn <- Matrix_eQTL_main(
-    snps = theSnps, gene = jxnSlice,
-    cvrt = covsJxn, output_file_name.cis = ".ctxt",
-    pvOutputThreshold.cis = .1, pvOutputThreshold = 0,
-    snpspos = snpspos, genepos = posJxn,
-    useModel = modelLINEAR, cisDist = 5e5,
-    pvalue.hist = 100, min.pv.by.genesnp = TRUE
-)
-save(meJxn, file = "matrixEqtl_output_amyg_genomewide_jxn.rda")
+meJxn_rda <- "matrixEqtl_output_amyg_genomewide_jxn.rda"
+if(!file.exists(meJxn_rda)){
+    meJxn <- Matrix_eQTL_main(
+        snps = theSnps, gene = jxnSlice,
+        cvrt = covsJxn, output_file_name.cis = ".ctxt",
+        pvOutputThreshold.cis = .1, pvOutputThreshold = 0,
+        snpspos = snpspos, genepos = posJxn,
+        useModel = modelLINEAR, cisDist = 5e5,
+        pvalue.hist = 100, min.pv.by.genesnp = TRUE
+    )
+    save(meJxn, file = meJxn)
+}else{
+    load(meJxn_rda, verbose = TRUE)
+}
 
-meTx <- Matrix_eQTL_main(
-    snps = theSnps, gene = txSlice,
-    cvrt = covsTx, output_file_name.cis = ".ctxt",
-    pvOutputThreshold.cis = .1, pvOutputThreshold = 0,
-    snpspos = snpspos, genepos = posTx,
-    useModel = modelLINEAR, cisDist = 5e5,
-    pvalue.hist = 100, min.pv.by.genesnp = TRUE
-)
-save(meTx, file = "matrixEqtl_output_amyg_genomewide_tx.rda")
+meTx_rda <- "matrixEqtl_output_amyg_genomewide_tx.rda"
+if(!file.exists(meTx_rda)){
+    meTx <- Matrix_eQTL_main(
+        snps = theSnps, gene = txSlice,
+        cvrt = covsTx, output_file_name.cis = ".ctxt",
+        pvOutputThreshold.cis = .1, pvOutputThreshold = 0,
+        snpspos = snpspos, genepos = posTx,
+        useModel = modelLINEAR, cisDist = 5e5,
+        pvalue.hist = 100, min.pv.by.genesnp = TRUE
+    )
+    save(meTx, file = )
+}else{
+    load(meTx_rda, verbose = TRUE)
+}
 
 
 ######################
