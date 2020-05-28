@@ -6,17 +6,21 @@ library(jaffelab)
 library(MatrixEQTL)
 library(sva)
 library(RColorBrewer)
+library(sessioninfo)
+library(here)
 
 ## load
-load("/dcl01/lieber/ajaffe/lab/zandiHyde_bipolar_rnaseq/eqtl_exprs_cutoffs/eQTL_expressed_rse_amygdala.rda")
+load(here("exprs_cutoff", "rse_gene.Rdata"), verbose = TRUE)
+load(here("exprs_cutoff", "rse_exon.Rdata"), verbose = TRUE)
+load(here("exprs_cutoff", "rse_jxn.Rdata"), verbose = TRUE)
+load(here("exprs_cutoff", "rse_tx.Rdata"), verbose = TRUE)
 
 ### make "Other" dx bipolar
 pd = colData(rse_gene)
-pd$PrimaryDx[pd$PrimaryDx=="Other"] = "Bipolar"
 
 ## load SNP data
-load("rdas/overlappingSNPs.rda")  # snpMapKeep
-load("../../genotype_data/zandiHyde_bipolar_Genotypes_n511.rda")
+load(here("eqtl", "genomewide", "rdas", "overlappingSNPs.rda"), verbose = TRUE) # snpMapKeep
+load(here("genotype_data", "goesHyde_bipolarMdd_Genotypes_n593.rda"), verbose = TRUE) # snp, snpMap & mds
 snpMap$pos_hg19 = paste0(snpMap$CHR, ":", snpMap$POS)
 
 snpInd = which(rownames(snpMap) %in% rownames(snpMapKeep) & !is.na(snpMap$pos_hg38))
@@ -31,7 +35,7 @@ mds = mds[pd$BrNum,]
 snp = snp[,pd$BrNum]
 rownames(mds) = colnames(snp) = pd$RNum
 
-snpMap$maf = rowSums(snp, na.rm=TRUE)/(2*rowSums(!is.na(snp))) 
+snpMap$maf = rowSums(snp, na.rm=TRUE)/(2*rowSums(!is.na(snp)))
 
 
 ################
@@ -46,26 +50,27 @@ pd$PrimaryDx = factor(pd$PrimaryDx,
 mod = model.matrix(~PrimaryDx + Sex + as.matrix(mds[,1:5]), data = pd)
 
 
-################
-## load expression
-## amygdala
-load("/dcl01/lieber/ajaffe/lab/zandiHyde_bipolar_rnaseq/eqtl_exprs_cutoffs/eQTL_expressed_rse_amygdala.rda")
-geneRpkm = assays(rse_gene)$rpkm
-exonRpkm = assays(rse_exon)$rpkm
-jxnRp10m = assays(rse_jxn)$rp10m
-txTpm = assays(rse_tx)$tpm
+#####################
+## calculate rpkm ##
+####################
+message(Sys.time(), " Get rpkm values")
+geneRpkm <- recount::getRPKM(rse_gene, "Length")
+exonRpkm <- recount::getRPKM(rse_exon, "Length")
+rowData(rse_jxn)$Length <- 100
+jxnRp10m <- recount::getRPKM(rse_jxn, "Length")
+txTpm <- assays(rse_tx)$tpm
 
-## residualize expression		
-gExprs = log2(geneRpkm+1)		
+## residualize expression
+gExprs = log2(geneRpkm+1)
 gExprs = cleaningY(gExprs, mod, P=1)
 
-eExprs = log2(exonRpkm+1)		
+eExprs = log2(exonRpkm+1)
 eExprs = cleaningY(eExprs, mod, P=1)
 
-jExprs = log2(jxnRp10m+1)		
+jExprs = log2(jxnRp10m+1)
 jExprs = cleaningY(jExprs, mod, P=1)
 
-tExprs = log2(txTpm+1)		
+tExprs = log2(txTpm+1)
 tExprs = cleaningY(tExprs, mod, P=1)
 
 
@@ -80,7 +85,7 @@ amygT = amyg[which(amyg$Type=="Tx"),]
 
 pdf("amyg_top_eqtl_adj.pdf", h=6, w=10)
 par(mfrow=c(2,3), cex.main=1.2, cex.lab=1.2)
-palette(brewer.pal(8,"Spectral"))			
+palette(brewer.pal(8,"Spectral"))
 ## plot
 for (i in 1:12) {
 	symi = amygG[i,"Symbol"]
@@ -91,11 +96,11 @@ for (i in 1:12) {
 	typei = amygG[i,"Type"]
 
 	boxplot(exprsAdj[feati,] ~ snp[snpi,],
-			xlab=snpi, ylab="Residualized Expression", 
-			main=paste0(symi,"\n",feati," (",typei,")"), 
+			xlab=snpi, ylab="Residualized Expression",
+			main=paste0(symi,"\n",feati," (",typei,")"),
 			ylim = c(range(exprsAdj[feati,])), outline=FALSE)
 	points(exprsAdj[feati,] ~ jitter(snp[snpi,]+1),
-			   pch=21, 
+			   pch=21,
 			   bg=as.numeric(snp[snpi,])+2,cex=1.5)
 	legend("top",paste0("p=",p_i))
 }
@@ -108,11 +113,11 @@ for (i in 1:12) {
 	typei = amygE[i,"Type"]
 
 	boxplot(exprsAdj[feati,] ~ snp[snpi,],
-			xlab=snpi, ylab="Residualized Expression", 
-			main=paste0(symi,"\n",feati," (",typei,")"), 
+			xlab=snpi, ylab="Residualized Expression",
+			main=paste0(symi,"\n",feati," (",typei,")"),
 			ylim = c(range(exprsAdj[feati,])), outline=FALSE)
 	points(exprsAdj[feati,] ~ jitter(snp[snpi,]+1),
-			   pch=21, 
+			   pch=21,
 			   bg=as.numeric(snp[snpi,])+2,cex=1.5)
 	legend("top",paste0("p=",p_i))
 }
@@ -125,11 +130,11 @@ for (i in 1:12) {
 	typei = amygJ[i,"Type"]
 
 	boxplot(exprsAdj[feati,] ~ snp[snpi,],
-			xlab=snpi, ylab="Residualized Expression", 
-			main=paste0(symi,"\n",feati," (",typei,")"), 
+			xlab=snpi, ylab="Residualized Expression",
+			main=paste0(symi,"\n",feati," (",typei,")"),
 			ylim = c(range(exprsAdj[feati,])), outline=FALSE)
 	points(exprsAdj[feati,] ~ jitter(snp[snpi,]+1),
-			   pch=21, 
+			   pch=21,
 			   bg=as.numeric(snp[snpi,])+2,cex=1.5)
 	legend("top",paste0("p=",p_i))
 }
@@ -142,11 +147,11 @@ for (i in 1:12) {
 	typei = amygT[i,"Type"]
 
 	boxplot(exprsAdj[feati,] ~ snp[snpi,],
-			xlab=snpi, ylab="Residualized Expression", 
-			main=paste0(symi,"\n",feati," (",typei,")"), 
+			xlab=snpi, ylab="Residualized Expression",
+			main=paste0(symi,"\n",feati," (",typei,")"),
 			ylim = c(range(exprsAdj[feati,])), outline=FALSE)
 	points(exprsAdj[feati,] ~ jitter(snp[snpi,]+1),
-			   pch=21, 
+			   pch=21,
 			   bg=as.numeric(snp[snpi,])+2,cex=1.5)
 	legend("top",paste0("p=",p_i))
 }
@@ -165,22 +170,22 @@ amyg = amyg_merged
 amyg$EnsemblGeneID = ss(amyg$EnsemblGeneID, "\\.")
 
 ## snpMap
-load("../../genotype_data/zandiHyde_bipolar_Genotypes_n511.rda")
+load(here("genotype_data", "goesHyde_bipolarMdd_Genotypes_n593.rda"), verbose = TRUE) #reload snpMap
 snpMap$hg19POS = paste0(snpMap$CHR,":",snpMap$POS)
 # snpMap = snpMap[which(rownames(snpMap) %in% c(amyg$snps,sacc$snps,dlp$snps) ),c("SNP","chr_hg38","pos_hg38","hg19POS")]
 
 ## featMap
-load("../../data/zandiHypde_bipolar_rseTx_n511.rda")
-load("../../data/zandiHypde_bipolar_rseJxn_n511.rda")
-load("../../data/zandiHypde_bipolar_rseExon_n511.rda")
-load("../../data/zandiHypde_bipolar_rseGene_n511.rda")
+load(here("data","rseTx_GoesZandi_n1093.rda"), verbose = TRUE) #check this the correct data
+load(here("data","rseJxn_GoesZandi_n1093.rda"), verbose = TRUE)
+load(here("data","rseExon_GoesZandi_n1093.rda"), verbose = TRUE)
+load(here("data","rseGene_GoesZandi_n1093.rda"), verbose = TRUE)
 gMap = as.data.frame(rowRanges(rse_gene))[,c("seqnames","start","end","strand","Class")]
 eMap = as.data.frame(rowRanges(rse_exon))[,c("seqnames","start","end","strand","Class")]
 jMap = as.data.frame(rowRanges(rse_jxn))[,c("seqnames","start","end","strand","Class")]
 txMap = as.data.frame(rowRanges(rse_tx))[,c("seqnames","start","end","strand","source")]
 txMap$source = "InGen"
 # rm(rse_gene, rse_exon, rse_jxn, rse_tx)
-colnames(gMap) = colnames(eMap) = colnames(jMap) = colnames(txMap) = 
+colnames(gMap) = colnames(eMap) = colnames(jMap) = colnames(txMap) =
 	c("feat_chr","feat_start","feat_end","strand","Class")
 featMap = rbind(rbind(rbind(gMap, eMap),jMap),txMap)
 featMap$Type = c(rep("Gene",nrow(gMap)),rep("Exon",nrow(eMap)),rep("Jxn",nrow(jMap)),rep("Tx",nrow(txMap)))
@@ -198,5 +203,12 @@ amyg3 = amyg2[,c(2,12:14,26,20,15:19,22:24,27:30)]
 
 write.csv(amyg3, file="genomewide_snps_amyg_eqtls_top1000.csv")
 
+# sgejobs::job_single("make_boxplots_and_csv_amyg", memory = "100G",create_shell = TRUE, command = "Rscript make_boxplots_and_csv_amyg.R")
 
+## Reproducibility information
+print("Reproducibility information:")
+Sys.time()
+proc.time()
+options(width = 120)
+session_info()
 
