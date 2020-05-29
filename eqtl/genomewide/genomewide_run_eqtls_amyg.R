@@ -25,25 +25,21 @@ pd <- colData(rse_gene)
 
 ## load SNP data
 load(here("eqtl", "genomewide", "rdas", "overlappingSNPs.rda"), verbose = TRUE) # snpMapKeep
-load(here("genotype_data", "goesHyde_bipolarMdd_Genotypes_n593.rda"), verbose = TRUE) # need ~50G memory to load
+load(here("genotype_data", "goesHyde_bipolarMdd_Genotypes_n593.rda"), verbose = TRUE)
 snpMap$pos_hg19 <- paste0(snpMap$CHR, ":", snpMap$POS)
 
 rownames(snpMap) <- snpMap$SNP
 snpInd <- which(rownames(snpMap) %in% rownames(snpMapKeep) & !is.na(snpMap$pos_hg38))
 snpMap <- snpMap[snpInd, ]
 snp <- snp[snpInd, ]
-# try subset for testing
-# snp <- snp[seq_len(1e5), ]
-# snpMap <- snpMap[seq_len(1e5), ]
+
 #####################
 # filter brain region
 # make mds and snp dimensions equal to N
 # (repeat rows or columns for BrNum replicates)
-#
+
 table(pd$BrNum %in% colnames(snp))
 table(pd$BrNum %in% rownames(mds))
-# pd$BrNum [!pd$BrNum %in% rownames(mds)]
-# rownames(mds)[grep("Br18", rownames(mds))]
 
 has_genotype <- pd$BrNum %in% rownames(mds) # snp and mds are missing BR1843
 rse_gene <- rse_gene[, has_genotype]
