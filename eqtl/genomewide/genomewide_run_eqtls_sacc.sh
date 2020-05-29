@@ -1,6 +1,6 @@
 #!/bin/bash
 #$ -cwd
-#$ -l mem_free=100G,h_vmem=100G,h_fsize=100G
+#$ -l mem_free=150G,h_vmem=150G,h_fsize=100G
 #$ -N genomewide_run_eqtls_sacc
 #$ -o logs/genomewide_run_eqtls_sacc.txt
 #$ -e logs/genomewide_run_eqtls_sacc.txt
