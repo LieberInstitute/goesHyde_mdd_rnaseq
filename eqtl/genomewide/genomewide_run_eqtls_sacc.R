@@ -15,7 +15,7 @@ load(here("exprs_cutoff", "rse_jxn.Rdata"), verbose = TRUE)
 load(here("exprs_cutoff", "rse_tx.Rdata"), verbose = TRUE)
 
 ## filter brain region
-regInd <- which(colData(rse_gene)$BrainRegion == "Amygdala")
+regInd <- which(colData(rse_gene)$BrainRegion == "sACC")
 rse_gene <- rse_gene[, regInd]
 rse_exon <- rse_exon[, regInd]
 rse_jxn <- rse_jxn[, regInd]
@@ -95,7 +95,7 @@ txTpm <- assays(rse_tx)$tpm
 #######################
 message(Sys.time(), " Do PCA")
 
-pca_rda_file <- here("eqtl", "genomewide", "rdas", "pcs_4features_amyg.rda")
+pca_rda_file <- here("eqtl", "genomewide", "rdas", "pcs_4features_sacc.rda")
 
 if(!file.exists(pca_rda_file)){
     pcaGene <- prcomp(t(log2(geneRpkm + 1)))
@@ -172,7 +172,7 @@ message(Sys.time(), " EQTLs")
 
 print("Starting eQTLs")
 # takes a long time
-meGene_rda <- "matrixEqtl_output_amyg_genomewide_gene.rda"
+meGene_rda <- "matrixEqtl_output_sacc_genomewide_gene.rda"
 if(!file.exists(meGene_rda)){
     meGene <- Matrix_eQTL_main(
         snps = theSnps, gene = geneSlice,
@@ -187,7 +187,7 @@ if(!file.exists(meGene_rda)){
     load(meGene_rda, verbose = TRUE)
 }
 
-meExon_rda <- "matrixEqtl_output_amyg_genomewide_exon.rda"
+meExon_rda <- "matrixEqtl_output_sacc_genomewide_exon.rda"
 if(!file.exists(meExon_rda)){
     meExon <- Matrix_eQTL_main(
         snps = theSnps, gene = exonSlice,
@@ -202,7 +202,7 @@ if(!file.exists(meExon_rda)){
     load(meExon_rda, verbose = TRUE)
 }
 
-meJxn_rda <- "matrixEqtl_output_amyg_genomewide_jxn.rda"
+meJxn_rda <- "matrixEqtl_output_sacc_genomewide_jxn.rda"
 if(!file.exists(meJxn_rda)){
     meJxn <- Matrix_eQTL_main(
         snps = theSnps, gene = jxnSlice,
@@ -217,7 +217,7 @@ if(!file.exists(meJxn_rda)){
     load(meJxn_rda, verbose = TRUE)
 }
 
-meTx_rda <- "matrixEqtl_output_amyg_genomewide_tx.rda"
+meTx_rda <- "matrixEqtl_output_sacc_genomewide_tx.rda"
 if(!file.exists(meTx_rda)){
     meTx <- Matrix_eQTL_main(
         snps = theSnps, gene = txSlice,
@@ -292,13 +292,13 @@ rm(geneEqtl, exonEqtl, jxnEqtl, txEqtl)
 #     as.list(rowRanges(rse_jxn)$gencodeTx[match(jxnEqtl$gene, rownames(rse_jxn))]),
 #     as.list(txEqtl$gene)
 # ))
-save(allEqtl, file = "mergedEqtl_output_amyg_genomewide_4features.rda", compress = TRUE)
+save(allEqtl, file = "mergedEqtl_output_sacc_genomewide_4features.rda", compress = TRUE)
 
 
 allEqtlFDR01 <- allEqtl[which(allEqtl$FDR < 0.01), ]
-save(allEqtlFDR01, file = "mergedEqtl_output_amyg_genomewide_4features_FDR01.rda", compress = TRUE)
+save(allEqtlFDR01, file = "mergedEqtl_output_sacc_genomewide_4features_FDR01.rda", compress = TRUE)
 
-# sgejobs::job_single("genomewide_run_eqtls_amyg", memory = "150G",create_shell = TRUE, command = "Rscript genomewide_run_eqtls_amyg.R")
+# sgejobs::job_single("genomewide_run_eqtls_sacc", memory = "150G",create_shell = TRUE, command = "Rscript genomewide_run_eqtls_sacc.R")
 
 ## Reproducibility information
 print("Reproducibility information:")
