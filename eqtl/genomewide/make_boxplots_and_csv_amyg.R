@@ -31,6 +31,17 @@ snp = snp[snpInd,]
 # filter brain region
 # make mds and snp dimensions equal to N
 # (repeat rows or columns for BrNum replicates)
+table(pd$BrNum %in% colnames(snp))
+table(pd$BrNum %in% rownames(mds))
+
+pd$BrNum[!pd$BrNum %in% rownames(mds)]
+has_genotype <- pd$BrNum %in% rownames(mds)# snp and mds are missing BR1843
+rse_gene <- rse_gene[, has_genotype]
+rse_exon <- rse_exon[, has_genotype]
+rse_jxn <- rse_jxn[, has_genotype]
+rse_tx <- rse_tx[, has_genotype]
+
+pd <- pd[has_genotype, ]
 mds = mds[pd$BrNum,]
 snp = snp[,pd$BrNum]
 rownames(mds) = colnames(snp) = pd$RNum
@@ -40,13 +51,14 @@ snpMap$maf = rowSums(snp, na.rm=TRUE)/(2*rowSums(!is.na(snp)))
 
 ################
 ## load table
-load("mergedEqtl_output_amyg_genomewide_4features_FDR01.rda", verbose=TRUE)
-amyg = allEqtlFDR01
-
+# load("mergedEqtl_output_amyg_genomewide_4features_FDR01.rda", verbose=TRUE) # this is a empty table
+# amyg = allEqtlFDR01
+load("mergedEqtl_output_amyg_genomewide_4features.rda", verbose=TRUE) #just for testing
+amyg = allEqtl #just for testing
 
 ##
 pd$PrimaryDx = factor(pd$PrimaryDx,
-	levels = c("Control", "Bipolar"))
+	levels = c("Control", "Bipolar","MDD"))
 mod = model.matrix(~PrimaryDx + Sex + as.matrix(mds[,1:5]), data = pd)
 
 
