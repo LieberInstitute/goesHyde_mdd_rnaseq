@@ -117,7 +117,7 @@ if(!file.exists(pca_rda_file)){
     save(genePCs, exonPCs, jxnPCs, txPCs, file = pca_rda_file)
 
 }else{
-    load(pcs_rda_file, verbose = TRUE)
+    load(pca_rda_file, verbose = TRUE)
 }
 
 covsGene <- SlicedData$new(t(cbind(mod[, -1], genePCs)))
