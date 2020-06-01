@@ -212,7 +212,7 @@ if(!file.exists(meJxn_rda)){
         useModel = modelLINEAR, cisDist = 5e5,
         pvalue.hist = 100, min.pv.by.genesnp = TRUE
     )
-    save(meJxn, file = meJxn)
+    save(meJxn, file = meJxn_rda)
 }else{
     load(meJxn_rda, verbose = TRUE)
 }
