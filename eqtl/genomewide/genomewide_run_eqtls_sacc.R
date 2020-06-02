@@ -26,9 +26,14 @@ pd <- colData(rse_gene)
 ## load SNP data
 load(here("eqtl", "genomewide", "rdas", "overlappingSNPs.rda"), verbose = TRUE) # snpMapKeep
 load(here("genotype_data", "goesHyde_bipolarMdd_Genotypes_n593.rda"), verbose = TRUE)
+head(snpMap)
+corner(snp)
 snpMap$pos_hg19 <- paste0(snpMap$CHR, ":", snpMap$POS)
 
-rownames(snpMap) <- snpMap$SNP
+#  In Bipolar code rownames are SNP, need to assign here
+# > identical(rownames(snpMap), snpMap$SNP)
+# [1] TRUE
+rownames(snp) <- rownames(snpMap) <- snpMap$SNP
 snpInd <- which(rownames(snpMap) %in% rownames(snpMapKeep) & !is.na(snpMap$pos_hg38))
 snpMap <- snpMap[snpInd, ]
 snp <- snp[snpInd, ]
