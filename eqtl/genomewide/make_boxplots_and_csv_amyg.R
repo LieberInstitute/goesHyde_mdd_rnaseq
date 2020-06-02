@@ -51,10 +51,10 @@ snpMap$maf = rowSums(snp, na.rm=TRUE)/(2*rowSums(!is.na(snp)))
 
 ################
 ## load table
-load("mergedEqtl_output_amyg_genomewide_4features_FDR01.rda", verbose=TRUE) # this is a empty table
-# amyg <- allEqtlFDR01
+# load("mergedEqtl_output_amyg_genomewide_4features_FDR01.rda", verbose=TRUE) # this is a empty table
+# amyg = allEqtlFDR01
 load("mergedEqtl_output_amyg_genomewide_4features.rda", verbose=TRUE) #just for testing
-amyg <-  allEqtl[which(allEqtl$FDR < 0.5),]
+amyg = allEqtl #just for testing
 
 ##
 pd$PrimaryDx = factor(pd$PrimaryDx,
@@ -87,7 +87,7 @@ tExprs = cleaningY(tExprs, mod, P=1)
 
 
 exprsAdj = rbind(gExprs,eExprs,jExprs,tExprs)
-# amyg$Symbol = as.character(amyg$Symbol)
+amyg$Symbol = as.character(amyg$Symbol)
 
 amygG = amyg[which(amyg$Type=="Gene"),]
 amygE = amyg[which(amyg$Type=="Exon"),]
@@ -158,11 +158,11 @@ for (i in 1:12) {
 	p_i = signif(amygT[i,"pvalue"],3)
 	typei = amygT[i,"Type"]
 
-	boxplot(exprsAdj[feati,] ~ unlist(snp[snpi,]),
+	boxplot(exprsAdj[feati,] ~ snp[snpi,],
 			xlab=snpi, ylab="Residualized Expression",
 			main=paste0(symi,"\n",feati," (",typei,")"),
 			ylim = c(range(exprsAdj[feati,])), outline=FALSE)
-	points(exprsAdj[feati,] ~ jitter(unlist(snp[snpi,])+1),
+	points(exprsAdj[feati,] ~ jitter(snp[snpi,]+1),
 			   pch=21,
 			   bg=as.numeric(snp[snpi,])+2,cex=1.5)
 	legend("top",paste0("p=",p_i))
