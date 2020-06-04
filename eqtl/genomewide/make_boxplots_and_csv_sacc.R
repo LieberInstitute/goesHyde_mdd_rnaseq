@@ -94,7 +94,7 @@ saccE = sacc[which(sacc$Type=="Exon"),]
 saccJ = sacc[which(sacc$Type=="Jxn"),]
 saccT = sacc[which(sacc$Type=="Tx"),]
 
-
+message(Sys.time(), " Box plots")
 pdf("sacc_top_eqtl_adj.pdf", h=6, w=10)
 par(mfrow=c(2,3), cex.main=1.2, cex.lab=1.2)
 palette(brewer.pal(8,"Spectral"))
@@ -173,7 +173,7 @@ dev.off()
 
 
 
-
+message(Sys.time(), " Create csv")
 ## make CSV of top 1000 of each
 sacc_merged = rbind(saccG[1:1000,],saccE[1:1000,],saccJ[1:1000,],saccT[1:1000,])
 sacc_merged = sacc_merged[,-which(names(sacc_merged)=="gencodeTx")]
@@ -216,7 +216,7 @@ sacc3 = sacc2[,c(2,12:14,26,20,15:19,22:24,27:30)]
 write.csv(sacc3, file="genomewide_snps_sacc_eqtls_top1000.csv")
 
 
-# sgejobs::job_single("make_boxplots_and_csv_sacc", memory = "150G",create_shell = TRUE, command = "make_boxplots_and_csv_sacc.R")
+# sgejobs::job_single("make_boxplots_and_csv_sacc", memory = "150G",create_shell = TRUE, command = "Rscript make_boxplots_and_csv_sacc.R")
 
 ## Reproducibility information
 print("Reproducibility information:")
