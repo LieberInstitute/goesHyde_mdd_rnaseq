@@ -216,4 +216,11 @@ sacc3 = sacc2[,c(2,12:14,26,20,15:19,22:24,27:30)]
 write.csv(sacc3, file="genomewide_snps_sacc_eqtls_top1000.csv")
 
 
+# sgejobs::job_single("make_boxplots_and_csv_sacc", memory = "150G",create_shell = TRUE, command = "make_boxplots_and_csv_sacc.R")
 
+## Reproducibility information
+print("Reproducibility information:")
+Sys.time()
+proc.time()
+options(width = 120)
+session_info()
