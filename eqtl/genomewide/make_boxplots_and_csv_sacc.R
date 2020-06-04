@@ -107,13 +107,13 @@ for (i in 1:12) {
 	p_i = signif(saccG[i,"pvalue"],3)
 	typei = saccG[i,"Type"]
 
-	boxplot(exprsAdj[feati,] ~ snp[snpi,],
+	boxplot(exprsAdj[feati,] ~ unlist(snp[snpi,]),
 			xlab=snpi, ylab="Residualized Expression",
 			main=paste0(symi,"\n",feati," (",typei,")"),
 			ylim = c(range(exprsAdj[feati,])), outline=FALSE)
-	points(exprsAdj[feati,] ~ jitter(snp[snpi,]+1),
+	points(exprsAdj[feati,] ~ jitter(unlist(snp[snpi,])+1),
 			   pch=21,
-			   bg=as.numeric(snp[snpi,])+2,cex=1.5)
+			   bg=as.numeric(unlist(snp[snpi,]))+2,cex=1.5)
 	legend("top",paste0("p=",p_i))
 }
 for (i in 1:12) {
@@ -124,13 +124,13 @@ for (i in 1:12) {
 	p_i = signif(saccE[i,"pvalue"],3)
 	typei = saccE[i,"Type"]
 
-	boxplot(exprsAdj[feati,] ~ snp[snpi,],
+	boxplot(exprsAdj[feati,] ~ unlist(snp[snpi,]),
 			xlab=snpi, ylab="Residualized Expression",
 			main=paste0(symi,"\n",feati," (",typei,")"),
 			ylim = c(range(exprsAdj[feati,])), outline=FALSE)
-	points(exprsAdj[feati,] ~ jitter(snp[snpi,]+1),
+	points(exprsAdj[feati,] ~ jitter(unlist(snp[snpi,])+1),
 			   pch=21,
-			   bg=as.numeric(snp[snpi,])+2,cex=1.5)
+			   bg=as.numeric(unlist(snp[snpi,]))+2,cex=1.5)
 	legend("top",paste0("p=",p_i))
 }
 for (i in 1:12) {
@@ -141,13 +141,13 @@ for (i in 1:12) {
 	p_i = signif(saccJ[i,"pvalue"],3)
 	typei = saccJ[i,"Type"]
 
-	boxplot(exprsAdj[feati,] ~ snp[snpi,],
+	boxplot(exprsAdj[feati,] ~ unlist(snp[snpi,]),
 			xlab=snpi, ylab="Residualized Expression",
 			main=paste0(symi,"\n",feati," (",typei,")"),
 			ylim = c(range(exprsAdj[feati,])), outline=FALSE)
-	points(exprsAdj[feati,] ~ jitter(snp[snpi,]+1),
+	points(exprsAdj[feati,] ~ jitter(unlist(snp[snpi,])+1),
 			   pch=21,
-			   bg=as.numeric(snp[snpi,])+2,cex=1.5)
+			   bg=as.numeric(unlist(snp[snpi,]))+2,cex=1.5)
 	legend("top",paste0("p=",p_i))
 }
 for (i in 1:12) {
@@ -158,13 +158,13 @@ for (i in 1:12) {
 	p_i = signif(saccT[i,"pvalue"],3)
 	typei = saccT[i,"Type"]
 
-	boxplot(exprsAdj[feati,] ~ snp[snpi,],
+	boxplot(exprsAdj[feati,] ~ unlist(snp[snpi,]),
 			xlab=snpi, ylab="Residualized Expression",
 			main=paste0(symi,"\n",feati," (",typei,")"),
 			ylim = c(range(exprsAdj[feati,])), outline=FALSE)
-	points(exprsAdj[feati,] ~ jitter(snp[snpi,]+1),
+	points(exprsAdj[feati,] ~ jitter(unlist(snp[snpi,])+1),
 			   pch=21,
-			   bg=as.numeric(snp[snpi,])+2,cex=1.5)
+			   bg=as.numeric(unlist(snp[snpi,]))+2,cex=1.5)
 	legend("top",paste0("p=",p_i))
 }
 dev.off()
