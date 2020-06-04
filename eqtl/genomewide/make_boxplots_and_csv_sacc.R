@@ -6,17 +6,21 @@ library(jaffelab)
 library(MatrixEQTL)
 library(sva)
 library(RColorBrewer)
+library(sessioninfo)
+library(here)
 
 ## load
-load("/dcl01/lieber/ajaffe/lab/zandiHyde_bipolar_rnaseq/eqtl_exprs_cutoffs/eQTL_expressed_rse_sacc.rda")
+load(here("exprs_cutoff", "rse_gene.Rdata"), verbose = TRUE)
+load(here("exprs_cutoff", "rse_exon.Rdata"), verbose = TRUE)
+load(here("exprs_cutoff", "rse_jxn.Rdata"), verbose = TRUE)
+load(here("exprs_cutoff", "rse_tx.Rdata"), verbose = TRUE)
 
-### make "Other" dx bipolar
+
 pd = colData(rse_gene)
-pd$PrimaryDx[pd$PrimaryDx=="Other"] = "Bipolar"
 
 ## load SNP data
-load("rdas/overlappingSNPs.rda")  # snpMapKeep
-load("../../genotype_data/zandiHyde_bipolar_Genotypes_n511.rda")
+load(here("eqtl", "genomewide", "rdas", "overlappingSNPs.rda"), verbose = TRUE) # snpMapKeep
+load(here("genotype_data", "goesHyde_bipolarMdd_Genotypes_n593.rda"), verbose = TRUE) # snp, snpMap & mds
 snpMap$pos_hg19 = paste0(snpMap$CHR, ":", snpMap$POS)
 
 snpInd = which(rownames(snpMap) %in% rownames(snpMapKeep) & !is.na(snpMap$pos_hg38))
@@ -27,11 +31,22 @@ snp = snp[snpInd,]
 # filter brain region
 # make mds and snp dimensions equal to N
 # (repeat rows or columns for BrNum replicates)
+table(pd$BrNum %in% colnames(snp))
+table(pd$BrNum %in% rownames(mds))
+
+pd$BrNum[!pd$BrNum %in% rownames(mds)]
+has_genotype <- pd$BrNum %in% rownames(mds)# snp and mds are missing BR1843
+rse_gene <- rse_gene[, has_genotype]
+rse_exon <- rse_exon[, has_genotype]
+rse_jxn <- rse_jxn[, has_genotype]
+rse_tx <- rse_tx[, has_genotype]
+
+pd <- pd[has_genotype, ]
 mds = mds[pd$BrNum,]
 snp = snp[,pd$BrNum]
 rownames(mds) = colnames(snp) = pd$RNum
 
-snpMap$maf = rowSums(snp, na.rm=TRUE)/(2*rowSums(!is.na(snp))) 
+snpMap$maf = rowSums(snp, na.rm=TRUE)/(2*rowSums(!is.na(snp)))
 
 
 ################
@@ -39,33 +54,32 @@ snpMap$maf = rowSums(snp, na.rm=TRUE)/(2*rowSums(!is.na(snp)))
 load("mergedEqtl_output_sacc_genomewide_4features_FDR01.rda", verbose=TRUE)
 sacc = allEqtlFDR01
 
-
 ##
 pd$PrimaryDx = factor(pd$PrimaryDx,
 	levels = c("Control", "Bipolar"))
 mod = model.matrix(~PrimaryDx + Sex + as.matrix(mds[,1:5]), data = pd)
 
+#####################
+## calculate rpkm ##
+####################
+message(Sys.time(), " Get rpkm values")
+geneRpkm <- recount::getRPKM(rse_gene, "Length")
+exonRpkm <- recount::getRPKM(rse_exon, "Length")
+rowData(rse_jxn)$Length <- 100
+jxnRp10m <- recount::getRPKM(rse_jxn, "Length")
+txTpm <- assays(rse_tx)$tpm
 
-################
-## load expression
-## sacc
-load("/dcl01/lieber/ajaffe/lab/zandiHyde_bipolar_rnaseq/eqtl_exprs_cutoffs/eQTL_expressed_rse_sacc.rda")
-geneRpkm = assays(rse_gene)$rpkm
-exonRpkm = assays(rse_exon)$rpkm
-jxnRp10m = assays(rse_jxn)$rp10m
-txTpm = assays(rse_tx)$tpm
-
-## residualize expression		
-gExprs = log2(geneRpkm+1)		
+## residualize expression
+gExprs = log2(geneRpkm+1)
 gExprs = cleaningY(gExprs, mod, P=1)
 
-eExprs = log2(exonRpkm+1)		
+eExprs = log2(exonRpkm+1)
 eExprs = cleaningY(eExprs, mod, P=1)
 
-jExprs = log2(jxnRp10m+1)		
+jExprs = log2(jxnRp10m+1)
 jExprs = cleaningY(jExprs, mod, P=1)
 
-tExprs = log2(txTpm+1)		
+tExprs = log2(txTpm+1)
 tExprs = cleaningY(tExprs, mod, P=1)
 
 
@@ -80,7 +94,7 @@ saccT = sacc[which(sacc$Type=="Tx"),]
 
 pdf("sacc_top_eqtl_adj.pdf", h=6, w=10)
 par(mfrow=c(2,3), cex.main=1.2, cex.lab=1.2)
-palette(brewer.pal(8,"Spectral"))			
+palette(brewer.pal(8,"Spectral"))
 ## plot
 for (i in 1:12) {
 	symi = saccG[i,"Symbol"]
@@ -91,11 +105,11 @@ for (i in 1:12) {
 	typei = saccG[i,"Type"]
 
 	boxplot(exprsAdj[feati,] ~ snp[snpi,],
-			xlab=snpi, ylab="Residualized Expression", 
-			main=paste0(symi,"\n",feati," (",typei,")"), 
+			xlab=snpi, ylab="Residualized Expression",
+			main=paste0(symi,"\n",feati," (",typei,")"),
 			ylim = c(range(exprsAdj[feati,])), outline=FALSE)
 	points(exprsAdj[feati,] ~ jitter(snp[snpi,]+1),
-			   pch=21, 
+			   pch=21,
 			   bg=as.numeric(snp[snpi,])+2,cex=1.5)
 	legend("top",paste0("p=",p_i))
 }
@@ -108,11 +122,11 @@ for (i in 1:12) {
 	typei = saccE[i,"Type"]
 
 	boxplot(exprsAdj[feati,] ~ snp[snpi,],
-			xlab=snpi, ylab="Residualized Expression", 
-			main=paste0(symi,"\n",feati," (",typei,")"), 
+			xlab=snpi, ylab="Residualized Expression",
+			main=paste0(symi,"\n",feati," (",typei,")"),
 			ylim = c(range(exprsAdj[feati,])), outline=FALSE)
 	points(exprsAdj[feati,] ~ jitter(snp[snpi,]+1),
-			   pch=21, 
+			   pch=21,
 			   bg=as.numeric(snp[snpi,])+2,cex=1.5)
 	legend("top",paste0("p=",p_i))
 }
@@ -125,11 +139,11 @@ for (i in 1:12) {
 	typei = saccJ[i,"Type"]
 
 	boxplot(exprsAdj[feati,] ~ snp[snpi,],
-			xlab=snpi, ylab="Residualized Expression", 
-			main=paste0(symi,"\n",feati," (",typei,")"), 
+			xlab=snpi, ylab="Residualized Expression",
+			main=paste0(symi,"\n",feati," (",typei,")"),
 			ylim = c(range(exprsAdj[feati,])), outline=FALSE)
 	points(exprsAdj[feati,] ~ jitter(snp[snpi,]+1),
-			   pch=21, 
+			   pch=21,
 			   bg=as.numeric(snp[snpi,])+2,cex=1.5)
 	legend("top",paste0("p=",p_i))
 }
@@ -142,11 +156,11 @@ for (i in 1:12) {
 	typei = saccT[i,"Type"]
 
 	boxplot(exprsAdj[feati,] ~ snp[snpi,],
-			xlab=snpi, ylab="Residualized Expression", 
-			main=paste0(symi,"\n",feati," (",typei,")"), 
+			xlab=snpi, ylab="Residualized Expression",
+			main=paste0(symi,"\n",feati," (",typei,")"),
 			ylim = c(range(exprsAdj[feati,])), outline=FALSE)
 	points(exprsAdj[feati,] ~ jitter(snp[snpi,]+1),
-			   pch=21, 
+			   pch=21,
 			   bg=as.numeric(snp[snpi,])+2,cex=1.5)
 	legend("top",paste0("p=",p_i))
 }
@@ -180,7 +194,7 @@ jMap = as.data.frame(rowRanges(rse_jxn))[,c("seqnames","start","end","strand","C
 txMap = as.data.frame(rowRanges(rse_tx))[,c("seqnames","start","end","strand","source")]
 txMap$source = "InGen"
 # rm(rse_gene, rse_exon, rse_jxn, rse_tx)
-colnames(gMap) = colnames(eMap) = colnames(jMap) = colnames(txMap) = 
+colnames(gMap) = colnames(eMap) = colnames(jMap) = colnames(txMap) =
 	c("feat_chr","feat_start","feat_end","strand","Class")
 featMap = rbind(rbind(rbind(gMap, eMap),jMap),txMap)
 featMap$Type = c(rep("Gene",nrow(gMap)),rep("Exon",nrow(eMap)),rep("Jxn",nrow(jMap)),rep("Tx",nrow(txMap)))
