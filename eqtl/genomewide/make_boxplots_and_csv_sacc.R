@@ -23,6 +23,10 @@ load(here("eqtl", "genomewide", "rdas", "overlappingSNPs.rda"), verbose = TRUE) 
 load(here("genotype_data", "goesHyde_bipolarMdd_Genotypes_n593.rda"), verbose = TRUE) # snp, snpMap & mds
 snpMap$pos_hg19 = paste0(snpMap$CHR, ":", snpMap$POS)
 
+#  In Bipolar code rownames are SNP, need to assign here
+# > identical(rownames(snpMap), snpMap$SNP)
+# [1] TRUE
+rownames(snp) <- rownames(snpMap) <- snpMap$SNP
 snpInd = which(rownames(snpMap) %in% rownames(snpMapKeep) & !is.na(snpMap$pos_hg38))
 snpMap = snpMap[snpInd,]
 snp = snp[snpInd,]
@@ -34,7 +38,6 @@ snp = snp[snpInd,]
 table(pd$BrNum %in% colnames(snp))
 table(pd$BrNum %in% rownames(mds))
 
-pd$BrNum[!pd$BrNum %in% rownames(mds)]
 has_genotype <- pd$BrNum %in% rownames(mds)# snp and mds are missing BR1843
 rse_gene <- rse_gene[, has_genotype]
 rse_exon <- rse_exon[, has_genotype]
@@ -42,11 +45,11 @@ rse_jxn <- rse_jxn[, has_genotype]
 rse_tx <- rse_tx[, has_genotype]
 
 pd <- pd[has_genotype, ]
-mds = mds[pd$BrNum,]
-snp = snp[,pd$BrNum]
-rownames(mds) = colnames(snp) = pd$RNum
+mds <- mds[pd$BrNum,]
+snp <- snp[,pd$BrNum]
+rownames(mds) <- colnames(snp) <- pd$RNum
 
-snpMap$maf = rowSums(snp, na.rm=TRUE)/(2*rowSums(!is.na(snp)))
+snpMap$maf <- rowSums(snp, na.rm=TRUE)/(2*rowSums(!is.na(snp)))
 
 
 ################
@@ -56,7 +59,7 @@ sacc = allEqtlFDR01
 
 ##
 pd$PrimaryDx = factor(pd$PrimaryDx,
-	levels = c("Control", "Bipolar"))
+	levels = c("Control", "Bipolar", 'MDD'))
 mod = model.matrix(~PrimaryDx + Sex + as.matrix(mds[,1:5]), data = pd)
 
 #####################
