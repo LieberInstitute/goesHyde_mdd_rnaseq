@@ -15,7 +15,7 @@ load(here("exprs_cutoff", "rse_exon.Rdata"), verbose = TRUE)
 load(here("exprs_cutoff", "rse_jxn.Rdata"), verbose = TRUE)
 load(here("exprs_cutoff", "rse_tx.Rdata"), verbose = TRUE)
 
-### make "Other" dx bipolar
+
 pd = colData(rse_gene)
 
 ## load SNP data
@@ -23,6 +23,10 @@ load(here("eqtl", "genomewide", "rdas", "overlappingSNPs.rda"), verbose = TRUE) 
 load(here("genotype_data", "goesHyde_bipolarMdd_Genotypes_n593.rda"), verbose = TRUE) # snp, snpMap & mds
 snpMap$pos_hg19 = paste0(snpMap$CHR, ":", snpMap$POS)
 
+#  In Bipolar code rownames are SNP, need to assign here
+# > identical(rownames(snpMap), snpMap$SNP)
+# [1] TRUE
+rownames(snp) <- rownames(snpMap) <- snpMap$SNP
 snpInd = which(rownames(snpMap) %in% rownames(snpMapKeep) & !is.na(snpMap$pos_hg38))
 snpMap = snpMap[snpInd,]
 snp = snp[snpInd,]
@@ -34,7 +38,6 @@ snp = snp[snpInd,]
 table(pd$BrNum %in% colnames(snp))
 table(pd$BrNum %in% rownames(mds))
 
-pd$BrNum[!pd$BrNum %in% rownames(mds)]
 has_genotype <- pd$BrNum %in% rownames(mds)# snp and mds are missing BR1843
 rse_gene <- rse_gene[, has_genotype]
 rse_exon <- rse_exon[, has_genotype]
@@ -42,25 +45,22 @@ rse_jxn <- rse_jxn[, has_genotype]
 rse_tx <- rse_tx[, has_genotype]
 
 pd <- pd[has_genotype, ]
-mds = mds[pd$BrNum,]
-snp = snp[,pd$BrNum]
-rownames(mds) = colnames(snp) = pd$RNum
+mds <- mds[pd$BrNum,]
+snp <- snp[,pd$BrNum]
+rownames(mds) <- colnames(snp) <- pd$RNum
 
-snpMap$maf = rowSums(snp, na.rm=TRUE)/(2*rowSums(!is.na(snp)))
+snpMap$maf <- rowSums(snp, na.rm=TRUE)/(2*rowSums(!is.na(snp)))
 
 
 ################
 ## load table
-# load("mergedEqtl_output_amyg_genomewide_4features_FDR01.rda", verbose=TRUE) # this is a empty table
-# amyg = allEqtlFDR01
-load("mergedEqtl_output_amyg_genomewide_4features.rda", verbose=TRUE) #just for testing
-amyg = allEqtl #just for testing
+load("mergedEqtl_output_sacc_genomewide_4features_FDR01.rda", verbose=TRUE)
+sacc = allEqtlFDR01
 
 ##
 pd$PrimaryDx = factor(pd$PrimaryDx,
-	levels = c("Control", "Bipolar","MDD"))
+	levels = c("Control", "Bipolar", 'MDD'))
 mod = model.matrix(~PrimaryDx + Sex + as.matrix(mds[,1:5]), data = pd)
-
 
 #####################
 ## calculate rpkm ##
@@ -87,84 +87,84 @@ tExprs = cleaningY(tExprs, mod, P=1)
 
 
 exprsAdj = rbind(gExprs,eExprs,jExprs,tExprs)
-amyg$Symbol = as.character(amyg$Symbol)
+sacc$Symbol = as.character(sacc$Symbol)
 
-amygG = amyg[which(amyg$Type=="Gene"),]
-amygE = amyg[which(amyg$Type=="Exon"),]
-amygJ = amyg[which(amyg$Type=="Jxn"),]
-amygT = amyg[which(amyg$Type=="Tx"),]
+saccG = sacc[which(sacc$Type=="Gene"),]
+saccE = sacc[which(sacc$Type=="Exon"),]
+saccJ = sacc[which(sacc$Type=="Jxn"),]
+saccT = sacc[which(sacc$Type=="Tx"),]
 
-
-pdf("amyg_top_eqtl_adj.pdf", h=6, w=10)
+message(Sys.time(), " Box plots")
+pdf("sacc_top_eqtl_adj.pdf", h=6, w=10)
 par(mfrow=c(2,3), cex.main=1.2, cex.lab=1.2)
 palette(brewer.pal(8,"Spectral"))
 ## plot
 for (i in 1:12) {
-	symi = amygG[i,"Symbol"]
+	symi = saccG[i,"Symbol"]
 	symi[is.na(symi)]=""
-	snpi = amygG[i,"snps"]
-	feati = amygG[i,"gene"]
-	p_i = signif(amygG[i,"pvalue"],3)
-	typei = amygG[i,"Type"]
+	snpi = saccG[i,"snps"]
+	feati = saccG[i,"gene"]
+	p_i = signif(saccG[i,"pvalue"],3)
+	typei = saccG[i,"Type"]
 
-	boxplot(exprsAdj[feati,] ~ snp[snpi,],
+	boxplot(exprsAdj[feati,] ~ unlist(snp[snpi,]),
 			xlab=snpi, ylab="Residualized Expression",
 			main=paste0(symi,"\n",feati," (",typei,")"),
 			ylim = c(range(exprsAdj[feati,])), outline=FALSE)
-	points(exprsAdj[feati,] ~ jitter(snp[snpi,]+1),
+	points(exprsAdj[feati,] ~ jitter(unlist(snp[snpi,])+1),
 			   pch=21,
-			   bg=as.numeric(snp[snpi,])+2,cex=1.5)
+			   bg=as.numeric(unlist(snp[snpi,]))+2,cex=1.5)
 	legend("top",paste0("p=",p_i))
 }
 for (i in 1:12) {
-	symi = amygE[i,"Symbol"]
+	symi = saccE[i,"Symbol"]
 	symi[is.na(symi)]=""
-	snpi = amygE[i,"snps"]
-	feati = amygE[i,"gene"]
-	p_i = signif(amygE[i,"pvalue"],3)
-	typei = amygE[i,"Type"]
+	snpi = saccE[i,"snps"]
+	feati = saccE[i,"gene"]
+	p_i = signif(saccE[i,"pvalue"],3)
+	typei = saccE[i,"Type"]
 
-	boxplot(exprsAdj[feati,] ~ snp[snpi,],
+	boxplot(exprsAdj[feati,] ~ unlist(snp[snpi,]),
 			xlab=snpi, ylab="Residualized Expression",
 			main=paste0(symi,"\n",feati," (",typei,")"),
 			ylim = c(range(exprsAdj[feati,])), outline=FALSE)
-	points(exprsAdj[feati,] ~ jitter(snp[snpi,]+1),
+	points(exprsAdj[feati,] ~ jitter(unlist(snp[snpi,])+1),
 			   pch=21,
-			   bg=as.numeric(snp[snpi,])+2,cex=1.5)
+			   bg=as.numeric(unlist(snp[snpi,]))+2,cex=1.5)
 	legend("top",paste0("p=",p_i))
 }
 for (i in 1:12) {
-	symi = amygJ[i,"Symbol"]
+	symi = saccJ[i,"Symbol"]
 	symi[is.na(symi)]=""
-	snpi = amygJ[i,"snps"]
-	feati = amygJ[i,"gene"]
-	p_i = signif(amygJ[i,"pvalue"],3)
-	typei = amygJ[i,"Type"]
+	snpi = saccJ[i,"snps"]
+	feati = saccJ[i,"gene"]
+	p_i = signif(saccJ[i,"pvalue"],3)
+	typei = saccJ[i,"Type"]
 
-	boxplot(exprsAdj[feati,] ~ snp[snpi,],
+	boxplot(exprsAdj[feati,] ~ unlist(snp[snpi,]),
 			xlab=snpi, ylab="Residualized Expression",
 			main=paste0(symi,"\n",feati," (",typei,")"),
 			ylim = c(range(exprsAdj[feati,])), outline=FALSE)
-	points(exprsAdj[feati,] ~ jitter(snp[snpi,]+1),
+	points(exprsAdj[feati,] ~ jitter(unlist(snp[snpi,])+1),
 			   pch=21,
-			   bg=as.numeric(snp[snpi,])+2,cex=1.5)
+			   bg=as.numeric(unlist(snp[snpi,]))+2,cex=1.5)
 	legend("top",paste0("p=",p_i))
 }
 for (i in 1:12) {
-	symi = amygT[i,"Symbol"]
+	symi = saccT[i,"Symbol"]
 	symi[is.na(symi)]=""
-	snpi = amygT[i,"snps"]
-	feati = amygT[i,"gene"]
-	p_i = signif(amygT[i,"pvalue"],3)
-	typei = amygT[i,"Type"]
+	snpi = saccT[i,"snps"]
+	feati = saccT[i,"gene"]
+	p_i = signif(saccT[i,"pvalue"],3)
+	typei = saccT[i,"Type"]
 
-	boxplot(exprsAdj[feati,] ~ snp[snpi,],
+	boxplot(exprsAdj[feati,] ~ unlist(snp[snpi,]),
 			xlab=snpi, ylab="Residualized Expression",
 			main=paste0(symi,"\n",feati," (",typei,")"),
 			ylim = c(range(exprsAdj[feati,])), outline=FALSE)
-	points(exprsAdj[feati,] ~ jitter(snp[snpi,]+1),
+	points(exprsAdj[feati,] ~ jitter(unlist(snp[snpi,])+1),
 			   pch=21,
-			   bg=as.numeric(snp[snpi,])+2,cex=1.5)
+			   bg=as.numeric(unlist(snp[snpi,]))+2,cex=1.5)
 	legend("top",paste0("p=",p_i))
 }
 dev.off()
@@ -173,24 +173,24 @@ dev.off()
 
 
 
-
+message(Sys.time(), " Create csv")
 ## make CSV of top 1000 of each
-amyg_merged = rbind(amygG[1:1000,],amygE[1:1000,],amygJ[1:1000,],amygT[1:1000,])
-amyg_merged = amyg_merged[,-which(names(amyg_merged)=="gencodeTx")]
+sacc_merged = rbind(saccG[1:1000,],saccE[1:1000,],saccJ[1:1000,],saccT[1:1000,])
+sacc_merged = sacc_merged[,-which(names(sacc_merged)=="gencodeTx")]
 
-amyg = amyg_merged
-amyg$EnsemblGeneID = ss(amyg$EnsemblGeneID, "\\.")
+sacc = sacc_merged
+sacc$EnsemblGeneID = ss(sacc$EnsemblGeneID, "\\.")
 
 ## snpMap
-load(here("genotype_data", "goesHyde_bipolarMdd_Genotypes_n593.rda"), verbose = TRUE) #reload snpMap
+load("../../genotype_data/zandiHyde_bipolar_Genotypes_n511.rda")
 snpMap$hg19POS = paste0(snpMap$CHR,":",snpMap$POS)
-# snpMap = snpMap[which(rownames(snpMap) %in% c(amyg$snps,sacc$snps,dlp$snps) ),c("SNP","chr_hg38","pos_hg38","hg19POS")]
+# snpMap = snpMap[which(rownames(snpMap) %in% c(sacc$snps,sacc$snps,dlp$snps) ),c("SNP","chr_hg38","pos_hg38","hg19POS")]
 
 ## featMap
-load(here("data","rseTx_GoesZandi_n1093.rda"), verbose = TRUE) #check this the correct data
-load(here("data","rseJxn_GoesZandi_n1093.rda"), verbose = TRUE)
-load(here("data","rseExon_GoesZandi_n1093.rda"), verbose = TRUE)
-load(here("data","rseGene_GoesZandi_n1093.rda"), verbose = TRUE)
+load("../../data/zandiHypde_bipolar_rseTx_n511.rda")
+load("../../data/zandiHypde_bipolar_rseJxn_n511.rda")
+load("../../data/zandiHypde_bipolar_rseExon_n511.rda")
+load("../../data/zandiHypde_bipolar_rseGene_n511.rda")
 gMap = as.data.frame(rowRanges(rse_gene))[,c("seqnames","start","end","strand","Class")]
 eMap = as.data.frame(rowRanges(rse_exon))[,c("seqnames","start","end","strand","Class")]
 jMap = as.data.frame(rowRanges(rse_jxn))[,c("seqnames","start","end","strand","Class")]
@@ -205,17 +205,18 @@ featMap$Type = c(rep("Gene",nrow(gMap)),rep("Exon",nrow(eMap)),rep("Jxn",nrow(jM
 geneMap = as.data.frame(rowRanges(rse_gene))[,c("gencodeID","Symbol","ensemblID","gene_type")]
 
 ## put together
-snpMap_temp = snpMap[amyg$snps,]
-featMap_temp = featMap[amyg$gene,]
-geneMap_temp = geneMap[match(amyg$EnsemblGeneID, geneMap$ensemblID),]
-amyg2 = cbind(cbind(cbind(snpMap_temp,featMap_temp),geneMap_temp),amyg)
-# amyg2 = amyg2[,-which(colnames(amyg2)=="gencodeTx")]
+snpMap_temp = snpMap[sacc$snps,]
+featMap_temp = featMap[sacc$gene,]
+geneMap_temp = geneMap[match(sacc$EnsemblGeneID, geneMap$ensemblID),]
+sacc2 = cbind(cbind(cbind(snpMap_temp,featMap_temp),geneMap_temp),sacc)
+# sacc2 = sacc2[,-which(colnames(sacc2)=="gencodeTx")]
 
-amyg3 = amyg2[,c(2,12:14,26,20,15:19,22:24,27:30)]
+sacc3 = sacc2[,c(2,12:14,26,20,15:19,22:24,27:30)]
 
-write.csv(amyg3, file="genomewide_snps_amyg_eqtls_top1000.csv")
+write.csv(sacc3, file="genomewide_snps_sacc_eqtls_top1000.csv")
 
-# sgejobs::job_single("make_boxplots_and_csv_amyg", memory = "100G",create_shell = TRUE, command = "Rscript make_boxplots_and_csv_amyg.R")
+
+# sgejobs::job_single("make_boxplots_and_csv_sacc", memory = "150G",create_shell = TRUE, command = "Rscript make_boxplots_and_csv_sacc.R")
 
 ## Reproducibility information
 print("Reproducibility information:")
@@ -223,4 +224,3 @@ Sys.time()
 proc.time()
 options(width = 120)
 session_info()
-
