@@ -187,10 +187,10 @@ snpMap$hg19POS = paste0(snpMap$CHR,":",snpMap$POS)
 # snpMap = snpMap[which(rownames(snpMap) %in% c(amyg$snps,amyg$snps,dlp$snps) ),c("SNP","chr_hg38","pos_hg38","hg19POS")]
 
 ## featMap
-load("../../data/zandiHypde_bipolar_rseTx_n511.rda")
-load("../../data/zandiHypde_bipolar_rseJxn_n511.rda")
-load("../../data/zandiHypde_bipolar_rseExon_n511.rda")
-load("../../data/zandiHypde_bipolar_rseGene_n511.rda")
+load(here("data","rse_gene_GoesZandi_n1093.rda"), verbose = TRUE)
+load(here("data","rse_exon_GoesZandi_n1093.rda"), verbose = TRUE)
+load(here("data","rse_jxn_GoesZandi_n1093.rda"), verbose = TRUE)
+load(here("data","rse_tx_GoesZandi_n1093.rda"), verbose = TRUE)
 gMap = as.data.frame(rowRanges(rse_gene))[,c("seqnames","start","end","strand","Class")]
 eMap = as.data.frame(rowRanges(rse_exon))[,c("seqnames","start","end","strand","Class")]
 jMap = as.data.frame(rowRanges(rse_jxn))[,c("seqnames","start","end","strand","Class")]
