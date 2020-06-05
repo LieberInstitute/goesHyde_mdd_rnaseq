@@ -54,8 +54,8 @@ snpMap$maf <- rowSums(snp, na.rm=TRUE)/(2*rowSums(!is.na(snp)))
 
 ################
 ## load table
-load("mergedEqtl_output_sacc_genomewide_4features_FDR01.rda", verbose=TRUE)
-sacc = allEqtlFDR01
+load("mergedEqtl_output_amyg_genomewide_4features_FDR01.rda", verbose=TRUE)
+amyg = allEqtlFDR01
 
 ##
 pd$PrimaryDx = factor(pd$PrimaryDx,
@@ -87,25 +87,25 @@ tExprs = cleaningY(tExprs, mod, P=1)
 
 
 exprsAdj = rbind(gExprs,eExprs,jExprs,tExprs)
-sacc$Symbol = as.character(sacc$Symbol)
+amyg$Symbol = as.character(amyg$Symbol)
 
-saccG = sacc[which(sacc$Type=="Gene"),]
-saccE = sacc[which(sacc$Type=="Exon"),]
-saccJ = sacc[which(sacc$Type=="Jxn"),]
-saccT = sacc[which(sacc$Type=="Tx"),]
+amygG = amyg[which(amyg$Type=="Gene"),]
+amygE = amyg[which(amyg$Type=="Exon"),]
+amygJ = amyg[which(amyg$Type=="Jxn"),]
+amygT = amyg[which(amyg$Type=="Tx"),]
 
 message(Sys.time(), " Box plots")
-pdf("sacc_top_eqtl_adj.pdf", h=6, w=10)
+pdf("amyg_top_eqtl_adj.pdf", h=6, w=10)
 par(mfrow=c(2,3), cex.main=1.2, cex.lab=1.2)
 palette(brewer.pal(8,"Spectral"))
 ## plot
 for (i in 1:12) {
-	symi = saccG[i,"Symbol"]
+	symi = amygG[i,"Symbol"]
 	symi[is.na(symi)]=""
-	snpi = saccG[i,"snps"]
-	feati = saccG[i,"gene"]
-	p_i = signif(saccG[i,"pvalue"],3)
-	typei = saccG[i,"Type"]
+	snpi = amygG[i,"snps"]
+	feati = amygG[i,"gene"]
+	p_i = signif(amygG[i,"pvalue"],3)
+	typei = amygG[i,"Type"]
 
 	boxplot(exprsAdj[feati,] ~ unlist(snp[snpi,]),
 			xlab=snpi, ylab="Residualized Expression",
@@ -117,12 +117,12 @@ for (i in 1:12) {
 	legend("top",paste0("p=",p_i))
 }
 for (i in 1:12) {
-	symi = saccE[i,"Symbol"]
+	symi = amygE[i,"Symbol"]
 	symi[is.na(symi)]=""
-	snpi = saccE[i,"snps"]
-	feati = saccE[i,"gene"]
-	p_i = signif(saccE[i,"pvalue"],3)
-	typei = saccE[i,"Type"]
+	snpi = amygE[i,"snps"]
+	feati = amygE[i,"gene"]
+	p_i = signif(amygE[i,"pvalue"],3)
+	typei = amygE[i,"Type"]
 
 	boxplot(exprsAdj[feati,] ~ unlist(snp[snpi,]),
 			xlab=snpi, ylab="Residualized Expression",
@@ -134,12 +134,12 @@ for (i in 1:12) {
 	legend("top",paste0("p=",p_i))
 }
 for (i in 1:12) {
-	symi = saccJ[i,"Symbol"]
+	symi = amygJ[i,"Symbol"]
 	symi[is.na(symi)]=""
-	snpi = saccJ[i,"snps"]
-	feati = saccJ[i,"gene"]
-	p_i = signif(saccJ[i,"pvalue"],3)
-	typei = saccJ[i,"Type"]
+	snpi = amygJ[i,"snps"]
+	feati = amygJ[i,"gene"]
+	p_i = signif(amygJ[i,"pvalue"],3)
+	typei = amygJ[i,"Type"]
 
 	boxplot(exprsAdj[feati,] ~ unlist(snp[snpi,]),
 			xlab=snpi, ylab="Residualized Expression",
@@ -151,12 +151,12 @@ for (i in 1:12) {
 	legend("top",paste0("p=",p_i))
 }
 for (i in 1:12) {
-	symi = saccT[i,"Symbol"]
+	symi = amygT[i,"Symbol"]
 	symi[is.na(symi)]=""
-	snpi = saccT[i,"snps"]
-	feati = saccT[i,"gene"]
-	p_i = signif(saccT[i,"pvalue"],3)
-	typei = saccT[i,"Type"]
+	snpi = amygT[i,"snps"]
+	feati = amygT[i,"gene"]
+	p_i = signif(amygT[i,"pvalue"],3)
+	typei = amygT[i,"Type"]
 
 	boxplot(exprsAdj[feati,] ~ unlist(snp[snpi,]),
 			xlab=snpi, ylab="Residualized Expression",
@@ -175,16 +175,16 @@ dev.off()
 
 message(Sys.time(), " Create csv")
 ## make CSV of top 1000 of each
-sacc_merged = rbind(saccG[1:1000,],saccE[1:1000,],saccJ[1:1000,],saccT[1:1000,])
-sacc_merged = sacc_merged[,-which(names(sacc_merged)=="gencodeTx")]
+amyg_merged = rbind(amygG[1:1000,],amygE[1:1000,],amygJ[1:1000,],amygT[1:1000,])
+amyg_merged = amyg_merged[,-which(names(amyg_merged)=="gencodeTx")]
 
-sacc = sacc_merged
-sacc$EnsemblGeneID = ss(sacc$EnsemblGeneID, "\\.")
+amyg = amyg_merged
+amyg$EnsemblGeneID = ss(amyg$EnsemblGeneID, "\\.")
 
 ## snpMap
 load("../../genotype_data/zandiHyde_bipolar_Genotypes_n511.rda")
 snpMap$hg19POS = paste0(snpMap$CHR,":",snpMap$POS)
-# snpMap = snpMap[which(rownames(snpMap) %in% c(sacc$snps,sacc$snps,dlp$snps) ),c("SNP","chr_hg38","pos_hg38","hg19POS")]
+# snpMap = snpMap[which(rownames(snpMap) %in% c(amyg$snps,amyg$snps,dlp$snps) ),c("SNP","chr_hg38","pos_hg38","hg19POS")]
 
 ## featMap
 load("../../data/zandiHypde_bipolar_rseTx_n511.rda")
@@ -205,18 +205,18 @@ featMap$Type = c(rep("Gene",nrow(gMap)),rep("Exon",nrow(eMap)),rep("Jxn",nrow(jM
 geneMap = as.data.frame(rowRanges(rse_gene))[,c("gencodeID","Symbol","ensemblID","gene_type")]
 
 ## put together
-snpMap_temp = snpMap[sacc$snps,]
-featMap_temp = featMap[sacc$gene,]
-geneMap_temp = geneMap[match(sacc$EnsemblGeneID, geneMap$ensemblID),]
-sacc2 = cbind(cbind(cbind(snpMap_temp,featMap_temp),geneMap_temp),sacc)
-# sacc2 = sacc2[,-which(colnames(sacc2)=="gencodeTx")]
+snpMap_temp = snpMap[amyg$snps,]
+featMap_temp = featMap[amyg$gene,]
+geneMap_temp = geneMap[match(amyg$EnsemblGeneID, geneMap$ensemblID),]
+amyg2 = cbind(cbind(cbind(snpMap_temp,featMap_temp),geneMap_temp),amyg)
+# amyg2 = amyg2[,-which(colnames(amyg2)=="gencodeTx")]
 
-sacc3 = sacc2[,c(2,12:14,26,20,15:19,22:24,27:30)]
+amyg3 = amyg2[,c(2,12:14,26,20,15:19,22:24,27:30)]
 
-write.csv(sacc3, file="genomewide_snps_sacc_eqtls_top1000.csv")
+write.csv(amyg3, file="genomewide_snps_amyg_eqtls_top1000.csv")
 
 
-# sgejobs::job_single("make_boxplots_and_csv_sacc", memory = "150G",create_shell = TRUE, command = "Rscript make_boxplots_and_csv_sacc.R")
+# sgejobs::job_single("make_boxplots_and_csv_amyg", memory = "150G",create_shell = TRUE, command = "Rscript make_boxplots_and_csv_amyg.R")
 
 ## Reproducibility information
 print("Reproducibility information:")
