@@ -176,13 +176,13 @@ dev.off()
 message(Sys.time(), " Create csv")
 ## make CSV of top 1000 of each
 sacc_merged = rbind(saccG[1:1000,],saccE[1:1000,],saccJ[1:1000,],saccT[1:1000,])
-sacc_merged = sacc_merged[,-which(names(sacc_merged)=="gencodeTx")]
+# sacc_merged = sacc_merged[,-which(names(sacc_merged)=="gencodeTx")]
 
 sacc = sacc_merged
 sacc$EnsemblGeneID = ss(sacc$EnsemblGeneID, "\\.")
 
 ## snpMap
-load("../../genotype_data/zandiHyde_bipolar_Genotypes_n511.rda")
+load(here("genotype_data","goesHyde_bipolarMdd_Genotypes_n593.rda"), verbose = TRUE) # what file is needed here?
 snpMap$hg19POS = paste0(snpMap$CHR,":",snpMap$POS)
 # snpMap = snpMap[which(rownames(snpMap) %in% c(sacc$snps,sacc$snps,dlp$snps) ),c("SNP","chr_hg38","pos_hg38","hg19POS")]
 
