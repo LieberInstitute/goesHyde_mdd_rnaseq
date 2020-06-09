@@ -172,18 +172,17 @@ dev.off()
 
 
 
-
+#################################
+## make CSV of top 1000 of each ##
+#################################
 message(Sys.time(), " Create csv")
-## make CSV of top 1000 of each
-amyg_merged = rbind(amygG[1:1000,],amygE[1:1000,],amygJ[1:1000,],amygT[1:1000,])
-amyg_merged = amyg_merged[,-which(names(amyg_merged)=="gencodeTx")]
 
-amyg = amyg_merged
+amyg = rbind(amygG[1:1000,],amygE[1:1000,],amygJ[1:1000,],amygT[1:1000,])
 amyg$EnsemblGeneID = ss(amyg$EnsemblGeneID, "\\.")
 
 ## snpMap
-load("../../genotype_data/zandiHyde_bipolar_Genotypes_n511.rda")
-snpMap$hg19POS = paste0(snpMap$CHR,":",snpMap$POS)
+# load("../../genotype_data/zandiHyde_bipolar_Genotypes_n511.rda")
+# snpMap$hg19POS = paste0(snpMap$CHR,":",snpMap$POS)
 # snpMap = snpMap[which(rownames(snpMap) %in% c(amyg$snps,amyg$snps,dlp$snps) ),c("SNP","chr_hg38","pos_hg38","hg19POS")]
 
 ## featMap
