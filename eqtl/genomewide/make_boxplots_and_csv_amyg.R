@@ -53,11 +53,11 @@ snpMap$maf <- rowSums(snp, na.rm=TRUE)/(2*rowSums(!is.na(snp)))
 
 
 ################
-## load table
+## load table ##
+###############
 load("mergedEqtl_output_amyg_genomewide_4features_FDR01.rda", verbose=TRUE)
 amyg = allEqtlFDR01
 
-##
 pd$PrimaryDx = factor(pd$PrimaryDx,
 	levels = c("Control", "Bipolar", 'MDD'))
 mod = model.matrix(~PrimaryDx + Sex + as.matrix(mds[,1:5]), data = pd)
@@ -94,11 +94,14 @@ amygE = amyg[which(amyg$Type=="Exon"),]
 amygJ = amyg[which(amyg$Type=="Jxn"),]
 amygT = amyg[which(amyg$Type=="Tx"),]
 
+##########
+## plot ##
+#########
 message(Sys.time(), " Box plots")
 pdf("amyg_top_eqtl_adj.pdf", h=6, w=10)
 par(mfrow=c(2,3), cex.main=1.2, cex.lab=1.2)
 palette(brewer.pal(8,"Spectral"))
-## plot
+
 for (i in 1:12) {
 	symi = amygG[i,"Symbol"]
 	symi[is.na(symi)]=""
@@ -168,9 +171,6 @@ for (i in 1:12) {
 	legend("top",paste0("p=",p_i))
 }
 dev.off()
-
-
-
 
 #################################
 ## make CSV of top 1000 of each ##
