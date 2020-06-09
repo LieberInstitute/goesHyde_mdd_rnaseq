@@ -53,11 +53,11 @@ snpMap$maf <- rowSums(snp, na.rm=TRUE)/(2*rowSums(!is.na(snp)))
 
 
 ################
-## load table
+## load table ##
+###############
 load("mergedEqtl_output_sacc_genomewide_4features_FDR01.rda", verbose=TRUE)
 sacc = allEqtlFDR01
 
-##
 pd$PrimaryDx = factor(pd$PrimaryDx,
 	levels = c("Control", "Bipolar", 'MDD'))
 mod = model.matrix(~PrimaryDx + Sex + as.matrix(mds[,1:5]), data = pd)
@@ -94,11 +94,14 @@ saccE = sacc[which(sacc$Type=="Exon"),]
 saccJ = sacc[which(sacc$Type=="Jxn"),]
 saccT = sacc[which(sacc$Type=="Tx"),]
 
+##########
+## plot ##
+#########
 message(Sys.time(), " Box plots")
 pdf("sacc_top_eqtl_adj.pdf", h=6, w=10)
 par(mfrow=c(2,3), cex.main=1.2, cex.lab=1.2)
 palette(brewer.pal(8,"Spectral"))
-## plot
+
 for (i in 1:12) {
 	symi = saccG[i,"Symbol"]
 	symi[is.na(symi)]=""
@@ -169,22 +172,19 @@ for (i in 1:12) {
 }
 dev.off()
 
-
-
-
-
+##################################
+## make CSV of top 1000 of each ##
+#################################
 message(Sys.time(), " Create csv")
-## make CSV of top 1000 of each
-sacc_merged = rbind(saccG[1:1000,],saccE[1:1000,],saccJ[1:1000,],saccT[1:1000,])
-# sacc_merged = sacc_merged[,-which(names(sacc_merged)=="gencodeTx")]
 
-sacc = sacc_merged
+sacc = rbind(saccG[1:1000,],saccE[1:1000,],saccJ[1:1000,],saccT[1:1000,])
+remove(saccG, saccE, saccJ, saccT)
 sacc$EnsemblGeneID = ss(sacc$EnsemblGeneID, "\\.")
 
 ## snpMap
-load(here("genotype_data","goesHyde_bipolarMdd_Genotypes_n593.rda"), verbose = TRUE) # what file is needed here?
-snpMap$hg19POS = paste0(snpMap$CHR,":",snpMap$POS)
-# snpMap = snpMap[which(rownames(snpMap) %in% c(sacc$snps,sacc$snps,dlp$snps) ),c("SNP","chr_hg38","pos_hg38","hg19POS")]
+# load(here("genotype_data","goesHyde_bipolarMdd_Genotypes_n593.rda"), verbose = TRUE) # do we need to reload this?
+# snpMap$hg19POS = paste0(snpMap$CHR,":",snpMap$POS)
+# # snpMap = snpMap[which(rownames(snpMap) %in% c(sacc$snps,sacc$snps,dlp$snps) ),c("SNP","chr_hg38","pos_hg38","hg19POS")]
 
 ## featMap
 load(here("data","rse_gene_GoesZandi_n1093.rda"), verbose = TRUE)
@@ -212,7 +212,6 @@ sacc2 = cbind(cbind(cbind(snpMap_temp,featMap_temp),geneMap_temp),sacc)
 # sacc2 = sacc2[,-which(colnames(sacc2)=="gencodeTx")]
 
 sacc3 = sacc2[,c(2,12:14,26,20,15:19,22:24,27:30)]
-
 write.csv(sacc3, file="genomewide_snps_sacc_eqtls_top1000.csv")
 
 
