@@ -40,14 +40,14 @@ rowData(rse_mdd)$meanExprs = rowData(rse_mdd)$gencodeTx = NULL
 rse_both = cbind(rse_mdd, rse_bip) #1174
 
 ## drop
-qc = read.csv("../qc_checks/qc_dropping_results.csv", stringsAsFactors = FALSE)
-qc = qc[rowSums(qc[,13:16])>0,]
+# qc = read.csv("../qc_checks/qc_dropping_results.csv", stringsAsFactors = FALSE)
+# qc = qc[rowSums(qc[,13:16])>0,]
 #qc = rbind(qc, "R17779")	# Tiny # of reads
 #filter to 1130 samples
-rse_both = rse_both[,-which(rse_both$RNum %in% qc$SAMPLE_ID | #38
-                        rse_both$RNum %in% c("R17538","R18853") | #2
-						rse_both$PrimaryDx == "Other" | #2
-						rse_both$overallMapRate <0.5) ] #6
+# rse_both = rse_both[,-which(rse_both$RNum %in% qc$SAMPLE_ID | #38
+#                         rse_both$RNum %in% c("R17538","R18853") | #2
+# 						rse_both$PrimaryDx == "Other" | #2
+# 						rse_both$overallMapRate <0.5) ] #6
 
 rse_both$PrimaryDx = droplevels(rse_both$PrimaryDx)
 rse_both$PrimaryDx = relevel(rse_both$PrimaryDx, ref="MDD")
@@ -57,6 +57,9 @@ rowData(rse_both)$meanExprs = rowMeans(tempRpkm)
 
 pd = colData(rse_both)
 table(pd$BrainRegion,pd$PrimaryDx)
+
+rse_gene = rse_both
+save(rse_gene, file="rse_gene_raw_GoesZandi_n1174.rda")
 
 #old filtering
            # MDD Control Bipolar
@@ -83,8 +86,7 @@ summary(pd$AgeDeath)
 #new
   #  Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
   # 17.37   34.47   47.30   46.58   55.88   95.27
-rse_gene = rse_both
-save(rse_gene, file="rse_gene_raw_GoesZandi_n1130.rda")
+
 
 
 # sgejobs::job_single('merge_gene_raw_BPD_MDD', create_shell = TRUE, queue= 'bluejay', memory = '50G', command = "merge_gene_raw_BPD_MDD.R")
