@@ -6,8 +6,8 @@ library(dplyr)
 library(SummarizedExperiment)
 library(ggplot2)
 #### Load Data ####
-load("corLong2.Rdata", verbose = TRUE)
-pd <- read.csv("pd_swap.csv", as.is=TRUE)
+load("/dcl01/lieber/RNAseq/Datasets/BrainGenotyping_2018/SampleFiles/preBrainStorm/corLong2.Rdata", verbose = TRUE)
+pd <- read.csv("/dcl01/lieber/RNAseq/Datasets/BrainGenotyping_2018/SampleFiles/preBrainStorm/pd_swap.csv", as.is=TRUE)
 # MDD data
 load("/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/data/rse_gene_raw_GoesZandi_n1174.rda", verbose = TRUE)
 mdd_pd <- colData(rse_gene)
@@ -15,7 +15,7 @@ dim(mdd_pd) #[1] 1174   13
 length(unique(mdd_pd$BrNum)) #[1] 607
 
 #### Swap and drop rna samples ###
-pd <- read.csv("pd_swap.csv") %>% select(RNum, BrNum)
+pd <- read.csv("dcl01/lieber/RNAseq/Datasets/BrainGenotyping_2018/SampleFiles/preBrainStorm/pd_swap.csv") %>% select(RNum, BrNum)
 
 mdd_pd <- mdd_pd %>% 
   as.data.frame() %>%
@@ -33,7 +33,7 @@ mdd_pd %>% count(Experiment, BrNum == "drop")
 
 #### Match with Brain_Sentrix samples ####
 #brain sentrix info
-brain_sentrix<- read.csv("brain_sentrix_swap.csv") %>%
+brain_sentrix<- read.csv("dcl01/lieber/RNAseq/Datasets/BrainGenotyping_2018/SampleFiles/preBrainStorm/brain_sentrix_swap.csv") %>%
   filter(BrNum != "drop", BrNum %in% mdd_pd$BrNum)
 
 #load batch priority (lower is better)
@@ -78,7 +78,15 @@ table(mdd_pd_check$cor >= 0.59 & !is.na(mdd_pd_check$cor))
 
 # drop break down by Experiment
 mdd_pd_check %>%
-  count(cor < 0.59, BrNum == "drop",Experiment)
+  count(Experiment, dna_match = cor >= 0.59 & !is.na(cor), good_rna = BrNum != "drop")
+# Experiment dna_match good_rna     n
+# <chr>      <lgl>     <lgl>    <int>
+#   1 GoesMDD    FALSE     FALSE        3
+# 2 GoesMDD    FALSE     TRUE         4
+# 3 GoesMDD    TRUE      TRUE       637
+# 4 ZandiBPD   FALSE     FALSE        7
+# 5 ZandiBPD   FALSE     TRUE         4
+# 6 ZandiBPD   TRUE      TRUE       539
 
 #how many overlapping 
 mdd_pd_check %>% 
@@ -107,7 +115,7 @@ dna_rna_cor_histo <- mdd_pd_good %>%
   labs(title = "DNA vs. RNA cor",
        subtitle = paste0(nrow(mdd_pd)," good samples for MDD"))
 
-ggsave(filename = "plots/MDDsamples_cor_histo.jpg", plot = dna_rna_cor_histo)
+ggsave(filename = "MDDsamples_cor_histo.jpg", plot = dna_rna_cor_histo)
 
 
 
