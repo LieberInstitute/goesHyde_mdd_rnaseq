@@ -18,20 +18,20 @@ table(rse_gene$Experiment)
 # GoesMDD ZandiBPD 
 # 634      540
 
-# drop 10 overlapping BPD  Control samples
+# drop 10 overlapping BPD Control samples
 mdd_pd <- mdd_pd %>%
   as.data.frame() %>%
   group_by(RNum) %>% 
   arrange(Experiment) %>%
-  slice(1)
-
-table(mdd_pd$Experiment)
-# GoesMDD ZandiBPD 
-# 634      530 
+  slice(1) %>%
+  ungroup()
 
 dim(mdd_pd)
 # [1] 1164   13
 table(mdd_pd$Experiment)
+# GoesMDD ZandiBPD 
+# 634      530 
+
 #### Swap and drop rna samples ###
 pd <- read.csv("/dcl01/lieber/RNAseq/Datasets/BrainGenotyping_2018/SampleFiles/preBrainStorm/pd_swap.csv") %>% 
   select(RNum, BrNum) %>%
@@ -45,9 +45,9 @@ mdd_pd <- mdd_pd %>%
 mdd_pd %>% count(Experiment, BrNum == "drop")
 # Experiment `BrNum == "drop"`     n
 # <chr>      <lgl>             <int>
-#   1 GoesMDD    FALSE               631
+# 1 GoesMDD    FALSE               631
 # 2 GoesMDD    TRUE                  3
-# 3 ZandiBPD   FALSE               533
+# 3 ZandiBPD   FALSE               523
 # 4 ZandiBPD   TRUE                  7
 
 
@@ -94,40 +94,24 @@ mdd_pd_check <- mdd_pd %>% left_join(corLong2_mdd, by = c("RNum","genoSample"))
 table(mdd_pd_check$cor >= 0.59 & !is.na(mdd_pd_check$cor))
 #Drop 18 samples 
 # FALSE  TRUE 
-# 18  1176 
+# 18  1146 
 
 # drop break down by Experiment
 mdd_pd_check %>%
   count(Experiment, dna_match = cor >= 0.59 & !is.na(cor), good_rna = BrNum != "drop")
 # Experiment dna_match good_rna     n
 # <chr>      <lgl>     <lgl>    <int>
-#   1 GoesMDD    FALSE     FALSE        3
+# 1 GoesMDD    FALSE     FALSE        3
 # 2 GoesMDD    FALSE     TRUE         4
-# 3 GoesMDD    TRUE      TRUE       637
+# 3 GoesMDD    TRUE      TRUE       627
 # 4 ZandiBPD   FALSE     FALSE        7
 # 5 ZandiBPD   FALSE     TRUE         4
-# 6 ZandiBPD   TRUE      TRUE       539
-
-#how many overlapping 
-mdd_pd_check %>% 
-  filter(BrNum != "drop" & cor >=0.59) %>%
-  count(RNum) %>%
-  filter(n>1)
+# 6 ZandiBPD   TRUE      TRUE       519
 
 mdd_pd_good <- mdd_pd_check %>% 
-  filter(BrNum != "drop" & cor >=0.59) %>%
-  group_by(RNum) %>%
-  arrange(Experiment) %>%
-  slice(1) %>%
-  ungroup()
+  filter(BrNum != "drop" & cor >=0.59) 
 
-nrow(mdd_pd_good)
 mdd_pd <- mdd_pd_good %>% select(-cor)
-mdd_pd %>% count(Experiment)
-# Experiment     n
-# <chr>      <int>
-# 1 GoesMDD      627
-# 2 ZandiBPD     519
 
 dna_rna_cor_histo <- mdd_pd_good %>%
   ggplot(aes(cor)) +
@@ -139,9 +123,10 @@ ggsave(filename = "MDDsamples_cor_histo.jpg", plot = dna_rna_cor_histo)
 
 
 
-#good
+#MDD fastq files
 fastq_mdd <- paste0("/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/preprocessed_data/FASTQ_merged/",mdd_pd$RNum[mdd_pd$Experiment == "GoesMDD"],".fastq.gz")
 fastq_mdd2 <- paste0("/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/preprocessed_data/FASTQ_merged/",mdd_pd$RNum[mdd_pd$Experiment == "GoesMDD"],"_read2.fastq.gz")
+#check valid paths
 fe_mdd <- file.exists(c(fastq_mdd, fastq_mdd2))
 table(fe_mdd)
 # TRUE 
@@ -149,13 +134,11 @@ table(fe_mdd)
 
 fastd_df <- data.frame(mdd_pd$RNum[mdd_pd$Experiment == "GoesMDD"], fastq_mdd, fastq_mdd2)
 colnames(fastd_df) <- c("RNum", "read1", "read2")
+
+# Add fastq paths 
 mdd_pd <- mdd_pd %>% 
-  #left_join(fastd_df) %>%
+  left_join(fastd_df) %>%
   arrange(BrNum) %>%
   arrange(Experiment)
 
 write.csv(mdd_pd, "GoesMDD_pd_n1146.csv")
-
-summary(mdd_pd$AgeDeath)
-# Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-# 17.37   34.44   47.33   46.62   55.92   95.27 
