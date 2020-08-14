@@ -14,26 +14,46 @@ mdd_pd <- colData(rse_gene)
 dim(mdd_pd) #[1] 1174   13
 length(unique(mdd_pd$BrNum)) #[1] 607
 
+table(rse_gene$Experiment)
+# GoesMDD ZandiBPD 
+# 634      540
+
+# drop 10 overlapping BPD  Control samples
+mdd_pd <- mdd_pd %>%
+  as.data.frame() %>%
+  group_by(RNum) %>% 
+  arrange(Experiment) %>%
+  slice(1)
+
+table(mdd_pd$Experiment)
+# GoesMDD ZandiBPD 
+# 634      530 
+
+dim(mdd_pd)
+# [1] 1164   13
+table(mdd_pd$Experiment)
 #### Swap and drop rna samples ###
-pd <- read.csv("dcl01/lieber/RNAseq/Datasets/BrainGenotyping_2018/SampleFiles/preBrainStorm/pd_swap.csv") %>% select(RNum, BrNum)
+pd <- read.csv("/dcl01/lieber/RNAseq/Datasets/BrainGenotyping_2018/SampleFiles/preBrainStorm/pd_swap.csv") %>% 
+  select(RNum, BrNum) %>%
+  unique()
 
 mdd_pd <- mdd_pd %>% 
-  as.data.frame() %>%
   select(-BrNum) %>%
   left_join(pd, by = c("RNum"))
 
+# Samples removed for rna-rna issues
 mdd_pd %>% count(Experiment, BrNum == "drop")
 # Experiment `BrNum == "drop"`     n
 # <chr>      <lgl>             <int>
-#   1 GoesMDD    FALSE               641
+#   1 GoesMDD    FALSE               631
 # 2 GoesMDD    TRUE                  3
-# 3 ZandiBPD   FALSE               543
+# 3 ZandiBPD   FALSE               533
 # 4 ZandiBPD   TRUE                  7
 
 
 #### Match with Brain_Sentrix samples ####
 #brain sentrix info
-brain_sentrix<- read.csv("dcl01/lieber/RNAseq/Datasets/BrainGenotyping_2018/SampleFiles/preBrainStorm/brain_sentrix_swap.csv") %>%
+brain_sentrix<- read.csv("/dcl01/lieber/RNAseq/Datasets/BrainGenotyping_2018/SampleFiles/preBrainStorm/brain_sentrix_swap.csv") %>%
   filter(BrNum != "drop", BrNum %in% mdd_pd$BrNum)
 
 #load batch priority (lower is better)
@@ -59,8 +79,8 @@ nrow(brain_sentrix1) ==length(unique(brain_sentrix1$BrNum))
 #### Add brain sentrix ID to mdd_data ####
 mdd_pd <- mdd_pd %>% left_join(brain_sentrix1, by = "BrNum")
 
-
 # check for good cor in corLong2
+load("/dcl01/lieber/RNAseq/Datasets/BrainGenotyping_2018/SampleFiles/preBrainStorm/corLong2.Rdata", verbose = TRUE)
 corLong2_mdd <- corLong2 %>% select(RNum, genoSample, cor) %>%
   filter(genoSample %in% mdd_pd$genoSample,
          RNum %in% mdd_pd$RNum) %>%
