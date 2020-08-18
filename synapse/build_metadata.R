@@ -8,24 +8,32 @@ lims <- read.csv("/dcl01/lieber/RNAseq/Datasets/BrainGenotyping_2018/SampleFiles
 pd <- read.csv("../data/GoesMDD_pd_n1146.csv")
 
 
-# Individual data
-indi_dict <- read_excel("template_individual_human.xlsx", sheet = "Dictionary")
-indi_ID <- unique(pd$BrNum)
-length(indi_ID)
-# [1] 605
+build_metadata <- function(template_xlsx, data, id_col, id){
+  dict <- read_excel(template_xlsx, sheet = "Dictionary")
+  dict_id <- dict$key[match(id_col, dict$col)]
+  message(paste("data ID:", id_col, "template id:",dict_id))
+  #get extract variable cols from data
+  data_hasCol <- !is.na(dict$col) & dict$col != "?"
+  data_col <- dict$col[data_hasCol]
+  message(all(data_col %in% colnames(data)))
+  
+  # build data Variable
+  dataV <- data[data[[id_col]] %in% id,]
+  dataV <- dataV[,data_col]
+  colnames(dataV) <- dict$key[data_hasCol]
+  
+  # build data Same
+  dataS <- t(data.frame(dict$value[!data_hasCol]))
+  dataS <- do.call("rbind", replicate(length(id), dataS, simplify = FALSE))
+  dataS <- cbind(dataS, id)
+  colnames(dataS) <-  c(dict$key[!data_hasCol], dict_id)
+  #build data All
+  dataA <- merge(dataV, dataS, by = dict_id)
+  temp <- read_excel(template_xlsx, sheet = "Template")
+  
+  meta_data <- rbind(temp, dataA)
+  return(meta_data)
+}
 
-#get data from Lims
-indi_fromCol <- !is.na(indi_dict$col) & indi_dict$col != "?"
-indi_limsCol <- indi_dict$col[indi_fromCol]
-all(indi_limsCol %in% colnames(lims))
-# [1] TRUE
-indi_lims <- subset(lims[,indi_limsCol], BrNum %in% indi_ID)
-colnames(indi_lims) <- indi_dict$key[indi_fromCol]
+indi_md <- build_metadata("template_individual_human.xlsx", lims, "BrNum", indi_ID)
 
-#build table with values
-indi_value_df <- t(as.data.frame(indi_dict$value[!indi_fromCol]))
-indi_value_df <- indi_value_df[rep(seq_len(nrow(indi_value_df)),length(indi_ID)),]                  
-colnames(indi_value_df) <- indi_dict$key[!indi_fromCol]
-rownames(indi_value_df) <- indi_ID
-
-left_join(indi_lims, indi_value_df, by.x = "individualID", by.y = 0)
