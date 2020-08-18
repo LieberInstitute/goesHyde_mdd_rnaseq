@@ -3,9 +3,7 @@ library("sessioninfo")
 library("SummarizedExperiment")
 library("jaffelab")
 library("dplyr")
-
-lims <- read.csv("/dcl01/lieber/RNAseq/Datasets/BrainGenotyping_2018/SampleFiles/preBrainStorm/shiny070220.csv")
-pd <- read.csv("../data/GoesMDD_pd_n1146.csv")
+library("reshape2")
 
 
 build_metadata <- function(template_xlsx, data, id_col, id){
@@ -15,7 +13,18 @@ build_metadata <- function(template_xlsx, data, id_col, id){
   #get extract variable cols from data
   data_hasCol <- !is.na(dict$col) & dict$col != "?"
   data_col <- dict$col[data_hasCol]
-  message(all(data_col %in% colnames(data)))
+  
+  # message(paste(colnames(data), collapse = ","))
+  # message(paste(data_col, collapse = ","))
+  #check colnames match
+  col_match <- data_col %in% colnames(data)
+  if(!all(col_match)){
+    missing <- data_col[!col_match]
+    message("Missing cols:", paste(missing, collapse = ","))
+    return(NULL)
+  } else {
+    message(sum(col_match), " matches in data")
+  }
   
   # build data Variable
   dataV <- data[data[[id_col]] %in% id,]
@@ -35,5 +44,48 @@ build_metadata <- function(template_xlsx, data, id_col, id){
   return(meta_data)
 }
 
-indi_md <- build_metadata("template_individual_human.xlsx", lims, "BrNum", indi_ID)
+# load data
+lims <- read.csv("/dcl01/lieber/RNAseq/Datasets/BrainGenotyping_2018/SampleFiles/preBrainStorm/shiny070220.csv")
+brain_weight <- lims %>% select(BrNum, `Brain.Weight..gram.`)
+# ad brain weight to pd
+pd_mdd <- read.csv("../data/GoesMDD_pd_n1146.csv") %>% left_join(brain_weight, by = "BrNum")
+pd <- read.csv("/dcl01/lieber/RNAseq/Datasets/BrainGenotyping_2018/SampleFiles/preBrainStorm/pd_swap.csv", as.is=TRUE)
 
+BrNum <- unique(pd_mdd$BrNum)
+RNum <- pd_mdd$RNum
+# Individual
+indi_md <- build_metadata("template_individual_human.xlsx", lims, "BrNum", BrNum)
+indi_md_fn <- "GoesMDD_individual_human.csv"
+write.csv(indi_md, file = indi_md_fn, row.names = FALSE)
+
+# Biospecimen
+bio_md <- build_metadata("template_biospecimen.xlsx", pd_mdd, "RNum", RNum)
+bio_md_fn <- "GoesMDD_biospecimen.csv"
+write.csv(bio_md, file = bio_md_fn, row.names = FALSE)
+
+# Assay
+assay_md <- build_metadata("template_assay_rnaSeq.xlsx", pd, "RNum", RNum)
+assay_md_fn <- "GoesMDD_assay_rnaSeq.csv"
+write.csv(assay_md, file = assay_md_fn, row.names = FALSE)
+
+# Manifest
+mani_md_fn <- "GoesMDD_manifest.csv"
+
+mdd_manifest <- pd_mdd %>%
+  select(RNum, BrNum, read1, read2) %>%
+  melt(id.vars = c("RNum", "BrNum")) %>%
+  select(RNum, BrNum, path = value) %>%
+  mutate(metadataType = NA) %>%
+  filter(!is.na(path))
+
+meta_files <- c(indi_md_fn, bio_md_fn, assay_md_fn, mani_md_fn)
+meta_paths <- paste0("/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/synapse", meta_files)
+meta_manifest <- data.frame(rep(NA,4),
+                            rep(NA,4),
+                            meta_paths, 
+                            c("individual", "biospecimen", "assay", "manifest"))
+colnames(meta_manifest) <- c("RNum","BrNum","path", "metadataType")
+
+mdd_all_mani <- rbind(meta_manifest, mdd_manifest)
+mani_md <- build_metadata("template_manifest.xlsx", mdd_all_mani, "path", mdd_all_mani$path)
+write.csv(mani_md, file = mani_md_fn, row.names = FALSE)
