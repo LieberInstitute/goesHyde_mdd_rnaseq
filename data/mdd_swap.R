@@ -18,43 +18,38 @@ table(rse_gene$Experiment)
 # GoesMDD ZandiBPD 
 # 634      540
 
+#### Swap and drop rna samples ###
+# load pd data
+pd <- read.csv("/dcl01/lieber/RNAseq/Datasets/BrainGenotyping_2018/SampleFiles/preBrainStorm/pd_swap.csv") %>%
+  rename(AgeDeath = Age, BrainRegion = Region, PrimaryDx = Dx, Experiment = Dataset) %>%
+  select(colnames(mdd_pd)) %>%
+  filter(RNum %in% mdd_pd$RNum) 
+
+pd$Experiment <- factor(pd$Experiment, levels = c("psychENCODE_MDD","psychENCODE_BP"))
+table(pd$Experiment)
+# psychENCODE_MDD  psychENCODE_BP 
+# 634             540 
+
 # drop 10 overlapping BPD Control samples
-mdd_pd <- mdd_pd %>%
-  as.data.frame() %>%
+pd <- pd %>%
   group_by(RNum) %>% 
   arrange(Experiment) %>%
-  slice(1) %>%
+  slice(1) %>% 
   ungroup()
 
-dim(mdd_pd)
-# [1] 1164   13
-table(mdd_pd$Experiment)
-# GoesMDD ZandiBPD 
-# 634      530 
-
-#### Swap and drop rna samples ###
-pd <- read.csv("/dcl01/lieber/RNAseq/Datasets/BrainGenotyping_2018/SampleFiles/preBrainStorm/pd_swap.csv") %>% 
-  select(RNum, BrNum) %>%
-  unique()
-
-mdd_pd <- mdd_pd %>% 
-  select(-BrNum) %>%
-  left_join(pd, by = c("RNum"))
-
-# Samples removed for rna-rna issues
-mdd_pd %>% count(Experiment, BrNum == "drop")
-# Experiment `BrNum == "drop"`     n
-# <chr>      <lgl>             <int>
-# 1 GoesMDD    FALSE               631
-# 2 GoesMDD    TRUE                  3
-# 3 ZandiBPD   FALSE               523
-# 4 ZandiBPD   TRUE                  7
+pd %>% count(Experiment, BrNum == "drop")
+# Experiment      `BrNum == "drop"`     n
+# <fct>           <lgl>             <int>
+#   1 psychENCODE_MDD FALSE               631
+# 2 psychENCODE_MDD TRUE                  3
+# 3 psychENCODE_BP  FALSE               523
+# 4 psychENCODE_BP  TRUE                  7
 
 
 #### Match with Brain_Sentrix samples ####
 #brain sentrix info
 brain_sentrix<- read.csv("/dcl01/lieber/RNAseq/Datasets/BrainGenotyping_2018/SampleFiles/preBrainStorm/brain_sentrix_swap.csv") %>%
-  filter(BrNum != "drop", BrNum %in% mdd_pd$BrNum)
+  filter(BrNum != "drop", BrNum %in% pd$BrNum)
 
 #load batch priority (lower is better)
 array_priority <- read.csv("/dcl01/ajaffe/data/lab/brain_swap/DNA_genotyping_array_priorities.csv")
@@ -77,27 +72,27 @@ brain_sentrix1 <- brain_sentrix %>%
 nrow(brain_sentrix1) ==length(unique(brain_sentrix1$BrNum)) 
 
 #### Add brain sentrix ID to mdd_data ####
-mdd_pd <- mdd_pd %>% left_join(brain_sentrix1, by = "BrNum")
+pd <- pd %>% left_join(brain_sentrix1, by = "BrNum")
 
 # check for good cor in corLong2
 load("/dcl01/lieber/RNAseq/Datasets/BrainGenotyping_2018/SampleFiles/preBrainStorm/corLong2.Rdata", verbose = TRUE)
 corLong2_mdd <- corLong2 %>% select(RNum, genoSample, cor) %>%
-  filter(genoSample %in% mdd_pd$genoSample,
-         RNum %in% mdd_pd$RNum) %>%
+  filter(genoSample %in% pd$genoSample,
+         RNum %in% pd$RNum) %>%
   group_by(RNum,genoSample) %>%
   arrange(-cor)%>%
   slice(1) %>%
   ungroup()
 
-mdd_pd_check <- mdd_pd %>% left_join(corLong2_mdd, by = c("RNum","genoSample"))
+pd_check <- pd %>% left_join(corLong2_mdd, by = c("RNum","genoSample"))
 
-table(mdd_pd_check$cor >= 0.59 & !is.na(mdd_pd_check$cor))
+table(pd_check$cor >= 0.59 & !is.na(pd_check$cor))
 #Drop 18 samples 
 # FALSE  TRUE 
 # 18  1146 
 
 # drop break down by Experiment
-mdd_pd_check %>%
+pd_check %>%
   count(Experiment, dna_match = cor >= 0.59 & !is.na(cor), good_rna = BrNum != "drop")
 # Experiment dna_match good_rna     n
 # <chr>      <lgl>     <lgl>    <int>
@@ -108,37 +103,37 @@ mdd_pd_check %>%
 # 5 ZandiBPD   FALSE     TRUE         4
 # 6 ZandiBPD   TRUE      TRUE       519
 
-mdd_pd_good <- mdd_pd_check %>% 
+pd_good <- pd_check %>% 
   filter(BrNum != "drop" & cor >=0.59) 
 
-mdd_pd <- mdd_pd_good %>% select(-cor)
+pd <- pd_good %>% select(-cor)
 
-dna_rna_cor_histo <- mdd_pd_good %>%
+dna_rna_cor_histo <- pd_good %>%
   ggplot(aes(cor)) +
   geom_histogram() +
   labs(title = "DNA vs. RNA cor",
-       subtitle = paste0(nrow(mdd_pd)," good samples for MDD"))
+       subtitle = paste0(nrow(pd)," good samples for MDD"))
 
 ggsave(filename = "MDDsamples_cor_histo.jpg", plot = dna_rna_cor_histo)
 
 
 
 #MDD fastq files
-fastq_mdd <- paste0("/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/preprocessed_data/FASTQ_merged/",mdd_pd$RNum[mdd_pd$Experiment == "GoesMDD"],".fastq.gz")
-fastq_mdd2 <- paste0("/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/preprocessed_data/FASTQ_merged/",mdd_pd$RNum[mdd_pd$Experiment == "GoesMDD"],"_read2.fastq.gz")
+fastq_mdd <- paste0("/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/preprocessed_data/FASTQ_merged/",pd$RNum[pd$Experiment == "psychENCODE_MDD"],".fastq.gz")
+fastq_mdd2 <- paste0("/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/preprocessed_data/FASTQ_merged/",pd$RNum[pd$Experiment == "psychENCODE_MDD"],"_read2.fastq.gz")
 #check valid paths
 fe_mdd <- file.exists(c(fastq_mdd, fastq_mdd2))
 table(fe_mdd)
 # TRUE 
 # 1254 
 
-fastd_df <- data.frame(mdd_pd$RNum[mdd_pd$Experiment == "GoesMDD"], fastq_mdd, fastq_mdd2)
+fastd_df <- data.frame(pd$RNum[pd$Experiment == "GoesMDD"], fastq_mdd, fastq_mdd2)
 colnames(fastd_df) <- c("RNum", "read1", "read2")
 
 # Add fastq paths 
-mdd_pd <- mdd_pd %>% 
+pd <- pd %>% 
   left_join(fastd_df) %>%
   arrange(BrNum) %>%
   arrange(Experiment)
 
-write.csv(mdd_pd, "GoesMDD_pd_n1146.csv")
+write.csv(pd, "GoesMDD_pd_n1146.csv")
