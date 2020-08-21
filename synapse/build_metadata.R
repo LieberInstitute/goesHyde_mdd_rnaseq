@@ -4,7 +4,7 @@ library("SummarizedExperiment")
 library("jaffelab")
 library("dplyr")
 library("reshape2")
-
+library("purrr")
 
 build_metadata <- function(template_xlsx, data, id_col, id){
   dict <- read_excel(template_xlsx, sheet = "Dictionary")
@@ -44,39 +44,71 @@ build_metadata <- function(template_xlsx, data, id_col, id){
   return(meta_data)
 }
 
-# load data
+get_fastq_info <- function(fastq){
+  l = system(paste0('zcat ', fastq ,' | grep "@" | head -n 1'), intern=TRUE) %>%
+    strsplit(" ") %>%
+    unlist()
+  
+  l1 <- strsplit(l,":") %>% unlist
+  info_names <- c("instrument","rna_id","flow_cell","flowcell_lane",
+                  "title_number","x_cord","y_cord","pair","filtered",
+                  "control_bits","index_seq")
+  names(l1) <- info_names
+  return(l1)
+}
+
+#### load data ####
 lims <- read.csv("/dcl01/lieber/RNAseq/Datasets/BrainGenotyping_2018/SampleFiles/preBrainStorm/shiny070220.csv")
-brain_weight <- lims %>% select(BrNum, `Brain.Weight..gram.`)
-# ad brain weight to pd
-pd_mdd <- read.csv("../data/GoesMDD_pd_n1146.csv") %>% left_join(brain_weight, by = "BrNum")
 pd <- read.csv("/dcl01/lieber/RNAseq/Datasets/BrainGenotyping_2018/SampleFiles/preBrainStorm/pd_swap.csv", as.is=TRUE)
 
-BrNum <- unique(pd_mdd$BrNum)
-RNum <- pd_mdd$RNum
-# Individual
-indi_md <- build_metadata("template_individual_human.xlsx", lims, "BrNum", BrNum)
-indi_md_fn <- "GoesMDD_individual_human.csv"
-write.csv(indi_md, file = indi_md_fn, row.names = FALSE)
+# add brain weight to pd
+brain_weight <- lims %>% select(BrNum, `Brain.Weight..gram.`)
 
-# Biospecimen
-bio_md <- build_metadata("template_biospecimen.xlsx", pd_mdd, "RNum", RNum)
-bio_md_fn <- "GoesMDD_biospecimen.csv"
-write.csv(bio_md, file = bio_md_fn, row.names = FALSE)
+pd_mdd <- read.csv("../data/GoesMDD_pd_n1146.csv") %>% 
+  left_join(brain_weight, by = "BrNum")
 
-# Assay
-assay_md <- build_metadata("template_assay_rnaSeq.xlsx", pd, "RNum", RNum)
-assay_md_fn <- "GoesMDD_assay_rnaSeq.csv"
-write.csv(assay_md, file = assay_md_fn, row.names = FALSE)
+# add imputed Sex to lims
+brain_sentrix <- read.csv("/dcl01/lieber/RNAseq/Datasets/BrainGenotyping_2018/SampleFiles/preBrainStorm/brain_sentrix_swap.csv") %>%
+  filter(ID %in% pd_mdd$genoSample)
 
-# Manifest
-mani_md_fn <- "GoesMDD_manifest.csv"
+lims <- lims %>% left_join(brain_sentrix %>% select(BrNum, genoSex))
 
+#build manifest
 mdd_manifest <- pd_mdd %>%
   select(RNum, BrNum, read1, read2) %>%
   melt(id.vars = c("RNum", "BrNum")) %>%
   select(RNum, BrNum, path = value) %>%
   mutate(metadataType = NA) %>%
   filter(!is.na(path))
+
+#fastq info
+fastq_info <- map(mdd_manifest$path, get_fastq_info)
+fastq_info_df <- fastq_info %>% as.data.frame() %>% t()
+fastq_info_df <- cbind(fastq_info_df,mdd_manifest[,"RNum", drop=FALSE])
+
+# list samples
+BrNum_mdd <- unique(pd_mdd$BrNum)
+RNum_mdd <- pd_mdd$RNum
+
+lims_mdd <- lims %>% filter(BrNum %in% BrNum_mdd)
+#### Build metadata ####
+# Individual
+indi_md <- build_metadata("template_individual_human.xlsx", lims, "BrNum", BrNum_mdd)
+indi_md_fn <- "GoesMDD_individual_human.csv"
+write.csv(indi_md, file = indi_md_fn, row.names = FALSE)
+
+# Biospecimen
+bio_md <- build_metadata("template_biospecimen.xlsx", pd_mdd, "RNum", RNum_mdd)
+bio_md_fn <- "GoesMDD_biospecimen.csv"
+write.csv(bio_md, file = bio_md_fn, row.names = FALSE)
+
+# Assay
+assay_md <- build_metadata("template_assay_rnaSeq.xlsx", pd, "RNum", RNum_mdd)
+assay_md_fn <- "GoesMDD_assay_rnaSeq.csv"
+write.csv(assay_md, file = assay_md_fn, row.names = FALSE)
+
+# Manifest
+mani_md_fn <- "GoesMDD_manifest.csv"
 
 meta_files <- c(indi_md_fn, bio_md_fn, assay_md_fn, mani_md_fn)
 meta_paths <- paste0("/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/synapse", meta_files)
