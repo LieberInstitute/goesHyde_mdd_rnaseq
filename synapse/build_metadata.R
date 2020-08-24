@@ -65,7 +65,8 @@ pd <- read.csv("/dcl01/lieber/RNAseq/Datasets/BrainGenotyping_2018/SampleFiles/p
 brain_weight <- lims %>% select(BrNum, `Brain.Weight..gram.`)
 
 pd_mdd <- read.csv("../data/GoesMDD_pd_n1146.csv") %>% 
-  left_join(brain_weight, by = "BrNum")
+  filter(Experiment == "psychENCODE_MDD") %>%
+  left_join(brain_weight, by = "BrNum") 
 
 # add imputed Sex to lims
 brain_sentrix <- read.csv("/dcl01/lieber/RNAseq/Datasets/BrainGenotyping_2018/SampleFiles/preBrainStorm/brain_sentrix_swap.csv") %>%
@@ -78,14 +79,18 @@ mdd_manifest <- pd_mdd %>%
   select(RNum, BrNum, read1, read2) %>%
   melt(id.vars = c("RNum", "BrNum")) %>%
   select(RNum, BrNum, path = value) %>%
-  mutate(metadataType = NA) %>%
+  mutate(metadataType = NA, fileFormat = "fastq") %>%
   filter(!is.na(path))
 
 #fastq info
 fastq_info <- map(mdd_manifest$path, get_fastq_info)
 fastq_info_df <- fastq_info %>% as.data.frame() %>% t()
 fastq_info_df <- cbind(fastq_info_df,mdd_manifest[,"RNum", drop=FALSE])
+rownames(fastq_info_df) <- NULL
 
+flow_cell <- fastq_info_df %>% select(flow_cell, RNum) %>% unique
+pd <- pd  %>% left_join(flow_cell, by = "RNum") %>%
+  filter(Dataset == "psychENCODE_MDD")
 # list samples
 BrNum_mdd <- unique(pd_mdd$BrNum)
 RNum_mdd <- pd_mdd$RNum
@@ -94,16 +99,22 @@ lims_mdd <- lims %>% filter(BrNum %in% BrNum_mdd)
 #### Build metadata ####
 # Individual
 indi_md <- build_metadata("template_individual_human.xlsx", lims, "BrNum", BrNum_mdd)
+dim(indi_md)
+# [1] 317  33
 indi_md_fn <- "GoesMDD_individual_human.csv"
 write.csv(indi_md, file = indi_md_fn, row.names = FALSE)
 
 # Biospecimen
 bio_md <- build_metadata("template_biospecimen.xlsx", pd_mdd, "RNum", RNum_mdd)
+dim(bio_md)                                                                                                                                                                                      
+# [1] 627  12
 bio_md_fn <- "GoesMDD_biospecimen.csv"
 write.csv(bio_md, file = bio_md_fn, row.names = FALSE)
 
 # Assay
 assay_md <- build_metadata("template_assay_rnaSeq.xlsx", pd, "RNum", RNum_mdd)
+dim(assay_md)
+# [1] 627  19
 assay_md_fn <- "GoesMDD_assay_rnaSeq.csv"
 write.csv(assay_md, file = assay_md_fn, row.names = FALSE)
 
@@ -115,9 +126,13 @@ meta_paths <- paste0("/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/synapse", met
 meta_manifest <- data.frame(rep(NA,4),
                             rep(NA,4),
                             meta_paths, 
-                            c("individual", "biospecimen", "assay", "manifest"))
-colnames(meta_manifest) <- c("RNum","BrNum","path", "metadataType")
+                            c("individual", "biospecimen", "assay", "manifest"),
+                            rep("csv",4))
+colnames(meta_manifest) <- c("RNum","BrNum","path", "metadataType","fileFormat")
 
-mdd_all_mani <- rbind(meta_manifest, mdd_manifest)
+mdd_all_mani <- rbind(meta_manifest, mdd_manifest) %>%
+  mutate(assay = ifelse(fileFormat == "fastq","rnaSeq",NA))
 mani_md <- build_metadata("template_manifest.xlsx", mdd_all_mani, "path", mdd_all_mani$path)
+dim(mani_md)
+# [1] 1258   16
 write.csv(mani_md, file = mani_md_fn, row.names = FALSE)
