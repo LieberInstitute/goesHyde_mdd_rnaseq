@@ -77,11 +77,15 @@ brain_sentrix <- read.csv("/dcl01/lieber/RNAseq/Datasets/BrainGenotyping_2018/Sa
 lims <- lims %>% left_join(brain_sentrix %>% select(BrNum, genoSex)) 
 
 # replace values 
+gia <- read.csv("genotypeInferredAncestry.csv")
+
 lims <- lims %>%
+  left_join(gia) %>%
   mutate(Sex = ifelse(Sex == "M","male",
                       ifelse(Sex == "F", "female","unknown")),
          mannerOfDeath = ifelse(Manner.Of.Death == "Natural","natural causes",tolower(Manner.Of.Death)),
-         PMICertain = PMI.Confidence.Level == "Certain")
+         PMICertain = PMI.Confidence.Level == "Certain",
+         genotypeInferredAncestry = ifelse(is.na(genotypeInferredAncestry),Race,genotypeInferredAncestry))
 
 #build manifest
 mdd_manifest <- pd_mdd %>%
