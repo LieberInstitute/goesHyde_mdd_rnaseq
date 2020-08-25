@@ -101,25 +101,25 @@ lims_mdd <- lims %>% filter(BrNum %in% BrNum_mdd)
 indi_md <- build_metadata("template_individual_human.xlsx", lims, "BrNum", BrNum_mdd)
 dim(indi_md)
 # [1] 317  33
-indi_md_fn <- "GoesMDD_individual_human.csv"
+indi_md_fn <- "psychENCODE_MDD_individual_human.csv"
 write.csv(indi_md, file = indi_md_fn, row.names = FALSE)
 
 # Biospecimen
 bio_md <- build_metadata("template_biospecimen.xlsx", pd_mdd, "RNum", RNum_mdd)
 dim(bio_md)                                                                                                                                                                                      
 # [1] 627  12
-bio_md_fn <- "GoesMDD_biospecimen.csv"
+bio_md_fn <- "psychENCODE_MDD_biospecimen.csv"
 write.csv(bio_md, file = bio_md_fn, row.names = FALSE)
 
 # Assay
 assay_md <- build_metadata("template_assay_rnaSeq.xlsx", pd, "RNum", RNum_mdd)
 dim(assay_md)
 # [1] 627  19
-assay_md_fn <- "GoesMDD_assay_rnaSeq.csv"
+assay_md_fn <- "psychENCODE_MDD_assay_rnaSeq.csv"
 write.csv(assay_md, file = assay_md_fn, row.names = FALSE)
 
 # Manifest
-mani_md_fn <- "GoesMDD_manifest.csv"
+mani_md_fn <- "psychENCODE_MDD_manifest.csv"
 
 meta_files <- c(indi_md_fn, bio_md_fn, assay_md_fn, mani_md_fn)
 meta_paths <- paste0("/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/synapse", meta_files)
@@ -136,3 +136,12 @@ mani_md <- build_metadata("template_manifest.xlsx", mdd_all_mani, "path", mdd_al
 dim(mani_md)
 # [1] 1258   16
 write.csv(mani_md, file = mani_md_fn, row.names = FALSE)
+
+## Reproducibility information
+print('Reproducibility information:')
+Sys.time()
+proc.time()
+options(width = 120)
+session_info()
+
+# sgejobs::job_single('build_metadata', create_shell = TRUE, queue= 'bluejay', memory = '50G', command = "Rscript build_metadata.R")
