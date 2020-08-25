@@ -8,6 +8,7 @@ library(ggplot2)
 #### Load Data ####
 load("/dcl01/lieber/RNAseq/Datasets/BrainGenotyping_2018/SampleFiles/preBrainStorm/corLong2.Rdata", verbose = TRUE)
 pd <- read.csv("/dcl01/lieber/RNAseq/Datasets/BrainGenotyping_2018/SampleFiles/preBrainStorm/pd_swap.csv", as.is=TRUE)
+
 # MDD data
 load("/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/data/rse_gene_raw_GoesZandi_n1174.rda", verbose = TRUE)
 mdd_pd <- colData(rse_gene)
@@ -75,14 +76,13 @@ nrow(brain_sentrix1) ==length(unique(brain_sentrix1$BrNum))
 pd <- pd %>% left_join(brain_sentrix1, by = "BrNum")
 
 # check for good cor in corLong2
-load("/dcl01/lieber/RNAseq/Datasets/BrainGenotyping_2018/SampleFiles/preBrainStorm/corLong2.Rdata", verbose = TRUE)
 corLong2_mdd <- corLong2 %>% select(RNum, genoSample, cor) %>%
   filter(genoSample %in% pd$genoSample,
          RNum %in% pd$RNum) %>%
   group_by(RNum,genoSample) %>%
   arrange(-cor)%>%
   slice(1) %>%
-  ungroup()
+  ungroup
 
 pd_check <- pd %>% left_join(corLong2_mdd, by = c("RNum","genoSample"))
 
@@ -106,6 +106,15 @@ pd_check %>%
 pd_good <- pd_check %>% 
   filter(BrNum != "drop" & cor >=0.59) 
 
+#filter out brains not in lims
+lims <- read.csv("/dcl01/lieber/RNAseq/Datasets/BrainGenotyping_2018/SampleFiles/preBrainStorm/shiny070220.csv")
+br_missing_lims <- pd_good$BrNum[pd_good$BrNum %in% lims$BrNum] %>% unique
+message(paste("Brains missing from lims",lenght(br_missing_lims)))
+message(paste(br_missing_lims, collapse = " ,"))
+
+pd_good <- pd_good %>% filter(BrNum %in% lims$BrNum)
+
+# create final pd table
 pd <- pd_good %>% select(-cor)
 
 dna_rna_cor_histo <- pd_good %>%
@@ -127,7 +136,7 @@ table(fe_mdd)
 # TRUE 
 # 1254 
 
-fastd_df <- data.frame(pd$RNum[pd$Experiment == "GoesMDD"], fastq_mdd, fastq_mdd2)
+fastd_df <- data.frame(pd$RNum[pd$Experiment == "psychENCODE_MDD"], fastq_mdd, fastq_mdd2)
 colnames(fastd_df) <- c("RNum", "read1", "read2")
 
 # Add fastq paths 
@@ -136,4 +145,17 @@ pd <- pd %>%
   arrange(BrNum) %>%
   arrange(Experiment)
 
-write.csv(pd, "GoesMDD_pd_n1146.csv")
+n = nrow(pd) 
+
+fn = paste0("GoesMDD_pd_n",n,".csv")
+write.csv(pd, fn)
+
+## Reproducibility information
+print('Reproducibility information:')
+Sys.time()
+proc.time()
+options(width = 120)
+session_info()
+
+# sgejobs::job_single('mdd_swap', create_shell = TRUE, queue= 'bluejay', memory = '50G', command = "Rscript mdd_swap.R")
+
