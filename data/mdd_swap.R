@@ -5,6 +5,7 @@ library(Rsamtools)
 library(dplyr)
 library(SummarizedExperiment)
 library(ggplot2)
+library(session_info)
 #### Load Data ####
 load("/dcl01/lieber/RNAseq/Datasets/BrainGenotyping_2018/SampleFiles/preBrainStorm/corLong2.Rdata", verbose = TRUE)
 pd <- read.csv("/dcl01/lieber/RNAseq/Datasets/BrainGenotyping_2018/SampleFiles/preBrainStorm/pd_swap.csv", as.is=TRUE)
@@ -108,8 +109,8 @@ pd_good <- pd_check %>%
 
 #filter out brains not in lims
 lims <- read.csv("/dcl01/lieber/RNAseq/Datasets/BrainGenotyping_2018/SampleFiles/preBrainStorm/shiny070220.csv")
-br_missing_lims <- pd_good$BrNum[pd_good$BrNum %in% lims$BrNum] %>% unique
-message(paste("Brains missing from lims",lenght(br_missing_lims)))
+br_missing_lims <- pd_good$BrNum[!pd_good$BrNum %in% lims$BrNum] %>% unique
+message(paste("Brains missing from lims:",length(br_missing_lims)))
 message(paste(br_missing_lims, collapse = " ,"))
 
 pd_good <- pd_good %>% filter(BrNum %in% lims$BrNum)
