@@ -66,13 +66,22 @@ brain_weight <- lims %>% select(BrNum, `Brain.Weight..gram.`)
 
 pd_mdd <- read.csv("../data/GoesMDD_pd_n1146.csv") %>% 
   filter(Experiment == "psychENCODE_MDD") %>%
-  left_join(brain_weight, by = "BrNum") 
+  left_join(brain_weight, by = "BrNum")  %>%
+  mutate(BrainRegion = ifelse(BrainRegion == "Amygdala", "amygdala","anterior cingulate cortex"),
+         BrodmannArea =  ifelse(BrainRegion == "anterior cingulate cortex",25,NA))
 
 # add imputed Sex to lims
 brain_sentrix <- read.csv("/dcl01/lieber/RNAseq/Datasets/BrainGenotyping_2018/SampleFiles/preBrainStorm/brain_sentrix_swap.csv") %>%
   filter(ID %in% pd_mdd$genoSample)
 
-lims <- lims %>% left_join(brain_sentrix %>% select(BrNum, genoSex))
+lims <- lims %>% left_join(brain_sentrix %>% select(BrNum, genoSex)) 
+
+# replace values 
+lims <- lims %>%
+  mutate(Sex = ifelse(Sex == "M","male",
+                      ifelse(Sex == "F", "female","unknown")),
+         mannerOfDeath = ifelse(Manner.Of.Death == "Natural","natural causes",tolower(Manner.Of.Death)),
+         PMICertain = PMI.Confidence.Level == "Certain")
 
 #build manifest
 mdd_manifest <- pd_mdd %>%
@@ -119,15 +128,15 @@ assay_md_fn <- "psychENCODE_MDD_assay_rnaSeq.csv"
 write.csv(assay_md, file = assay_md_fn, row.names = FALSE)
 
 # Manifest
-mani_md_fn <- "psychENCODE_MDD_manifest.csv"
+mani_md_fn <- "psychENCODE_MDD_manifest.tsv"
 
 meta_files <- c(indi_md_fn, bio_md_fn, assay_md_fn, mani_md_fn)
-meta_paths <- paste0("/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/synapse", meta_files)
+meta_paths <- paste0("/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/synapse/", meta_files)
 meta_manifest <- data.frame(rep(NA,4),
                             rep(NA,4),
                             meta_paths, 
                             c("individual", "biospecimen", "assay", "manifest"),
-                            rep("csv",4))
+                            ss(meta_files,"\\.",2))
 colnames(meta_manifest) <- c("RNum","BrNum","path", "metadataType","fileFormat")
 
 mdd_all_mani <- rbind(meta_manifest, mdd_manifest) %>%
@@ -135,7 +144,7 @@ mdd_all_mani <- rbind(meta_manifest, mdd_manifest) %>%
 mani_md <- build_metadata("template_manifest.xlsx", mdd_all_mani, "path", mdd_all_mani$path)
 dim(mani_md)
 # [1] 1258   16
-write.csv(mani_md, file = mani_md_fn, row.names = FALSE)
+write.table(mani_md, file = mani_md_fn, row.names=FALSE, sep="\t")
 
 ## Reproducibility information
 print('Reproducibility information:')
