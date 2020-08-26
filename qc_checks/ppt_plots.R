@@ -227,13 +227,13 @@ dev.off()
 # dev.off()
 # 
 ### drop:
-dropBoth = c("Br1910","Br5956","Br5807")
-dropAmyg = c("Br5615","Br5930")
-dropsACC = c("Br5694","Br2084","Br5486")
-pd$dropGeno = FALSE
-pd$dropGeno[pd$BrNum %in% dropBoth] = TRUE
-pd$dropGeno[pd$BrNum %in% dropAmyg & pd$BrainRegion=="Amygdala"] = TRUE
-pd$dropGeno[pd$BrNum %in% dropsACC & pd$BrainRegion=="sACC"] = TRUE
+# dropBoth = c("Br1910","Br5956","Br5807")
+# dropAmyg = c("Br5615","Br5930")
+# dropsACC = c("Br5694","Br2084","Br5486")
+# pd$dropGeno = FALSE
+# pd$dropGeno[pd$BrNum %in% dropBoth] = TRUE
+# pd$dropGeno[pd$BrNum %in% dropAmyg & pd$BrainRegion=="Amygdala"] = TRUE
+# pd$dropGeno[pd$BrNum %in% dropsACC & pd$BrainRegion=="sACC"] = TRUE
 
 # table(pd$dropGeno)
 # # FALSE  TRUE
@@ -330,8 +330,11 @@ table(pd$dropRegion)
   # 620    11
   
 ########################################################.
+gia <- read.csv("../synapse/genotypeInferredAncestry.csv")
+pd$geneticRace = pd$Race
+pd$geneticRace[match(gia$BrNum, pd$BrNum)] = gia$genotypeInferredAncestry
 
-pd$dropRace = pd$Race != "CAUC"
+pd$dropRace = pd$geneticRace != "CAUC"
 
 table(pd$dropRace)
 # FALSE  TRUE 
@@ -420,7 +423,7 @@ summary(pd$Age)
 # 17.94   32.19   47.33   46.00   54.62   95.27
   
   
-info_cols <- c("SAMPLE_ID","BrNum","Age","Sex","Race","PrimaryDx","BrainRegion","RIN","Plate","overallMapRate","totalAssignedGene","dropMetrics","dropGeno","dropRegion","dropRace")  
+info_cols <- c("SAMPLE_ID","BrNum","Age","Sex","Race","PrimaryDx","BrainRegion","RIN","Plate","overallMapRate","totalAssignedGene","dropMetrics","dropRegion","dropRace")  
 qcresults = pd[,info_cols]
 write.csv(qcresults, file="qc_dropping_results.csv")
 
