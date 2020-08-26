@@ -532,3 +532,13 @@ legend("topleft", paste0(levels(factor(pdComb$group))),
        pch = 15, col = 1:8,cex=.9)
 dev.off()
 
+
+## Reproducibility information
+print('Reproducibility information:')
+Sys.time()
+proc.time()
+options(width = 120)
+session_info()
+
+# sgejobs::job_single('ppt_plots', create_shell = TRUE, queue= 'bluejay', memory = '50G', command = "Rscript ppt_plots.R")
+
