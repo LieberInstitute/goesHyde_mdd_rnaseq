@@ -54,10 +54,14 @@ message("Raw comined data: n" , ncol(rse_gene))
 
 #### Swap and drop rna samples ####
 # load pd data
-pd <- pd  %>% read.csv("/dcl01/lieber/RNAseq/Datasets/BrainGenotyping_2018/SampleFiles/preBrainStorm/pd_swap.csv") %>%
+pd_all <- read.csv("/dcl01/lieber/RNAseq/Datasets/BrainGenotyping_2018/SampleFiles/preBrainStorm/pd_swap.csv")
+
+pd <-  pd_all%>%
   rename(AgeDeath = Age, BrainRegion = Region, PrimaryDx = Dx, Experiment = Dataset) %>%
-  select(all_of(colKeep)) %>%
+  select(all_of(c(colKeep,"SAMPLE_ID"))) %>%
   filter(RNum %in% mdd_pd$RNum) 
+
+#rownames(pd) <- ss(pd$SAMPLE_ID,";")
 
 pd$Experiment <- factor(pd$Experiment, levels = c("psychENCODE_MDD","psychENCODE_BP"))
 table(pd$Experiment)
@@ -133,7 +137,7 @@ pd_check %>%
         in_lims = good_rna & lims)
 # Experiment      dna_match good_rna in_lims     n
 # <fct>           <lgl>     <lgl>    <lgl>   <int>
-#   1 psychENCODE_MDD FALSE     FALSE    FALSE       3
+# 1 psychENCODE_MDD FALSE     FALSE    FALSE       3
 # 2 psychENCODE_MDD FALSE     TRUE     TRUE        4
 # 3 psychENCODE_MDD TRUE      TRUE     FALSE       4
 # 4 psychENCODE_MDD TRUE      TRUE     TRUE      623
@@ -145,45 +149,54 @@ pd_check %>%
 #### DROP ####
 pd_good <- pd_check %>% 
   filter(BrNum != "drop" & cor >=0.59 & lims) 
+n = nrow(pd_good)
+message("After drop: n", n)
 
-# create final pd table
-pd <- pd_good %>% select(-cor)
-
+# create histogram of rna-dna cor
 dna_rna_cor_histo <- pd_good %>%
   ggplot(aes(cor)) +
   geom_histogram() +
   labs(title = "DNA vs. RNA cor",
-       subtitle = paste0(nrow(pd)," good samples for MDD"))
+       subtitle = paste0(nrow(n)," good samples for MDD"))
 
 ggsave(filename = "MDDsamples_cor_histo.jpg", plot = dna_rna_cor_histo)
 
-
-
-#MDD fastq files
+#Get paths for MDD fastq files
 fastq_mdd <- paste0("/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/preprocessed_data/FASTQ_merged/",pd$RNum[pd$Experiment == "psychENCODE_MDD"],".fastq.gz")
 fastq_mdd2 <- paste0("/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/preprocessed_data/FASTQ_merged/",pd$RNum[pd$Experiment == "psychENCODE_MDD"],"_read2.fastq.gz")
 #check valid paths
 fe_mdd <- file.exists(c(fastq_mdd, fastq_mdd2))
 table(fe_mdd)
 # TRUE 
-# 1254 
+# 1246
 
 fastd_df <- data.frame(pd$RNum[pd$Experiment == "psychENCODE_MDD"], fastq_mdd, fastq_mdd2)
 colnames(fastd_df) <- c("RNum", "read1", "read2")
 
 # Add fastq paths 
-pd <- pd %>% 
+pd <- pd_good %>% 
   left_join(fastd_df) %>%
   arrange(BrNum) %>%
-  arrange(Experiment)
-
-n = nrow(pd) 
+  arrange(Experiment) %>%
+  select(-lims)
 
 fn = paste0("GoesMDD_pd_n",n,".csv")
 write.csv(pd, fn)
 
+pd <- pd %>% select(all_of(c(colKeep,"genoSample","SAMPLE_ID"))) 
+#### Update rse_gene ####
+### combine
+rse_mdd <- rse_mdd[,which(rse_mdd$RNum %in% pd$RNum)]
+rse_bip <- rse_bip[,which(rse_bip$RNum %in% pd$RNum & !rse_bip$RNum %in% rse_mdd$RNum)]
+rse_both = cbind(rse_mdd, rse_bip) #1140
+pd <- pd[match(rse_both$RNum, pd$RNum),]
+ncol(rse_both) == nrow(pd)
+colData(rse_both) <- DataFrame(pd)
+colnames(rse_both) <- paste0(pd$RNum,"_", pd$Experiment)
 
-pd <- pd %>% select(colKeep)
+rse_gene <- res_both
+save(rse_gene, file = paste0("rse_gene_raw_GoesZandi_n",n,".rda"))
+
 ## Reproducibility information
 print('Reproducibility information:')
 Sys.time()
