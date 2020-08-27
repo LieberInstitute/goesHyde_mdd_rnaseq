@@ -1,22 +1,17 @@
 #####################################
 
-library(devtools)
-library(dplyr)
 library(edgeR)
 library(ggplot2)
 library(jaffelab)
-library(readxl)
-library(Rsamtools)
+#library(readxl)
+#library(Rsamtools)
 library(sessioninfo)
 library(SummarizedExperiment)
-library(sva)
-library(VariantAnnotation)
+#library(sva)
+#library(VariantAnnotation)
+library(dplyr)
 
 setwd('/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/data/')
-
-###############################
-##### Load, clean, combine ####
-###############################
 
 #load objects
 load('../preprocessed_data/rse_gene_goesHyde_MDD_n634.Rdata', verbose=TRUE)
@@ -50,31 +45,18 @@ rse_both$PrimaryDx = relevel(rse_both$PrimaryDx, ref="MDD")
 tempRpkm = recount::getRPKM(rse_both, "Length")
 rowData(rse_both)$meanExprs = rowMeans(tempRpkm)
 
-pd = colData(rse_both)
-table(pd$BrainRegion,pd$PrimaryDx)
-
+mdd_pd  = colData(rse_both)
+table(mdd_pd$BrainRegion,mdd_pd$PrimaryDx)
+# rse_gene n1174
 rse_gene = rse_both
+message("Raw comined data: n" , ncol(rse_gene))
 
-#### SWAP ####
-#### Load Data ####
-load("/dcl01/lieber/RNAseq/Datasets/BrainGenotyping_2018/SampleFiles/preBrainStorm/corLong2.Rdata", verbose = TRUE)
-pd <- read.csv("/dcl01/lieber/RNAseq/Datasets/BrainGenotyping_2018/SampleFiles/preBrainStorm/pd_swap.csv", as.is=TRUE)
 
-# MDD data
-load("/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/data/rse_gene_raw_GoesZandi_n1174.rda", verbose = TRUE)
-mdd_pd <- colData(rse_gene)
-dim(mdd_pd) #[1] 1174   13
-length(unique(mdd_pd$BrNum)) #[1] 607
-
-table(rse_gene$Experiment)
-# GoesMDD ZandiBPD 
-# 634      540
-
-#### Swap and drop rna samples ###
+#### Swap and drop rna samples ####
 # load pd data
-pd <- pd %>%
+pd <- pd  %>% read.csv("/dcl01/lieber/RNAseq/Datasets/BrainGenotyping_2018/SampleFiles/preBrainStorm/pd_swap.csv") %>%
   rename(AgeDeath = Age, BrainRegion = Region, PrimaryDx = Dx, Experiment = Dataset) %>%
-  select(colnames(mdd_pd)) %>%
+  select(all_of(colKeep)) %>%
   filter(RNum %in% mdd_pd$RNum) 
 
 pd$Experiment <- factor(pd$Experiment, levels = c("psychENCODE_MDD","psychENCODE_BP"))
@@ -121,12 +103,14 @@ brain_sentrix1 <- brain_sentrix %>%
   select(genoSample = ID, BrNum, Batch)
 
 # should only have 1 row per BrNum
-nrow(brain_sentrix1) ==length(unique(brain_sentrix1$BrNum)) 
+message("One row per BrNum: ", nrow(brain_sentrix1) ==length(unique(brain_sentrix1$BrNum))) 
 
 #### Add brain sentrix ID to mdd_data ####
 pd <- pd %>% left_join(brain_sentrix1, by = "BrNum")
 
 # check for good cor in corLong2
+load("/dcl01/lieber/RNAseq/Datasets/BrainGenotyping_2018/SampleFiles/preBrainStorm/corLong2.Rdata", verbose = TRUE)
+
 corLong2_mdd <- corLong2 %>% select(RNum, genoSample, cor) %>%
   filter(genoSample %in% pd$genoSample,
          RNum %in% pd$RNum) %>%
@@ -135,35 +119,32 @@ corLong2_mdd <- corLong2 %>% select(RNum, genoSample, cor) %>%
   slice(1) %>%
   ungroup
 
-pd_check <- pd %>% left_join(corLong2_mdd, by = c("RNum","genoSample"))
-
-table(pd_check$cor >= 0.59 & !is.na(pd_check$cor))
-#Drop 18 samples 
-# FALSE  TRUE 
-# 18  1146 
+# check if in lims
+lims <- read.csv("/dcl01/lieber/RNAseq/Datasets/BrainGenotyping_2018/SampleFiles/preBrainStorm/shiny070220.csv")
+pd_check <- pd %>% 
+  left_join(corLong2_mdd, by = c("RNum","genoSample")) %>%
+  mutate(lims = BrNum %in% lims$BrNum)
 
 # drop break down by Experiment
 pd_check %>%
-  count(Experiment, dna_match = cor >= 0.59 & !is.na(cor), good_rna = BrNum != "drop")
-# Experiment dna_match good_rna     n
-# <chr>      <lgl>     <lgl>    <int>
-# 1 GoesMDD    FALSE     FALSE        3
-# 2 GoesMDD    FALSE     TRUE         4
-# 3 GoesMDD    TRUE      TRUE       627
-# 4 ZandiBPD   FALSE     FALSE        7
-# 5 ZandiBPD   FALSE     TRUE         4
-# 6 ZandiBPD   TRUE      TRUE       519
+  count(Experiment,
+        dna_match = cor >= 0.59 & !is.na(cor), 
+        good_rna = BrNum != "drop",
+        in_lims = good_rna & lims)
+# Experiment      dna_match good_rna in_lims     n
+# <fct>           <lgl>     <lgl>    <lgl>   <int>
+#   1 psychENCODE_MDD FALSE     FALSE    FALSE       3
+# 2 psychENCODE_MDD FALSE     TRUE     TRUE        4
+# 3 psychENCODE_MDD TRUE      TRUE     FALSE       4
+# 4 psychENCODE_MDD TRUE      TRUE     TRUE      623
+# 5 psychENCODE_BP  FALSE     FALSE    FALSE       7
+# 6 psychENCODE_BP  FALSE     TRUE     TRUE        4
+# 7 psychENCODE_BP  TRUE      TRUE     FALSE       2
+# 8 psychENCODE_BP  TRUE      TRUE     TRUE      517
 
+#### DROP ####
 pd_good <- pd_check %>% 
-  filter(BrNum != "drop" & cor >=0.59) 
-
-#filter out brains not in lims
-lims <- read.csv("/dcl01/lieber/RNAseq/Datasets/BrainGenotyping_2018/SampleFiles/preBrainStorm/shiny070220.csv")
-br_missing_lims <- pd_good$BrNum[!pd_good$BrNum %in% lims$BrNum] %>% unique
-message(paste("Brains missing from lims:",length(br_missing_lims)))
-message(paste(br_missing_lims, collapse = " ,"))
-
-pd_good <- pd_good %>% filter(BrNum %in% lims$BrNum)
+  filter(BrNum != "drop" & cor >=0.59 & lims) 
 
 # create final pd table
 pd <- pd_good %>% select(-cor)
@@ -202,5 +183,13 @@ fn = paste0("GoesMDD_pd_n",n,".csv")
 write.csv(pd, fn)
 
 
-# sgejobs::job_single('merge_gene_raw_BPD_MDD', create_shell = TRUE, queue= 'bluejay', memory = '50G', command = "merge_gene_raw_BPD_MDD.R")
+pd <- pd %>% select(colKeep)
+## Reproducibility information
+print('Reproducibility information:')
+Sys.time()
+proc.time()
+options(width = 120)
+session_info()
+
+# sgejobs::job_single('merge_swap_drop', create_shell = TRUE, queue= 'bluejay', memory = '50G', command = "Rscript merge_swap_drop.R")
 
