@@ -166,16 +166,14 @@ fastq_mdd <- paste0("/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/preprocessed_d
 fastq_mdd2 <- paste0("/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/preprocessed_data/FASTQ_merged/",pd$RNum[pd$Experiment == "psychENCODE_MDD"],"_read2.fastq.gz")
 #check valid paths
 fe_mdd <- file.exists(c(fastq_mdd, fastq_mdd2))
-table(fe_mdd)
-# TRUE 
-# 1246
+message("All ",length(fe_mdd)," fastq files exist:", all(fe_mdd))
 
 fastd_df <- data.frame(pd$RNum[pd$Experiment == "psychENCODE_MDD"], fastq_mdd, fastq_mdd2)
 colnames(fastd_df) <- c("RNum", "read1", "read2")
 
 # Add fastq paths 
 pd <- pd_good %>% 
-  left_join(fastd_df) %>%
+  left_join(fastd_df, by = "RNum") %>%
   arrange(BrNum) %>%
   arrange(Experiment) %>%
   select(-lims)
@@ -194,7 +192,7 @@ ncol(rse_both) == nrow(pd)
 colData(rse_both) <- DataFrame(pd)
 colnames(rse_both) <- paste0(pd$RNum,"_", pd$Experiment)
 
-rse_gene <- res_both
+rse_gene <- rse_both
 save(rse_gene, file = paste0("rse_gene_raw_GoesZandi_n",n,".rda"))
 
 ## Reproducibility information
