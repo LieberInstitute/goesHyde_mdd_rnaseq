@@ -191,6 +191,8 @@ dim(mani_md)
 # [1] 1258   16
 write.table(mani_md, file = mani_md_fn, row.names = FALSE, sep = "\t")
 
+# sgejobs::job_single('build_metadata', create_shell = TRUE, queue= 'bluejay', memory = '50G', command = "Rscript build_metadata.R")
+
 ## Reproducibility information
 print("Reproducibility information:")
 Sys.time()
@@ -198,4 +200,73 @@ proc.time()
 options(width = 120)
 session_info()
 
-# sgejobs::job_single('build_metadata', create_shell = TRUE, queue= 'bluejay', memory = '50G', command = "Rscript build_metadata.R")
+# [1] "Reproducibility information:"
+# [1] "2020-08-28 13:24:47 EDT"
+# user  system elapsed 
+# 16.960  30.214  46.433 
+# ─ Session info ───────────────────────────────────────────────────────────────────────────────────────────────────────
+# setting  value                                      
+# version  R version 4.0.2 Patched (2020-06-24 r78746)
+# os       CentOS Linux 7 (Core)                      
+# system   x86_64, linux-gnu                          
+# ui       X11                                        
+# language (EN)                                       
+# collate  en_US.UTF-8                                
+# ctype    en_US.UTF-8                                
+# tz       US/Eastern                                 
+# date     2020-08-28                                 
+# 
+# ─ Packages ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+# package              * version  date       lib source                                   
+# assertthat             0.2.1    2019-03-21 [2] CRAN (R 4.0.0)                           
+# Biobase              * 2.48.0   2020-04-27 [2] Bioconductor                             
+# BiocGenerics         * 0.34.0   2020-04-27 [2] Bioconductor                             
+# bitops                 1.0-6    2013-08-17 [2] CRAN (R 4.0.0)                           
+# cellranger             1.1.0    2016-07-27 [2] CRAN (R 4.0.0)                           
+# cli                    2.0.2    2020-02-28 [1] CRAN (R 4.0.0)                           
+# crayon                 1.3.4    2017-09-16 [2] CRAN (R 4.0.0)                           
+# DelayedArray         * 0.14.0   2020-04-27 [2] Bioconductor                             
+# dplyr                * 0.8.5    2020-03-07 [1] CRAN (R 4.0.0)                           
+# ellipsis               0.3.1    2020-05-15 [2] CRAN (R 4.0.0)                           
+# fansi                  0.4.1    2020-01-08 [2] CRAN (R 4.0.0)                           
+# GenomeInfoDb         * 1.24.0   2020-04-27 [2] Bioconductor                             
+# GenomeInfoDbData       1.2.3    2020-05-18 [2] Bioconductor                             
+# GenomicRanges        * 1.40.0   2020-04-27 [2] Bioconductor                             
+# glue                   1.4.1    2020-05-13 [1] CRAN (R 4.0.0)                           
+# googledrive            1.0.1    2020-05-05 [1] CRAN (R 4.0.0)                           
+# IRanges              * 2.22.1   2020-04-28 [2] Bioconductor                             
+# jaffelab             * 0.99.30  2020-05-21 [1] Github (LieberInstitute/jaffelab@42637ff)
+# lattice                0.20-41  2020-04-02 [3] CRAN (R 4.0.2)                           
+# lifecycle              0.2.0    2020-03-06 [1] CRAN (R 4.0.0)                           
+# limma                  3.44.1   2020-04-28 [2] Bioconductor                             
+# magrittr               1.5      2014-11-22 [2] CRAN (R 4.0.0)                           
+# Matrix                 1.2-18   2019-11-27 [3] CRAN (R 4.0.2)                           
+# matrixStats          * 0.56.0   2020-03-13 [2] CRAN (R 4.0.0)                           
+# pillar                 1.4.6    2020-07-10 [1] CRAN (R 4.0.2)                           
+# pkgconfig              2.0.3    2019-09-22 [2] CRAN (R 4.0.0)                           
+# plyr                   1.8.6    2020-03-03 [2] CRAN (R 4.0.0)                           
+# purrr                * 0.3.4    2020-04-17 [1] CRAN (R 4.0.0)                           
+# R6                     2.4.1    2019-11-12 [2] CRAN (R 4.0.0)                           
+# rafalib              * 1.0.0    2015-08-09 [1] CRAN (R 4.0.0)                           
+# RColorBrewer           1.1-2    2014-12-07 [2] CRAN (R 4.0.0)                           
+# Rcpp                   1.0.5    2020-07-06 [1] CRAN (R 4.0.2)                           
+# RCurl                  1.98-1.2 2020-04-18 [2] CRAN (R 4.0.0)                           
+# readxl               * 1.3.1    2019-03-13 [2] CRAN (R 4.0.0)                           
+# reshape2             * 1.4.4    2020-04-09 [2] CRAN (R 4.0.0)                           
+# rlang                  0.4.7    2020-07-09 [1] CRAN (R 4.0.2)                           
+# S4Vectors            * 0.26.1   2020-05-16 [2] Bioconductor                             
+# segmented              1.1-0    2019-12-10 [2] CRAN (R 4.0.0)                           
+# sessioninfo          * 1.1.1    2018-11-05 [2] CRAN (R 4.0.0)                           
+# stringi                1.4.6    2020-02-17 [2] CRAN (R 4.0.0)                           
+# stringr                1.4.0    2019-02-10 [2] CRAN (R 4.0.0)                           
+# SummarizedExperiment * 1.18.1   2020-04-30 [2] Bioconductor                             
+# tibble                 3.0.3    2020-07-10 [1] CRAN (R 4.0.2)                           
+# tidyselect             1.1.0    2020-05-11 [2] CRAN (R 4.0.0)                           
+# vctrs                  0.3.2    2020-07-15 [1] CRAN (R 4.0.2)                           
+# withr                  2.2.0    2020-04-20 [1] CRAN (R 4.0.0)                           
+# XVector                0.28.0   2020-04-27 [2] Bioconductor                             
+# zlibbioc               1.34.0   2020-04-27 [2] Bioconductor                             
+# 
+# [1] /users/lhuuki/R/4.0
+# [2] /jhpce/shared/jhpce/core/conda/miniconda3-4.6.14/envs/svnR-4.0/R/4.0/lib64/R/site-library
+# [3] /jhpce/shared/jhpce/core/conda/miniconda3-4.6.14/envs/svnR-4.0/R/4.0/lib64/R/library
