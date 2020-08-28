@@ -30,7 +30,7 @@ build_metadata <- function(template_xlsx, data, id_col, id){
   dataV <- data[data[[id_col]] %in% id,]
   dataV <- dataV[,data_col]
   colnames(dataV) <- dict$key[data_hasCol]
-  
+  dataV <- replace_values(template_xlsx,dataV)
   # build data Same
   dataS <- t(data.frame(dict$value[!data_hasCol]))
   dataS <- do.call("rbind", replicate(length(id), dataS, simplify = FALSE))
@@ -57,6 +57,33 @@ get_fastq_info <- function(fastq){
   return(l1)
 }
 
+replace_value <- function(value_row, dataV){
+  cn <- value_row[1]
+  v <- value_row[2]
+  lv <- value_row[3]
+  dataV[[cn]][dataV[[cn]] == lv] <- v
+  return(dataV)
+}
+
+make_value_df <- function(template_xlsx){
+  value_df <- read_excel(template_xlsx,"Values") %>%
+    select(key,value, LIBD_value) %>%
+    filter(!is.na(LIBD_value),
+           value != LIBD_value) %>%
+    as.data.frame()
+  message(nrow(value_df)," values to replace")
+  return(value_df)}
+
+replace_values <- function(template_xlsx, dataV){
+  value_df <- make_value_df(template_xlsx)
+  for (row in 1:nrow(value_df)) {
+    dataV <- replace_value(unlist(value_df[row,]),dataV)
+  }
+
+  return(dataV)
+}
+rv <- replace_values("template_individual_human.xlsx", indi_md2)
+
 #### load data ####
 lims <- read.csv("/dcl01/lieber/RNAseq/Datasets/BrainGenotyping_2018/SampleFiles/preBrainStorm/shiny070220.csv")
 pd <- read.csv("/dcl01/lieber/RNAseq/Datasets/BrainGenotyping_2018/SampleFiles/preBrainStorm/pd_swap.csv", as.is=TRUE)
@@ -64,11 +91,10 @@ pd <- read.csv("/dcl01/lieber/RNAseq/Datasets/BrainGenotyping_2018/SampleFiles/p
 # add brain weight to pd
 brain_weight <- lims %>% select(BrNum, `Brain.Weight..gram.`)
 
-pd_mdd <- read.csv("../data/GoesMDD_pd_n1146.csv") %>% 
+pd_mdd <- read.csv("../data/GoesMDD_pd_n1140.csv") %>% 
   filter(Experiment == "psychENCODE_MDD") %>%
   left_join(brain_weight, by = "BrNum")  %>%
-  mutate(BrainRegion = ifelse(BrainRegion == "Amygdala", "amygdala","anterior cingulate cortex"),
-         BrodmannArea =  ifelse(BrainRegion == "anterior cingulate cortex",25,NA))
+  mutate(BrodmannArea =  ifelse(BrainRegion == "anterior cingulate cortex",25,NA))
 
 # add imputed Sex to lims
 brain_sentrix <- read.csv("/dcl01/lieber/RNAseq/Datasets/BrainGenotyping_2018/SampleFiles/preBrainStorm/brain_sentrix_swap.csv") %>%
@@ -81,11 +107,7 @@ gia <- read.csv("genotypeInferredAncestry.csv")
 
 lims <- lims %>%
   left_join(gia) %>%
-  mutate(Sex = ifelse(Sex == "M","male",
-                      ifelse(Sex == "F", "female","unknown")),
-         mannerOfDeath = ifelse(Manner.Of.Death == "Natural","natural causes",tolower(Manner.Of.Death)),
-         PMICertain = PMI.Confidence.Level == "Certain",
-         genotypeInferredAncestry = ifelse(is.na(genotypeInferredAncestry),Race,genotypeInferredAncestry))
+  mutate(genotypeInferredAncestry = ifelse(is.na(genotypeInferredAncestry),Race,genotypeInferredAncestry))
 
 #build manifest
 mdd_manifest <- pd_mdd %>%
@@ -108,7 +130,6 @@ pd <- pd  %>% left_join(flow_cell, by = "RNum") %>%
 BrNum_mdd <- unique(pd_mdd$BrNum)
 RNum_mdd <- pd_mdd$RNum
 
-lims_mdd <- lims %>% filter(BrNum %in% BrNum_mdd)
 #### Build metadata ####
 # Individual
 indi_md <- build_metadata("template_individual_human.xlsx", lims, "BrNum", BrNum_mdd)
