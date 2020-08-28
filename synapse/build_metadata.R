@@ -76,13 +76,16 @@ make_value_df <- function(template_xlsx){
 
 replace_values <- function(template_xlsx, dataV){
   value_df <- make_value_df(template_xlsx)
-  for (row in 1:nrow(value_df)) {
-    dataV <- replace_value(unlist(value_df[row,]),dataV)
-  }
-
-  return(dataV)
+  nr <- nrow(value_df)
+  if (nr == 0){
+    return(dataV)
+  }else{
+      for (row in 1:nrow(value_df)) {
+        dataV <- replace_value(unlist(value_df[row,]),dataV)
+      }
+      return(dataV)
+    }
 }
-rv <- replace_values("template_individual_human.xlsx", indi_md2)
 
 #### load data ####
 lims <- read.csv("/dcl01/lieber/RNAseq/Datasets/BrainGenotyping_2018/SampleFiles/preBrainStorm/shiny070220.csv")
@@ -107,7 +110,9 @@ gia <- read.csv("genotypeInferredAncestry.csv")
 
 lims <- lims %>%
   left_join(gia) %>%
-  mutate(genotypeInferredAncestry = ifelse(is.na(genotypeInferredAncestry),Race,genotypeInferredAncestry))
+  mutate(genotypeInferredAncestry = ifelse(is.na(genotypeInferredAncestry),Race,genotypeInferredAncestry)) %>%
+  select(-PrimaryDx) %>%
+  inner_join(pd_mdd %>% select(PrimaryDx, BrNum) %>% unique, by = "BrNum")
 
 #build manifest
 mdd_manifest <- pd_mdd %>%
