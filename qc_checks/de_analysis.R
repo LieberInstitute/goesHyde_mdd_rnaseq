@@ -19,9 +19,8 @@ load("../data/rse_gene_raw_GoesZandi_n1140.rda",verbose = TRUE)
 rse_gene$Label = paste0(rse_gene$BrainRegion, "_", rse_gene$PrimaryDx)
 rse_gene$Label = factor(rse_gene$Label)
 
-# ### make into mouse + h_21 object
-# rse_gene = rse_gene[rowData(rse_gene)$gene_species == "mouse" | 
-# 	seqnames(rse_gene) == "human_chr21",]
+rse_gene$PrimaryDx = factor(rse_gene$PrimaryDx)
+rse_gene$BrainRegion = factor(rse_gene$BrainRegion)
 
 ## metric boxplot to drop sample
 pdf("pdfs/metrics_vs_grouplabels_predrop.pdf")
@@ -68,23 +67,23 @@ pca_vars_lab = paste0("PC", seq(along=pca_vars), ": ",
 #### pc1v2
 pdf("pdfs/pc1_vs_2.pdf")
 par(mar=c(5,6,2,2),cex.axis=1.8,cex.lab=1.8)
-palette(brewer.pal(6,"Set1"))
-plot(pca$x, pch=as.numeric(rse_gene_filter$Label) + 20, 
-     bg=rse_gene_filter$Label,cex=1.5,
+palette(brewer.pal(3,"Set1"))
+plot(pca$x, pch=as.numeric(rse_gene_filter$BrainRegion) + 20, 
+     bg=rse_gene_filter$PrimaryDx,cex=1.5,
      xlab = pca_vars_lab[1], ylab = pca_vars_lab[2])
-legend("topright", levels(rse_gene_filter$Label),
+# legend("topright", levels(rse_gene_filter$Label),
+#        col = 1:4,	pch = 19, cex=1.5)
+legend("bottomright", levels(rse_gene_filter$PrimaryDx),
        col = 1:4,	pch = 19, cex=1.5)
-# legend("topright", levels(rse_gene_filter$BrainRegion),
-# 	col = 1:4,	pch = 19, cex=1.5)
-# legend("bottomright", levels(rse_gene_filter$Group),
-# 	pt.bg = "black",pch = 21:22,cex=1.5)
+legend("bottomleft", levels(rse_gene_filter$BrainRegion),
+       pt.bg = "black",pch = 21:22,cex=1.5)
 dev.off()
 
 #### PCs vs stuff
 
 pdf("pdfs/pcs_vs_grouplabels.pdf")
 par(mar=c(13,6,2,2), cex.axis=1.8,cex.lab=1.8)
-palette(brewer.pal(4,"Set1"))
+palette(brewer.pal(6,"Set1"))
 for(i in 1:10) {
   boxplot(pca$x[,i] ~ rse_gene_filter$Label, xlab="",
           outline = FALSE, ylim = range(pca$x[,i]),
@@ -97,14 +96,18 @@ dev.off()
 
 ### variables
 rse_gene_filter$BrNum = factor(rse_gene_filter$BrNum)
+# 
+# vars = c("rna_conc_ug_u_l", "x260_280", "total_rna_given_ug",
+#          "overallMapRate", "overallMapRate", 
+#          "mitoRate", "totalAssignedGene",
+#          "totalUnassignedAmbig", "totalUnassignedMulti",	"rRNA_rate")
+# names(vars) = c("RNA Conc", "260/280", "Total RNA", "Overall Map Rate",
+#                 "Corcordant Map Rate", "chrM Map Rate", "Exonic Assignment Rate",
+#                 "Ambig Assign Rate", "Multi Assign Rate", "rRNA Assignment Rate")
 
-vars = c("rna_conc_ug_u_l", "x260_280", "total_rna_given_ug",
-         "overallMapRate", "overallMapRate", 
-         "mitoRate", "totalAssignedGene",
-         "totalUnassignedAmbig", "totalUnassignedMulti",	"rRNA_rate")
-names(vars) = c("RNA Conc", "260/280", "Total RNA", "Overall Map Rate",
-                "Corcordant Map Rate", "chrM Map Rate", "Exonic Assignment Rate",
-                "Ambig Assign Rate", "Multi Assign Rate", "rRNA Assignment Rate")
+vars = c("RIN","overallMapRate", "totalAssignedGene","mitoRate", "rRNA_rate")
+names(vars) = c("RIN","overallMapRate", "totalAssignedGene","mitoRate", "rRNA_rate")
+
 
 ## correlation
 ccPcaMetrics = cor(pca$x[,1:20], 
@@ -113,8 +116,8 @@ tPcaMetrics = ccPcaMetrics/sqrt((1-ccPcaMetrics^2)/(ncol(rse_gene_filter)-2))
 pvalPcaMetrics = 2*pt(-abs(tPcaMetrics), df = ncol(rse_gene_filter)-1)
 
 ## add anova metrics
-regVars = c("BrainRegion", "Group","BrNum")
-names(regVars) = c("BrainRegion", "MAC21", "Mouse")
+regVars = c("BrainRegion", "PrimaryDx","BrNum")
+names(regVars) = c("BrainRegion", "PrimaryDx","BrNum")
 anovaPval = sapply(regVars, function(x) {
   y = colData(rse_gene_filter)[,x]
   apply(pca$x[,1:20], 2, function(p) {
@@ -135,84 +138,3 @@ print(levelplot(logPvalMat, aspect = "fill",
                 panel = panel.levelplot.raster, col.regions = my.col))
 dev.off()
 
-#################
-## de modeling ##
-#################
-
-## norm counts
-dge = DGEList(counts = assays(rse_gene_filter)$counts, 
-              genes = rowData(rse_gene_filter))
-dge = calcNormFactors(dge)
-
-## split by BrainRegion
-tIndexes = splitit(rse_gene_filter$BrainRegion)
-
-#########
-## human modeling first
-human_chr21_index = which(seqnames(rse_gene_filter) == "human_chr21")
-
-statList_human_chr21 = lapply(tIndexes, function(ii) {
-  ## filter to human
-  d = dge[human_chr21_index,ii]
-  
-  ## mean-variance
-  mod = model.matrix(~Group + totalAssignedGene + mitoRate,
-                     data=colData(rse_gene_filter[,ii]))
-  
-  vGene = voom(d,mod,plot=FALSE)
-  fitGene= lmFit(vGene)
-  ebGene = eBayes(fitGene)
-  tt = topTable(ebGene,coef=2,
-                p.value = 1,number=nrow(d),sort="none")
-  tt[,c( "logFC", "AveExpr", "t", "P.Value", "adj.P.Val","B")]
-})
-stats_human_chr21 = do.call("cbind", statList_human_chr21)
-colMeans(stats_human_chr21[,grep("P.Val", colnames(stats_human_chr21))] < 0.05)
-
-### mouse next
-mouse_chrs_index  = which(seqnames(rse_gene_filter) != "human_chr21")
-
-
-statList_mouse = lapply(tIndexes, function(ii) {
-  ## filter to human
-  d = dge[mouse_chrs_index,ii]
-  
-  ## mean-variance
-  mod = model.matrix(~Group + totalAssignedGene + mitoRate,
-                     data=colData(rse_gene_filter[,ii]))
-  
-  vGene = voom(d,mod,plot=FALSE)
-  fitGene= lmFit(vGene)
-  ebGene = eBayes(fitGene)
-  tt = topTable(ebGene,coef=2,
-                p.value = 1,number=nrow(d),sort="none")
-  tt[,c( "logFC", "AveExpr", "t", "P.Value", "adj.P.Val","B")]
-})
-stats_mouse = do.call("cbind", statList_mouse)
-colMeans(stats_mouse[,grep("P.Val", colnames(stats_mouse))] < 0.05)
-colSums(stats_mouse[,grep("adj", colnames(stats_mouse))] < 0.1)
-
-## one overall model for mouse
-mod = model.matrix(~Group*BrainRegion + totalAssignedGene + mitoRate,
-                   data=colData(rse_gene_filter))
-vGene = voom(dge[mouse_chrs_index,],mod,plot=FALSE)
-fitGene= lmFit(vGene)
-ebGene = eBayes(fitGene)
-
-outGene_MAC21 = topTable(ebGene,coef=2,
-                         p.value = 1,number=nrow(dge[mouse_chrs_index,]),sort="none")
-table(	outGene_MAC21$adj.P.Val < 0.05)
-
-outGene_MAC21_fatEffect = topTable(ebGene,coef=8:10,
-                                   p.value = 1,number=nrow(dge[mouse_chrs_index,]),sort="none")
-table(outGene_MAC21_fatEffect$adj.P.Val < 0.05,
-      outGene_MAC21$adj.P.Val < 0.05,
-      dnn = c("FATxMAC21", "MAC21"))
-
-outGene_MAC21_list = lapply(8:10, function(i) {
-  topTable(ebGene,coef=i,	p.value = 1,
-           number=nrow(dge[mouse_chrs_index,]),
-           sort="none")
-})
-
-outGene_MAC21_inter = do.call("cbind", outGene_MAC21_list)
