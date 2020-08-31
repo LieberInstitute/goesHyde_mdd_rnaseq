@@ -13,11 +13,12 @@ load("rse_gene_raw_GoesZandi_n1140.rda", verbose = TRUE)
 
 ## drop
 qc = read.csv("../qc_checks/qc_dropping_results.csv", stringsAsFactors = FALSE)
-rse_gene = rse_gene[,which(rse_gene$RNum %in% qc$SAMPLE_ID|
-                      rse_gene$Experiment == "psychENCODE_BP"| 
-                        rse_gene$RNum %in% c("R17538","R18853") |
-                        rse_gene$PrimaryDx == "Other" |
-                        rse_gene$overallMapRate <0.5) ]
+qc = qc[rowSums(qc[,c("dropMetrics","dropRegion","dropRace")])>0,]
+# filter from ppt_plot
+rse_gene = rse_gene[,-which(rse_gene$RNum %in% qc$SAMPLE_ID)]
+#other filters 
+rse_gene = rse_gene[,which(!rse_gene$RNum %in% c("R17538","R18853")| rse_gene$PrimaryDx != "Other")] 
+message("Keep: n", ncol(rse_gene))
 
 rse_gene$PrimaryDx = factor(rse_gene$PrimaryDx, levels = c("MDD", "Control","Bipolar"))
 
