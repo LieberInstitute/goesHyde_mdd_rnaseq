@@ -138,3 +138,13 @@ print(levelplot(logPvalMat, aspect = "fill",
                 panel = panel.levelplot.raster, col.regions = my.col))
 dev.off()
 
+# sgejobs::job_single('pcs_plots', create_shell = TRUE, queue= 'bluejay', memory = '50G', command = "Rscript pcs_plots.R")
+
+## Reproducibility information
+print('Reproducibility information:')
+Sys.time()
+proc.time()
+options(width = 120)
+session_info()
+
+
