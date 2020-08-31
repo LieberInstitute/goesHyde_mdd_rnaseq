@@ -107,10 +107,10 @@ abline(h=0.5, lty=2)
 plot(pd$RIN, pd$totalAssignedGene, pch=21, bg=pd$dropMetrics+1, cex=pd$dropMetrics+1, ylim=c(aL,aH))
 abline(h=0.3, lty=2)
 plot(pd$rRNA_rate, pd$overallMapRate, pch=21, bg=pd$dropMetrics+1, cex=pd$dropMetrics+1, 
-		xlim=c(mitoL,mitoH), ylim=c(mL,mH))
+     xlim=c(mitoL,mitoH), ylim=c(mL,mH))
 abline(h=0.5, lty=2)
 plot(pd$RIN, log10(pd$numReads), pch=21, bg=pd$dropMetrics+1, cex=pd$dropMetrics+1, 
-		ylim=c(log10(rL),log10(rH)))
+     ylim=c(log10(rL),log10(rH)))
 abline(h=log10(1e7), lty=2)
 dev.off()
 
@@ -131,23 +131,23 @@ pdf("metrics_by_plate.pdf", h=5,w=5)
 par(mar=c(7,6,2,2),cex.axis=1,cex.lab=1.5,cex.main=2)
 palette(brewer.pal(8,"Dark2"))
 boxplot(pd$overallMapRate ~ pd$Plate, las= 3,
-          ylim = c(0,1), xlab="Plate",
-          outline=FALSE,ylab="Overall Map Rate")
+        ylim = c(0,1), xlab="Plate",
+        outline=FALSE,ylab="Overall Map Rate")
 points(pd$overallMapRate ~ jitter(as.numeric(
-    factor(pd$Plate)),
-	amount=0.15), pch=21,
-    bg = as.numeric(factor(pd$BrainRegion)))
+  factor(pd$Plate)),
+  amount=0.15), pch=21,
+  bg = as.numeric(factor(pd$BrainRegion)))
 legend("bottomleft", levels(factor(pd$BrainRegion)),
        pch = 15, col = 1:2,cex=.8)
 abline(h=.5, lty=2, col="grey")
 
 boxplot(pd$totalAssignedGene ~ pd$Plate, las= 3,
-          ylim = c(0,.7), xlab="Plate",
-          outline=FALSE,ylab="Gene Assignement Rate")
+        ylim = c(0,.7), xlab="Plate",
+        outline=FALSE,ylab="Gene Assignement Rate")
 points(pd$totalAssignedGene ~ jitter(as.numeric(
-    factor(pd$Plate)),
-	amount=0.15), pch=21,
-    bg = as.numeric(factor(pd$BrainRegion)))
+  factor(pd$Plate)),
+  amount=0.15), pch=21,
+  bg = as.numeric(factor(pd$BrainRegion)))
 abline(h=.3, lty=2, col="grey")
 
 dev.off()
@@ -189,12 +189,12 @@ pdf("region_check_100.pdf", h=6,w=6)
 par(mar=c(8,6,2,2),cex.axis=1.5,cex.lab=1.5,cex.main=2)
 palette(brewer.pal(8,"Dark2"))
 boxplot(pd$guess ~ pd$BrainRegion, las= 3,
-          ylim = range(pd$guess),
-          outline=FALSE,ylab="sACC Identity", xlab="")
+        ylim = range(pd$guess),
+        outline=FALSE,ylab="sACC Identity", xlab="")
 points(pd$guess ~ jitter(as.numeric(
-    factor(pd$BrainRegion)),
-	amount=0.25), pch=21,
-    bg = as.numeric(as.factor(pd$BrainRegion)))
+  factor(pd$BrainRegion)),
+  amount=0.25), pch=21,
+  bg = as.numeric(as.factor(pd$BrainRegion)))
 segments(0,0.9,1.5,0.9, lty=2, col="grey")
 segments(1.5,0.3,2.5,0.3, lty=2, col="grey")
 dev.off()
@@ -228,14 +228,14 @@ pd["R17496","BrainRegion"] = "sACC"
 
 ## Drop the rest
 dropInd = which( (pd$BrainRegion=="sACC" & pd$guess<.3) |
-			 (pd$BrainRegion=="Amygdala" & pd$guess>0.9)  )
+                   (pd$BrainRegion=="Amygdala" & pd$guess>0.9)  )
 pd$dropRegion = FALSE
 pd$dropRegion[dropInd] = TRUE
 
 table(pd$dropRegion)
 # FALSE  TRUE
-  # 612    11
-  
+# 612    11
+
 ########################################################.
 gia <- read.csv("../synapse/genotypeInferredAncestry.csv")
 pd$geneticRace = pd$Race
@@ -297,6 +297,9 @@ sum(pd$dropSum > 0) #27
 # sum(pd$dropSum > 0) + 3
 # # 41
 
+qcresults = pd[,info_cols]
+write.csv(qcresults, file="qc_dropping_results.csv")
+
 pd = pd[-which(pd$dropSum > 0),]
 nrow(pd)
 # 596
@@ -329,11 +332,7 @@ summary(pd$Age)
 # > summary(pd$Age)
 # Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
 # 17.94   32.17   47.33   45.98   54.65   95.27
-  
-  
-info_cols <- c("SAMPLE_ID","BrNum","Age","Sex","Race","PrimaryDx","BrainRegion","RIN","Plate","overallMapRate","totalAssignedGene")  
-qcresults = pd[,info_cols]
-write.csv(qcresults, file="qc_dropping_results.csv")
+
 
 message("Remaining Samples: n", nrow(qcresults))
 
@@ -398,22 +397,23 @@ yExprsBP = log2(gRpkmBP+1)
 yExprsComb = yExprsBP
 # combined phenodata
 pd = colData(rse_gene)[,c("BrNum","BrainRegion","PrimaryDx","Experiment")]
+pd$group <- paste0(pd$Experiment,"_",pd$PrimaryDx)
 pca1 = prcomp(t(yExprsComb))
 pcaVars1 = getPcaVars(pca1)
 
 pdf("pca_log2Rpkm_PC1_2_combined_datasets.pdf", h=6,w=6)
 par(mar=c(5,6,4,2),cex.axis=1.5,cex.lab=1.5,cex.main=1.5)
 palette(brewer.pal(8,"Spectral"))
-plot(pca1$x, pch = 21, bg=(as.numeric(factor(pd$Exp))*4)-1,cex=2, main="Gene PCs",
+plot(pca1$x, pch = 21, bg=(as.numeric(factor(pd$Experiment))*4)-1,cex=2, main="Gene PCs",
      xlab=paste0("PC1: ", pcaVars1[1], "% Var Expl"),
      ylab=paste0("PC2: ", pcaVars1[2], "% Var Expl"))
-legend("topleft", paste0(levels(factor(pd$Exp))),
+legend("topleft", paste0(levels(factor(pd$Experiment))),
        pch = 15, col = c(3,7),cex=.9)
 plot(pca1$x, pch = 21, bg=as.numeric(factor(pd$PrimaryDx))*2,cex=2, main="Gene PCs",
      xlab=paste0("PC1: ", pcaVars1[1], "% Var Expl"),
      ylab=paste0("PC2: ", pcaVars1[2], "% Var Expl"))
 legend("topleft", paste0(levels(factor(pd$PrimaryDx))),
-       pch = 15, col = c(2,4),cex=.9)
+       pch = 15, col = c(2,4,6),cex=.9)
 plot(pca1$x, pch = 21, bg=as.numeric(factor(pd$BrainRegion))*3,cex=2, main="Gene PCs",
      xlab=paste0("PC1: ", pcaVars1[1], "% Var Expl"),
      ylab=paste0("PC2: ", pcaVars1[2], "% Var Expl"))
@@ -423,8 +423,10 @@ plot(pca1$x, pch = 21, bg=as.numeric(factor(pd$group)),cex=2, main="Gene PCs",
      xlab=paste0("PC1: ", pcaVars1[1], "% Var Expl"),
      ylab=paste0("PC2: ", pcaVars1[2], "% Var Expl"))
 legend("topleft", paste0(levels(factor(pd$group))),
-       pch = 15, col = 1:8,cex=.9)
+       pch = 15, col = 1:4,cex=.9)
 dev.off()
+
+# sgejobs::job_single('ppt_plots', create_shell = TRUE, queue= 'bluejay', memory = '50G', command = "Rscript ppt_plots.R")
 
 
 ## Reproducibility information
@@ -434,5 +436,4 @@ proc.time()
 options(width = 120)
 session_info()
 
-# sgejobs::job_single('ppt_plots', create_shell = TRUE, queue= 'bluejay', memory = '50G', command = "Rscript ppt_plots.R")
 
