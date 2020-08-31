@@ -7,71 +7,53 @@ library(readxl)
 library(devtools)
 library(edgeR)
 
-setwd('/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/data/')
 
-###############################
-##### Load, clean, combine ####
-###############################
-
-#load objects
-load('../preprocessed_data/rse_gene_goesHyde_MDD_n634.Rdata', verbose=TRUE)
-rse_mdd = rse_gene					# 634
-rse_mdd$Experiment = "GoesMDD"
-load("/dcl01/lieber/ajaffe/lab/zandiHyde_bipolar_rnaseq/data/zandiHypde_bipolar_rseGene_n511.rda", verbose=TRUE)
-rse_bip = rse_gene					# 511
-rse_bip$Experiment = "ZandiBPD"
-## 9 Control samples also got used in Goes -> drop from Zandi so there's no duplicates
-rse_bip = rse_bip[,-which(rse_bip$RNum %in% colnames(rse_mdd))]	# 502
-
-## combine
-# make colData consistent
-rse_mdd$AgeDeath = rse_mdd$Age
-rse_mdd$RNum = rse_mdd$SAMPLE_ID
-rse_mdd$BrNum = as.character(rse_mdd$BrNum)
-colKeep = c("RNum","BrNum","Sex","Race","AgeDeath","BrainRegion","RIN","PrimaryDx","overallMapRate","totalAssignedGene","mitoRate","rRNA_rate","Experiment")
-colData(rse_mdd) = colData(rse_mdd)[,colKeep]
-colData(rse_bip) = colData(rse_bip)[,colKeep]
-
-# make rowData consistent
-rowData(rse_bip)$Symbol = rowData(rse_mdd)$Symbol 	# fill in blank symbols
-rowData(rse_bip)$meanExprs = rowData(rse_bip)$gencodeTx = NULL
-rowData(rse_mdd)$meanExprs = rowData(rse_mdd)$gencodeTx = NULL
-
-### combine
-rse_both = cbind(rse_mdd, rse_bip)
+# load data
+load("rse_gene_raw_GoesZandi_n1140.rda", verbose = TRUE)
 
 ## drop
 qc = read.csv("../qc_checks/qc_dropping_results.csv", stringsAsFactors = FALSE)
-qc = qc[rowSums(qc[,13:16])>0,]
-qc = rbind(qc, "R17779")	# Tiny # of reads
-rse_both = rse_both[,-which(rse_both$RNum %in% qc$SAMPLE_ID | rse_both$RNum %in% c("R17538","R18853") |
-						rse_both$PrimaryDx == "Other" |
-						rse_both$overallMapRate <0.5) ]
+rse_gene = rse_gene[,which(rse_gene$RNum %in% qc$SAMPLE_ID|
+                      rse_gene$Experiment == "psychENCODE_BP"| 
+                        rse_gene$RNum %in% c("R17538","R18853") |
+                        rse_gene$PrimaryDx == "Other" |
+                        rse_gene$overallMapRate <0.5) ]
 
-rse_both$PrimaryDx = droplevels(rse_both$PrimaryDx)
-rse_both$PrimaryDx = relevel(rse_both$PrimaryDx, ref="MDD")
+rse_gene$PrimaryDx = factor(rse_gene$PrimaryDx, levels = c("MDD", "Control","Bipolar"))
 
-tempRpkm = recount::getRPKM(rse_both, "Length")
-rowData(rse_both)$meanExprs = rowMeans(tempRpkm)
+tempRpkm = recount::getRPKM(rse_gene, "Length")
+rowData(rse_gene)$meanExprs = rowMeans(tempRpkm)
 
-pd = colData(rse_both)
+pd = colData(rse_gene)
+
 table(pd$BrainRegion,pd$PrimaryDx)
-           # MDD Control Bipolar
-  # Amygdala 235     186     120
-  # sACC     228     199     125
-
 table(pd$Sex, pd$PrimaryDx)
-    # MDD Control Bipolar
-  # F 155      78      96
-  # M 308     307     149
-
-
 summary(pd$AgeDeath)
-   # Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
-  # 17.37   34.44   47.21   46.57   55.86   95.27
 
-rse_gene = rse_both
-# save(rse_gene, file="rse_gene_GoesZandi_n1093.rda")
+# > table(pd$BrainRegion,pd$PrimaryDx)
+# 
+# MDD Control Bipolar
+# Amygdala 237     190     125
+# sACC     231     206     128
+# > table(pd$BrainRegion,pd$PrimaryDx)
+# 
+# MDD Control Bipolar
+# Amygdala 237     190     125
+# sACC     231     206     128
+# > table(pd$Sex, pd$PrimaryDx)
+# 
+# MDD Control Bipolar
+# F 158      79      99
+# M 310     317     154
+# > summary(pd$AgeDeath)
+# Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+# 17.37   34.56   47.09   46.55   55.88   95.27 
+
+n = ncol(rse_gene)
+message("Remaining Samples: n", n)
+
+## Save rse_gene
+save(rse_gene, file=paste0("rse_gene_GoesZandi_n",n ,".rda"))
 
 
 ##### Exons
