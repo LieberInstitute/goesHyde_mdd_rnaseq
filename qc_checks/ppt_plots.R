@@ -103,7 +103,7 @@ pd$dropMetrics[pd$overallMapRate < 0.5 | pd$totalAssignedGene < .3 | pd$numReads
 
 table(pd$dropMetrics)
 # FALSE  TRUE 
-# 618     5
+# 1133     7 
 
 ####################################
 
@@ -322,7 +322,8 @@ write.csv(qcresults, file="qc_dropping_results.csv")
 ## Update pd
 pd = pd[-which(pd$dropSum > 0),]
 rownames(pd) <- paste0(rownames(pd),pd$Experiment)
-nrow(pd)
+
+message("Remaining Samples: n", nrow(pd))
 # 1100
 
 table(pd$BrainRegion, pd$PrimaryDx)
@@ -355,7 +356,6 @@ summary(pd$Age)
 # 17.37   34.53   47.09   46.55   55.87   95.27
 
 
-message("Remaining Samples: n", nrow(pd))
 
 ## PCA - Combined data
 rse_gene <- rse_gene[,rse_gene$RNum %in% pd$RNum]
@@ -365,7 +365,6 @@ gRpkmBP = gRpkmBP[which(rowMeans(gRpkmBP)>0.2),]
 yExprsComb = log2(gRpkmBP+1)
 
 # combined phenodata
-pd = colData(rse_gene)[,c("BrNum","BrainRegion","PrimaryDx","Experiment")]
 pd$group <- paste0(pd$BrainRegion,"_",pd$PrimaryDx)
 pca1 = prcomp(t(yExprsComb))
 pcaVars1 = getPcaVars(pca1)
@@ -392,7 +391,7 @@ plot(pca1$x, pch = 21, bg=as.numeric(factor(pd$group)),cex=2, main="Gene PCs",
      xlab=paste0("PC1: ", pcaVars1[1], "% Var Expl"),
      ylab=paste0("PC2: ", pcaVars1[2], "% Var Expl"))
 legend("topleft", paste0(levels(factor(pd$group))),
-       pch = 15, col = 1:4,cex=.9)
+       pch = 15, col = 1:6,cex=.9)
 dev.off()
 
 ##############
@@ -400,7 +399,7 @@ dev.off()
 
 ## Filter for MDD samples
 rse_gene <- rse_gene[,rse_gene$Experiment == "psychENCODE_MDD"]
-pd = colData(rse_gene)[,c("BrNum","BrainRegion","Race","Sex","PrimaryDx","Experiment")]
+pd <- pd[pd$Experiment == "psychENCODE_MDD",]
 gRpkm = recount::getRPKM(rse_gene, "Length")
 
 ## filter low expressing genes
@@ -432,7 +431,7 @@ plot(pca1$x, pch = 21, bg=as.numeric(factor(pd$Race))*2,cex=2, main="Gene PCs",
      xlab=paste0("PC1: ", pcaVars1[1], "% Var Expl"),
      ylab=paste0("PC2: ", pcaVars1[2], "% Var Expl"))
 legend("topleft", paste0(levels(factor(pd$Race))),
-       pch = 15, col = c(2,4,6,8),cex=.9)
+       pch = 15, col = c(2,4),cex=.9)
 plot(pca1$x, pch = 21, bg=as.numeric(factor(pd$Plate)),cex=2, main="Gene PCs",
      xlab=paste0("PC1: ", pcaVars1[1], "% Var Expl"),
      ylab=paste0("PC2: ", pcaVars1[2], "% Var Expl"))
