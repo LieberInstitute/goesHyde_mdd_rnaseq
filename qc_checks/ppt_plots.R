@@ -268,7 +268,7 @@ table(pd$dropRace)
 
 
 ########################################################.
-info_cols <- c("BrNum","AgeDeath","Sex","Race","PrimaryDx","BrainRegion","RIN","Plate","dropMetrics","dropRegion","dropRace") #previoulsy included "dropGeno"
+info_cols <- c("Experiment","BrNum","AgeDeath","Sex","Race","PrimaryDx","BrainRegion","RIN","Plate","dropMetrics","dropRegion","dropRace") #previoulsy included "dropGeno"
 pd[which(pd$dropMetrics==TRUE | pd$dropRegion==TRUE | pd$dropRace==TRUE),info_cols]
 
 # BrNum AgeDeath Sex Race PrimaryDx BrainRegion RIN Plate dropMetrics dropRegion dropRace
@@ -312,8 +312,6 @@ pd[which(pd$dropMetrics==TRUE | pd$dropRegion==TRUE | pd$dropRace==TRUE),info_co
 # R14295 Br2071 40.62000   F CAUC   Bipolar        sACC 6.5    NA       FALSE       TRUE    FALSE
 # R14306 Br5435 56.51000   M CAUC   Bipolar        sACC 7.9    NA        TRUE      FALSE    FALSE
 # R15072 Br5939 55.90965   M CAUC   Bipolar    Amygdala 7.5    NA       FALSE       TRUE    FALSE
-
-## plus 3 with really low reads that were also dropMetrics
 
 pd$dropSum = rowSums(pd[,c("dropMetrics","dropRegion","dropRace")])
 sum(pd$dropSum > 0) #40
