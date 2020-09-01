@@ -9,13 +9,25 @@ library(sessioninfo)
 library(dplyr)
 ## load phenotype and alignment data
 load("/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/data/rse_gene_raw_GoesZandi_n1140.rda", verbose = TRUE) 
-rse_gene <- rse_gene[,rse_gene$Experiment == "psychENCODE_MDD"]
-pd_mdd <- colData(rse_gene) %>% as.data.frame
+pd <- colData(rse_gene) %>% as.data.frame
 
-pd <- read.csv("/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/preprocessed_data/read_and_alignment_metrics_goesHyde_MDD.csv", stringsAsFactors=FALSE, row.names=1)
-pd <- pd[,!colnames(pd) %in% colnames(pd_mdd)]
-pd$RNum <- rownames(pd)
-pd <- left_join(pd_mdd, pd,by ='RNum')
+metricCols <- c("RNum","Experiment","numReads","Plate") #"totalAssignedGene","overallMapRate","rRNA_rate"
+
+pd_mdd <- read.csv("/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/preprocessed_data/read_and_alignment_metrics_goesHyde_MDD.csv", 
+                   stringsAsFactors=FALSE, row.names=1) %>%
+  mutate(Experiment = "psychENCODE_MDD") %>%
+  rename(RNum = SAMPLE_ID) %>%
+  select(metricCols)
+
+pd_bp <- read.csv("/dcl01/lieber/ajaffe/lab/zandiHyde_bipolar_rnaseq/preprocessed_data/read_and_alignment_metrics_zandiHyde_Bipolar_LIBD.csv", 
+                  stringsAsFactors=FALSE, row.names=1) %>%
+  mutate(Experiment = "psychENCODE_BP",
+         Plate = NA) %>%
+  select(metricCols)
+
+pd_both <- rbind(pd_mdd, pd_bp)
+
+pd <- left_join(pd, pd_both,by =c('RNum','Experiment'))
 rownames(pd) <- pd$RNum
 
 table(pd$BrainRegion, pd$PrimaryDx)
