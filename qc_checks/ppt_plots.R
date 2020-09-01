@@ -37,34 +37,29 @@ table(table(pd$BrNum))
 summary(pd$Age)
 
 # > table(pd$BrainRegion, pd$PrimaryDx)
-# 
-# Control MDD
-# Amygdala      73 240
-# sACC          71 239
-# > table(pd$BrainRegion, pd$PrimaryDx)
-# 
-# Control MDD
-# Amygdala      73 240
-# sACC          71 239
+
+# Bipolar Control MDD
+# Amygdala     125     194 240
+# sACC         128     214 239
 # > table(pd$Sex, pd$PrimaryDx)
 # 
-# Control MDD
-# F      35 159
-# M     109 320
+# Bipolar Control MDD
+# F      99      86 159
+# M     154     322 320
 # > table(pd$Race, pd$PrimaryDx)
 # 
-# Control MDD
-# AA         4   0
-# AS         2   0
-# CAUC     134 479
-# HISP       4   0
+# Bipolar Control MDD
+# AA         0       5   0
+# AS         0       2   0
+# CAUC     253     397 479
+# HISP       0       4   0
 # > table(table(pd$BrNum))
 # 
 # 1   2   3 
-# 16 296   5 
+# 71 524   7 
 # > summary(pd$Age)
 # Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-# 17.94   32.10   47.42   46.09   55.70   95.27
+# 17.37   34.41   47.15   46.55   55.91   95.27
 
 
 summary(pd$numReads)
@@ -126,11 +121,6 @@ plot(pd$RIN, log10(pd$numReads), pch=21, bg=pd$dropMetrics+1, cex=pd$dropMetrics
 abline(h=log10(1e7), lty=2)
 dev.off()
 
-##################################################
-
-## actually drop the 3 low read samples, these have problems later
-## none below 1e7 on n1140
-pd = pd[pd$numReads > 1e7,]
 
 ##################################################
 
@@ -193,7 +183,7 @@ fit = lmFit(yExprs1000, mod)
 Xmat = fit$coef
 Dmat = t(Xmat)%*%Xmat
 guess = apply(yExprs1000, 2, function(x)  solve(Dmat, t(Xmat) %*% x))[2,]
-stopifnot(identical(names(guess),paste0(rownames(pd),"_psychENCODE_MDD")))
+stopifnot(identical(names(guess),paste0(rownames(pd),"_",pd$Experiment)))
 pd$guess = guess
 
 ### plot
@@ -211,28 +201,38 @@ segments(0,0.9,1.5,0.9, lty=2, col="grey")
 segments(1.5,0.3,2.5,0.3, lty=2, col="grey")
 dev.off()
 
-info_cols <- c("SAMPLE_ID","BrNum","Age","Sex","Race","PrimaryDx","BrainRegion","dropMetrics","guess") #previoulsy included "dropGeno"
+info_cols <- c("BrNum","Experiment","AgeDeath","Sex","Race","PrimaryDx","BrainRegion","dropMetrics","guess")
 pd[which(pd$BrainRegion=="sACC" & pd$guess<.3),info_cols]
 pd[which(pd$BrainRegion=="Amygdala" & pd$guess>0.9),info_cols]
 
 
 # > pd[which(pd$BrainRegion=="sACC" & pd$guess<.3),info_cols]
-# SAMPLE_ID  BrNum      Age Sex Race PrimaryDx BrainRegion dropMetrics        guess
-# 9      R14179 Br1469 28.57000   M CAUC   Control        sACC       FALSE -0.008304666
-# 49     R17520 Br1635 52.31000   M CAUC       MDD        sACC       FALSE  0.218813100
-# 55     R17527 Br1675 32.10000   M CAUC       MDD        sACC       FALSE -0.077176996
-# 74     R17547 Br1754 25.98000   F CAUC       MDD        sACC       FALSE  0.012868825
-# 106    R17579 Br6099 26.66381   M CAUC       MDD        sACC       FALSE  0.155488347
-# 407    R17894 Br8017 49.29500   M CAUC       MDD        sACC       FALSE  0.274937417
-# 454    R17941 Br8133 62.36813   M CAUC       MDD        sACC       FALSE -0.132722760
-# 464    R17951 Br2333 68.85000   F CAUC   Control        sACC       FALSE -0.051220201
-# 465    R17952 Br5549 67.47000   M CAUC       MDD        sACC       FALSE  0.012867425
-# 489    R18430 Br3863 69.33904   M CAUC   Control        sACC       FALSE -0.133637833
-# 514    R18458 Br8313 55.41672   M CAUC   Control        sACC       FALSE  0.140951403
-# 619    R19186 Br1475 43.30000   M CAUC       MDD        sACC       FALSE  0.081657998
+# BrNum      Experiment AgeDeath Sex Race PrimaryDx BrainRegion dropMetrics        guess
+# R14179 Br1469 psychENCODE_MDD 28.57000   M CAUC   Control        sACC       FALSE -0.021303859
+# R17520 Br1635 psychENCODE_MDD 52.31000   M CAUC       MDD        sACC       FALSE  0.231191685
+# R17527 Br1675 psychENCODE_MDD 32.10000   M CAUC       MDD        sACC       FALSE -0.056853078
+# R17547 Br1754 psychENCODE_MDD 25.98000   F CAUC       MDD        sACC       FALSE  0.018389137
+# R17579 Br6099 psychENCODE_MDD 26.66381   M CAUC       MDD        sACC       FALSE  0.153008741
+# R17894 Br8017 psychENCODE_MDD 49.29500   M CAUC       MDD        sACC       FALSE  0.261345113
+# R17941 Br8133 psychENCODE_MDD 62.36813   M CAUC       MDD        sACC       FALSE -0.104237322
+# R17951 Br2333 psychENCODE_MDD 62.99000   F CAUC   Control        sACC       FALSE -0.063507534
+# R17952 Br5549 psychENCODE_MDD 67.47000   M CAUC       MDD        sACC       FALSE  0.008696151
+# R18430 Br3863 psychENCODE_MDD 69.33904   M CAUC   Control        sACC       FALSE -0.122722764
+# R18458 Br8313 psychENCODE_MDD 55.41672   M CAUC   Control        sACC       FALSE  0.134877418
+# R19186 Br1475 psychENCODE_MDD 43.30000   M CAUC       MDD        sACC       FALSE  0.066271916
+# R14110 Br1562  psychENCODE_BP 36.15000   M CAUC   Bipolar        sACC       FALSE  0.281349529
+# R14175 Br1752  psychENCODE_BP 39.20000   F CAUC   Bipolar        sACC       FALSE  0.061872883
+# R14182 Br1558  psychENCODE_BP 23.43000   F CAUC   Control        sACC       FALSE  0.266600470
+# R14228 Br2333  psychENCODE_BP 62.99000   F CAUC   Control        sACC       FALSE  0.035792461
+# R14235 Br1661  psychENCODE_BP 51.15000   M CAUC   Bipolar        sACC       FALSE  0.274285966
+# R14269 Br5555  psychENCODE_BP 21.34000   M CAUC   Control        sACC       FALSE  0.134646892
+# R14295 Br2071  psychENCODE_BP 40.62000   F CAUC   Bipolar        sACC       FALSE  0.128219700
 # > pd[which(pd$BrainRegion=="Amygdala" & pd$guess>0.9),info_cols]
-# SAMPLE_ID  BrNum   Age Sex Race PrimaryDx BrainRegion dropMetrics    guess
-# 26    R17496 Br1469 28.57   M CAUC   Control    Amygdala       FALSE 1.073439
+# BrNum      Experiment AgeDeath Sex Race PrimaryDx BrainRegion dropMetrics    guess
+# R17496 Br1469 psychENCODE_MDD 28.57000   M CAUC   Control    Amygdala       FALSE 1.075980
+# R18938 Br6293 psychENCODE_MDD 27.85763   F CAUC       MDD    Amygdala       FALSE 0.903392
+# R14081 Br5611  psychENCODE_BP 63.82000   F CAUC   Bipolar    Amygdala       FALSE 1.010363
+# R15072 Br5939  psychENCODE_BP 55.90965   M CAUC   Bipolar    Amygdala       FALSE 1.058777
 
 ## Br1469 labels got switched
 pd["R14179","BrainRegion"] = "Amygdala"
@@ -245,8 +245,8 @@ pd$dropRegion = FALSE
 pd$dropRegion[dropInd] = TRUE
 
 table(pd$dropRegion)
-# FALSE  TRUE
-# 612    11
+# FALSE  TRUE 
+# 1119    21 
 
 ########################################################.
 gia <- read.csv("../synapse/genotypeInferredAncestry.csv")
@@ -256,65 +256,76 @@ pd$geneticRace[match(gia$BrNum, pd$BrNum)] = gia$genotypeInferredAncestry
 pd$dropRace = pd$geneticRace != "CAUC"
 
 table(pd$Race, pd$geneticRace)
-#       AA ambiguous  AS CAUC HISP
-# AA     4         0   0    0    0
-# AS     0         0   2    0    0
-# CAUC   0         2   0  611    0
-# HISP   0         0   0    1    3
+# AA ambiguous   AS CAUC HISP
+# AA      5         0    0    0    0
+# AS      0         0    2    0    0
+# CAUC    0         2    0 1127    0
+# HISP    0         0    0    1    3
 
 table(pd$dropRace)
 # FALSE  TRUE 
-# 612    11 
+# 1128    12
 
 
 ########################################################.
-info_cols <- c("SAMPLE_ID","BrNum","Age","Sex","Race","PrimaryDx","BrainRegion","RIN","Plate","dropMetrics","dropRegion","dropRace") #previoulsy included "dropGeno"
+info_cols <- c("BrNum","AgeDeath","Sex","Race","PrimaryDx","BrainRegion","RIN","Plate","dropMetrics","dropRegion","dropRace") #previoulsy included "dropGeno"
 pd[which(pd$dropMetrics==TRUE | pd$dropRegion==TRUE | pd$dropRace==TRUE),info_cols]
 
-# SAMPLE_ID  BrNum      Age Sex Race PrimaryDx BrainRegion RIN Plate overallMapRate totalAssignedGene dropMetrics dropRegion dropRace
-# 9      R14179 Br1469 28.57000   M CAUC   Control        sACC 7.6     2         0.8547         0.4880644       FALSE       TRUE    FALSE
-# 26     R17496 Br1469 28.57000   M CAUC   Control    Amygdala 8.0     2         0.8149         0.4895696       FALSE       TRUE    FALSE
-# 49     R17520 Br1635 52.31000   M CAUC       MDD        sACC 6.6     6         0.8219         0.4278223       FALSE       TRUE    FALSE
-# 55     R17527 Br1675 32.10000   M CAUC       MDD        sACC 6.8     2         0.7848         0.4126576       FALSE       TRUE    FALSE
-# 66     R17538 Br1723 55.70000   F CAUC       MDD    Amygdala 5.3     1         0.7946         0.2045859        TRUE      FALSE    FALSE
-# 74     R17547 Br1754 25.98000   F CAUC       MDD        sACC 5.7     5         0.7315         0.4009698       FALSE       TRUE    FALSE
-# 106    R17579 Br6099 26.66381   M CAUC       MDD        sACC 6.9     7         0.8584         0.4527738       FALSE       TRUE    FALSE
-# 140    R17616 Br1986 25.35000   M CAUC       MDD    Amygdala 6.7     5         0.8204         0.4589626       FALSE      FALSE     TRUE
-# 311    R17794 Br5763 53.89000   M CAUC       MDD        sACC 7.1     1         0.4800         0.4707335        TRUE      FALSE    FALSE
-# 354    R17839 Br5965 30.12183   M CAUC       MDD    Amygdala 5.6     4         0.7764         0.2037251        TRUE      FALSE    FALSE
-# 393    R17880 Br6227 18.62822   M HISP   Control        sACC 7.4     5         0.9070         0.4828394       FALSE      FALSE     TRUE
-# 407    R17894 Br8017 49.29500   M CAUC       MDD        sACC 7.2     3         0.7022         0.3977602       FALSE       TRUE    FALSE
-# 427    R17914 Br8053 47.00616   M CAUC   Control    Amygdala 5.5     1         0.2259         0.4183653        TRUE      FALSE    FALSE
-# 454    R17941 Br8133 62.36813   M CAUC       MDD        sACC 5.7     1         0.7399         0.4075764       FALSE       TRUE    FALSE
-# 464    R17951 Br2333 68.85000   F CAUC   Control        sACC 5.0     4         0.7008         0.4349815       FALSE       TRUE    FALSE
-# 465    R17952 Br5549 67.47000   M CAUC       MDD        sACC 5.6     5         0.7961         0.4222974       FALSE       TRUE    FALSE
-# 476    R17963 Br5526 68.85000   M CAUC       MDD    Amygdala 5.4     4         0.1883         0.4040689        TRUE      FALSE    FALSE
-# 487    R18425 Br6285 64.82000   M   AS   Control    Amygdala 6.8     3         0.8767         0.4339124       FALSE      FALSE     TRUE
-# 488    R18426 Br6285 64.82000   M   AS   Control        sACC 7.2     3         0.8286         0.4597279       FALSE      FALSE     TRUE
-# 489    R18430 Br3863 69.33904   M CAUC   Control        sACC 6.5     7         0.7480         0.4311182       FALSE       TRUE    FALSE
-# 490    R18431 Br3872 59.24162   F HISP   Control    Amygdala 5.8     4         0.6814         0.4078292       FALSE      FALSE     TRUE
-# 491    R18432 Br3872 59.24162   F HISP   Control        sACC 5.9     4         0.7363         0.3812791       FALSE      FALSE     TRUE
-# 514    R18458 Br8313 55.41672   M CAUC   Control        sACC 5.5     4         0.8069         0.4208956       FALSE       TRUE    FALSE
-# 515    R18459 Br6123 30.76249   F   AA   Control    Amygdala 6.6     3         0.8757         0.4761234       FALSE      FALSE     TRUE
-# 516    R18460 Br6123 30.76249   F   AA   Control        sACC 7.1     4         0.8869         0.4457243       FALSE      FALSE     TRUE
-# 517    R18461 Br5146 47.01000   F   AA   Control    Amygdala 6.8     4         0.8658         0.4538249       FALSE      FALSE     TRUE
-# 518    R18462 Br5146 47.01000   F   AA   Control        sACC 7.6     4         0.9031         0.4928282       FALSE      FALSE     TRUE
-# 531    R18824 Br3877 51.85775   M CAUC       MDD    Amygdala 6.4     6         0.8369         0.4241977       FALSE      FALSE     TRUE
-# 619    R19186 Br1475 43.30000   M CAUC       MDD        sACC 8.9     4         0.8739         0.4635724       FALSE       TRUE    FALSE
+# BrNum AgeDeath Sex Race PrimaryDx BrainRegion RIN Plate dropMetrics dropRegion dropRace
+# R17520 Br1635 52.31000   M CAUC       MDD        sACC 6.6     6       FALSE       TRUE    FALSE
+# R17527 Br1675 32.10000   M CAUC       MDD        sACC 6.8     2       FALSE       TRUE    FALSE
+# R17538 Br1723 55.70000   F CAUC       MDD    Amygdala 5.3     1        TRUE      FALSE    FALSE
+# R17547 Br1754 25.98000   F CAUC       MDD        sACC 5.7     5       FALSE       TRUE    FALSE
+# R17579 Br6099 26.66381   M CAUC       MDD        sACC 6.9     7       FALSE       TRUE    FALSE
+# R17616 Br1986 25.35000   M CAUC       MDD    Amygdala 6.7     5       FALSE      FALSE     TRUE
+# R17794 Br5763 53.89000   M CAUC       MDD        sACC 7.1     1        TRUE      FALSE    FALSE
+# R17839 Br5965 30.12183   M CAUC       MDD    Amygdala 5.6     4        TRUE      FALSE    FALSE
+# R17880 Br6227 18.62822   M HISP   Control        sACC 7.4     5       FALSE      FALSE     TRUE
+# R17894 Br8017 49.29500   M CAUC       MDD        sACC 7.2     3       FALSE       TRUE    FALSE
+# R17914 Br8053 47.00616   M CAUC   Control    Amygdala 5.5     1        TRUE      FALSE    FALSE
+# R17941 Br8133 62.36813   M CAUC       MDD        sACC 5.7     1       FALSE       TRUE    FALSE
+# R17951 Br2333 62.99000   F CAUC   Control        sACC 5.0     4       FALSE       TRUE    FALSE
+# R17952 Br5549 67.47000   M CAUC       MDD        sACC 5.6     5       FALSE       TRUE    FALSE
+# R17963 Br5526 68.85000   M CAUC       MDD    Amygdala 5.4     4        TRUE      FALSE    FALSE
+# R18425 Br6285 64.82000   M   AS   Control    Amygdala 6.8     3       FALSE      FALSE     TRUE
+# R18426 Br6285 64.82000   M   AS   Control        sACC 7.2     3       FALSE      FALSE     TRUE
+# R18430 Br3863 69.33904   M CAUC   Control        sACC 6.5     7       FALSE       TRUE    FALSE
+# R18431 Br3872 59.24162   F HISP   Control    Amygdala 5.8     4       FALSE      FALSE     TRUE
+# R18432 Br3872 59.24162   F HISP   Control        sACC 5.9     4       FALSE      FALSE     TRUE
+# R18458 Br8313 55.41672   M CAUC   Control        sACC 5.5     4       FALSE       TRUE    FALSE
+# R18459 Br6123 30.76249   F   AA   Control    Amygdala 6.6     3       FALSE      FALSE     TRUE
+# R18460 Br6123 30.76249   F   AA   Control        sACC 7.1     4       FALSE      FALSE     TRUE
+# R18461 Br5146 47.01000   F   AA   Control    Amygdala 6.8     4       FALSE      FALSE     TRUE
+# R18462 Br5146 47.01000   F   AA   Control        sACC 7.6     4       FALSE      FALSE     TRUE
+# R18824 Br3877 51.85775   M CAUC       MDD    Amygdala 6.4     6       FALSE      FALSE     TRUE
+# R18938 Br6293 27.85763   F CAUC       MDD    Amygdala 7.6     5       FALSE       TRUE    FALSE
+# R19186 Br1475 43.30000   M CAUC       MDD        sACC 8.9     4       FALSE       TRUE    FALSE
+# R13935 Br0922 51.35000   M CAUC   Control    Amygdala 6.2    NA        TRUE      FALSE    FALSE
+# R14081 Br5611 63.82000   F CAUC   Bipolar    Amygdala 7.0    NA       FALSE       TRUE    FALSE
+# R14110 Br1562 36.15000   M CAUC   Bipolar        sACC 7.1    NA       FALSE       TRUE    FALSE
+# R14175 Br1752 39.20000   F CAUC   Bipolar        sACC 7.5    NA       FALSE       TRUE    FALSE
+# R14182 Br1558 23.43000   F CAUC   Control        sACC 6.9    NA       FALSE       TRUE    FALSE
+# R14210 Br1148 29.97000   M   AA   Control        sACC 7.9    NA       FALSE      FALSE     TRUE
+# R14228 Br2333 62.99000   F CAUC   Control        sACC 6.2    NA       FALSE       TRUE    FALSE
+# R14235 Br1661 51.15000   M CAUC   Bipolar        sACC 6.2    NA       FALSE       TRUE    FALSE
+# R14269 Br5555 21.34000   M CAUC   Control        sACC 6.5    NA       FALSE       TRUE    FALSE
+# R14295 Br2071 40.62000   F CAUC   Bipolar        sACC 6.5    NA       FALSE       TRUE    FALSE
+# R14306 Br5435 56.51000   M CAUC   Bipolar        sACC 7.9    NA        TRUE      FALSE    FALSE
+# R15072 Br5939 55.90965   M CAUC   Bipolar    Amygdala 7.5    NA       FALSE       TRUE    FALSE
 
 ## plus 3 with really low reads that were also dropMetrics
 
 pd$dropSum = rowSums(pd[,c("dropMetrics","dropRegion","dropRace")])
-sum(pd$dropSum > 0) #27
-# sum(pd$dropSum > 0) + 3
-# # 41
+sum(pd$dropSum > 0) #40
 
 qcresults = pd[,info_cols]
 write.csv(qcresults, file="qc_dropping_results.csv")
 
+## Update pd
 pd = pd[-which(pd$dropSum > 0),]
+rownames(pd) <- paste0(rownames(pd),pd$Experiment)
 nrow(pd)
-# 596
+# 1100
 
 table(pd$BrainRegion, pd$PrimaryDx)
 table(pd$Sex, pd$PrimaryDx)
@@ -323,37 +334,76 @@ table(table(pd$BrNum))
 summary(pd$Age)
 
 # > table(pd$BrainRegion, pd$PrimaryDx)
-
-# Control MDD
-# Amygdala      68 235
-# sACC          63 230
+# 
+# Bipolar Control MDD
+# Amygdala     123     188 234
+# sACC         123     202 230
 # > table(pd$Sex, pd$PrimaryDx)
 # 
-# Control MDD
-# F      28 157
-# M     103 308
+# Bipolar Control MDD
+# F      96      77 156
+# M     150     313 308
 # > table(pd$Race, pd$PrimaryDx)
 # 
-# Control MDD
-# CAUC     130 465
-# HISP       1   0
+# Bipolar Control MDD
+# CAUC     246     389 464
+# HISP       0       1   0
 # > table(table(pd$BrNum))
 # 
 # 1   2   3 
-# 31 275   5 
+# 98 492   6 
 # > summary(pd$Age)
 # Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-# 17.94   32.17   47.33   45.98   54.65   95.27
+# 17.37   34.53   47.09   46.55   55.87   95.27
 
 
-message("Remaining Samples: n", nrow(qcresults))
+message("Remaining Samples: n", nrow(pd))
+
+## PCA - Combined data
+rse_gene <- rse_gene[,rse_gene$RNum %in% pd$RNum]
+gRpkmBP = recount::getRPKM(rse_gene, "Length")
+## filter low expressing genes
+gRpkmBP = gRpkmBP[which(rowMeans(gRpkmBP)>0.2),]
+yExprsComb = log2(gRpkmBP+1)
+
+# combined phenodata
+pd = colData(rse_gene)[,c("BrNum","BrainRegion","PrimaryDx","Experiment")]
+pd$group <- paste0(pd$BrainRegion,"_",pd$PrimaryDx)
+pca1 = prcomp(t(yExprsComb))
+pcaVars1 = getPcaVars(pca1)
+
+pdf("pca_log2Rpkm_PC1_2_combined_datasets.pdf", h=6,w=6)
+par(mar=c(5,6,4,2),cex.axis=1.5,cex.lab=1.5,cex.main=1.5)
+palette(brewer.pal(8,"Spectral"))
+plot(pca1$x, pch = 21, bg=(as.numeric(factor(pd$Experiment))*4)-1,cex=2, main="Gene PCs",
+     xlab=paste0("PC1: ", pcaVars1[1], "% Var Expl"),
+     ylab=paste0("PC2: ", pcaVars1[2], "% Var Expl"))
+legend("topleft", paste0(levels(factor(pd$Experiment))),
+       pch = 15, col = c(3,7),cex=.9)
+plot(pca1$x, pch = 21, bg=as.numeric(factor(pd$PrimaryDx))*2,cex=2, main="Gene PCs",
+     xlab=paste0("PC1: ", pcaVars1[1], "% Var Expl"),
+     ylab=paste0("PC2: ", pcaVars1[2], "% Var Expl"))
+legend("topleft", paste0(levels(factor(pd$PrimaryDx))),
+       pch = 15, col = c(2,4,6),cex=.9)
+plot(pca1$x, pch = 21, bg=as.numeric(factor(pd$BrainRegion))*3,cex=2, main="Gene PCs",
+     xlab=paste0("PC1: ", pcaVars1[1], "% Var Expl"),
+     ylab=paste0("PC2: ", pcaVars1[2], "% Var Expl"))
+legend("topleft", paste0(levels(factor(pd$BrainRegion))),
+       pch = 15, col = c(3,6),cex=.9)
+plot(pca1$x, pch = 21, bg=as.numeric(factor(pd$group)),cex=2, main="Gene PCs",
+     xlab=paste0("PC1: ", pcaVars1[1], "% Var Expl"),
+     ylab=paste0("PC2: ", pcaVars1[2], "% Var Expl"))
+legend("topleft", paste0(levels(factor(pd$group))),
+       pch = 15, col = 1:4,cex=.9)
+dev.off()
 
 ##############
 ## PCA
-rownames(pd) <- paste0(rownames(pd),"_psychENCODE_MDD")
-## Filter for good sampels
+
+## Filter for MDD samples
+rse_gene <- rse_gene[,rse_gene$Experiment == "psychENCODE_MDD"]
+pd = colData(rse_gene)[,c("BrNum","BrainRegion","Race","Sex","PrimaryDx","Experiment")]
 gRpkm = recount::getRPKM(rse_gene, "Length")
-gRpkm = gRpkm[,rownames(pd)]
 
 ## filter low expressing genes
 gRpkm = gRpkm[which(rowMeans(gRpkm)>0.2),]
@@ -392,54 +442,7 @@ legend("topleft", paste0("Plate ",levels(factor(pd$Plate))),
        pch = 15, col = 1:8,cex=.9)
 dev.off()
 
-
-
-
-## PCA - add in bipolar samples
-load("/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/data/rse_gene_raw_GoesZandi_n1140.rda", verbose = TRUE) 
-gRpkmBP = recount::getRPKM(rse_gene, "Length")
-## filter low expressing genes
-gRpkmBP = gRpkmBP[which(rowMeans(gRpkmBP)>0.2),]
-yExprsBP = log2(gRpkmBP+1)
-
-###### combine
-# intersection of genes
-# common <- intersect(rownames(yExprs), rownames(yExprsBP))
-# yExprsComb = cbind(yExprs[common,],yExprsBP[common,])
-yExprsComb = yExprsBP
-# combined phenodata
-pd = colData(rse_gene)[,c("BrNum","BrainRegion","PrimaryDx","Experiment")]
-pd$group <- paste0(pd$Experiment,"_",pd$PrimaryDx)
-pca1 = prcomp(t(yExprsComb))
-pcaVars1 = getPcaVars(pca1)
-
-pdf("pca_log2Rpkm_PC1_2_combined_datasets.pdf", h=6,w=6)
-par(mar=c(5,6,4,2),cex.axis=1.5,cex.lab=1.5,cex.main=1.5)
-palette(brewer.pal(8,"Spectral"))
-plot(pca1$x, pch = 21, bg=(as.numeric(factor(pd$Experiment))*4)-1,cex=2, main="Gene PCs",
-     xlab=paste0("PC1: ", pcaVars1[1], "% Var Expl"),
-     ylab=paste0("PC2: ", pcaVars1[2], "% Var Expl"))
-legend("topleft", paste0(levels(factor(pd$Experiment))),
-       pch = 15, col = c(3,7),cex=.9)
-plot(pca1$x, pch = 21, bg=as.numeric(factor(pd$PrimaryDx))*2,cex=2, main="Gene PCs",
-     xlab=paste0("PC1: ", pcaVars1[1], "% Var Expl"),
-     ylab=paste0("PC2: ", pcaVars1[2], "% Var Expl"))
-legend("topleft", paste0(levels(factor(pd$PrimaryDx))),
-       pch = 15, col = c(2,4,6),cex=.9)
-plot(pca1$x, pch = 21, bg=as.numeric(factor(pd$BrainRegion))*3,cex=2, main="Gene PCs",
-     xlab=paste0("PC1: ", pcaVars1[1], "% Var Expl"),
-     ylab=paste0("PC2: ", pcaVars1[2], "% Var Expl"))
-legend("topleft", paste0(levels(factor(pd$BrainRegion))),
-       pch = 15, col = c(3,6),cex=.9)
-plot(pca1$x, pch = 21, bg=as.numeric(factor(pd$group)),cex=2, main="Gene PCs",
-     xlab=paste0("PC1: ", pcaVars1[1], "% Var Expl"),
-     ylab=paste0("PC2: ", pcaVars1[2], "% Var Expl"))
-legend("topleft", paste0(levels(factor(pd$group))),
-       pch = 15, col = 1:4,cex=.9)
-dev.off()
-
 # sgejobs::job_single('ppt_plots', create_shell = TRUE, queue= 'bluejay', memory = '50G', command = "Rscript ppt_plots.R")
-
 
 ## Reproducibility information
 print('Reproducibility information:')
