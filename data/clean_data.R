@@ -49,11 +49,16 @@ summary(pd$AgeDeath)
 # Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
 # 17.37   34.53   47.09   46.55   55.87   95.27 
 
-
-
 ## Save rse_gene
 save(rse_gene, file=paste0("rse_gene_GoesZandi_n",n ,".rda"))
 
+pd_mdd <- pd[pd$Experiment == "psychENCODE_MDD",]
+pd_bip <- pd[pd$Experiment == "psychENCODE_BP",]
+samples_mdd <- rownames(pd_mdd)
+samples_bip <- rownames(pd_bip)
+
+message("Samples mmd: ", length(RNum_mmd))
+message("Samples bip: ", length(RNum_bip))
 
 ##### Exons
 
@@ -61,20 +66,20 @@ save(rse_gene, file=paste0("rse_gene_GoesZandi_n",n ,".rda"))
 load('../preprocessed_data/rse_exon_goesHyde_MDD_n634.Rdata', verbose=TRUE)
 rse_mdd = rse_exon	
 rse_mdd$Experiment = "psychENCODE_MDD"
+colnames(rse_mdd) <- paste0(rse_mdd$SAMPLE_ID,"_",rse_mdd$Experiment)
+
 load("/dcl01/lieber/ajaffe/lab/zandiHyde_bipolar_rnaseq/preprocessed_data/rse_exon_zandiHyde_Bipolar_LIBD_n540.Rdata", verbose=TRUE)
 rse_bip = rse_exon		
 rse_bip$Experiment = "psychENCODE_BP"
+colnames(rse_bip) <- paste0(rse_bip$RNum,"_",rse_bip$Experiment)
 
-## combine
-# make colData consistent
-rse_mdd$AgeDeath = rse_mdd$Age
-rse_mdd$RNum = rse_mdd$SAMPLE_ID
-rse_mdd$BrNum = as.character(rse_mdd$BrNum)
-rse_bip$BrainRegion = rse_bip$Brain.Region
+# filter samples
+rse_mdd <- rse_mdd[,samples_mdd]
+rse_bip <- rse_bip[,samples_bip]
 
-colKeep = c("RNum","BrNum","Sex","Race","AgeDeath","BrainRegion","RIN","PrimaryDx","overallMapRate","totalAssignedGene","mitoRate","rRNA_rate","Experiment")
-colData(rse_mdd) = colData(rse_mdd)[,colKeep]
-colData(rse_bip) = colData(rse_bip)[,colKeep]
+# asssign pd
+colData(rse_mdd) <- pd_mdd
+colData(rse_bip) <- pd_bip
 
 # make rowData consistent
 m = findMatches(rowRanges(rse_mdd), rowRanges(rse_bip))
@@ -85,11 +90,9 @@ rowData(rse_bip) = rowData(rse_mdd)
 ### combine
 rse_both = cbind(rse_mdd, rse_bip)
 rowData(rse_both)$meanExprs = NULL
-colnames(rse_both) <- paste0(rse_both$RNum,"_",rse_both$Experiment)
 rse_exon = rse_both
 
 # drop samples
-rse_exon = rse_exon[,rownames(colData(rse_gene))]
 tempRpkm = recount::getRPKM(rse_exon, "Length")
 rowData(rse_exon)$meanExprs = rowMeans(tempRpkm)
 
@@ -103,20 +106,20 @@ save(rse_exon, file=paste0("rse_exon_GoesZandi_n",n,".rda"))
 load('../preprocessed_data/rse_jx_goesHyde_MDD_n634.Rdata', verbose=TRUE)
 rse_mdd = rse_jx			
 rse_mdd$Experiment = "psychENCODE_MDD"
+colnames(rse_mdd) <- paste0(rse_mdd$SAMPLE_ID,"_",rse_mdd$Experiment)
+
 load("/dcl01/lieber/ajaffe/lab/zandiHyde_bipolar_rnaseq/preprocessed_data/rse_jx_zandiHyde_Bipolar_LIBD_n540.Rdata", verbose=TRUE)
 rse_bip = rse_jx				
 rse_bip$Experiment = "psychENCODE_BP"
+colnames(rse_bip) <- paste0(rse_bip$RNum,"_",rse_bip$Experiment)
 
-## combine
-# make colData consistent
-rse_mdd$AgeDeath = rse_mdd$Age
-rse_mdd$RNum = rse_mdd$SAMPLE_ID
-rse_mdd$BrNum = as.character(rse_mdd$BrNum)
-rse_bip$BrainRegion = rse_bip$Brain.Region
+# filter samples
+rse_mdd <- rse_mdd[,samples_mdd]
+rse_bip <- rse_bip[,samples_bip]
 
-colKeep = c("RNum","BrNum","Sex","Race","AgeDeath","BrainRegion","RIN","PrimaryDx","overallMapRate","totalAssignedGene","mitoRate","rRNA_rate","Experiment")
-colData(rse_mdd) = colData(rse_mdd)[,colKeep]
-colData(rse_bip) = colData(rse_bip)[,colKeep]
+# asssign pd
+colData(rse_mdd) <- pd_mdd
+colData(rse_bip) <- pd_bip
 
 # make rowData consistent
 m = findMatches(rowRanges(rse_mdd), rowRanges(rse_bip))
@@ -126,7 +129,6 @@ rowData(rse_bip) = rowData(rse_mdd)
 
 ### combine
 rse_both = cbind(rse_mdd, rse_bip)
-colnames(rse_both) <- paste0(rse_both$RNum,"_",rse_both$Experiment)
 rse_jxn = rse_both
 
 # drop samples
@@ -145,9 +147,12 @@ save(rse_jxn, file=paste0("rse_jxn_GoesZandi_n",n,".rda"))
 load('../preprocessed_data/rse_tx_goesHyde_MDD_n634.Rdata', verbose=TRUE)
 rse_mdd = rse_tx	
 rse_mdd$Experiment = "psychENCODE_MDD"
+colnames(rse_mdd) <- paste0(rse_mdd$SAMPLE_ID,"_",rse_mdd$Experiment)
+
 rse_bip = rse_gene[,rse_gene$Experiment == "psychENCODE_BP"]
 
-## transcript (from  zandiHyde_bipolar_rnaseq/data/select_samples.R)
+## transcript
+## build rse_tx for bip data (from  zandiHyde_bipolar_rnaseq/data/select_samples.R)
 load("/dcl01/lieber/ajaffe/lab/zandiHyde_bipolar_rnaseq/preprocessed_data/rpkmCounts_zandiHyde_Bipolar_LIBD_n540.rda", verbose=TRUE)
 rm(list = ls()[!ls() %in% c("n","rse_mdd","rse_bip","rse_gene","txTpm")])
 
@@ -170,23 +175,21 @@ colnames(txNumReads) = ss(colnames(txNumReads), "_")
 txNumReads = txNumReads[,rse_bip$RNum]
 colnames(txNumReads) = colnames(rse_bip)
 assays(rse_bip)$counts = as.matrix(txNumReads)
+colnames(rse_bip) <- paste0(rse_bip$RNum,"_",rse_bip$Experiment)
 
+# filter samples
+rse_mdd <- rse_mdd[,samples_mdd]
+rse_bip <- rse_bip[,samples_bip]
 
-## combine
-# make colData consistent
-rse_mdd$AgeDeath = rse_mdd$Age
-rse_mdd$RNum = rse_mdd$SAMPLE_ID
-rse_mdd$BrNum = as.character(rse_mdd$BrNum)
-colKeep = c("RNum","BrNum","Sex","Race","AgeDeath","BrainRegion","RIN","PrimaryDx","overallMapRate","totalAssignedGene","mitoRate","rRNA_rate","Experiment")
-colData(rse_mdd) = colData(rse_mdd)[,colKeep]
-colData(rse_bip) = colData(rse_bip)[,colKeep]
+# asssign pd
+colData(rse_mdd) <- pd_mdd
+colData(rse_bip) <- pd_bip
 
 # make rowData consistent
 stopifnot(identical(ranges(rse_bip), ranges(rse_mdd)))
 
 ### combine
 rse_both = cbind(rse_mdd, rse_bip)
-colnames(rse_both) <- paste0(rse_both$RNum,"_",rse_both$Experiment)
 rse_tx = rse_both
 
 # drop samples
