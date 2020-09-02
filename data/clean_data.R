@@ -6,7 +6,8 @@ library(sva)
 library(readxl)
 library(devtools)
 library(edgeR)
-
+library(GenomicRanges)
+library(rtracklayer)
 
 # load data
 load("rse_gene_raw_GoesZandi_n1140.rda", verbose = TRUE)
@@ -144,17 +145,32 @@ save(rse_jxn, file=paste0("rse_jxn_GoesZandi_n",n,".rda"))
 load('../preprocessed_data/rse_tx_goesHyde_MDD_n634.Rdata', verbose=TRUE)
 rse_mdd = rse_tx	
 rse_mdd$Experiment = "psychENCODE_MDD"
-# load("/dcl01/lieber/ajaffe/lab/zandiHyde_bipolar_rnaseq/preprocessed_data/rse_tx_zandiHyde_Bipolar_LIBD_n540.Rdata", verbose=TRUE)
-# rse_bip = rse_tx
-# rse_bip$Experiment = "psychENCODE_BP"
-
 rse_bip = rse_gene[,rse_gene$Experiment == "psychENCODE_BP"]
+
+## transcript (from  zandiHyde_bipolar_rnaseq/data/select_samples.R)
+load("/dcl01/lieber/ajaffe/lab/zandiHyde_bipolar_rnaseq/preprocessed_data/rpkmCounts_zandiHyde_Bipolar_LIBD_n540.rda", verbose=TRUE)
+rm(list = ls()[!ls() %in% c("n","rse_mdd","rse_bip","rse_gene","txTpm")])
+
+gtf = import("/dcl01/lieber/ajaffe/Emily/RNAseq-pipeline/Annotation/GENCODE/GRCh38_hg38/gencode.v25.annotationGRCh38.gtf")
+tx = gtf[which(gtf$type == "transcript")]
+names(tx) = tx$transcript_id
+
+identical(names(tx), rownames(txTpm))
+
+colnames(txTpm) = ss(colnames(txTpm), "_")
+txTpm = txTpm[,rse_bip$RNum]    ## filter
+colnames(txTpm) = colnames(rse_bip)
+rse_bip = SummarizedExperiment(
+  assays = list('tpm' = txTpm),
+  colData = colData(rse_bip), rowRanges = tx)
+
 ## also load counts
-load("/dcl01/lieber/ajaffe/lab/zandiHyde_bipolar_rnaseq/preprocessed_data/rawCounts_zandiHyde_tx.rda", verbose=TRUE)
+load("/dcl01/lieber/ajaffe/lab/zandiHyde_bipolar_rnaseq/preprocessed_data/rawCounts_zandiHyde_tx.rda", verbose=T)
 colnames(txNumReads) = ss(colnames(txNumReads), "_")
 txNumReads = txNumReads[,rse_bip$RNum]
 colnames(txNumReads) = colnames(rse_bip)
-assays(rse_bip, withDimnames=FALSE)$counts <- as.matrix(txNumReads)
+assays(rse_bip)$counts = as.matrix(txNumReads)
+
 
 ## combine
 # make colData consistent
@@ -170,12 +186,13 @@ stopifnot(identical(ranges(rse_bip), ranges(rse_mdd)))
 
 ### combine
 rse_both = cbind(rse_mdd, rse_bip)
+colnames(rse_both) <- paste0(rse_both$RNum,"_",rse_both$Experiment)
 rse_tx = rse_both
 
 # drop samples
 rse_tx = rse_tx[,rownames(colData(rse_gene))]
 
-# save(rse_tx, file="rse_tx_GoesZandi_n1093.rda")
+save(rse_tx, file=paste0("rse_tx_GoesZandi_n",n,".rda"))
 
 
 # sgejobs::job_single('clean_data', create_shell = TRUE, queue= 'bluejay', memory = '50G', command = "Rscript clean_data.R")
