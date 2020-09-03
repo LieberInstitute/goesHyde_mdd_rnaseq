@@ -7,6 +7,10 @@ library(readxl)
 library(RColorBrewer)
 library(sessioninfo)
 library(dplyr)
+
+## For styling this script
+# styler::style_file("ppt_plots.R", transformers = biocthis::bioc_style())
+
 ## load phenotype and alignment data
 load("/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/data/rse_gene_raw_GoesZandi_n1140.rda", verbose = TRUE) 
 pd <- colData(rse_gene) %>% as.data.frame
@@ -271,7 +275,7 @@ table(pd$dropRace)
 info_cols <- c("Experiment","BrNum","AgeDeath","Sex","Race","PrimaryDx","BrainRegion","RIN","Plate","dropMetrics","dropRegion","dropRace") #previoulsy included "dropGeno"
 pd[which(pd$dropMetrics==TRUE | pd$dropRegion==TRUE | pd$dropRace==TRUE),info_cols]
 
-# BrNum AgeDeath Sex Race PrimaryDx BrainRegion RIN Plate dropMetrics dropRegion dropRace
+#         BrNum AgeDeath Sex Race PrimaryDx BrainRegion RIN Plate dropMetrics dropRegion dropRace
 # R17520 Br1635 52.31000   M CAUC       MDD        sACC 6.6     6       FALSE       TRUE    FALSE
 # R17527 Br1675 32.10000   M CAUC       MDD        sACC 6.8     2       FALSE       TRUE    FALSE
 # R17538 Br1723 55.70000   F CAUC       MDD    Amygdala 5.3     1        TRUE      FALSE    FALSE

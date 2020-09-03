@@ -9,6 +9,9 @@ library(edgeR)
 library(GenomicRanges)
 library(rtracklayer)
 
+## For styling this script
+# styler::style_file("clean_data.R", transformers = biocthis::bioc_style())
+
 # load data
 load("rse_gene_raw_GoesZandi_n1140.rda", verbose = TRUE)
 
@@ -57,8 +60,8 @@ pd_bip <- pd[pd$Experiment == "psychENCODE_BP",]
 samples_mdd <- rownames(pd_mdd)
 samples_bip <- rownames(pd_bip)
 
-message("Samples mmd: ", length(RNum_mmd))
-message("Samples bip: ", length(RNum_bip))
+message("Samples mmd: ", length(samples_mdd))
+message("Samples bip: ", length(samples_bip))
 
 ##### Exons
 
@@ -77,7 +80,7 @@ colnames(rse_bip) <- paste0(rse_bip$RNum,"_",rse_bip$Experiment)
 rse_mdd <- rse_mdd[,samples_mdd]
 rse_bip <- rse_bip[,samples_bip]
 
-# asssign pd
+# assign pd
 colData(rse_mdd) <- pd_mdd
 colData(rse_bip) <- pd_bip
 
@@ -92,13 +95,10 @@ rse_both = cbind(rse_mdd, rse_bip)
 rowData(rse_both)$meanExprs = NULL
 rse_exon = rse_both
 
-# drop samples
 tempRpkm = recount::getRPKM(rse_exon, "Length")
 rowData(rse_exon)$meanExprs = rowMeans(tempRpkm)
 
 save(rse_exon, file=paste0("rse_exon_GoesZandi_n",n,".rda"))
-
-
 
 ##### Junctions
 
@@ -131,8 +131,6 @@ rowData(rse_bip) = rowData(rse_mdd)
 rse_both = cbind(rse_mdd, rse_bip)
 rse_jxn = rse_both
 
-# drop samples
-rse_jxn = rse_jxn[,rownames(colData(rse_gene))]
 
 rowData(rse_jxn)$Length = 100
 tempRpkm = recount::getRPKM(rse_jxn, "Length")
@@ -154,7 +152,7 @@ rse_bip = rse_gene[,rse_gene$Experiment == "psychENCODE_BP"]
 ## transcript
 ## build rse_tx for bip data (from  zandiHyde_bipolar_rnaseq/data/select_samples.R)
 load("/dcl01/lieber/ajaffe/lab/zandiHyde_bipolar_rnaseq/preprocessed_data/rpkmCounts_zandiHyde_Bipolar_LIBD_n540.rda", verbose=TRUE)
-rm(list = ls()[!ls() %in% c("n","rse_mdd","rse_bip","rse_gene","txTpm")])
+rm(list = ls()[!ls() %in% c("n","rse_mdd","rse_bip","txTpm","samples_mdd","samples_bip","pd_mdd","pd_bip")])
 
 gtf = import("/dcl01/lieber/ajaffe/Emily/RNAseq-pipeline/Annotation/GENCODE/GRCh38_hg38/gencode.v25.annotationGRCh38.gtf")
 tx = gtf[which(gtf$type == "transcript")]
