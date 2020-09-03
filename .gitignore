@@ -6,3 +6,6 @@ degradation_joint_strand_*
 preprocessed_data*
 .Rproj.user
 PGC_MDD_sumstats
+synapse/*.xlsx
+*.tsv
+genotype_data_old
