@@ -1,6 +1,6 @@
 #!/bin/bash
 #$ -cwd
-#$ -l bluejay,mem_free=50G,h_vmem=50G,h_fsize=100G
+#$ -l bluejay,mem_free=150G,h_vmem=150G,h_fsize=100G
 #$ -N clean_data
 #$ -o logs/clean_data.txt
 #$ -e logs/clean_data.txt

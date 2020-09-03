@@ -128,10 +128,10 @@ rse_mdd <- rse_mdd[queryHits(m), ]
 rse_bip <- rse_bip[subjectHits(m), ]
 rowData(rse_bip) <- rowData(rse_mdd)
 
-
 ## fix class
 assays(rse_mdd)$counts = as.matrix(as.data.frame(assays(rse_mdd)$counts ))
-assays(rse_bip)$counts = as.matrix(as.data.frame(assays(rse_bip)$counts ))
+## bipseq is a weird SimpleDFrameList
+assays(rse_bip) = list(counts = as.matrix(as.data.frame(assays(rse_bip)$counts )))
 
 ### combine
 rse_jxn <- cbind(rse_mdd, rse_bip)
