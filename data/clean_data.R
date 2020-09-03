@@ -29,6 +29,10 @@ rse_gene$PrimaryDx <- factor(rse_gene$PrimaryDx, levels = c("MDD", "Control", "B
 tempRpkm <- recount::getRPKM(rse_gene, "Length")
 rowData(rse_gene)$meanExprs <- rowMeans(tempRpkm)
 
+## Save rse_gene
+save(rse_gene, file = paste0("rse_gene_GoesZandi_n", n, ".rda"))
+
+# create objects from rse_gene
 pd <- colData(rse_gene)
 
 n <- ncol(rse_gene)
@@ -52,8 +56,6 @@ summary(pd$AgeDeath)
 # Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
 # 17.37   34.53   47.09   46.55   55.87   95.27
 
-## Save rse_gene
-save(rse_gene, file = paste0("rse_gene_GoesZandi_n", n, ".rda"))
 
 pd_mdd <- pd[pd$Experiment == "psychENCODE_MDD", ]
 pd_bip <- pd[pd$Experiment == "psychENCODE_BP", ]
@@ -91,15 +93,14 @@ rse_bip <- rse_bip[subjectHits(m), ]
 rowData(rse_bip) <- rowData(rse_mdd)
 
 ### combine
-rse_both <- cbind(rse_mdd, rse_bip)
-rowData(rse_both)$meanExprs <- NULL
-rse_exon <- rse_both
+rse_exon <- cbind(rse_mdd, rse_bip)
+rowData(rse_exon)$meanExprs <- NULL
 
 tempRpkm <- recount::getRPKM(rse_exon, "Length")
 rowData(rse_exon)$meanExprs <- rowMeans(tempRpkm)
 
 save(rse_exon, file = paste0("rse_exon_GoesZandi_n", n, ".rda"))
-
+rm(rse_exon)
 ##### Junctions
 
 # load objects
@@ -127,10 +128,13 @@ rse_mdd <- rse_mdd[queryHits(m), ]
 rse_bip <- rse_bip[subjectHits(m), ]
 rowData(rse_bip) <- rowData(rse_mdd)
 
-### combine
-rse_both <- cbind(rse_mdd, rse_bip)
-rse_jxn <- rse_both
 
+## fix class
+assays(rse_mdd)$counts = as.matrix(as.data.frame(assays(rse_mdd)$counts ))
+assays(rse_bip)$counts = as.matrix(as.data.frame(assays(rse_bip)$counts ))
+
+### combine
+rse_jxn <- cbind(rse_mdd, rse_bip)
 
 rowData(rse_jxn)$Length <- 100
 tempRpkm <- recount::getRPKM(rse_jxn, "Length")
