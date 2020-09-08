@@ -36,21 +36,21 @@ cutoffs <- sapply(names(exprs), function(type) {
     return(cut)
 })
 # Gene
-# 2019-12-17 16:22:30 the suggested expression cutoff is 0.2
+# 2020-09-08 13:22:57 the suggested expression cutoff is 0.21
 # 0.25 0.16
 # Exon
-# 2019-12-17 16:23:54 the suggested expression cutoff is 0.24
+# 2020-09-08 13:24:27 the suggested expression cutoff is 0.24
 # 0.29 0.2
 # Jxn
-# 2019-12-17 16:25:37 the suggested expression cutoff is 0.3
-# 0.22 0.37
+# 2020-09-08 13:26:21 the suggested expression cutoff is 0.28
+# 0.2 0.36
 # Tx
-# 2019-12-17 16:26:22 the suggested expression cutoff is 0.3
+# 2020-09-08 13:27:09 the suggested expression cutoff is 0.3
 # 0.38 0.22
 
 cutoffs
-# Gene Exon  Jxn   Tx
-# 0.25 0.29 0.37 0.38
+# Gene Exon  Jxn   Tx 
+# 0.25 0.29 0.36 0.38 
 
 
 
@@ -86,7 +86,7 @@ print('Reproducibility information:')
 Sys.time()
 proc.time()
 options(width = 120)
-session_info()
+sessioninfo::session_info()
 
 
 
