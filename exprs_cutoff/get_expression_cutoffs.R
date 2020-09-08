@@ -7,10 +7,10 @@ library(recount)
 library(segmented)
 
 ## load
-load("../data/rse_gene_GoesZandi_n1093.rda")
-load("../data/rse_exon_GoesZandi_n1093.rda")
-load("../data/rse_jxn_GoesZandi_n1093.rda")
-load("../data/rse_tx_GoesZandi_n1093.rda")
+load("../data/rse_gene_GoesZandi_n1100.rda")
+load("../data/rse_exon_GoesZandi_n1100.rda")
+load("../data/rse_jxn_GoesZandi_n1100.rda")
+load("../data/rse_tx_GoesZandi_n1100.rda")
 
 
 ####################
