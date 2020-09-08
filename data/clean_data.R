@@ -200,11 +200,7 @@ colData(rse_bip) <- pd_bip
 stopifnot(identical(ranges(rse_bip), ranges(rse_mdd)))
 
 ### combine
-rse_both <- cbind(rse_mdd, rse_bip)
-rse_tx <- rse_both
-
-# drop samples
-rse_tx <- rse_tx[, rownames(colData(rse_gene))]
+rse_tx <- cbind(rse_mdd, rse_bip)
 
 save(rse_tx, file = paste0("rse_tx_GoesZandi_n", n, ".rda"))
 
