@@ -29,14 +29,22 @@ rse_gene$PrimaryDx <- factor(rse_gene$PrimaryDx, levels = c("MDD", "Control", "B
 tempRpkm <- recount::getRPKM(rse_gene, "Length")
 rowData(rse_gene)$meanExprs <- rowMeans(tempRpkm)
 
+n <- ncol(rse_gene)
+message("Remaining Samples: ", n)
+
+## Add bam files to colData
+exp_dir <- rep("goesHyde_mdd_rnaseq",n)
+exp_dir[rse_gene$Experiment == "psychENCODE_BP"] <- "zandiHyde_bipolar_rnaseq"
+
+bam <- paste0("/dcl01/lieber/ajaffe/lab/",exp_dir,"/preprocessed_data/HISAT2_out/", rse_gene$SAMPLE_ID, "_accepted_hits.sorted.bam")
+message("All bam files exist: ", all(file.exists(bam)))
+rse_gene$bam_file <- bam
+
 ## Save rse_gene
 save(rse_gene, file = paste0("rse_gene_GoesZandi_n", n, ".rda"))
 
 # create objects from rse_gene
 pd <- colData(rse_gene)
-
-n <- ncol(rse_gene)
-message("Remaining Samples: ", n)
 
 table(pd$BrainRegion, pd$PrimaryDx)
 table(pd$Sex, pd$PrimaryDx)
