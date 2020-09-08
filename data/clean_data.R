@@ -206,3 +206,11 @@ save(rse_tx, file = paste0("rse_tx_GoesZandi_n", n, ".rda"))
 
 
 # sgejobs::job_single('clean_data', create_shell = TRUE, queue= 'bluejay', memory = '50G', command = "Rscript clean_data.R")
+
+## Reproducibility information
+print('Reproducibility information:')
+Sys.time()
+proc.time()
+options(width = 120)
+session_info()
+
