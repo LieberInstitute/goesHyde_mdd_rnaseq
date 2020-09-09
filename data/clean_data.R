@@ -14,9 +14,16 @@ library(rtracklayer)
 
 # load data
 load("rse_gene_raw_GoesZandi_n1140.rda", verbose = TRUE)
+qc <- read.csv("../qc_checks/qc_dropping_results.csv", stringsAsFactors = FALSE, row.names = 1)
+
+#Correct BrainRegion
+qc[qc$BrainRegion != rse_gene$BrainRegion,]
+#             Experiment  BrNum AgeDeath Sex Race PrimaryDx BrainRegion RIN Plate dropMetrics dropRegion dropRace
+# R14179 psychENCODE_MDD Br1469    28.57   M CAUC   Control    Amygdala 7.6     2       FALSE      FALSE    FALSE
+# R17496 psychENCODE_MDD Br1469    28.57   M CAUC   Control        sACC 8.0     2       FALSE      FALSE    FALSE
+rse_gene$BrainRegion <- qc$BrainRegion
 
 ## drop
-qc <- read.csv("../qc_checks/qc_dropping_results.csv", stringsAsFactors = FALSE, row.names = 1)
 qc <- qc[rowSums(qc[, c("dropMetrics", "dropRegion", "dropRace")]) > 0, ]
 # filter from ppt_plot
 rse_gene <- rse_gene[, -which(rse_gene$RNum %in% rownames(qc))]
