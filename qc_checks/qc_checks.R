@@ -61,15 +61,7 @@ rownames(erccTPM) = read.table(file.path(opt$maindir, "Ercc", sampIDs_mdd[1], "a
 #check finiteness / change NaNs to 0s
 erccTPM[which(is.na(erccTPM), arr.ind = T)] = 0
 
-## extract ERCC for BP project samples
-metrics <-
-    read.csv(
-        "/dcl01/lieber/ajaffe/lab/zandiHyde_bipolar_rnaseq/preprocessed_data/read_and_alignment_metrics_zandiHyde_Bipolar_LIBD.csv"
-    )
-sampIDs_BP <- pd$RNum[pd$Experiment == "psychENCODE_BP"]
-# m_bp <- match(sampIDs_BP, metrics$RNum)
-# table(is.na(m_bp))
-pd$ERCCsumLogErr[pd$Experiment == "psychENCODE_BP"] <-
+pd$ERCCsumLogErr[pd$Experiment == "psychENCODE_MDD"] <-
     metrics$ERCCsumLogErr[m_bp]
 
 #expected concentration
@@ -81,7 +73,16 @@ spikeIns = read.delim(
 ##match row order
 spikeIns = spikeIns[match(rownames(erccTPM), rownames(spikeIns)),]
 
+mix1conc = matrix(
+    rep(spikeIns[, "concentration.in.Mix.1..attomoles.ul."]),
+    nc = ncol(erccTPM),
+    nr = nrow(erccTPM),
+    byrow = FALSE
+)
+logErr = (log2(erccTPM + 1) - log2(10 * mix1conc + 1))
+pd$ERCCsumLogErr[pd$Experiment == "psychENCODE_MDD"] = colSums(logErr)
 
+colnames(erccTPM) <- paste0(colnames(erccTPM),": ",round(colSums(logErr),2))
 pdf(
     file.path('pdfs/ercc_spikein_check_mix1_drop_flagged_samples.pdf'),
     h = 12,
@@ -101,30 +102,28 @@ for (i in 1:ncol(erccTPM)) {
 }
 dev.off()
 
-mix1conc = matrix(
-    rep(spikeIns[, "concentration.in.Mix.1..attomoles.ul."]),
-    nc = ncol(erccTPM),
-    nr = nrow(erccTPM),
-    byrow = FALSE
+pdf("pdfs/ERCCsumLogErr_boxplot.pdf", h = 5, w = 5)
+boxplot(
+    pd$ERCCsumLogErr ~ pd$Experiment,
+    las = 3,
+    xlab = "Experiment",
+    outline = FALSE,
+    ylab = "ERCC sum LogErr"
 )
-logErr = (log2(erccTPM + 1) - log2(10 * mix1conc + 1))
-pd$ERCCsumLogErr <- NA
-pd$ERCCsumLogErr[pd$Experiment == "psychENCODE_MDD"] = colSums(logErr)
+dev.off() 
 
-
-##explore ERCCsumLogErr  (expect no NA)
 summary(pd$ERCCsumLogErr)
-# Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
-# -64.961 -15.666 -10.020  -3.691   1.599  47.363
-tapply(pd$ERCCsumLogErr, pd$Experiment, summary)
+# Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+# -64.961 -15.748 -10.183  -3.817   1.050  47.363
 
+tapply(pd$ERCCsumLogErr, pd$Experiment, summary)
 # $psychENCODE_BP
-# Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
-# -36.992  -4.583   3.941  10.613  29.625  47.363
-#
+# Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+# -36.992  -4.592   4.522  10.706  29.660  47.363 
+# 
 # $psychENCODE_MDD
-# Min.  1st Qu.   Median     Mean  3rd Qu.     Max.
-# -64.9605 -18.7675 -14.9761 -15.8309 -11.8215  -0.4339
+# Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+# -64.9605 -18.8250 -14.8214 -15.8694 -11.8292  -0.4339 
 
 
 #### Metrics ####
