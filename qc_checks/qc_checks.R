@@ -15,25 +15,30 @@ library(genefilter)
 # styler::style_file("qc_checks.R", transformers = biocthis::bioc_style())
 
 ## load phenotype and alignment data
-load("/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/data/rse_gene_raw_GoesZandi_n1140.rda", verbose = TRUE)
+load(
+    "/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/data/rse_gene_raw_GoesZandi_n1140.rda",
+    verbose = TRUE
+)
 pd <- colData(rse_gene) %>% as.data.frame()
 
-metricCols <- c("RNum", "Experiment", "numReads", "Plate") # "totalAssignedGene","overallMapRate","rRNA_rate"
-
-pd_mdd <- read.csv("/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/preprocessed_data/read_and_alignment_metrics_goesHyde_MDD.csv",
-    stringsAsFactors = FALSE, row.names = 1
+metricCols <-c("RNum", "Experiment", "numReads", "Plate", "ERCCsumLogErr")
+pd_mdd <- read.csv(
+    "/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/preprocessed_data/read_and_alignment_metrics_goesHyde_MDD.csv",
+    stringsAsFactors = FALSE,
+    row.names = 1
 ) %>%
-    mutate(Experiment = "psychENCODE_MDD") %>%
+    mutate(Experiment = "psychENCODE_MDD",
+           ERCCsumLogErr = NA) %>%
     rename(RNum = SAMPLE_ID) %>%
     select(metricCols)
 
-pd_bp <- read.csv("/dcl01/lieber/ajaffe/lab/zandiHyde_bipolar_rnaseq/preprocessed_data/read_and_alignment_metrics_zandiHyde_Bipolar_LIBD.csv",
-    stringsAsFactors = FALSE, row.names = 1
+pd_bp <- read.csv(
+    "/dcl01/lieber/ajaffe/lab/zandiHyde_bipolar_rnaseq/preprocessed_data/read_and_alignment_metrics_zandiHyde_Bipolar_LIBD.csv",
+    stringsAsFactors = FALSE,
+    row.names = 1
 ) %>%
-    mutate(
-        Experiment = "psychENCODE_BP",
-        Plate = NA
-    ) %>%
+    mutate(Experiment = "psychENCODE_BP",
+           Plate = NA) %>%
     select(metricCols)
 
 pd_both <- rbind(pd_mdd, pd_bp)
@@ -41,6 +46,88 @@ pd_both <- rbind(pd_mdd, pd_bp)
 pd <- left_join(pd, pd_both, by = c("RNum", "Experiment"))
 rownames(pd) <- pd$RNum
 
+#### ERCC data ####
+### https://github.com/LieberInstitute/RNAseq-pipeline/blob/master/sh/create_count_objects-human.R#L306-L336
+
+##observed kallisto tpm
+sampIDs_mdd <- pd$RNum[pd$Experiment == "psychENCODE_MDD"]
+opt <- list("maindir" = "/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/preprocessed_data")
+erccTPM = sapply(sampIDs_mdd, function(x) {
+    read.table(file.path(opt$maindir, "Ercc", x, "abundance.tsv"),
+               header = TRUE)$tpm
+})
+rownames(erccTPM) = read.table(file.path(opt$maindir, "Ercc", sampIDs_mdd[1], "abundance.tsv"),
+                               header = TRUE)$target_id
+#check finiteness / change NaNs to 0s
+erccTPM[which(is.na(erccTPM), arr.ind = T)] = 0
+
+## extract ERCC for BP project samples
+metrics <-
+    read.csv(
+        "/dcl01/lieber/ajaffe/lab/zandiHyde_bipolar_rnaseq/preprocessed_data/read_and_alignment_metrics_zandiHyde_Bipolar_LIBD.csv"
+    )
+sampIDs_BP <- pd$RNum[pd$Experiment == "psychENCODE_BP"]
+# m_bp <- match(sampIDs_BP, metrics$RNum)
+# table(is.na(m_bp))
+pd$ERCCsumLogErr[pd$Experiment == "psychENCODE_BP"] <-
+    metrics$ERCCsumLogErr[m_bp]
+
+#expected concentration
+spikeIns = read.delim(
+    "/users/ajaffe/Lieber/Projects/RNAseq/Ribozero_Compare/ercc_actual_conc.txt",
+    as.is = TRUE,
+    row.names = 2
+)
+##match row order
+spikeIns = spikeIns[match(rownames(erccTPM), rownames(spikeIns)),]
+
+
+pdf(
+    file.path('pdfs/ercc_spikein_check_mix1_drop_flagged_samples.pdf'),
+    h = 12,
+    w = 18
+)
+rafalib::mypar(4, 6)
+for (i in 1:ncol(erccTPM)) {
+    plot(
+        log2(10 * spikeIns[, "concentration.in.Mix.1..attomoles.ul."] + 1) ~ log2(erccTPM[, i] +
+                                                                                      1),
+        xlab = "Kallisto log2(TPM+1)",
+        ylab = "Mix 1: log2(10*Concentration+1)",
+        main = colnames(erccTPM)[i],
+        xlim = c(min(log2(erccTPM + 1)), max(log2(erccTPM + 1)))
+    )
+    abline(0, 1, lty = 2)
+}
+dev.off()
+
+mix1conc = matrix(
+    rep(spikeIns[, "concentration.in.Mix.1..attomoles.ul."]),
+    nc = ncol(erccTPM),
+    nr = nrow(erccTPM),
+    byrow = FALSE
+)
+logErr = (log2(erccTPM + 1) - log2(10 * mix1conc + 1))
+pd$ERCCsumLogErr <- NA
+pd$ERCCsumLogErr[pd$Experiment == "psychENCODE_MDD"] = colSums(logErr)
+
+
+##explore ERCCsumLogErr  (expect no NA)
+summary(pd$ERCCsumLogErr)
+# Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
+# -64.961 -15.666 -10.020  -3.691   1.599  47.363
+tapply(pd$ERCCsumLogErr, pd$Experiment, summary)
+
+# $psychENCODE_BP
+# Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
+# -36.992  -4.583   3.941  10.613  29.625  47.363
+#
+# $psychENCODE_MDD
+# Min.  1st Qu.   Median     Mean  3rd Qu.     Max.
+# -64.9605 -18.7675 -14.9761 -15.8309 -11.8215  -0.4339
+
+
+#### Metrics ####
 table(pd$BrainRegion, pd$PrimaryDx)
 table(pd$Sex, pd$PrimaryDx)
 table(pd$Race, pd$PrimaryDx)
@@ -89,14 +176,22 @@ rH <- max(pd$numReads)
 
 # drop samples?
 pdf("pdfs/RIN_check_predrop.pdf", h = 10, w = 10)
-par(mfcol = c(2, 2), mar = c(5, 6, 2, 2), cex.axis = 1.8, cex.lab = 1.8)
+par(
+    mfcol = c(2, 2),
+    mar = c(5, 6, 2, 2),
+    cex.axis = 1.8,
+    cex.lab = 1.8
+)
 plot(pd$RIN, pd$overallMapRate, pch = 21, bg = "grey")
 abline(h = 0.5, lty = 2)
 legend("bottomright", "a)", bty = "n", cex = 2)
 plot(pd$RIN, pd$totalAssignedGene, pch = 21, bg = "grey")
 abline(h = 0.3, lty = 2)
 legend("bottomright", "b)", bty = "n", cex = 2)
-plot(pd$rRNA_rate, pd$overallMapRate, pch = 21, bg = "grey")
+plot(pd$rRNA_rate,
+     pd$overallMapRate,
+     pch = 21,
+     bg = "grey")
 abline(h = 0.5, lty = 2)
 abline(v = 5e-4, lty = 2)
 legend("bottomright", "c)", bty = "n", cex = 2)
@@ -110,7 +205,8 @@ dev.off()
 
 ## drop samples
 pd$dropMetrics <- FALSE
-pd$dropMetrics[pd$overallMapRate < 0.5 | pd$totalAssignedGene < .3 | pd$numReads < 1e7] <- TRUE
+pd$dropMetrics[pd$overallMapRate < 0.5 |
+                   pd$totalAssignedGene < .3 | pd$numReads < 1e7] <- TRUE
 
 table(pd$dropMetrics)
 # FALSE  TRUE
@@ -119,18 +215,46 @@ table(pd$dropMetrics)
 ####################################
 
 pdf("pdfs/RIN_check_postdrop.pdf", h = 10, w = 10)
-par(mfcol = c(2, 2), mar = c(5, 6, 2, 2), cex.axis = 1.8, cex.lab = 1.8)
-plot(pd$RIN, pd$overallMapRate, pch = 21, bg = pd$dropMetrics + 1, cex = pd$dropMetrics + 1, ylim = c(mL, mH))
-abline(h = 0.5, lty = 2)
-plot(pd$RIN, pd$totalAssignedGene, pch = 21, bg = pd$dropMetrics + 1, cex = pd$dropMetrics + 1, ylim = c(aL, aH))
-abline(h = 0.3, lty = 2)
-plot(pd$rRNA_rate, pd$overallMapRate,
-    pch = 21, bg = pd$dropMetrics + 1, cex = pd$dropMetrics + 1,
-    xlim = c(mitoL, mitoH), ylim = c(mL, mH)
+par(
+    mfcol = c(2, 2),
+    mar = c(5, 6, 2, 2),
+    cex.axis = 1.8,
+    cex.lab = 1.8
+)
+plot(
+    pd$RIN,
+    pd$overallMapRate,
+    pch = 21,
+    bg = pd$dropMetrics + 1,
+    cex = pd$dropMetrics + 1,
+    ylim = c(mL, mH)
 )
 abline(h = 0.5, lty = 2)
-plot(pd$RIN, log10(pd$numReads),
-    pch = 21, bg = pd$dropMetrics + 1, cex = pd$dropMetrics + 1,
+plot(
+    pd$RIN,
+    pd$totalAssignedGene,
+    pch = 21,
+    bg = pd$dropMetrics + 1,
+    cex = pd$dropMetrics + 1,
+    ylim = c(aL, aH)
+)
+abline(h = 0.3, lty = 2)
+plot(
+    pd$rRNA_rate,
+    pd$overallMapRate,
+    pch = 21,
+    bg = pd$dropMetrics + 1,
+    cex = pd$dropMetrics + 1,
+    xlim = c(mitoL, mitoH),
+    ylim = c(mL, mH)
+)
+abline(h = 0.5, lty = 2)
+plot(
+    pd$RIN,
+    log10(pd$numReads),
+    pch = 21,
+    bg = pd$dropMetrics + 1,
+    cex = pd$dropMetrics + 1,
     ylim = c(log10(rL), log10(rH))
 )
 abline(h = log10(1e7), lty = 2)
@@ -145,38 +269,49 @@ table(pd$Plate) # Plate 2 are the 96 rerun samples
 
 ### plot
 pdf("pdfs/metrics_by_plate.pdf", h = 5, w = 5)
-par(mar = c(7, 6, 2, 2), cex.axis = 1, cex.lab = 1.5, cex.main = 2)
+par(
+    mar = c(7, 6, 2, 2),
+    cex.axis = 1,
+    cex.lab = 1.5,
+    cex.main = 2
+)
 palette(brewer.pal(8, "Dark2"))
-boxplot(pd$overallMapRate ~ pd$Plate,
+boxplot(
+    pd$overallMapRate ~ pd$Plate,
     las = 3,
-    ylim = c(0, 1), xlab = "Plate",
-    outline = FALSE, ylab = "Overall Map Rate"
+    ylim = c(0, 1),
+    xlab = "Plate",
+    outline = FALSE,
+    ylab = "Overall Map Rate"
 )
-points(pd$overallMapRate ~ jitter(as.numeric(
-    factor(pd$Plate)
-),
-amount = 0.15
-),
-pch = 21,
-bg = as.numeric(factor(pd$BrainRegion))
+points(
+    pd$overallMapRate ~ jitter(as.numeric(factor(pd$Plate)),
+                               amount = 0.15),
+    pch = 21,
+    bg = as.numeric(factor(pd$BrainRegion))
 )
-legend("bottomleft", levels(factor(pd$BrainRegion)),
-    pch = 15, col = 1:2, cex = .8
+legend(
+    "bottomleft",
+    levels(factor(pd$BrainRegion)),
+    pch = 15,
+    col = 1:2,
+    cex = .8
 )
 abline(h = .5, lty = 2, col = "grey")
 
-boxplot(pd$totalAssignedGene ~ pd$Plate,
+boxplot(
+    pd$totalAssignedGene ~ pd$Plate,
     las = 3,
-    ylim = c(0, .7), xlab = "Plate",
-    outline = FALSE, ylab = "Gene Assignement Rate"
+    ylim = c(0, .7),
+    xlab = "Plate",
+    outline = FALSE,
+    ylab = "Gene Assignement Rate"
 )
-points(pd$totalAssignedGene ~ jitter(as.numeric(
-    factor(pd$Plate)
-),
-amount = 0.15
-),
-pch = 21,
-bg = as.numeric(factor(pd$BrainRegion))
+points(
+    pd$totalAssignedGene ~ jitter(as.numeric(factor(pd$Plate)),
+                                  amount = 0.15),
+    pch = 21,
+    bg = as.numeric(factor(pd$BrainRegion))
 )
 abline(h = .3, lty = 2, col = "grey")
 
@@ -189,52 +324,70 @@ dev.off()
 gRpkm <- recount::getRPKM(rse_gene, "Length")
 
 ## filter low expressing genes
-gRpkm <- gRpkm[which(rowMeans(gRpkm) > 0.1), ]
+gRpkm <- gRpkm[which(rowMeans(gRpkm) > 0.1),]
 yExprs <- log2(gRpkm + 1)
 
 ### top 1000 genes different between regions
 ngenes <- 100
 
 p <- rowttests(yExprs, as.factor(pd$BrainRegion))
-pOrd <- p[order(p$p.value)[1:ngenes], ]
+pOrd <- p[order(p$p.value)[1:ngenes],]
 ind1000 <- which(rownames(p) %in% rownames(pOrd))
-yExprs1000 <- yExprs[ind1000, ]
+yExprs1000 <- yExprs[ind1000,]
 
 ### estimate brain region
 amyg <- ifelse(pd$BrainRegion == "Amygdala", 1, 0)
 sacc <- ifelse(pd$BrainRegion == "sACC", 1, 0)
-mod <- data.frame(model.matrix(~ amyg + sacc - 1))
-
+mod <- data.frame(model.matrix( ~ amyg + sacc - 1))
 
 fit <- lmFit(yExprs1000, mod)
 Xmat <- fit$coef
 Dmat <- t(Xmat) %*% Xmat
-guess <- apply(yExprs1000, 2, function(x) solve(Dmat, t(Xmat) %*% x))[2, ]
+guess <-
+    apply(yExprs1000, 2, function(x)
+        solve(Dmat, t(Xmat) %*% x))[2,]
 stopifnot(identical(names(guess), paste0(rownames(pd), "_", pd$Experiment)))
 pd$guess <- guess
 
 ### plot
 pdf("pdfs/region_check_100.pdf", h = 6, w = 6)
-par(mar = c(8, 6, 2, 2), cex.axis = 1.5, cex.lab = 1.5, cex.main = 2)
+par(
+    mar = c(8, 6, 2, 2),
+    cex.axis = 1.5,
+    cex.lab = 1.5,
+    cex.main = 2
+)
 palette(brewer.pal(8, "Dark2"))
-boxplot(pd$guess ~ pd$BrainRegion,
+boxplot(
+    pd$guess ~ pd$BrainRegion,
     las = 3,
     ylim = range(pd$guess),
-    outline = FALSE, ylab = "sACC Identity", xlab = ""
+    outline = FALSE,
+    ylab = "sACC Identity",
+    xlab = ""
 )
-points(pd$guess ~ jitter(as.numeric(
-    factor(pd$BrainRegion)
-),
-amount = 0.25
-),
-pch = 21,
-bg = as.numeric(as.factor(pd$BrainRegion))
+points(
+    pd$guess ~ jitter(as.numeric(factor(pd$BrainRegion)),
+                      amount = 0.25),
+    pch = 21,
+    bg = as.numeric(as.factor(pd$BrainRegion))
 )
 segments(0, 0.9, 1.5, 0.9, lty = 2, col = "grey")
 segments(1.5, 0.3, 2.5, 0.3, lty = 2, col = "grey")
 dev.off()
 
-info_cols <- c("BrNum", "Experiment", "AgeDeath", "Sex", "Race", "PrimaryDx", "BrainRegion", "dropMetrics", "guess")
+info_cols <-
+    c(
+        "BrNum",
+        "Experiment",
+        "AgeDeath",
+        "Sex",
+        "Race",
+        "PrimaryDx",
+        "BrainRegion",
+        "dropMetrics",
+        "guess"
+    )
 pd[which(pd$BrainRegion == "sACC" & pd$guess < .3), info_cols]
 pd[which(pd$BrainRegion == "Amygdala" & pd$guess > 0.9), info_cols]
 
@@ -273,7 +426,7 @@ pd["R17496", "BrainRegion"] <- "sACC"
 
 ## Drop the rest
 dropInd <- which((pd$BrainRegion == "sACC" & pd$guess < .3) |
-    (pd$BrainRegion == "Amygdala" & pd$guess > 0.9))
+                     (pd$BrainRegion == "Amygdala" & pd$guess > 0.9))
 pd$dropRegion <- FALSE
 pd$dropRegion[dropInd] <- TRUE
 
@@ -284,7 +437,8 @@ table(pd$dropRegion)
 ######################################################## .
 gia <- read.csv("../synapse/genotypeInferredAncestry.csv")
 pd$geneticRace <- pd$Race
-pd$geneticRace[match(gia$BrNum, pd$BrNum)] <- gia$genotypeInferredAncestry
+pd$geneticRace[match(gia$BrNum, pd$BrNum)] <-
+    gia$genotypeInferredAncestry
 
 pd$dropRace <- pd$geneticRace != "CAUC"
 
@@ -301,8 +455,23 @@ table(pd$dropRace)
 
 
 ######################################################## .
-info_cols <- c("Experiment", "BrNum", "AgeDeath", "Sex", "Race", "PrimaryDx", "BrainRegion", "RIN", "Plate", "dropMetrics", "dropRegion", "dropRace") # previoulsy included "dropGeno"
-pd[which(pd$dropMetrics == TRUE | pd$dropRegion == TRUE | pd$dropRace == TRUE), info_cols]
+info_cols <-
+    c(
+        "Experiment",
+        "BrNum",
+        "AgeDeath",
+        "Sex",
+        "Race",
+        "PrimaryDx",
+        "BrainRegion",
+        "RIN",
+        "Plate",
+        "dropMetrics",
+        "dropRegion",
+        "dropRace"
+    ) # previoulsy included "dropGeno"
+pd[which(pd$dropMetrics == TRUE |
+             pd$dropRegion == TRUE | pd$dropRace == TRUE), info_cols]
 
 #         BrNum AgeDeath Sex Race PrimaryDx BrainRegion RIN Plate dropMetrics dropRegion dropRace
 # R17520 Br1635 52.31000   M CAUC       MDD        sACC 6.6     6       FALSE       TRUE    FALSE
@@ -346,15 +515,18 @@ pd[which(pd$dropMetrics == TRUE | pd$dropRegion == TRUE | pd$dropRace == TRUE), 
 # R14306 Br5435 56.51000   M CAUC   Bipolar        sACC 7.9    NA        TRUE      FALSE    FALSE
 # R15072 Br5939 55.90965   M CAUC   Bipolar    Amygdala 7.5    NA       FALSE       TRUE    FALSE
 
-pd$dropSum <- rowSums(pd[, c("dropMetrics", "dropRegion", "dropRace")])
+#### Summarize ####
+
+pd$dropSum <-
+    rowSums(pd[, c("dropMetrics", "dropRegion", "dropRace")])
 sum(pd$dropSum > 0) # 40
-rownames(pd) <- paste0(pd$RNum,"_", pd$Experiment)
+rownames(pd) <- paste0(pd$RNum, "_", pd$Experiment)
 
 ## Save qc_dropping results
-qcresults <- pd[, c("RNum",info_cols)]
+qcresults <- pd[, c("RNum", info_cols)]
 
 ## Update pd
-pd <- pd[-which(pd$dropSum > 0), ]
+pd <- pd[-which(pd$dropSum > 0),]
 
 message("Remaining Samples: n", nrow(pd))
 # 1100
@@ -364,6 +536,7 @@ table(pd$Sex, pd$PrimaryDx)
 table(pd$Race, pd$PrimaryDx)
 table(table(pd$BrNum))
 summary(pd$Age)
+
 
 # > table(pd$BrainRegion, pd$PrimaryDx)
 #
@@ -388,13 +561,20 @@ summary(pd$Age)
 # Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
 # 17.37   34.53   47.09   46.55   55.87   95.27
 
+#### Save qcresults ####
+# qcresults <- qcresults %>%
+#     left_join(pd %>% select(RNum, ERCCsumLogErr), by ="RNum")
+#
+# rownames(qcresults) <- paste0(qcresults$RNum,"_",qcresults$Experiment)
+
+write.csv(qcresults, file = "qc_dropping_results.csv")
 
 
 #### PCA - Combined data ####
 rse_gene <- rse_gene[, rse_gene$RNum %in% pd$RNum]
 gRpkmBP <- recount::getRPKM(rse_gene, "Length")
 ## filter low expressing genes
-gRpkmBP <- gRpkmBP[which(rowMeans(gRpkmBP) > 0.2), ]
+gRpkmBP <- gRpkmBP[which(rowMeans(gRpkmBP) > 0.2),]
 yExprsComb <- log2(gRpkmBP + 1)
 
 # combined phenodata
@@ -402,180 +582,184 @@ pd$group <- paste0(pd$BrainRegion, "_", pd$PrimaryDx)
 pca1 <- prcomp(t(yExprsComb))
 pcaVars1 <- getPcaVars(pca1)
 
-pdf("pdfs/pca_log2Rpkm_PC1_2_combined_datasets.pdf", h = 6, w = 6)
-par(mar = c(5, 6, 4, 2), cex.axis = 1.5, cex.lab = 1.5, cex.main = 1.5)
+pdf("pdfs/pca_log2Rpkm_PC1_2_combined_datasets.pdf",
+    h = 6,
+    w = 6)
+par(
+    mar = c(5, 6, 4, 2),
+    cex.axis = 1.5,
+    cex.lab = 1.5,
+    cex.main = 1.5
+)
 palette(brewer.pal(8, "Spectral"))
-plot(pca1$x,
-    pch = 21, bg = (as.numeric(factor(pd$Experiment)) * 4) - 1, cex = 2, main = "Gene PCs",
+plot(
+    pca1$x,
+    pch = 21,
+    bg = (as.numeric(factor(pd$Experiment)) * 4) - 1,
+    cex = 2,
+    main = "Gene PCs",
     xlab = paste0("PC1: ", pcaVars1[1], "% Var Expl"),
     ylab = paste0("PC2: ", pcaVars1[2], "% Var Expl")
 )
-legend("topleft", paste0(levels(factor(pd$Experiment))),
-    pch = 15, col = c(3, 7), cex = .9
+legend(
+    "topleft",
+    paste0(levels(factor(pd$Experiment))),
+    pch = 15,
+    col = c(3, 7),
+    cex = .9
 )
-plot(pca1$x,
-    pch = 21, bg = as.numeric(factor(pd$PrimaryDx)) * 2, cex = 2, main = "Gene PCs",
+plot(
+    pca1$x,
+    pch = 21,
+    bg = as.numeric(factor(pd$PrimaryDx)) * 2,
+    cex = 2,
+    main = "Gene PCs",
     xlab = paste0("PC1: ", pcaVars1[1], "% Var Expl"),
     ylab = paste0("PC2: ", pcaVars1[2], "% Var Expl")
 )
-legend("topleft", paste0(levels(factor(pd$PrimaryDx))),
-    pch = 15, col = c(2, 4, 6), cex = .9
+legend(
+    "topleft",
+    paste0(levels(factor(pd$PrimaryDx))),
+    pch = 15,
+    col = c(2, 4, 6),
+    cex = .9
 )
-plot(pca1$x,
-    pch = 21, bg = as.numeric(factor(pd$BrainRegion)) * 3, cex = 2, main = "Gene PCs",
+plot(
+    pca1$x,
+    pch = 21,
+    bg = as.numeric(factor(pd$BrainRegion)) * 3,
+    cex = 2,
+    main = "Gene PCs",
     xlab = paste0("PC1: ", pcaVars1[1], "% Var Expl"),
     ylab = paste0("PC2: ", pcaVars1[2], "% Var Expl")
 )
-legend("topleft", paste0(levels(factor(pd$BrainRegion))),
-    pch = 15, col = c(3, 6), cex = .9
+legend(
+    "topleft",
+    paste0(levels(factor(pd$BrainRegion))),
+    pch = 15,
+    col = c(3, 6),
+    cex = .9
 )
-plot(pca1$x,
-    pch = 21, bg = as.numeric(factor(pd$group)), cex = 2, main = "Gene PCs",
+plot(
+    pca1$x,
+    pch = 21,
+    bg = as.numeric(factor(pd$group)),
+    cex = 2,
+    main = "Gene PCs",
     xlab = paste0("PC1: ", pcaVars1[1], "% Var Expl"),
     ylab = paste0("PC2: ", pcaVars1[2], "% Var Expl")
 )
-legend("topleft", paste0(levels(factor(pd$group))),
-    pch = 15, col = 1:6, cex = .9
+legend(
+    "topleft",
+    paste0(levels(factor(pd$group))),
+    pch = 15,
+    col = 1:6,
+    cex = .9
 )
 dev.off()
 
 #### PCA - Filter for MDD samples ####
 rse_gene <- rse_gene[, rse_gene$Experiment == "psychENCODE_MDD"]
-pd_mdd <- pd[pd$Experiment == "psychENCODE_MDD", ]
+pd_mdd <- pd[pd$Experiment == "psychENCODE_MDD",]
 gRpkm <- recount::getRPKM(rse_gene, "Length")
 
 ## filter low expressing genes
-gRpkm <- gRpkm[which(rowMeans(gRpkm) > 0.2), ]
+gRpkm <- gRpkm[which(rowMeans(gRpkm) > 0.2),]
 yExprs <- log2(gRpkm + 1)
 
 pca1 <- prcomp(t(yExprs))
 pcaVars1 <- getPcaVars(pca1)
 
 pdf("pdfs/pca_log2Rpkm_PC1_2.pdf", h = 6, w = 6)
-par(mar = c(5, 6, 4, 2), cex.axis = 1.5, cex.lab = 1.5, cex.main = 1.5)
+par(
+    mar = c(5, 6, 4, 2),
+    cex.axis = 1.5,
+    cex.lab = 1.5,
+    cex.main = 1.5
+)
 palette(brewer.pal(8, "Spectral"))
-plot(pca1$x,
-    pch = 21, bg = as.numeric(factor(pd_mdd$PrimaryDx)) * 3, cex = 2, main = "Gene PCs",
+plot(
+    pca1$x,
+    pch = 21,
+    bg = as.numeric(factor(pd_mdd$PrimaryDx)) * 3,
+    cex = 2,
+    main = "Gene PCs",
     xlab = paste0("PC1: ", pcaVars1[1], "% Var Expl"),
     ylab = paste0("PC2: ", pcaVars1[2], "% Var Expl")
 )
-legend("topleft", paste0(levels(factor(pd_mdd$PrimaryDx))),
-    pch = 15, col = c(3, 6), cex = .9
+legend(
+    "topleft",
+    paste0(levels(factor(pd_mdd$PrimaryDx))),
+    pch = 15,
+    col = c(3, 6),
+    cex = .9
 )
-plot(pca1$x,
-    pch = 21, bg = as.numeric(factor(pd_mdd$Sex)) * 2, cex = 2, main = "Gene PCs",
+plot(
+    pca1$x,
+    pch = 21,
+    bg = as.numeric(factor(pd_mdd$Sex)) * 2,
+    cex = 2,
+    main = "Gene PCs",
     xlab = paste0("PC1: ", pcaVars1[1], "% Var Expl"),
     ylab = paste0("PC2: ", pcaVars1[2], "% Var Expl")
 )
-legend("topleft", paste0(levels(factor(pd_mdd$Sex))),
-    pch = 15, col = c(2, 4), cex = .9
+legend(
+    "topleft",
+    paste0(levels(factor(pd_mdd$Sex))),
+    pch = 15,
+    col = c(2, 4),
+    cex = .9
 )
-plot(pca1$x,
-    pch = 21, bg = as.numeric(factor(pd_mdd$BrainRegion)) * 3, cex = 2, main = "Gene PCs",
+plot(
+    pca1$x,
+    pch = 21,
+    bg = as.numeric(factor(pd_mdd$BrainRegion)) * 3,
+    cex = 2,
+    main = "Gene PCs",
     xlab = paste0("PC1: ", pcaVars1[1], "% Var Expl"),
     ylab = paste0("PC2: ", pcaVars1[2], "% Var Expl")
 )
-legend("topleft", paste0(levels(factor(pd_mdd$BrainRegion))),
-    pch = 15, col = c(3, 6), cex = .9
+legend(
+    "topleft",
+    paste0(levels(factor(pd_mdd$BrainRegion))),
+    pch = 15,
+    col = c(3, 6),
+    cex = .9
 )
-plot(pca1$x,
-    pch = 21, bg = as.numeric(factor(pd_mdd$Race)) * 2, cex = 2, main = "Gene PCs",
+plot(
+    pca1$x,
+    pch = 21,
+    bg = as.numeric(factor(pd_mdd$Race)) * 2,
+    cex = 2,
+    main = "Gene PCs",
     xlab = paste0("PC1: ", pcaVars1[1], "% Var Expl"),
     ylab = paste0("PC2: ", pcaVars1[2], "% Var Expl")
 )
-legend("topleft", paste0(levels(factor(pd_mdd$Race))),
-    pch = 15, col = c(2, 4), cex = .9
+legend(
+    "topleft",
+    paste0(levels(factor(pd_mdd$Race))),
+    pch = 15,
+    col = c(2, 4),
+    cex = .9
 )
-plot(pca1$x,
-    pch = 21, bg = as.numeric(factor(pd_mdd$Plate)), cex = 2, main = "Gene PCs",
+plot(
+    pca1$x,
+    pch = 21,
+    bg = as.numeric(factor(pd_mdd$Plate)),
+    cex = 2,
+    main = "Gene PCs",
     xlab = paste0("PC1: ", pcaVars1[1], "% Var Expl"),
     ylab = paste0("PC2: ", pcaVars1[2], "% Var Expl")
 )
-legend("topleft", paste0("Plate ", levels(factor(pd_mdd$Plate))),
-    pch = 15, col = 1:8, cex = .9
+legend(
+    "topleft",
+    paste0("Plate ", levels(factor(pd_mdd$Plate))),
+    pch = 15,
+    col = 1:8,
+    cex = .9
 )
 dev.off()
 
-### process ERCC for MDD  https://github.com/LieberInstitute/RNAseq-pipeline/blob/master/sh/create_count_objects-human.R#L306-L336
-
-##observed kallisto tpm
-sampIDs <- pd_mdd$RNum
-opt <- list("maindir"="/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/preprocessed_data")
-erccTPM = sapply(sampIDs, function(x) {
-    read.table(file.path(opt$maindir, "Ercc", x, "abundance.tsv"),
-               header = TRUE)$tpm
-})
-rownames(erccTPM) = read.table(file.path(opt$maindir, "Ercc", sampIDs[1], "abundance.tsv"),
-                               header = TRUE)$target_id
-#check finiteness / change NaNs to 0s
-erccTPM[which(is.na(erccTPM), arr.ind = T)] = 0
-
-#expected concentration
-spikeIns = read.delim(
-    "/users/ajaffe/Lieber/Projects/RNAseq/Ribozero_Compare/ercc_actual_conc.txt",
-    as.is = TRUE,
-    row.names = 2
-)
-##match row order
-spikeIns = spikeIns[match(rownames(erccTPM), rownames(spikeIns)), ]
-
-pdf(
-    file.path('pdfs/ercc_spikein_check_mix1_drop_flagged_samples.pdf'),
-    h = 12,
-    w = 18
-)
-rafalib::mypar(4, 6)
-for (i in 1:ncol(erccTPM)) {
-    plot(
-        log2(10 * spikeIns[, "concentration.in.Mix.1..attomoles.ul."] + 1) ~ log2(erccTPM[, i] +
-                                                                                      1),
-        xlab = "Kallisto log2(TPM+1)",
-        ylab = "Mix 1: log2(10*Concentration+1)",
-        main = colnames(erccTPM)[i],
-        xlim = c(min(log2(erccTPM + 1)), max(log2(erccTPM + 1)))
-    )
-    abline(0, 1, lty = 2)
-}
-dev.off()
-
-mix1conc = matrix(
-    rep(spikeIns[, "concentration.in.Mix.1..attomoles.ul."]),
-    nc = ncol(erccTPM),
-    nr = nrow(erccTPM),
-    byrow = FALSE
-)
-logErr = (log2(erccTPM + 1) - log2(10 * mix1conc + 1))
-pd$ERCCsumLogErr <- NA
-pd$ERCCsumLogErr[pd$Experiment == "psychENCODE_MDD"] = colSums(logErr)
-
-## extract ERCC for BP project samples
-metrics <- read.csv("/dcl01/lieber/ajaffe/lab/zandiHyde_bipolar_rnaseq/preprocessed_data/read_and_alignment_metrics_zandiHyde_Bipolar_LIBD.csv")
-sampIDs_BP <- pd$RNum[pd$Experiment=="psychENCODE_BP"]
-m_bp <- match(sampIDs_BP, metrics$RNum)
-table(is.na(m_bp))
-pd$ERCCsumLogErr[pd$Experiment == "psychENCODE_BP"] <- metrics$ERCCsumLogErr[m_bp]
-
-##explore ERCCsumLogErr  (expect no NA)
-summary(pd$ERCCsumLogErr)
-# Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-# -64.961 -15.666 -10.020  -3.691   1.599  47.363
-tapply(pd$ERCCsumLogErr, pd$Experiment, summary)
-
-# $psychENCODE_BP
-# Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-# -36.992  -4.583   3.941  10.613  29.625  47.363 
-# 
-# $psychENCODE_MDD
-# Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
-# -64.9605 -18.7675 -14.9761 -15.8309 -11.8215  -0.4339
-
-#### Save qcresults #### 
-qcresults <- qcresults %>%
-    left_join(pd %>% select(RNum, ERCCsumLogErr), by ="RNum")
-
-rownames(qcresults) <- paste0(qcresults$RNum,"_",qcresults$Experiment)
-
-write.csv(qcresults, file = "qc_dropping_results.csv")
 
 # sgejobs::job_single('qc_checks', create_shell = TRUE, queue= 'bluejay', memory = '50G', command = "Rscript qc_checks.R")
 
