@@ -7,9 +7,12 @@ library(readxl)
 library(RColorBrewer)
 library(sessioninfo)
 library(dplyr)
+library(limma)
+library(rtracklayer)
+library(genefilter)
 
 ## For styling this script
-# styler::style_file("ppt_plots.R", transformers = biocthis::bioc_style())
+# styler::style_file("qc_checks.R", transformers = biocthis::bioc_style())
 
 ## load phenotype and alignment data
 load("/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/data/rse_gene_raw_GoesZandi_n1140.rda", verbose = TRUE)
@@ -182,7 +185,7 @@ dev.off()
 
 #################################
 ### regional labeling
-library(rtracklayer)
+
 gRpkm <- recount::getRPKM(rse_gene, "Length")
 
 ## filter low expressing genes
@@ -190,7 +193,6 @@ gRpkm <- gRpkm[which(rowMeans(gRpkm) > 0.1), ]
 yExprs <- log2(gRpkm + 1)
 
 ### top 1000 genes different between regions
-library(genefilter)
 ngenes <- 100
 
 p <- rowttests(yExprs, as.factor(pd$BrainRegion))
@@ -203,7 +205,7 @@ amyg <- ifelse(pd$BrainRegion == "Amygdala", 1, 0)
 sacc <- ifelse(pd$BrainRegion == "sACC", 1, 0)
 mod <- data.frame(model.matrix(~ amyg + sacc - 1))
 
-library(limma)
+
 fit <- lmFit(yExprs1000, mod)
 Xmat <- fit$coef
 Dmat <- t(Xmat) %*% Xmat
@@ -575,7 +577,7 @@ rownames(qcresults) <- paste0(qcresults$RNum,"_",qcresults$Experiment)
 
 write.csv(qcresults, file = "qc_dropping_results.csv")
 
-# sgejobs::job_single('ppt_plots', create_shell = TRUE, queue= 'bluejay', memory = '50G', command = "Rscript ppt_plots.R")
+# sgejobs::job_single('qc_checks', create_shell = TRUE, queue= 'bluejay', memory = '50G', command = "Rscript qc_checks.R")
 
 ## Reproducibility information
 print("Reproducibility information:")

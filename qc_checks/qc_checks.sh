@@ -1,9 +1,9 @@
 #!/bin/bash
 #$ -cwd
 #$ -l bluejay,mem_free=50G,h_vmem=50G,h_fsize=100G
-#$ -N ppt_plots
-#$ -o logs/ppt_plots.txt
-#$ -e logs/ppt_plots.txt
+#$ -N qc_checks
+#$ -o logs/qc_checks.txt
+#$ -e logs/qc_checks.txt
 #$ -m e
 
 echo "**** Job starts ****"
@@ -23,7 +23,7 @@ module load conda_R
 module list
 
 ## Edit with your job command
-Rscript ppt_plots.R
+Rscript qc_checks.R
 
 echo "**** Job ends ****"
 date
