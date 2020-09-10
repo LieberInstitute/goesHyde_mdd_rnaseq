@@ -85,7 +85,7 @@ rL <- min(pd$numReads)
 rH <- max(pd$numReads)
 
 # drop samples?
-pdf("RIN_check_predrop.pdf", h = 10, w = 10)
+pdf("pdfs/RIN_check_predrop.pdf", h = 10, w = 10)
 par(mfcol = c(2, 2), mar = c(5, 6, 2, 2), cex.axis = 1.8, cex.lab = 1.8)
 plot(pd$RIN, pd$overallMapRate, pch = 21, bg = "grey")
 abline(h = 0.5, lty = 2)
@@ -115,7 +115,7 @@ table(pd$dropMetrics)
 
 ####################################
 
-pdf("RIN_check_postdrop.pdf", h = 10, w = 10)
+pdf("pdfs/RIN_check_postdrop.pdf", h = 10, w = 10)
 par(mfcol = c(2, 2), mar = c(5, 6, 2, 2), cex.axis = 1.8, cex.lab = 1.8)
 plot(pd$RIN, pd$overallMapRate, pch = 21, bg = pd$dropMetrics + 1, cex = pd$dropMetrics + 1, ylim = c(mL, mH))
 abline(h = 0.5, lty = 2)
@@ -141,7 +141,7 @@ dev.off()
 table(pd$Plate) # Plate 2 are the 96 rerun samples
 
 ### plot
-pdf("metrics_by_plate.pdf", h = 5, w = 5)
+pdf("pdfs/metrics_by_plate.pdf", h = 5, w = 5)
 par(mar = c(7, 6, 2, 2), cex.axis = 1, cex.lab = 1.5, cex.main = 2)
 palette(brewer.pal(8, "Dark2"))
 boxplot(pd$overallMapRate ~ pd$Plate,
@@ -212,7 +212,7 @@ stopifnot(identical(names(guess), paste0(rownames(pd), "_", pd$Experiment)))
 pd$guess <- guess
 
 ### plot
-pdf("region_check_100.pdf", h = 6, w = 6)
+pdf("pdfs/region_check_100.pdf", h = 6, w = 6)
 par(mar = c(8, 6, 2, 2), cex.axis = 1.5, cex.lab = 1.5, cex.main = 2)
 palette(brewer.pal(8, "Dark2"))
 boxplot(pd$guess ~ pd$BrainRegion,
@@ -400,7 +400,7 @@ pd$group <- paste0(pd$BrainRegion, "_", pd$PrimaryDx)
 pca1 <- prcomp(t(yExprsComb))
 pcaVars1 <- getPcaVars(pca1)
 
-pdf("pca_log2Rpkm_PC1_2_combined_datasets.pdf", h = 6, w = 6)
+pdf("pdfs/pca_log2Rpkm_PC1_2_combined_datasets.pdf", h = 6, w = 6)
 par(mar = c(5, 6, 4, 2), cex.axis = 1.5, cex.lab = 1.5, cex.main = 1.5)
 palette(brewer.pal(8, "Spectral"))
 plot(pca1$x,
@@ -449,7 +449,7 @@ yExprs <- log2(gRpkm + 1)
 pca1 <- prcomp(t(yExprs))
 pcaVars1 <- getPcaVars(pca1)
 
-pdf("pca_log2Rpkm_PC1_2.pdf", h = 6, w = 6)
+pdf("pdfs/pca_log2Rpkm_PC1_2.pdf", h = 6, w = 6)
 par(mar = c(5, 6, 4, 2), cex.axis = 1.5, cex.lab = 1.5, cex.main = 1.5)
 palette(brewer.pal(8, "Spectral"))
 plot(pca1$x,
@@ -518,7 +518,7 @@ spikeIns = read.delim(
 spikeIns = spikeIns[match(rownames(erccTPM), rownames(spikeIns)), ]
 
 pdf(
-    file.path('ercc_spikein_check_mix1_drop_flagged_samples.pdf'),
+    file.path('pdfs/ercc_spikein_check_mix1_drop_flagged_samples.pdf'),
     h = 12,
     w = 18
 )
