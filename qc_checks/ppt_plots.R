@@ -346,13 +346,13 @@ pd[which(pd$dropMetrics == TRUE | pd$dropRegion == TRUE | pd$dropRace == TRUE), 
 
 pd$dropSum <- rowSums(pd[, c("dropMetrics", "dropRegion", "dropRace")])
 sum(pd$dropSum > 0) # 40
+rownames(pd) <- paste0(rownames(pd), pd$Experiment)
 
 ## Save qc_dropping results
-qcresults <- pd[, c("RNum", info_cols)]
+qcresults <- pd[, c("RNum",info_cols)]
 
 ## Update pd
 pd <- pd[-which(pd$dropSum > 0), ]
-rownames(pd) <- paste0(rownames(pd), pd$Experiment)
 
 message("Remaining Samples: n", nrow(pd))
 # 1100
@@ -496,31 +496,29 @@ dev.off()
 
 ### process ERCC for MDD  https://github.com/LieberInstitute/RNAseq-pipeline/blob/master/sh/create_count_objects-human.R#L306-L336
 
-## observed kallisto tpm
+##observed kallisto tpm
 sampIDs <- pd_mdd$RNum
-opt <- list("maindir" = "/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/preprocessed_data")
-erccTPM <- sapply(sampIDs, function(x) {
+opt <- list("maindir"="/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/preprocessed_data")
+erccTPM = sapply(sampIDs, function(x) {
     read.table(file.path(opt$maindir, "Ercc", x, "abundance.tsv"),
-        header = TRUE
-    )$tpm
+               header = TRUE)$tpm
 })
-rownames(erccTPM) <- read.table(file.path(opt$maindir, "Ercc", sampIDs[1], "abundance.tsv"),
-    header = TRUE
-)$target_id
-# check finiteness / change NaNs to 0s
-erccTPM[which(is.na(erccTPM), arr.ind = T)] <- 0
+rownames(erccTPM) = read.table(file.path(opt$maindir, "Ercc", sampIDs[1], "abundance.tsv"),
+                               header = TRUE)$target_id
+#check finiteness / change NaNs to 0s
+erccTPM[which(is.na(erccTPM), arr.ind = T)] = 0
 
-# expected concentration
-spikeIns <- read.delim(
+#expected concentration
+spikeIns = read.delim(
     "/users/ajaffe/Lieber/Projects/RNAseq/Ribozero_Compare/ercc_actual_conc.txt",
     as.is = TRUE,
     row.names = 2
 )
-## match row order
-spikeIns <- spikeIns[match(rownames(erccTPM), rownames(spikeIns)), ]
+##match row order
+spikeIns = spikeIns[match(rownames(erccTPM), rownames(spikeIns)), ]
 
 pdf(
-    file.path("pdfs/ercc_spikein_check_mix1_drop_flagged_samples.pdf"),
+    file.path('pdfs/ercc_spikein_check_mix1_drop_flagged_samples.pdf'),
     h = 12,
     w = 18
 )
@@ -528,7 +526,7 @@ rafalib::mypar(4, 6)
 for (i in 1:ncol(erccTPM)) {
     plot(
         log2(10 * spikeIns[, "concentration.in.Mix.1..attomoles.ul."] + 1) ~ log2(erccTPM[, i] +
-            1),
+                                                                                      1),
         xlab = "Kallisto log2(TPM+1)",
         ylab = "Mix 1: log2(10*Concentration+1)",
         main = colnames(erccTPM)[i],
@@ -538,40 +536,40 @@ for (i in 1:ncol(erccTPM)) {
 }
 dev.off()
 
-mix1conc <- matrix(
+mix1conc = matrix(
     rep(spikeIns[, "concentration.in.Mix.1..attomoles.ul."]),
     nc = ncol(erccTPM),
     nr = nrow(erccTPM),
     byrow = FALSE
 )
-logErr <- (log2(erccTPM + 1) - log2(10 * mix1conc + 1))
+logErr = (log2(erccTPM + 1) - log2(10 * mix1conc + 1))
 pd$ERCCsumLogErr <- NA
-pd$ERCCsumLogErr[pd$Experiment == "psychENCODE_MDD"] <- colSums(logErr)
+pd$ERCCsumLogErr[pd$Experiment == "psychENCODE_MDD"] = colSums(logErr)
 
 ## extract ERCC for BP project samples
 metrics <- read.csv("/dcl01/lieber/ajaffe/lab/zandiHyde_bipolar_rnaseq/preprocessed_data/read_and_alignment_metrics_zandiHyde_Bipolar_LIBD.csv")
-sampIDs_BP <- pd$RNum[pd$Experiment == "psychENCODE_BP"]
+sampIDs_BP <- pd$RNum[pd$Experiment=="psychENCODE_BP"]
 m_bp <- match(sampIDs_BP, metrics$RNum)
 table(is.na(m_bp))
 pd$ERCCsumLogErr[pd$Experiment == "psychENCODE_BP"] <- metrics$ERCCsumLogErr[m_bp]
 
-## explore ERCCsumLogErr  (expect no NA)
+##explore ERCCsumLogErr  (expect no NA)
 summary(pd$ERCCsumLogErr)
-# Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
+# Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
 # -64.961 -15.666 -10.020  -3.691   1.599  47.363
 tapply(pd$ERCCsumLogErr, pd$Experiment, summary)
 
 # $psychENCODE_BP
-# Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
-# -36.992  -4.583   3.941  10.613  29.625  47.363
-#
+# Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+# -36.992  -4.583   3.941  10.613  29.625  47.363 
+# 
 # $psychENCODE_MDD
-# Min.  1st Qu.   Median     Mean  3rd Qu.     Max.
+# Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
 # -64.9605 -18.7675 -14.9761 -15.8309 -11.8215  -0.4339
 
-#### Save qcresults ####
+#### Save qcresults #### 
 qcresults <- qcresults %>%
-    left_join(pd %>% select(RNum, ERCCsumLogErr), by = "RNum")
+    left_join(pd %>% select(RNum, ERCCsumLogErr), by ="RNum")
 
 write.csv(qcresults, file = "qc_dropping_results.csv")
 
