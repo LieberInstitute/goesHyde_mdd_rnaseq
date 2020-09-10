@@ -30,7 +30,7 @@ rse_gene$ERCCsumLogErr <- qc$ERCCsumLogErr
 ## drop
 qc <- qc[rowSums(qc[, c("dropMetrics", "dropRegion", "dropRace")]) > 0, ]
 # filter from ppt_plot
-rse_gene <- rse_gene[, -which(rse_gene$RNum %in% rownames(qc))]
+rse_gene <- rse_gene[, -which(rse_gene$RNum %in% qc$RNum)]
 # other filters
 rse_gene <- rse_gene[, which(!rse_gene$RNum %in% c("R17538", "R18853") | rse_gene$PrimaryDx != "Other")]
 message("Drop: ", nrow(qc))
