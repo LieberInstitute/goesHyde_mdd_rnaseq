@@ -346,7 +346,7 @@ pd[which(pd$dropMetrics == TRUE | pd$dropRegion == TRUE | pd$dropRace == TRUE), 
 
 pd$dropSum <- rowSums(pd[, c("dropMetrics", "dropRegion", "dropRace")])
 sum(pd$dropSum > 0) # 40
-rownames(pd) <- paste0(rownames(pd), pd$Experiment)
+rownames(pd) <- paste0(pd$RNum,"_", pd$Experiment)
 
 ## Save qc_dropping results
 qcresults <- pd[, c("RNum",info_cols)]
@@ -570,6 +570,8 @@ tapply(pd$ERCCsumLogErr, pd$Experiment, summary)
 #### Save qcresults #### 
 qcresults <- qcresults %>%
     left_join(pd %>% select(RNum, ERCCsumLogErr), by ="RNum")
+
+rownames(qcresults) <- paste0(qcresults$RNum,"_",qcresults$Experiment)
 
 write.csv(qcresults, file = "qc_dropping_results.csv")
 
