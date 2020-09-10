@@ -15,6 +15,7 @@ library(rtracklayer)
 # load data
 load("rse_gene_raw_GoesZandi_n1140.rda", verbose = TRUE)
 qc <- read.csv("../qc_checks/qc_dropping_results.csv", stringsAsFactors = FALSE, row.names = 1)
+all(rse_gene$RNum == qc$RNum)
 
 #Correct BrainRegion
 qc[qc$BrainRegion != rse_gene$BrainRegion,]
@@ -22,6 +23,9 @@ qc[qc$BrainRegion != rse_gene$BrainRegion,]
 # R14179 psychENCODE_MDD Br1469    28.57   M CAUC   Control    Amygdala 7.6     2       FALSE      FALSE    FALSE
 # R17496 psychENCODE_MDD Br1469    28.57   M CAUC   Control        sACC 8.0     2       FALSE      FALSE    FALSE
 rse_gene$BrainRegion <- qc$BrainRegion
+
+## Add ERCCsumLogErr
+rse_gene$ERCCsumLogErr <- qc$ERCCsumLogErr
 
 ## drop
 qc <- qc[rowSums(qc[, c("dropMetrics", "dropRegion", "dropRace")]) > 0, ]
