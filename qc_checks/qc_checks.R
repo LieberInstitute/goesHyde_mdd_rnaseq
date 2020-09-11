@@ -25,8 +25,7 @@ metricCols <-c("RNum", "Experiment", "numReads", "Plate", "ERCCsumLogErr")
 pd_mdd <- read.csv(
     "/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/preprocessed_data/read_and_alignment_metrics_goesHyde_MDD.csv",
     stringsAsFactors = FALSE,
-    row.names = 1
-) %>%
+    row.names = 1) %>%
     mutate(Experiment = "psychENCODE_MDD",
            ERCCsumLogErr = NA) %>%
     rename(RNum = SAMPLE_ID) %>%
@@ -35,8 +34,7 @@ pd_mdd <- read.csv(
 pd_bp <- read.csv(
     "/dcl01/lieber/ajaffe/lab/zandiHyde_bipolar_rnaseq/preprocessed_data/read_and_alignment_metrics_zandiHyde_Bipolar_LIBD.csv",
     stringsAsFactors = FALSE,
-    row.names = 1
-) %>%
+    row.names = 1) %>%
     mutate(Experiment = "psychENCODE_BP",
            Plate = NA) %>%
     select(metricCols)
@@ -168,8 +166,10 @@ aL <- min(pd$totalAssignedGene)
 aH <- max(pd$totalAssignedGene)
 mL <- min(pd$overallMapRate)
 mH <- max(pd$overallMapRate)
-mitoL <- min(pd$rRNA_rate)
-mitoH <- max(pd$rRNA_rate)
+rnaL <- min(pd$rRNA_rate)
+rnaH <- max(pd$rRNA_rate)
+mitoL <- min(pd$mitoRate)
+mitoH <- max(pd$mitoRate)
 rL <- min(pd$numReads)
 rH <- max(pd$numReads)
 
@@ -244,7 +244,7 @@ plot(
     pch = 21,
     bg = pd$dropMetrics + 1,
     cex = pd$dropMetrics + 1,
-    xlim = c(mitoL, mitoH),
+    xlim = c(rnaL, rnaH),
     ylim = c(mL, mH)
 )
 abline(h = 0.5, lty = 2)
@@ -260,7 +260,61 @@ abline(h = log10(1e7), lty = 2)
 dev.off()
 
 
-##################################################
+#### ERCC vs. Metrics ####
+pdf("pdfs/ERCC_check_postdrop.pdf", h = 10, w = 10)
+rafalib::mypar(2,2)
+# par(
+#     mfcol = c(2, 2),
+#     mar = c(5, 6, 2, 2),
+#     cex.axis = 1.8,
+#     cex.lab = 1.8
+# )
+plot(
+    pd$ERCCsumLogErr,
+    pd$overallMapRate,
+    pch = 21,
+    bg = pd$dropMetrics + 1,
+    cex = pd$dropMetrics + 1,
+    ylim = c(mL, mH)
+)
+abline(h = 0.5, lty = 2)
+plot(
+    pd$ERCCsumLogErr,
+    pd$totalAssignedGene,
+    pch = 21,
+    bg = pd$dropMetrics + 1,
+    cex = pd$dropMetrics + 1,
+    ylim = c(aL, aH)
+)
+abline(h = 0.3, lty = 2)
+plot(
+    pd$ERCCsumLogErr,
+    log10(pd$numReads),
+    pch = 21,
+    bg = pd$dropMetrics + 1,
+    cex = pd$dropMetrics + 1,
+    ylim = c(log10(rL), log10(rH))
+)
+abline(h = log10(1e7), lty = 2)
+plot(
+    pd$ERCCsumLogErr,
+    pd$mitoRate,
+    pch = 21,
+    bg = pd$dropMetrics + 1,
+    cex = pd$dropMetrics + 1,
+    ylim = c(mitoL, mitoH)
+)
+# abline(h = log10(1e7), lty = 2)
+plot(
+    pd$ERCCsumLogErr,
+    pd$rRNA_rate,
+    pch = 21,
+    bg = pd$dropMetrics + 1,
+    cex = pd$dropMetrics + 1,
+    ylim = c(rnaL, rnaH)
+)
+# abline(h = 0.5, lty = 2)
+dev.off()
 
 ## metrics by flowcell
 
