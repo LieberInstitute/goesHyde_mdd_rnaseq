@@ -3,15 +3,9 @@
 library(edgeR)
 library(ggplot2)
 library(jaffelab)
-#library(readxl)
-#library(Rsamtools)
 library(sessioninfo)
 library(SummarizedExperiment)
-#library(sva)
-#library(VariantAnnotation)
 library(dplyr)
-
-setwd('/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/data/')
 
 #load objects
 load('../preprocessed_data/rse_gene_goesHyde_MDD_n634.Rdata', verbose=TRUE)
@@ -27,7 +21,7 @@ rse_mdd$AgeDeath = rse_mdd$Age
 rse_mdd$RNum = rse_mdd$SAMPLE_ID
 rse_mdd$BrNum = as.character(rse_mdd$BrNum)
 rse_bip$BrainRegion = rse_bip$Brain.Region
-colKeep = c("RNum","BrNum","Sex","Race","AgeDeath","BrainRegion","RIN","PrimaryDx","overallMapRate","totalAssignedGene","mitoRate","rRNA_rate","Experiment")
+colKeep = c("RNum","BrNum","Sex","Race","AgeDeath","BrainRegion","RIN","PrimaryDx","overallMapRate","totalAssignedGene","mitoRate","rRNA_rate","Experiment","bamFile")
 colData(rse_mdd) = colData(rse_mdd)[,colKeep]
 colData(rse_bip) = colData(rse_bip)[,colKeep]
 
@@ -58,7 +52,7 @@ pd_all <- read.csv("/dcl01/lieber/RNAseq/Datasets/BrainGenotyping_2018/SampleFil
 
 pd <-  pd_all%>%
   rename(AgeDeath = Age, BrainRegion = Region, PrimaryDx = Dx, Experiment = Dataset) %>%
-  select(all_of(c(colKeep,"SAMPLE_ID"))) %>%
+  select(all_of(c(colKeep,"SAMPLE_ID","rna_preSwap_BrNum"))) %>%
   filter(RNum %in% mdd_pd$RNum) 
 
 #rownames(pd) <- ss(pd$SAMPLE_ID,";")
@@ -104,7 +98,7 @@ brain_sentrix1 <- brain_sentrix %>%
   arrange(ID)%>%
   slice(1) %>%
   ungroup() %>%
-  select(genoSample = ID, BrNum, Batch)
+  select(genoSample = ID, BrNum, Batch, dna_preSwap_BrNum)
 
 # should only have 1 row per BrNum
 message("One row per BrNum: ", nrow(brain_sentrix1) ==length(unique(brain_sentrix1$BrNum))) 
@@ -123,6 +117,12 @@ corLong2_mdd <- corLong2 %>% select(RNum, genoSample, cor) %>%
   slice(1) %>%
   ungroup
 
+## Duplicate sample check, identify samples assigned to BrNum\BrainRegion pairs that already exist
+dups <- pd %>%
+  group_by(BrNum, BrainRegion) %>%
+  mutate(nSamp = n()) %>%
+  filter(nSamp>1, BrNum != "drop", !is.na(rna_preSwap_BrNum))
+
 # check if in lims
 lims <- read.csv("/dcl01/lieber/RNAseq/Datasets/BrainGenotyping_2018/SampleFiles/preBrainStorm/shiny070220.csv")
 pd_check <- pd %>% 
@@ -134,21 +134,24 @@ pd_check %>%
   count(Experiment,
         dna_match = cor >= 0.59 & !is.na(cor), 
         good_rna = BrNum != "drop",
-        in_lims = good_rna & lims)
-# Experiment      dna_match good_rna in_lims     n
-# <fct>           <lgl>     <lgl>    <lgl>   <int>
-# 1 psychENCODE_MDD FALSE     FALSE    FALSE       3
-# 2 psychENCODE_MDD FALSE     TRUE     TRUE        4
-# 3 psychENCODE_MDD TRUE      TRUE     FALSE       4
-# 4 psychENCODE_MDD TRUE      TRUE     TRUE      623
-# 5 psychENCODE_BP  FALSE     FALSE    FALSE       7
-# 6 psychENCODE_BP  FALSE     TRUE     TRUE        4
-# 7 psychENCODE_BP  TRUE      TRUE     FALSE       2
-# 8 psychENCODE_BP  TRUE      TRUE     TRUE      517
+        in_lims = good_rna & lims,
+        dups = RNum %in% dups$RNum)
+# Experiment      dna_match good_rna in_lims dups      n
+# <fct>           <lgl>     <lgl>    <lgl>   <lgl> <int>
+#   1 psychENCODE_MDD FALSE     FALSE    FALSE   FALSE     3
+# 2 psychENCODE_MDD FALSE     TRUE     TRUE    FALSE     4
+# 3 psychENCODE_MDD TRUE      TRUE     FALSE   FALSE     4
+# 4 psychENCODE_MDD TRUE      TRUE     TRUE    FALSE   617
+# 5 psychENCODE_MDD TRUE      TRUE     TRUE    TRUE      6
+# 6 psychENCODE_BP  FALSE     FALSE    FALSE   FALSE     7
+# 7 psychENCODE_BP  FALSE     TRUE     TRUE    FALSE     4
+# 8 psychENCODE_BP  TRUE      TRUE     FALSE   FALSE     2
+# 9 psychENCODE_BP  TRUE      TRUE     TRUE    FALSE   516
+# 10 psychENCODE_BP  TRUE      TRUE     TRUE    TRUE      1
 
 #### DROP ####
 pd_good <- pd_check %>% 
-  filter(BrNum != "drop" & cor >=0.59 & lims) 
+  filter(BrNum != "drop" & cor >=0.59 & lims & !RNum %in% dups$RNum) 
 n = nrow(pd_good)
 message("After drop: n", n)
 
@@ -178,8 +181,7 @@ pd <- pd_good %>%
   arrange(Experiment) %>%
   select(-lims)
 
-fn = paste0("GoesMDD_pd_n",n,".csv")
-write.csv(pd, fn)
+write.csv(pd, "raw_GoesZandi_pd.csv")
 
 pd <- pd %>% select(all_of(c(colKeep,"genoSample","SAMPLE_ID"))) 
 #### Update rse_gene ####
@@ -193,7 +195,7 @@ colData(rse_both) <- DataFrame(pd)
 colnames(rse_both) <- paste0(pd$RNum,"_", pd$Experiment)
 
 rse_gene <- rse_both
-save(rse_gene, file = paste0("rse_gene_raw_GoesZandi_n",n,".rda"))
+save(rse_gene, file = paste0("rse_gene_raw_GoesZandi.rda"))
 
 ## Reproducibility information
 print('Reproducibility information:')
