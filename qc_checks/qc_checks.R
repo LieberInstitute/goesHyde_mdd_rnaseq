@@ -16,7 +16,7 @@ library(genefilter)
 
 ## load phenotype and alignment data
 load(
-    "/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/data/rse_gene_raw_GoesZandi_n1140.rda",
+    "/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/data/rse_gene_raw_GoesZandi.rda",
     verbose = TRUE
 )
 pd <- colData(rse_gene) %>% as.data.frame()
@@ -29,7 +29,7 @@ pd_mdd <- read.csv(
     mutate(Experiment = "psychENCODE_MDD",
            ERCCsumLogErr = NA) %>%
     rename(RNum = SAMPLE_ID) %>%
-    select(metricCols)
+    select(all_of(metricCols))
 
 pd_bp <- read.csv(
     "/dcl01/lieber/ajaffe/lab/zandiHyde_bipolar_rnaseq/preprocessed_data/read_and_alignment_metrics_zandiHyde_Bipolar_LIBD.csv",
@@ -58,9 +58,6 @@ rownames(erccTPM) = read.table(file.path(opt$maindir, "Ercc", sampIDs_mdd[1], "a
                                header = TRUE)$target_id
 #check finiteness / change NaNs to 0s
 erccTPM[which(is.na(erccTPM), arr.ind = T)] = 0
-
-pd$ERCCsumLogErr[pd$Experiment == "psychENCODE_MDD"] <-
-    metrics$ERCCsumLogErr[m_bp]
 
 #expected concentration
 spikeIns = read.delim(
