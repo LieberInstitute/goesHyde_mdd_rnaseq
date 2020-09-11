@@ -13,9 +13,9 @@ library(rtracklayer)
 # styler::style_file("clean_data.R", transformers = biocthis::bioc_style())
 
 # load data
-load("rse_gene_raw_GoesZandi_n1140.rda", verbose = TRUE)
+load("rse_gene_raw_GoesZandi.rda", verbose = TRUE)
 qc <- read.csv("../qc_checks/qc_dropping_results.csv", stringsAsFactors = FALSE, row.names = 1)
-all(rse_gene$RNum == qc$RNum)
+message("Samples match:", all(rse_gene$RNum == qc$RNum))
 
 #Correct BrainRegion
 qc[qc$BrainRegion != rse_gene$BrainRegion,]
@@ -34,21 +34,16 @@ rse_gene <- rse_gene[, -which(rse_gene$RNum %in% qc$RNum)]
 # other filters
 rse_gene <- rse_gene[, which(!rse_gene$RNum %in% c("R17538", "R18853") | rse_gene$PrimaryDx != "Other")]
 message("Drop: ", nrow(qc))
+n <- ncol(rse_gene)
+message("Remaining Samples: ", n)
 
 rse_gene$PrimaryDx <- factor(rse_gene$PrimaryDx, levels = c("MDD", "Control", "Bipolar"))
 
 tempRpkm <- recount::getRPKM(rse_gene, "Length")
 rowData(rse_gene)$meanExprs <- rowMeans(tempRpkm)
 
-n <- ncol(rse_gene)
-message("Remaining Samples: ", n)
-
-## Add bam files to colData
-exp_dir <- rep("goesHyde_mdd_rnaseq",n)
-exp_dir[rse_gene$Experiment == "psychENCODE_BP"] <- "zandiHyde_bipolar_rnaseq"
-
-bam <- paste0("/dcl01/lieber/ajaffe/lab/",exp_dir,"/preprocessed_data/HISAT2_out/", rse_gene$SAMPLE_ID, "_accepted_hits.sorted.bam")
-message("All bam files exist: ", all(file.exists(bam)))
+## Confirm bam files exist
+message("All bam files exist: ", all(file.exists(rse_gene$bamFile)))
 rse_gene$bam_file <- bam
 
 ## Save rse_gene
