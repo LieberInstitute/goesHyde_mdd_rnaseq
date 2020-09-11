@@ -12,7 +12,7 @@ library(SummarizedExperiment)
 
 ## use regions from Zandi bip-seq
 bed_overall <- import("/dcl01/lieber/ajaffe/lab/degradation_experiments/Joint/bipseq_sACC_Amygdala_RiboZero/bed/sACC_Plus_Amygdala_RibZero_degradation_top1000.bed")
-load("rse_gene_GoesZandi_n1100.rda", verbose = TRUE)
+load("rse_gene_GoesZandi.rda", verbose = TRUE)
 
 mdd_samples <- rse_gene$SAMPLE_ID[rse_gene$Experiment == "psychENCODE_MDD"]
 bip_samples <- rse_gene$SAMPLE_ID[rse_gene$Experiment == "psychENCODE_BP"]

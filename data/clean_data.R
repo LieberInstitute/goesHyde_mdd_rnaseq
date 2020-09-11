@@ -52,7 +52,7 @@ message("All bam files exist: ", all(file.exists(bam)))
 rse_gene$bam_file <- bam
 
 ## Save rse_gene
-save(rse_gene, file = paste0("rse_gene_GoesZandi_n", n, ".rda"))
+save(rse_gene, file = "rse_gene_GoesZandi.rda")
 
 # create objects from rse_gene
 pd <- colData(rse_gene)
@@ -118,7 +118,7 @@ rowData(rse_exon)$meanExprs <- NULL
 tempRpkm <- recount::getRPKM(rse_exon, "Length")
 rowData(rse_exon)$meanExprs <- rowMeans(tempRpkm)
 
-save(rse_exon, file = paste0("rse_exon_GoesZandi_n", n, ".rda"))
+save(rse_exon, file = "rse_exon_GoesZandi.rda")
 rm(rse_exon)
 ##### Junctions
 
@@ -159,7 +159,7 @@ rowData(rse_jxn)$Length <- 100
 tempRpkm <- recount::getRPKM(rse_jxn, "Length")
 rowData(rse_jxn)$meanExprs <- rowMeans(tempRpkm)
 
-save(rse_jxn, file = paste0("rse_jxn_GoesZandi_n", n, ".rda"))
+save(rse_jxn, file = "rse_jxn_GoesZandi.rda")
 
 
 ##### Transcript
@@ -213,7 +213,7 @@ stopifnot(identical(ranges(rse_bip), ranges(rse_mdd)))
 ### combine
 rse_tx <- cbind(rse_mdd, rse_bip)
 
-save(rse_tx, file = paste0("rse_tx_GoesZandi_n", n, ".rda"))
+save(rse_tx, file = "rse_tx_GoesZandi.rda")
 
 
 # sgejobs::job_single('clean_data', create_shell = TRUE, queue= 'bluejay', memory = '50G', command = "Rscript clean_data.R")
