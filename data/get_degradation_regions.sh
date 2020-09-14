@@ -1,9 +1,9 @@
 #!/bin/bash
 #$ -cwd
 #$ -l bluejay,mem_free=50G,h_vmem=50G,h_fsize=100G
-#$ -N get_degredation_regions
-#$ -o logs/get_degredation_regions.txt
-#$ -e logs/get_degredation_regions.txt
+#$ -N get_degradation_regions
+#$ -o logs/get_degradation_regions.txt
+#$ -e logs/get_degradation_regions.txt
 #$ -m e
 
 echo "**** Job starts ****"
@@ -23,7 +23,7 @@ module load conda_R
 module list
 
 ## Edit with your job command
-get_degredation_regions.R
+Rscript get_degradation_regions.R
 
 echo "**** Job ends ****"
 date

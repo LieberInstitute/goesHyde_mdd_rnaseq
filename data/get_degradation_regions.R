@@ -80,7 +80,7 @@ colnames(cov_rse) <- paste0(cov_rse$RNum, "_", cov_rse$Experiment)
 ## save
 save(cov_rse, file = "degradation_rse_MDDseq_BiPSeq_BothRegions.Rdata")
 
-# sgejobs::job_single('get_degradation_regions', create_shell = TRUE, queue= 'bluejay', memory = '50G', command = "get_degradation_regions.R")
+# sgejobs::job_single('get_degradation_regions', create_shell = TRUE, queue= 'bluejay', memory = '50G', command = "Rscript get_degradation_regions.R")
 
 ## Reproducibility information
 print("Reproducibility information:")
