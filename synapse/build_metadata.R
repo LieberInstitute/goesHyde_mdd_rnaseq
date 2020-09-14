@@ -127,7 +127,10 @@ mdd_manifest <- pd_mdd %>%
     select(RNum, BrNum, read1, read2) %>%
     melt(id.vars = c("RNum", "BrNum")) %>%
     select(RNum, BrNum, path = value) %>%
-    mutate(metadataType = NA, fileFormat = "fastq") %>%
+    mutate(metadataType = NA, 
+           fileFormat = "fastq",
+           assay = "rnaSeq",
+           dataSubtype = "raw") %>%
     filter(!is.na(path))
 
 # fastq info
@@ -149,59 +152,67 @@ BrNum_mdd <- unique(pd_mdd$BrNum)
 RNum_mdd <- pd_mdd$RNum
 
 #### Build metadata ####
+#define filenames
+indi_md_fn <- "psychENCODE_MDD_individual_human.csv"
+bio_md_fn <- "psychENCODE_MDD_biospecimen.csv"
+assay_md_fn <- "psychENCODE_MDD_assay_rnaSeq.csv"
+mani_md_fn <- "psychENCODE_MDD_manifest.tsv"
+
 # Individual
+message("Individual")
 indi_md <- build_metadata("template_individual_human.xlsx", lims, "BrNum", BrNum_mdd)
 dim(indi_md)
 # [1] 317  33
-indi_md_fn <- "psychENCODE_MDD_individual_human.csv"
 write.csv(indi_md, file = indi_md_fn, row.names = FALSE)
 
 # Biospecimen
+message("\nBiospecimen")
 bio_md <- build_metadata("template_biospecimen.xlsx", pd_mdd, "RNum", RNum_mdd)
 dim(bio_md)
 # [1] 627  12
-bio_md_fn <- "psychENCODE_MDD_biospecimen.csv"
 write.csv(bio_md, file = bio_md_fn, row.names = FALSE)
 
 # Assay
+message("\nAssay")
 assay_md <- build_metadata("template_assay_rnaSeq.xlsx", pd, "RNum", RNum_mdd)
 dim(assay_md)
 # [1] 627  19
-assay_md_fn <- "psychENCODE_MDD_assay_rnaSeq.csv"
 write.csv(assay_md, file = assay_md_fn, row.names = FALSE)
 
 # Manifest
-mani_md_fn <- "psychENCODE_MDD_manifest.tsv"
+message("\nManifest")
 
-pd <- pd %>% mutate(fileFormat = "fastq")
 meta_files <- c(indi_md_fn, bio_md_fn, assay_md_fn, mani_md_fn)
 meta_paths <- paste0("/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/synapse/", meta_files)
 meta_manifest <- data.frame(
-    rep(NA, 4),
-    rep(NA, 4),
     meta_paths,
     c("individual", "biospecimen", "assay", "manifest"),
     ss(meta_files, "\\.", 2),
-    rep(NA,4)
+    rep("metadata",4),
 )
-colnames(meta_manifest) <- c("RNum", "BrNum", "path", "metadataType", "fileFormat","assay")
+colnames(meta_manifest) <- c("path", "metadataType", "fileFormat","dataSubtype")
 
 # build genotype file manifest
 geno_files <- scan("../genotype_data/manifest.txt", what="character", sep="\n")
 geno_n <- length(geno_files)
 geno_paths <- paste0("/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/genotype_data/", geno_files)
 geno_manifest <- data.frame(
-    rep(NA, geno_n),
-    rep(NA, geno_n),
     geno_paths,
-    rep(NA, geno_n),
-    ss(geno_files, "mdd\\.", 2),
-    rep("Genotyping",geno_n)
+    gsub("^.*\\.", "", geno_files),
+    rep("Genotyping",geno_n),
+    rep("processed", geno_n)
 )
-colnames(geno_manifest) <- c("RNum", "BrNum", "path", "metadataType", "fileFormat","assay")
+colnames(geno_manifest) <- c("path", "fileFormat", "assay", "dataSubtype")
 
-mdd_all_mani <- rbind(meta_manifest, mdd_manifest, geno_manifest)
+
+mdd_all_mani <- meta_manifest %>%
+    mutate(assay = NA) %>%
+    rbind(geno_manifest %>% mutate(metadataType = NA)) %>%
+    mutate(BrNum = NA,RNum = NA) %>%
+    rbind(mdd_manifest)
+
 mani_md <- build_metadata("template_manifest.xlsx", mdd_all_mani, "path", mdd_all_mani$path)
+map_int(mani_md, ~sum(is.na(.x)))
 dim(mani_md)
 # [1] 1258   16
 write.table(mani_md, file = mani_md_fn, row.names = FALSE, sep = "\t")
