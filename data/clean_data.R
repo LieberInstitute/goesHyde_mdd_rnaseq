@@ -43,8 +43,7 @@ tempRpkm <- recount::getRPKM(rse_gene, "Length")
 rowData(rse_gene)$meanExprs <- rowMeans(tempRpkm)
 
 ## Confirm bam files exist
-message("All bam files exist: ", all(file.exists(rse_gene$bamFile)))
-rse_gene$bam_file <- bam
+# message("All bam files exist: ", all(file.exists(rse_gene$bamFile)))
 
 ## Save rse_gene
 save(rse_gene, file = "rse_gene_GoesZandi.rda")
@@ -182,8 +181,8 @@ colnames(txTpm) <- ss(colnames(txTpm), "_")
 txTpm <- txTpm[, rse_bip$RNum] ## filter
 colnames(txTpm) <- colnames(rse_bip)
 rse_bip <- SummarizedExperiment(
-    assays = list("tpm" = txTpm),
-    colData = colData(rse_bip), rowRanges = tx
+  assays = list("tpm" = txTpm),
+  colData = colData(rse_bip), rowRanges = tx
 )
 
 ## also load counts
