@@ -183,7 +183,7 @@ pd <- pd_good %>%
 
 write.csv(pd, "raw_GoesZandi_pd.csv")
 
-pd <- pd %>% select(all_of(c(colKeep,"genoSample","SAMPLE_ID"))) 
+pd <- pd %>% select(all_of(c(colKeep,"genoSample","SAMPLE_ID","rna_preSwap_BrNum","dna_preSwap_BrNum"))) 
 #### Update rse_gene ####
 ### combine
 rse_mdd <- rse_mdd[,which(rse_mdd$RNum %in% pd$RNum)]
