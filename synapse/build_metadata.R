@@ -16,7 +16,7 @@ build_metadata <- function(template_xlsx, data, id_col, id) {
     # get extract variable cols from data
     data_hasCol <- !is.na(dict$col) & dict$col != "?"
     data_col <- dict$col[data_hasCol]
-
+    
     # message(paste(colnames(data), collapse = ","))
     # message(paste(data_col, collapse = ","))
     # check colnames match
@@ -28,7 +28,7 @@ build_metadata <- function(template_xlsx, data, id_col, id) {
     } else {
         message(sum(col_match), " matches in data")
     }
-
+    
     # build data Variable
     dataV <- data[data[[id_col]] %in% id, ]
     dataV <- dataV[, data_col]
@@ -42,7 +42,7 @@ build_metadata <- function(template_xlsx, data, id_col, id) {
     # build data All
     dataA <- merge(dataV, dataS, by = dict_id)
     temp <- read_excel(template_xlsx, sheet = "Template")
-
+    
     meta_data <- rbind(temp, dataA)
     return(meta_data)
 }
@@ -51,7 +51,7 @@ get_fastq_info <- function(fastq) {
     l <- system(paste0("zcat ", fastq, ' | grep "@" | head -n 1'), intern = TRUE) %>%
         strsplit(" ") %>%
         unlist()
-
+    
     l1 <- strsplit(l, ":") %>% unlist()
     info_names <- c(
         "instrument", "rna_id", "flow_cell", "flowcell_lane",
@@ -102,7 +102,7 @@ pd <- read.csv("/dcl01/lieber/RNAseq/Datasets/BrainGenotyping_2018/SampleFiles/p
 # add brain weight to pd
 brain_weight <- lims %>% select(BrNum, `Brain.Weight..gram.`)
 
-pd_mdd <- read.csv("../data/GoesMDD_pd_n1140.csv") %>%
+pd_mdd <- read.csv("../data/raw_GoesZandi_pd.csv") %>%
     filter(Experiment == "psychENCODE_MDD") %>%
     left_join(brain_weight, by = "BrNum") %>%
     mutate(BrodmannArea = ifelse(BrainRegion == "anterior cingulate cortex", 25, NA))
@@ -173,6 +173,7 @@ write.csv(assay_md, file = assay_md_fn, row.names = FALSE)
 # Manifest
 mani_md_fn <- "psychENCODE_MDD_manifest.tsv"
 
+pd <- pd %>% mutate(fileFormat = "fastq")
 meta_files <- c(indi_md_fn, bio_md_fn, assay_md_fn, mani_md_fn)
 meta_paths <- paste0("/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/synapse/", meta_files)
 meta_manifest <- data.frame(
@@ -180,12 +181,26 @@ meta_manifest <- data.frame(
     rep(NA, 4),
     meta_paths,
     c("individual", "biospecimen", "assay", "manifest"),
-    ss(meta_files, "\\.", 2)
+    ss(meta_files, "\\.", 2),
+    rep(NA,4)
 )
-colnames(meta_manifest) <- c("RNum", "BrNum", "path", "metadataType", "fileFormat")
+colnames(meta_manifest) <- c("RNum", "BrNum", "path", "metadataType", "fileFormat","assay")
 
-mdd_all_mani <- rbind(meta_manifest, mdd_manifest) %>%
-    mutate(assay = ifelse(fileFormat == "fastq", "rnaSeq", NA))
+# build genotype file manifest
+geno_files <- scan("../genotype_data/manifest.txt", what="character", sep="\n")
+geno_n <- length(geno_files)
+geno_paths <- paste0("/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/genotype_data/", geno_files)
+geno_manifest <- data.frame(
+    rep(NA, geno_n),
+    rep(NA, geno_n),
+    geno_paths,
+    rep(NA, geno_n),
+    ss(geno_files, "mdd\\.", 2),
+    rep("Genotyping",geno_n)
+)
+colnames(geno_manifest) <- c("RNum", "BrNum", "path", "metadataType", "fileFormat","assay")
+
+mdd_all_mani <- rbind(meta_manifest, mdd_manifest, geno_manifest)
 mani_md <- build_metadata("template_manifest.xlsx", mdd_all_mani, "path", mdd_all_mani$path)
 dim(mani_md)
 # [1] 1258   16
