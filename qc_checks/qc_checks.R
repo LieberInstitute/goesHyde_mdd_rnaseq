@@ -37,7 +37,7 @@ pd_bp <- read.csv(
     row.names = 1) %>%
     mutate(Experiment = "psychENCODE_BP",
            Plate = NA) %>%
-    select(metricCols)
+    select(all_of(metricCols))
 
 pd_both <- rbind(pd_mdd, pd_bp)
 
@@ -516,10 +516,12 @@ info_cols <-
         "BrainRegion",
         "RIN",
         "Plate",
+        "ERCCsumLogErr",
+        "geneticRace",
         "dropMetrics",
         "dropRegion",
         "dropRace"
-    ) # previoulsy included "dropGeno"
+    )
 pd[which(pd$dropMetrics == TRUE |
              pd$dropRegion == TRUE | pd$dropRace == TRUE), info_cols]
 
@@ -611,12 +613,7 @@ summary(pd$Age)
 # Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
 # 17.37   34.53   47.09   46.55   55.87   95.27
 
-#### Save qcresults ####
-# qcresults <- qcresults %>%
-#     left_join(pd %>% select(RNum, ERCCsumLogErr), by ="RNum")
-#
-# rownames(qcresults) <- paste0(qcresults$RNum,"_",qcresults$Experiment)
-
+rownames(qcresults) <- paste0(qcresults$RNum,"_",qcresults$Experiment)
 write.csv(qcresults, file = "qc_dropping_results.csv")
 
 
