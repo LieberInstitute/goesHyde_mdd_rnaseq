@@ -159,7 +159,7 @@ assay_md_fn <- "psychENCODE_MDD_assay_rnaSeq.csv"
 mani_md_fn <- "psychENCODE_MDD_manifest.tsv"
 
 # Individual
-message("Individual")
+message("\nIndividual")
 indi_md <- build_metadata("template_individual_human.xlsx", lims, "BrNum", BrNum_mdd)
 dim(indi_md)
 # [1] 317  33
@@ -188,7 +188,7 @@ meta_manifest <- data.frame(
     meta_paths,
     c("individual", "biospecimen", "assay", "manifest"),
     ss(meta_files, "\\.", 2),
-    rep("metadata",4),
+    rep("metadata",4)
 )
 colnames(meta_manifest) <- c("path", "metadataType", "fileFormat","dataSubtype")
 
