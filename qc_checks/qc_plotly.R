@@ -42,8 +42,8 @@ p_mito_vs_RIN <- ggplotly(gg_mito_vs_RIN)
 
 ## Now group them together
 p_merged <- subplot(
-  p_mean_mito_vs_mean_gene,
-  p_mean_mito_vs_mean_RIN,
+  p_mito_vs_gene,
+  p_mito_vs_RIN,
   nrows = 1,
   shareX = TRUE,
   shareY = FALSE,
@@ -54,3 +54,21 @@ p_merged <- subplot(
 htmlwidgets::saveWidget(highlight(p_merged, on = "plotly_click", off = "plotly_doubleclick"),
                         file = 'index.html')
 
+## ERCC plots
+ercc <- pd_m %>%
+  select(-Plate)%>%
+  melt(id.vars = c(id_cols,"ERCCsumLogErr")) %>%
+  mutate(key = RNum)
+
+# ercc_key <- highlight_key(ercc, ~ RNum)
+
+ercc_fw <- ercc %>%
+  ggplot(aes(ERCCsumLogErr, value, color= BrainRegion)) +
+  geom_point() +
+  facet_wrap(~variable, scales = "free")
+
+ggsave(plot = ercc_fw, filename = "plotly/ercc_wrap.png", width = 10)
+
+p_ercc_fw <- ggplotly(ercc_fw)
+htmlwidgets::saveWidget(highlight(p_ercc_fw, on = "plotly_click", off = "plotly_doubleclick"),
+                        file = 'ercc_wrap.html')
