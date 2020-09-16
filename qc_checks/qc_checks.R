@@ -506,9 +506,9 @@ table(pd$dropRace)
 
 ######################################################## .
 info_cols <-
-    c(
-        "Experiment",
+    c(  "RNum"
         "BrNum",
+        "Experiment",
         "AgeDeath",
         "Sex",
         "Race",
@@ -516,6 +516,7 @@ info_cols <-
         "BrainRegion",
         "RIN",
         "Plate",
+        "numReads",
         "ERCCsumLogErr",
         "geneticRace",
         "dropMetrics",
@@ -575,7 +576,7 @@ sum(pd$dropSum > 0) # 40
 rownames(pd) <- paste0(pd$RNum, "_", pd$Experiment)
 
 ## Save qc_dropping results
-qcresults <- pd[, c("RNum", info_cols)]
+qcresults <- pd[, info_cols]
 
 ## Update pd
 pd <- pd[-which(pd$dropSum > 0),]
