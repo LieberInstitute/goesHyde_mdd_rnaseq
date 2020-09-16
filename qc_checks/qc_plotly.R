@@ -7,6 +7,15 @@ library("sessioninfo")
 library("SummarizedExperiment")
 library("dplyr")
 library("reshape2")
+library("rlang")
+
+plotxy <- function(xvar, yvar, df = pd_m, color_var = "BrainRegion", shape_var = "Experiment") {
+  ggplot(df, aes(x = !!sym(xvar), y = !!sym(yvar), 
+                 color = !!sym(color_var), shape = !!sym(shape_var))) + 
+    geom_point() + 
+    labs(x = xvar, y = yvar) +
+    theme(legend.position = "none")
+}
 
 #load data 
 qcresults <- read.csv("qc_dropping_results.csv",row.names=1)
@@ -15,13 +24,34 @@ load("../data/rse_gene_raw_GoesZandi.rda", verbose = TRUE)
 pd <- colData(rse_gene)
 
 id_cols <- c("RNum","BrNum","Experiment","BrainRegion")
-metric_cols <- c("RIN", "overallMapRate", "totalAssignedGene", "mitoRate", "rRNA_rate","Plate", "ERCCsumLogErr")
+metric_cols <- c("RIN", "overallMapRate", "totalAssignedGene", "mitoRate", "numReads" ,"rRNA_rate","Plate", "ERCCsumLogErr")
 
 pd_m <- pd %>% 
   as.data.frame() %>%
   left_join(qcresults) %>%
-  select(all_of(c(id_cols, metric_cols)))
+  select(all_of(c(id_cols, metric_cols))) %>%
+  mutate(log10_numReads = log10(numReads))
 
+## ERCC plotly
+y_metrics <- c("RIN", "overallMapRate", "totalAssignedGene", "mitoRate", "rRNA_rate", "log10_numReads")
+x_metrics <- "ERCCsumLogErr"
+
+pd_m_key <- highlight_key(pd_m, ~ RNum)
+
+ercc_vs_plots<- mapply(plotxy, x_metrics, y_metrics, MoreArgs = list(df = pd_m_key), SIMPLIFY = FALSE)
+p_ercc_vs_plots <- lapply(ercc_vs_plots, ggplotly)
+p_merged <- subplot(p_ercc_vs_plots, 
+                    margin = 0.05,
+                    titleY = TRUE, 
+                    nrows = 2)
+
+htmlwidgets::saveWidget(highlight(p_merged,
+                                  on = "plotly_click",
+                                  off = "plotly_doubleclick",
+                                  selectize = TRUE,
+                                  dynamic = TRUE,
+                                  persistent = FALSE),
+                        file = 'ERCCsumLogErr_vs.html')
 
 ## Let's make a "highlighted" table
 pd_m$key <- pd_m$RNum
@@ -53,22 +83,3 @@ p_merged <- subplot(
 ## Save the version you liked
 htmlwidgets::saveWidget(highlight(p_merged, on = "plotly_click", off = "plotly_doubleclick"),
                         file = 'index.html')
-
-## ERCC plots
-ercc <- pd_m %>%
-  select(-Plate)%>%
-  melt(id.vars = c(id_cols,"ERCCsumLogErr")) %>%
-  mutate(key = RNum)
-
-# ercc_key <- highlight_key(ercc, ~ RNum)
-
-ercc_fw <- ercc %>%
-  ggplot(aes(ERCCsumLogErr, value, color= BrainRegion)) +
-  geom_point() +
-  facet_wrap(~variable, scales = "free")
-
-ggsave(plot = ercc_fw, filename = "plotly/ercc_wrap.png", width = 10)
-
-p_ercc_fw <- ggplotly(ercc_fw)
-htmlwidgets::saveWidget(highlight(p_ercc_fw, on = "plotly_click", off = "plotly_doubleclick"),
-                        file = 'ercc_wrap.html')
