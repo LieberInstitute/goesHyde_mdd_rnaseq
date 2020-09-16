@@ -37,15 +37,19 @@ x_metrics <- "ERCCsumLogErr"
 
 pd_m_key <- highlight_key(pd_m, ~ RNum)
 ercc_vs_plots<- mapply(plotxy, x_metrics, y_metrics, MoreArgs = list(df = pd_m_key), SIMPLIFY = FALSE)
+
 # add existing cutoffs
 ercc_vs_plots[[1]] <- ercc_vs_plots[[1]] + geom_hline(yintercept=0.5, linetype="dashed")
 ercc_vs_plots[[2]] <- ercc_vs_plots[[2]] + geom_hline(yintercept=0.3, linetype="dashed")
 ercc_vs_plots[[3]] <- ercc_vs_plots[[3]] + geom_hline(yintercept=7, linetype="dashed")
 
+ercc_vs_plots <- lapply(ercc_vs_plots, function(x) x +theme(legend.position= "none"))
+
 p_ercc_vs_plots <- lapply(ercc_vs_plots, ggplotly)
 p_merged <- subplot(p_ercc_vs_plots, 
                     margin = 0.05,
-                    titleY = TRUE, 
+                    titleY = TRUE,
+                    titleX = TRUE,
                     shareX = TRUE,
                     nrows = 2)
 
@@ -57,7 +61,6 @@ htmlwidgets::saveWidget(highlight(p_merged,
                                   persistent = FALSE),
                         file = 'ERCCsumLogErr_vs_metrics.html')
 
-ggsave(plot = ercc_vs_plots[[1]], filename = "plot1.png")
 ## Let's make a "highlighted" table
 pd_m$key <- pd_m$RNum
 pd_key <- highlight_key(pd_m, ~ key)
