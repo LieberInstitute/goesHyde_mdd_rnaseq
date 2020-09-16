@@ -13,8 +13,7 @@ plotxy <- function(xvar, yvar, df = pd_m, color_var = "BrainRegion", shape_var =
   ggplot(df, aes(x = !!sym(xvar), y = !!sym(yvar), 
                  color = !!sym(color_var), shape = !!sym(shape_var))) + 
     geom_point() + 
-    labs(x = xvar, y = yvar) +
-    theme(legend.position = "none")
+    labs(x = xvar, y = yvar) 
 }
 
 #load data 
@@ -33,16 +32,21 @@ pd_m <- pd %>%
   mutate(log10_numReads = log10(numReads))
 
 ## ERCC plotly
-y_metrics <- c("RIN", "overallMapRate", "totalAssignedGene", "mitoRate", "rRNA_rate", "log10_numReads")
+y_metrics <- c("overallMapRate", "totalAssignedGene", "log10_numReads","RIN","mitoRate", "rRNA_rate")
 x_metrics <- "ERCCsumLogErr"
 
 pd_m_key <- highlight_key(pd_m, ~ RNum)
-
 ercc_vs_plots<- mapply(plotxy, x_metrics, y_metrics, MoreArgs = list(df = pd_m_key), SIMPLIFY = FALSE)
+# add existing cutoffs
+ercc_vs_plots[[1]] <- ercc_vs_plots[[1]] + geom_hline(yintercept=0.5, linetype="dashed")
+ercc_vs_plots[[2]] <- ercc_vs_plots[[2]] + geom_hline(yintercept=0.3, linetype="dashed")
+ercc_vs_plots[[3]] <- ercc_vs_plots[[3]] + geom_hline(yintercept=7, linetype="dashed")
+
 p_ercc_vs_plots <- lapply(ercc_vs_plots, ggplotly)
 p_merged <- subplot(p_ercc_vs_plots, 
                     margin = 0.05,
                     titleY = TRUE, 
+                    shareX = TRUE,
                     nrows = 2)
 
 htmlwidgets::saveWidget(highlight(p_merged,
@@ -51,8 +55,9 @@ htmlwidgets::saveWidget(highlight(p_merged,
                                   selectize = TRUE,
                                   dynamic = TRUE,
                                   persistent = FALSE),
-                        file = 'ERCCsumLogErr_vs.html')
+                        file = 'ERCCsumLogErr_vs_metrics.html')
 
+ggsave(plot = ercc_vs_plots[[1]], filename = "plot1.png")
 ## Let's make a "highlighted" table
 pd_m$key <- pd_m$RNum
 pd_key <- highlight_key(pd_m, ~ key)
