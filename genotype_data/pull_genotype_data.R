@@ -6,6 +6,9 @@ library(readr)
 library(SummarizedExperiment)
 library(stringr)
 library(GenomicRanges)
+library(SNPlocs.Hsapiens.dbSNP149.GRCh38)
+library(SNPlocs.Hsapiens.dbSNP142.GRCh37)
+library(sessioninfo)
 
 ## load data
 load("../exprs_cutoff/rse_gene.Rdata")
@@ -100,7 +103,6 @@ snpMap$name[snpMap$Type == "SNV"] = rs$name[match(
 	paste0(rs$chrom, ":", rs$chromEnd))]
 
 ### lets start w/ hg19 for the remaining ~3M
-library(SNPlocs.Hsapiens.dbSNP142.GRCh37)
 dbSnp142_list = mclapply(paste0("ch",c(1:22,"X")), function(x) {
 	cat(".")
 	y = getSNPlocs(x, as.GRanges=TRUE)
@@ -130,7 +132,6 @@ snpMap$name[is.na(snpMap$name)] = snpMap$SNP[is.na(snpMap$name)]
 #####################################################
 ############# hg38 coordinates ######################
 
-library(SNPlocs.Hsapiens.dbSNP149.GRCh38)
 dbSnp149_list = mclapply(c(1:22,"X"), function(x) {
 	cat(".")
 	y = snpsBySeqname(SNPlocs.Hsapiens.dbSNP149.GRCh38, x)
@@ -185,8 +186,15 @@ rownames(mds) = colnames(snp) = BrUniqueOriginal[mm_brain]
 #############
 ## save #####
 save(mds, snp, snpMap, compress=TRUE,
-	file = "goesHyde_bipolarMdd_Genotypes_n593.rda")
+	file = "goesHyde_bipolarMdd_Genotypes.rda")
 save(mds, compress=TRUE,
-	file = "goesHyde_bipolarMdd_Genotypes_n593_mds.rda")
+	file = "goesHyde_bipolarMdd_Genotypes_mds.rda")
 	
-	
+# sgejobs::job_single('pull_genotype_data', create_shell = TRUE, queue= 'bluejay', memory = '150G', command = "Rscript pull_genotype_data.R")
+
+## Reproducibility information
+print("Reproducibility information:")
+Sys.time()
+proc.time()
+options(width = 120)
+session_info()
