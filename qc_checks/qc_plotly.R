@@ -27,6 +27,7 @@ metric_cols <- c("RIN", "overallMapRate", "totalAssignedGene", "mitoRate", "numR
 
 pd_m <- pd %>% 
   as.data.frame() %>%
+  select(-BrainRegion) %>%
   left_join(qcresults) %>%
   select(all_of(c(id_cols, metric_cols))) %>%
   mutate(log10_numReads = log10(numReads))
@@ -41,7 +42,7 @@ ercc_vs_plots<- mapply(plotxy, x_metrics, y_metrics, MoreArgs = list(df = pd_m_k
 # add existing cutoffs
 ercc_vs_plots[[1]] <- ercc_vs_plots[[1]] + geom_hline(yintercept=0.5, linetype="dashed")
 ercc_vs_plots[[2]] <- ercc_vs_plots[[2]] + geom_hline(yintercept=0.3, linetype="dashed")
-ercc_vs_plots[[3]] <- ercc_vs_plots[[3]] + geom_hline(yintercept=7, linetype="dashed")
+ercc_vs_plots[[3]] <- ercc_vs_plots[[3]] + geom_hline(yintercept=7.25, linetype="dashed")
 
 ercc_vs_plots <- lapply(ercc_vs_plots, function(x) x +theme(legend.position= "none"))
 

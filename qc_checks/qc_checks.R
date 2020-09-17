@@ -202,7 +202,7 @@ dev.off()
 ## drop samples
 pd$dropMetrics <- FALSE
 pd$dropMetrics[pd$overallMapRate < 0.5 |
-                   pd$totalAssignedGene < .3 | pd$numReads < 1e7] <- TRUE
+                   pd$totalAssignedGene < .3 | pd$numReads < (10^7.25)] <- TRUE
 
 table(pd$dropMetrics)
 # FALSE  TRUE
@@ -506,7 +506,7 @@ table(pd$dropRace)
 
 ######################################################## .
 info_cols <-
-    c(  "RNum"
+    c(  "RNum",
         "BrNum",
         "Experiment",
         "AgeDeath",
