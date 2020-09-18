@@ -6,54 +6,13 @@ library(readr)
 library(SummarizedExperiment)
 library(stringr)
 library(GenomicRanges)
-library(SNPlocs.Hsapiens.dbSNP149.GRCh38)
-#library(SNPlocs.Hsapiens.dbSNP142.GRCh37)
 library(sessioninfo)
 
-## load data
-load("../exprs_cutoff/rse_gene.Rdata")
-pd = colData(rse_gene)
-
-############# 
-# fam file ##
-
-### read in fam
-bfile="topmed_mdd_602sample_090120_maf005"
-fam = read.table(paste0(bfile, ".fam"), as.is=TRUE)
-fam_samples <- paste0(fam$V1, "_", fam$V2)
-
-message("All ",length(unique(pd$genoSample)) , " samples present: ", all(unique(pd$genoSample) %in% fam_samples))
-
-famOut = paste0(fam$V1, " ", fam$V2)[fam_samples %in% pd$genoSample]
-cat(famOut, file = "samples_to_extract.txt", sep = "\n")
-
-#### overall extraction
-newbfile = "goesHyde_mdd_Genotypes_maf01_geno10_hwe1e6"
-
-## extract
-message("\n***** Plink Extract ***** ", Sys.time())
-system(paste("plink --bfile", bfile, 
-             "--keep samples_to_extract.txt --geno 0.1 --maf 0.01 --hwe 0.000001 --make-bed --out", newbfile))
-
-# ## independent and cluster
-message("\n***** Plink independent and cluster *****")
-system(paste("plink --bfile", newbfile, "--maf 0.1 --indep 100 10 1.25 --out", newbfile))
-
-## MDS components	
-message("\n***** Plink MDS components *****")
-system(paste0("plink --bfile ", newbfile, 
-              " --cluster --mds-plot 10 --extract ",newbfile, ".prune.in --out ", newbfile))
-
-# ## A transpose
-message("\n***** Plink A transpose *****")
-system(paste("plink --bfile", newbfile,
-             "--recode A-transpose --out", newbfile))
-
-message("\n***** Done Plink ***** ", Sys.time())
 ################
 ## read in #####
 message("\n ***** Read in genotypes *****")
 ## read in genotypes
+newbfile = "goesHyde_mdd_Genotypes_maf01_geno10_hwe1e6"
 genotypes  = read_delim(paste0(newbfile, ".traw"), delim="\t")
 
 snp = as.data.frame(genotypes[,-(1:6)])
@@ -63,7 +22,7 @@ colnames(snp) = ifelse(grepl("^Br", ss(colnames(snp), "_")),
 # make map
 snpMap = as.data.frame(genotypes[,(1:6)])
 snpMap$CHR[snpMap$CHR=="23"] = "X"
-
+rm(genotypes)
 ###########################
 # fix SNPs that are in/dels
 message("\n***** Fix genotypes ***** ", Sys.time())
@@ -98,9 +57,11 @@ rs = read_delim("/dcs01/ajaffe/Annotation/dbsnp142_common.txt", delim = "\t")
 rs$class = factor(rs$class, c("single", "deletion", "insertion",
                               "in-del", "microsatellite", "mnp"))
 ## put in SNV order
+message("put in SNV order")
 rs = rs[order(rs$class, rs$chromStart),]
 
 ## try matching
+message("try matching")
 snpMap$name = NA
 snpMap$name[snpMap$Type != "SNV"] = rs$name[match(
   paste0("chr", snpMap$CHR, ":", snpMap$POS)[snpMap$Type != "SNV"], 
@@ -110,9 +71,12 @@ snpMap$name[snpMap$Type == "SNV"] = rs$name[match(
   paste0(rs$chrom, ":", rs$chromEnd))]
 
 ### lets start w/ hg19 for the remaining ~3M
+message("start w/ hg19")
+message(paste(ls(), collapse = ", "))
+library(SNPlocs.Hsapiens.dbSNP142.GRCh37)
 dbSnp142_list = mclapply(paste0("ch",c(1:22,"X")), function(x) {
   cat(".")
-  y = getSNPlocs(x, as.GRanges=TRUE)
+  y = SNPlocs.Hsapiens.dbSNP142.GRCh37::getSNPlocs(x, as.GRanges=TRUE)
   seqlevels(y) = gsub("ch", "chr", seqlevels(y))
   y$RefSNP_id = paste0("rs", y$RefSNP_id)
   return(y)
@@ -120,6 +84,7 @@ dbSnp142_list = mclapply(paste0("ch",c(1:22,"X")), function(x) {
 dbSnp142 = unlist(GRangesList(dbSnp142_list))
 
 ### match to SNPs
+message("match to SNPs")
 snpMapGR = GRanges(paste0("chr", snpMap$CHR), 
                    IRanges(snpMap$POS,width=1,names=snpMap$SNP))
 oo = findOverlaps(snpMapGR, dbSnp142)
@@ -128,9 +93,11 @@ snpMap$rsNumGuess = NA
 snpMap$rsNumGuess[queryHits(oo)] = dbSnp142$RefSNP_id[subjectHits(oo)]
 
 ## if name doesnt exist
+message("if name doesnt exist")
 snpMap$name[is.na(snpMap$name)] = snpMap$rsNumGuess[is.na(snpMap$name)]
 
 ## lastly add existing rs numbers
+message("add existing rs numbers")
 snpMap$name[grepl("^rs", snpMap$SNP)] = ss(snpMap$SNP[grepl("^rs", snpMap$SNP)], ":")
 
 # make SNP id the name for those still missing
@@ -139,6 +106,7 @@ snpMap$name[is.na(snpMap$name)] = snpMap$SNP[is.na(snpMap$name)]
 #####################################################
 ############# hg38 coordinates ######################
 message("\n ***** hg38 coordinates ***** ", Sys.time())
+library(SNPlocs.Hsapiens.dbSNP149.GRCh38)
 dbSnp149_list = mclapply(c(1:22,"X"), function(x) {
   cat(".")
   y = snpsBySeqname(SNPlocs.Hsapiens.dbSNP149.GRCh38, x)
@@ -182,8 +150,8 @@ colnames(mds) = paste0("snpPC",1:ncol(mds))
 ##########################
 ## correct BrNumbers #####
 
-message("confirm order stayed the same throughout")
-identical(rownames(mds), colnames(snp))
+# message("confirm order stayed the same throughout")
+# identical(rownames(mds), colnames(snp))
 identical(rownames(mds), BrUniqueSwapped)
 
 # ## reset to original correct BrNums
