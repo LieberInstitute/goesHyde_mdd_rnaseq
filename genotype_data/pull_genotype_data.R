@@ -72,7 +72,8 @@ snpMap$name[snpMap$Type == "SNV"] = rs$name[match(
 
 rm(rs)
 
-load("dbSnp142.Rdata", verbose = TRUE)
+load("dbSNP.Rdata", verbose = TRUE)
+dbSnp149 = dbSnp149[dbSnp149$RefSNP_id %in% snpMap$name]
 
 ### match to SNPs
 message("match to SNPs")
