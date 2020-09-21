@@ -47,9 +47,9 @@ iIndex = which(snpMap$Type=="Insertion")
 snpMap$newCount[iIndex] = sapply(iIndex, function(i)
   sub(snpMap$newRef[i], "", snpMap$newCount[i]))
 snpMap$newRef[iIndex] = "-"
-
 head(snpMap[snpMap$Type != "SNV",],10)
 
+rm(dIndex, iIndex,ncRef, ncCount)
 #### 
 ## dbsnp 142 for rs number
 message("\n***** dbsnp 142 ***** ",Sys.time())
@@ -70,18 +70,9 @@ snpMap$name[snpMap$Type == "SNV"] = rs$name[match(
   paste0("chr", snpMap$CHR, ":", snpMap$POS)[snpMap$Type == "SNV"], 
   paste0(rs$chrom, ":", rs$chromEnd))]
 
-### lets start w/ hg19 for the remaining ~3M
-message("start w/ hg19")
-message(paste(ls(), collapse = ", "))
-library(SNPlocs.Hsapiens.dbSNP142.GRCh37)
-dbSnp142_list = mclapply(paste0("ch",c(1:22,"X")), function(x) {
-  cat(".")
-  y = SNPlocs.Hsapiens.dbSNP142.GRCh37::getSNPlocs(x, as.GRanges=TRUE)
-  seqlevels(y) = gsub("ch", "chr", seqlevels(y))
-  y$RefSNP_id = paste0("rs", y$RefSNP_id)
-  return(y)
-},mc.cores=6)
-dbSnp142 = unlist(GRangesList(dbSnp142_list))
+rm(rs)
+
+load("dbSnp142.Rdata", verbose = TRUE)
 
 ### match to SNPs
 message("match to SNPs")
@@ -91,7 +82,7 @@ oo = findOverlaps(snpMapGR, dbSnp142)
 
 snpMap$rsNumGuess = NA
 snpMap$rsNumGuess[queryHits(oo)] = dbSnp142$RefSNP_id[subjectHits(oo)]
-
+rm(dbSnp142)
 ## if name doesnt exist
 message("if name doesnt exist")
 snpMap$name[is.na(snpMap$name)] = snpMap$rsNumGuess[is.na(snpMap$name)]
@@ -103,19 +94,6 @@ snpMap$name[grepl("^rs", snpMap$SNP)] = ss(snpMap$SNP[grepl("^rs", snpMap$SNP)],
 # make SNP id the name for those still missing
 snpMap$name[is.na(snpMap$name)] = snpMap$SNP[is.na(snpMap$name)]
 
-#####################################################
-############# hg38 coordinates ######################
-message("\n ***** hg38 coordinates ***** ", Sys.time())
-library(SNPlocs.Hsapiens.dbSNP149.GRCh38)
-dbSnp149_list = mclapply(c(1:22,"X"), function(x) {
-  cat(".")
-  y = snpsBySeqname(SNPlocs.Hsapiens.dbSNP149.GRCh38, x)
-  seqlevels(y) = paste0("chr", seqlevels(y))
-  y = y[y$RefSNP_id %in% snpMap$name]
-  return(y)
-},mc.cores=6)
-
-dbSnp149 = unlist(GRangesList(lapply(dbSnp149_list, as, "GRanges")))
 
 ## add coordinates
 mm = match(snpMap$name, dbSnp149$RefSNP_id)
@@ -134,7 +112,7 @@ mm2 = match(snpMap$SNP, names(lifted))
 snpMap$chr_hg38[!is.na(mm2)] = as.character(seqnames(lifted))[mm2[!is.na(mm2)]]
 snpMap$pos_hg38[!is.na(mm2)] = start(lifted)[mm2[!is.na(mm2)]]
 
-
+rm(mm, mm2)
 #### read in MDS
 mds = read.table(paste0(newbfile, ".mds"), 
                  header=TRUE,as.is=TRUE)
