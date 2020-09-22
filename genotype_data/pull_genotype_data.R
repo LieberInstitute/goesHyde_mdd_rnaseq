@@ -7,6 +7,13 @@ library(SummarizedExperiment)
 library(stringr)
 library(GenomicRanges)
 library(sessioninfo)
+library(SNPlocs.Hsapiens.dbSNP149.GRCh38)
+
+## load data
+load("../data/rse_gene_GoesZandi.rda", verbose = TRUE)
+pd = colData(rse_gene)
+pd_genoSamples <- unique(pd[,c("BrNum", "genoSample")])
+rownames(pd_genoSamples) <- NULL
 
 ################
 ## read in #####
@@ -117,25 +124,14 @@ rm(mm, mm2)
 #### read in MDS
 mds = read.table(paste0(newbfile, ".mds"), 
                  header=TRUE,as.is=TRUE)
-mds$BrNum = ss(mds$FID,"_")
-mds$BrNum[nchar(mds$BrNum)==7] = paste0("Br", 
-                                        substr(mds$BrNum[nchar(mds$BrNum)==7], 4, 7))
+mds$genoSample = paste0(mds$FID,"_",mds$IID)
+message("All genoSamples in mds: ", all(pd_genoSamples$genoSample %in%  mds$genoSample))
+mds$BrNum <- pd_genoSamples$BrNum[match(mds$genoSample, pd_genoSamples$genoSample)]
 rownames(mds) = mds$BrNum
 
 mds = mds[,(4:13)]
 colnames(mds) = paste0("snpPC",1:ncol(mds))
 
-
-##########################
-## correct BrNumbers #####
-
-# message("confirm order stayed the same throughout")
-# identical(rownames(mds), colnames(snp))
-identical(rownames(mds), BrUniqueSwapped)
-
-# ## reset to original correct BrNums
-# mm_brain = match( colnames(snp),BrUniqueSwapped)
-# rownames(mds) = colnames(snp) = BrUniqueOriginal[mm_brain]
 
 #############
 ## save #####
