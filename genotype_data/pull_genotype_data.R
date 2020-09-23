@@ -8,9 +8,10 @@ library(stringr)
 library(GenomicRanges)
 library(sessioninfo)
 library(SNPlocs.Hsapiens.dbSNP149.GRCh38)
+library(here)
 
 ## load data
-load("../data/rse_gene_GoesZandi.rda", verbose = TRUE)
+load(here("data","rse_gene_GoesZandi.rda"), verbose = TRUE)
 pd = colData(rse_gene)
 pd_genoSamples <- unique(pd[,c("BrNum", "genoSample")])
 rownames(pd_genoSamples) <- NULL

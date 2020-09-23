@@ -5,9 +5,10 @@ library(SummarizedExperiment)
 library(stringr)
 library(GenomicRanges)
 library(sessioninfo)
+library(here)
 
 ## load data
-load("../exprs_cutoff/rse_gene.Rdata")
+load(here("data","rse_gene_GoesZandi.rda"))
 pd = colData(rse_gene)
 
 ############# 
