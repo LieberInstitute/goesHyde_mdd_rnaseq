@@ -9,107 +9,78 @@ library(readxl)
 library(devtools)
 library(edgeR)
 library(sessioninfo)
+library(here)
 
-#setwd('/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/differential_expression/')
-
-###############################
-##### Load, clean, combine ####
-###############################
+##### Load rse data, examine ####
 
 #load objects
-load('../exprs_cutoff/rse_gene.Rdata', verbose=TRUE)
-load('../exprs_cutoff/rse_exon.Rdata', verbose=TRUE)
-load('../exprs_cutoff/rse_jxn.Rdata', verbose=TRUE)
-load('../exprs_cutoff/rse_tx.Rdata', verbose=TRUE)
+load(here('exprs_cutoff','rse_gene.Rdata'), verbose=TRUE)
+load(here('exprs_cutoff','rse_exon.Rdata'), verbose=TRUE)
+load(here('exprs_cutoff','rse_jxn.Rdata'), verbose=TRUE)
+load(here('exprs_cutoff','rse_tx.Rdata'), verbose=TRUE)
 
 
 pd = colData(rse_gene)
 
 table(pd$Experiment)
- # GoesMDD ZandiBPD
-     # 593      500
+# psychENCODE_MDD  psychENCODE_BP 
+# 588             503 
 
 table(pd$BrainRegion)
-# Amygdala     sACC
-     # 541      552
+# Amygdala     sACC 
+# 540      551
 
 table(pd$BrainRegion, pd$Sex)
-            # F   M
-  # Amygdala 163 378
-  # sACC     166 386
+# F   M
+# Amygdala 160 380
+# sACC     167 384
 
 
 table(pd$Experiment, pd$PrimaryDx)
-           # MDD Control Bipolar
-  # GoesMDD  463     130       0
-  # ZandiBPD   0     255     245
+#                 MDD Control Bipolar
+# psychENCODE_MDD 459     129       0
+# psychENCODE_BP    0     258     245
 
 table(pd$BrainRegion,pd$PrimaryDx)
-           # MDD Control Bipolar
-  # Amygdala 235     186     120
-  # sACC     228     199     125
+#           MDD Control Bipolar
+# Amygdala 231     187     122
+# sACC     228     200     123
 
 
 summary(pd$AgeDeath)
-# Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
-  # 17.37   34.44   47.21   46.57   55.86   95.27
+# Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+# 17.37   34.62   47.21   46.58   55.86   95.27 
 
-
-##############################
-############ load degredation
-# #
-# load("/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/data/degradation_rse_MDDseq_BothRegions.rda")
-# cov_rsemdd = cov_rse
-# load("/dcl01/lieber/ajaffe/lab/zandiHyde_bipolar_rnaseq/data/degradation_rse_BipSeq_BothRegions.rda")
-# cov_rsebip = cov_rse
-
-load("../data/degradation_rse_MDDseq_BiPSeq_BothRegions.Rdata", verbose = TRUE)
-
-
-# # combine
-# cov_rsemdd$AgeDeath = cov_rsemdd$Age
-# cov_rsemdd$RNum = cov_rsemdd$SAMPLE_ID
-# cov_rsemdd$BrNum = as.character(cov_rsemdd$BrNum)
-# colKeep = c("RNum","BrNum","Sex","Race","AgeDeath","BrainRegion","RIN","PrimaryDx","overallMapRate","totalAssignedGene","mitoRate","rRNA_rate")
-# colData(cov_rsemdd) = colData(cov_rsemdd)[,colKeep]
-# colData(cov_rsebip) = colData(cov_rsebip)[,colKeep]
-#
-# cov_rseboth = cbind(cov_rsemdd, cov_rsebip)
-# cov_rseboth = cov_rseboth[,match(rse_gene$RNum,cov_rseboth$RNum)]	# put in order / drop dropped samples
-# stopifnot(identical(cov_rseboth$RNum, rse_gene$RNum))
-#
-# cov_rse = cov_rseboth
-
-
+#### Prep mds and cov_rse data ####
+## load degradation data
+load(here("data","degradation_rse_MDDseq_BiPSeq_BothRegions.Rdata"), verbose = TRUE)
 
 ## add ancestry
-load("../genotype_data/goesHyde_bipolarMdd_Genotypes_n588_mds.rda", verbose = TRUE)
+load(here("genotype_data","goesHyde_bipolarMdd_Genotypes_mds.rda"), verbose = TRUE)
 
-## keep samples with genotypes (remember that rse_gene is summarized experiment, so BrNum is in colData)
-rse_gene <- rse_gene[, rse_gene$BrNum %in% rownames(mds)]
-rse_exon <- rse_exon[, rse_exon$BrNum %in% rownames(mds)]
-rse_jxn <- rse_jxn[, rse_jxn$BrNum %in% rownames(mds)]
-rse_tx <- rse_tx[, rse_tx$BrNum %in% rownames(mds)]
+## Check that all BrNum are included
+message("# BrNum in pd: ", length(unique(pd$BrNum)),
+        ", # BrNum in mds: ", nrow(mds))
+message("All mds BrNum in pd:", all(rownames(mds) %in% unique(pd$BrNum)))
+message("All pd BrNum in mds:", all(unique(pd$BrNum) %in% rownames(mds)))
 
-cov_rse <- cov_rse[, cov_rse$BrNum %in% rownames(mds)]
+if(!all(rownames(mds) %in% unique(pd$BrNum))){
+  mds <- mds[rownames(mds) %in% unique(pd$BrNum),]
+  message("After subset: all mds BrNum in pd:", all(rownames(mds) %in% unique(pd$BrNum)))
+}
 
-#### reorders according to rse_gene$BrNum  (matched the order of rse_gene)
+## reorders according to rse_gene$BrNum  (matched the order of rse_gene)
 mds = mds[rse_gene$BrNum,1:5]
 
+message("All cov_rse BrNum in mds: ", all(cov_rse$BrNum %in% rownames(mds)))
+cov_rse <- cov_rse[, cov_rse$BrNum %in% rownames(mds)]
+
+## Merge colData
 colData(rse_gene) = cbind(colData(rse_gene), mds)
 colData(cov_rse) = cbind(colData(cov_rse), mds)
 
 
-
-###################
-##### get qSVs
-###################
-
-# modJoint = model.matrix(~PrimaryDx + AgeDeath + Sex + mitoRate + rRNA_rate +
-# 				totalAssignedGene + RIN, data = colData(rse_gene))
-#
-### replaced from run_wgcna_combined
-
+##### get qSVs ####
 modJoint = model.matrix(~PrimaryDx*BrainRegion + AgeDeath + Sex + snpPC1 + snpPC2 + snpPC3 +
 	mitoRate + rRNA_rate + totalAssignedGene + RIN,
 	data=colData(rse_gene))
@@ -126,18 +97,19 @@ colnames(modJoint)
 # [15] "PrimaryDxBipolar:BrainRegionsACC"
 
 degExprs = log2(assays(cov_rse)$count+1)
-k = num.sv(degExprs, modJoint) # 23
-print(k) #24
+k = num.sv(degExprs, modJoint)
+message("k=", k)
+# k=26
 qSV_mat = prcomp(t(degExprs))$x[,1:k]
 varExplQsva = jaffelab::getPcaVars(prcomp(t(degExprs)))
 varExplQsva[1:k]
 
-#  [1] 67.600  4.820  2.990  2.000  1.420  1.230  1.130  0.805  0.775  0.671
-# [11]  0.587  0.528  0.482  0.435  0.351  0.336  0.327  0.296  0.249  0.235
-# [21]  0.231  0.225  0.206  0.196
+# [1] 67.700  4.860  3.010  1.990  1.430  1.210  1.120  0.803  0.778  0.677
+# [11]  0.574  0.521  0.487  0.444  0.347  0.342  0.329  0.300  0.246  0.237
+# [21]  0.230  0.223  0.205  0.196  0.190  0.174
 
 
-sum(varExplQsva[1:k]) # 87.888%
+sum(varExplQsva[1:k]) # 88.623%
 
 # [1] 88.125
 
@@ -147,24 +119,20 @@ modSep = model.matrix(~PrimaryDx + AgeDeath + Sex  + snpPC1 + snpPC2 + snpPC3 + 
 
 colnames(modSep)
 
-# [1] "(Intercept)"       "PrimaryDxControl"  "PrimaryDxBipolar"
-#  [4] "AgeDeath"          "SexM"              "snpPC1"
-#  [7] "snpPC2"            "snpPC3"            "mitoRate"
+# [1] "(Intercept)"       "PrimaryDxControl"  "PrimaryDxBipolar" 
+# [4] "AgeDeath"          "SexM"              "snpPC1"           
+# [7] "snpPC2"            "snpPC3"            "mitoRate"         
 # [10] "rRNA_rate"         "totalAssignedGene" "RIN"
 
-#########################
-## split back by region #
-#########################
 
-#### both ####
+#### split back by region ####
+## both
 sACC_Index = which(colData(rse_gene)$BrainRegion == "sACC")
 mod_sACC = cbind(modSep[sACC_Index,], qSV_mat[sACC_Index, ])
 Amyg_Index = which(colData(rse_gene)$BrainRegion == "Amygdala")
 mod_Amyg = cbind(modSep[Amyg_Index,], qSV_mat[Amyg_Index, ])
 
-#################
-### Gene ########
-#################
+#### Gene ####
 
 ##### sACC ######
 dge_sACC = DGEList(counts = assays(rse_gene[,sACC_Index])$counts,
