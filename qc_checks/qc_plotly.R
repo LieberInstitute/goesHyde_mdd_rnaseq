@@ -43,6 +43,7 @@ ercc_vs_plots<- mapply(plotxy, x_metrics, y_metrics, MoreArgs = list(df = pd_m_k
 ercc_vs_plots[[1]] <- ercc_vs_plots[[1]] + geom_hline(yintercept=0.5, linetype="dashed")
 ercc_vs_plots[[2]] <- ercc_vs_plots[[2]] + geom_hline(yintercept=0.3, linetype="dashed")
 ercc_vs_plots[[3]] <- ercc_vs_plots[[3]] + geom_hline(yintercept=7.25, linetype="dashed")
+ercc_vs_plots[[6]] <- ercc_vs_plots[[6]] + geom_hline(yintercept=1e-3, linetype="dashed")
 
 ercc_vs_plots <- lapply(ercc_vs_plots, function(x) x +theme(legend.position= "none"))
 
@@ -62,33 +63,11 @@ htmlwidgets::saveWidget(highlight(p_merged,
                                   persistent = FALSE),
                         file = 'ERCCsumLogErr_vs_metrics.html')
 
-## Let's make a "highlighted" table
-pd_m$key <- pd_m$RNum
-pd_key <- highlight_key(pd_m, ~ key)
+# sgejobs::job_single('qc_plotly', create_shell = TRUE, queue= 'bluejay', memory = '10G', command = "Rscript qc_plotly.R")
 
-## Plot mitoRate vs. AssignedGene
-gg_mito_vs_gene <-
-  ggplot(pd_key,
-         aes(x = mitoRate, y = totalAssignedGene, color = BrainRegion)) + geom_point()
-
-## Make a second plot
-gg_mito_vs_RIN <-
-  ggplot(pd_key, aes(x = mitoRate, y = RIN, color = BrainRegion)) + geom_point()
-
-## Convert them to interactive plots
-p_mito_vs_gene <- ggplotly(gg_mito_vs_gene)
-p_mito_vs_RIN <- ggplotly(gg_mito_vs_RIN)
-
-## Now group them together
-p_merged <- subplot(
-  p_mito_vs_gene,
-  p_mito_vs_RIN,
-  nrows = 1,
-  shareX = TRUE,
-  shareY = FALSE,
-  which_layout = 2
-)
-
-## Save the version you liked
-htmlwidgets::saveWidget(highlight(p_merged, on = "plotly_click", off = "plotly_doubleclick"),
-                        file = 'index.html')
+## Reproducibility information
+print("Reproducibility information:")
+Sys.time()
+proc.time()
+options(width = 120)
+session_info()

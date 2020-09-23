@@ -189,10 +189,10 @@ plot(pd$rRNA_rate,
      pch = 21,
      bg = "grey")
 abline(h = 0.5, lty = 2)
-abline(v = 5e-4, lty = 2)
+abline(v = 1e-3, lty = 2)
 legend("bottomright", "c)", bty = "n", cex = 2)
 plot(pd$RIN, log10(pd$numReads), pch = 21, bg = "grey")
-abline(h = log10(9e6), lty = 2)
+abline(h = log10(10^7.25), lty = 2)
 legend("bottomright", "d)", bty = "n", cex = 2)
 dev.off()
 
@@ -202,7 +202,9 @@ dev.off()
 ## drop samples
 pd$dropMetrics <- FALSE
 pd$dropMetrics[pd$overallMapRate < 0.5 |
-                   pd$totalAssignedGene < .3 | pd$numReads < (10^7.25)] <- TRUE
+                   pd$totalAssignedGene < .3 | 
+                   pd$numReads < (10^7.25) |
+                   pd$rRNA_rate > 1e-3] <- TRUE
 
 table(pd$dropMetrics)
 # FALSE  TRUE
@@ -245,6 +247,7 @@ plot(
     ylim = c(mL, mH)
 )
 abline(h = 0.5, lty = 2)
+abline(v = 1e-3, lty = 2)
 plot(
     pd$RIN,
     log10(pd$numReads),
@@ -253,19 +256,18 @@ plot(
     cex = pd$dropMetrics + 1,
     ylim = c(log10(rL), log10(rH))
 )
-abline(h = log10(1e7), lty = 2)
+abline(h = log10((10^7.25)), lty = 2)
 dev.off()
 
 
 #### ERCC vs. Metrics ####
 pdf("pdfs/ERCC_check_postdrop.pdf", h = 10, w = 10)
-rafalib::mypar(2,2)
-# par(
-#     mfcol = c(2, 2),
-#     mar = c(5, 6, 2, 2),
-#     cex.axis = 1.8,
-#     cex.lab = 1.8
-# )
+par(
+    mfcol = c(2, 2),
+    mar = c(5, 6, 2, 2),
+    cex.axis = 1.8,
+    cex.lab = 1.8
+)
 plot(
     pd$ERCCsumLogErr,
     pd$overallMapRate,
@@ -292,7 +294,7 @@ plot(
     cex = pd$dropMetrics + 1,
     ylim = c(log10(rL), log10(rH))
 )
-abline(h = log10(1e7), lty = 2)
+abline(h = log10(10^7.25), lty = 2)
 plot(
     pd$ERCCsumLogErr,
     pd$mitoRate,
@@ -310,7 +312,7 @@ plot(
     cex = pd$dropMetrics + 1,
     ylim = c(rnaL, rnaH)
 )
-# abline(h = 0.5, lty = 2)
+abline(h = 1e-3, lty = 2)
 dev.off()
 
 ## metrics by flowcell
