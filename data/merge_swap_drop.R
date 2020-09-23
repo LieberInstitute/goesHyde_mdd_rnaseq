@@ -6,9 +6,10 @@ library(jaffelab)
 library(sessioninfo)
 library(SummarizedExperiment)
 library(dplyr)
+library(here)
 
 #load objects
-load('../preprocessed_data/rse_gene_goesHyde_MDD_n634.Rdata', verbose=TRUE)
+load(here('preprocessed_data','rse_gene_goesHyde_MDD_n634.Rdata'), verbose=TRUE)
 rse_mdd = rse_gene					# 634
 rse_mdd$Experiment = "GoesMDD"
 load("/dcl01/lieber/ajaffe/lab/zandiHyde_bipolar_rnaseq/preprocessed_data/rse_gene_zandiHyde_Bipolar_LIBD_n540.Rdata", verbose=TRUE) #changed to 540

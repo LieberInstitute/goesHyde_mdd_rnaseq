@@ -10,20 +10,19 @@ library(dplyr)
 library(limma)
 library(rtracklayer)
 library(genefilter)
+library(here)
 
 ## For styling this script
 # styler::style_file("qc_checks.R", transformers = biocthis::bioc_style())
 
 ## load phenotype and alignment data
-load(
-    "/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/data/rse_gene_raw_GoesZandi.rda",
+load(here("data","rse_gene_raw_GoesZandi.rda"),
     verbose = TRUE
 )
 pd <- colData(rse_gene) %>% as.data.frame()
 
 metricCols <-c("RNum", "Experiment", "numReads", "Plate", "ERCCsumLogErr")
-pd_mdd <- read.csv(
-    "/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/preprocessed_data/read_and_alignment_metrics_goesHyde_MDD.csv",
+pd_mdd <- read.csv(here("preprocessed_data","read_and_alignment_metrics_goesHyde_MDD.csv"),
     stringsAsFactors = FALSE,
     row.names = 1) %>%
     mutate(Experiment = "psychENCODE_MDD",
@@ -487,7 +486,7 @@ table(pd$dropRegion)
 # 1119    21
 
 ######################################################## .
-gia <- read.csv("../synapse/genotypeInferredAncestry.csv")
+gia <- read.csv(here("synapse","genotypeInferredAncestry.csv"))
 pd$geneticRace <- pd$Race
 pd$geneticRace[match(gia$BrNum, pd$BrNum)] <-
     gia$genotypeInferredAncestry

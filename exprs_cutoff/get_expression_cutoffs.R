@@ -5,13 +5,13 @@ library(SummarizedExperiment)
 library(jaffelab)
 library(recount)
 library(segmented)
+library(here)
 
 ## load
-load("../data/rse_gene_GoesZandi.rda")
-load("../data/rse_exon_GoesZandi.rda")
-load("../data/rse_jxn_GoesZandi.rda")
-load("../data/rse_tx_GoesZandi.rda")
-
+load(here("data","rse_gene_GoesZandi.rda"), verbose = TRUE)
+load(here("data","rse_exon_GoesZandi.rda"), verbose = TRUE)
+load(here("data","rse_jxn_GoesZandi.rda"), verbose = TRUE)
+load(here("data","rse_tx_GoesZandi.rda"), verbose = TRUE)
 
 ####################
 ### Regions combined

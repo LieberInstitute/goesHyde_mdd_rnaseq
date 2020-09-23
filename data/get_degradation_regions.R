@@ -6,6 +6,7 @@ library(recount)
 library(recount.bwtool)
 library(BiocParallel)
 library(SummarizedExperiment)
+library(here)
 
 ## For styling this script
 # styler::style_file("get_degradation_regions.R", transformers = biocthis::bioc_style())
@@ -20,7 +21,7 @@ bip_samples <- rse_gene$SAMPLE_ID[rse_gene$Experiment == "psychENCODE_BP"]
 ## designate bigwigs
 forwardBw <- c(
     paste0(
-        "../preprocessed_data/Coverage/",
+        here("preprocessed_data","Coverage/"),
         mdd_samples, ".Forward.bw"
     ),
     paste0(
@@ -30,7 +31,7 @@ forwardBw <- c(
 )
 reverseBw <- c(
     paste0(
-        "../preprocessed_data/Coverage/",
+        here("preprocessed_data","Coverage/"),
         mdd_samples, ".Reverse.bw"
     ),
     paste0(
@@ -44,15 +45,15 @@ names(forwardBw) <- names(reverseBw) <- c(mdd_samples, bip_samples)
 
 ## try coverage tool
 covForward <- coverage_bwtool(forwardBw, bed_overall,
-    strand = "+",
-    sumsdir = "degradation_joint", bpparam = MulticoreParam(8)
+                              strand = "+",
+                              sumsdir = "degradation_joint", bpparam = MulticoreParam(8)
 )
 covForward$bigwig_path <- NULL
 covForward$bigwig_file <- NULL
 
 covReverse <- coverage_bwtool(reverseBw, bed_overall,
-    strand = "-",
-    sumsdir = "degradation_joint", bpparam = MulticoreParam(8)
+                              strand = "-",
+                              sumsdir = "degradation_joint", bpparam = MulticoreParam(8)
 )
 covReverse$bigwig_path <- NULL
 covReverse$bigwig_file <- NULL

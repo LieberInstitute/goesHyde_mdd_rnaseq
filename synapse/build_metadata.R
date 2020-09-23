@@ -5,6 +5,7 @@ library("jaffelab")
 library("dplyr")
 library("reshape2")
 library("purrr")
+libary("here")
 
 ## style this script
 # styler::style_file("build_metadata.R", transformers = styler::tidyverse_style(indent_by = 4))
@@ -102,7 +103,7 @@ pd <- read.csv("/dcl01/lieber/RNAseq/Datasets/BrainGenotyping_2018/SampleFiles/p
 # add brain weight to pd
 brain_weight <- lims %>% select(BrNum, `Brain.Weight..gram.`)
 
-pd_mdd <- read.csv("../data/raw_GoesZandi_pd.csv") %>%
+pd_mdd <- read.csv(here("data","raw_GoesZandi_pd.csv")) %>%
     filter(Experiment == "psychENCODE_MDD") %>%
     left_join(brain_weight, by = "BrNum") %>%
     mutate(BrodmannArea = ifelse(BrainRegion == "anterior cingulate cortex", 25, NA))

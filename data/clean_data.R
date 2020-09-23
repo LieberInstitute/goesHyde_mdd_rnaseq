@@ -8,13 +8,14 @@ library(devtools)
 library(edgeR)
 library(GenomicRanges)
 library(rtracklayer)
+library(here)
 
 ## For styling this script
 # styler::style_file("clean_data.R", transformers = biocthis::bioc_style())
 
 # load data
 load("rse_gene_raw_GoesZandi.rda", verbose = TRUE)
-qc <- read.csv("../qc_checks/qc_dropping_results.csv", stringsAsFactors = FALSE, row.names = 1)
+qc <- read.csv(here("qc_checks","qc_dropping_results.csv"), stringsAsFactors = FALSE, row.names = 1)
 message("Samples match:", all(rse_gene$RNum == qc$RNum))
 
 #Correct BrainRegion
@@ -81,7 +82,7 @@ message("Samples bip: ", length(samples_bip))
 ##### Exons
 
 # load objects
-load("../preprocessed_data/rse_exon_goesHyde_MDD_n634.Rdata", verbose = TRUE)
+load(here("preprocessed_data","rse_exon_goesHyde_MDD_n634.Rdata"), verbose = TRUE)
 rse_mdd <- rse_exon
 rse_mdd$Experiment <- "psychENCODE_MDD"
 colnames(rse_mdd) <- paste0(rse_mdd$SAMPLE_ID, "_", rse_mdd$Experiment)
@@ -117,7 +118,7 @@ rm(rse_exon)
 ##### Junctions
 
 # load objects
-load("../preprocessed_data/rse_jx_goesHyde_MDD_n634.Rdata", verbose = TRUE)
+load(here("preprocessed_data","rse_jx_goesHyde_MDD_n634.Rdata"), verbose = TRUE)
 rse_mdd <- rse_jx
 rse_mdd$Experiment <- "psychENCODE_MDD"
 colnames(rse_mdd) <- paste0(rse_mdd$SAMPLE_ID, "_", rse_mdd$Experiment)
@@ -159,7 +160,7 @@ save(rse_jxn, file = "rse_jxn_GoesZandi.rda")
 ##### Transcript
 
 # load objects
-load("../preprocessed_data/rse_tx_goesHyde_MDD_n634.Rdata", verbose = TRUE)
+load(here("preprocessed_data","rse_tx_goesHyde_MDD_n634.Rdata"), verbose = TRUE)
 rse_mdd <- rse_tx
 rse_mdd$Experiment <- "psychENCODE_MDD"
 colnames(rse_mdd) <- paste0(rse_mdd$SAMPLE_ID, "_", rse_mdd$Experiment)
