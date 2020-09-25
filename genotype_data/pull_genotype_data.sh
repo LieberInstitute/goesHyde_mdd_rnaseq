@@ -1,6 +1,6 @@
 #!/bin/bash
 #$ -cwd
-#$ -l mem_free=350G,h_vmem=350G,h_fsize=100G
+#$ -l mem_free=150G,h_vmem=150G,h_fsize=100G
 #$ -N pull_genotype_data
 #$ -o logs/pull_genotype_data.txt
 #$ -e logs/pull_genotype_data.txt
