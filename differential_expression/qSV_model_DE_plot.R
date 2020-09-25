@@ -8,42 +8,20 @@ library(sva)
 library(readxl)
 library(devtools)
 library(edgeR)
-
-setwd('/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/differential_expression/')
+library(here)
+library(RColorBrewer)
 
 #load objects
-load('../exprs_cutoff/rse_gene.Rdata', verbose=TRUE)
-load('../exprs_cutoff/rse_exon.Rdata', verbose=TRUE)
-load('../exprs_cutoff/rse_jxn.Rdata', verbose=TRUE)
-load('../exprs_cutoff/rse_tx.Rdata', verbose=TRUE)
+load(here('exprs_cutoff','rse_gene.Rdata'), verbose=TRUE)
+load(here('exprs_cutoff','rse_exon.Rdata'), verbose=TRUE)
+load(here('exprs_cutoff','rse_jxn.Rdata'), verbose=TRUE)
+load(here('exprs_cutoff','rse_tx.Rdata'), verbose=TRUE)
 
 
-##############################
-############ load degredation
+## load degredation
+load(here("data","egradation_rse_MDDseq_BiPSeq_BothRegions.Rdata"), verbose = TRUE)
 
-load("/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/data/degradation_rse_MDDseq_BothRegions.rda")
-cov_rsemdd = cov_rse
-load("/dcl01/lieber/ajaffe/lab/zandiHyde_bipolar_rnaseq/data/degradation_rse_BipSeq_BothRegions.rda")
-cov_rsebip = cov_rse
-
-# combine
-cov_rsemdd$AgeDeath = cov_rsemdd$Age
-cov_rsemdd$RNum = cov_rsemdd$SAMPLE_ID
-cov_rsemdd$BrNum = as.character(cov_rsemdd$BrNum)
-colKeep = c("RNum","BrNum","Sex","Race","AgeDeath","BrainRegion","RIN","PrimaryDx","overallMapRate","totalAssignedGene","mitoRate","rRNA_rate")
-colData(cov_rsemdd) = colData(cov_rsemdd)[,colKeep]
-colData(cov_rsebip) = colData(cov_rsebip)[,colKeep]
-
-cov_rseboth = cbind(cov_rsemdd, cov_rsebip)
-cov_rseboth = cov_rseboth[,match(rse_gene$RNum,cov_rseboth$RNum)]	# put in order / drop dropped samples
-stopifnot(identical(cov_rseboth$RNum, rse_gene$RNum))
-
-cov_rse = cov_rseboth
-
-
-###################
-##### get qSVs
-###################
+##### get qSVs ####
 
 modJoint = model.matrix(~PrimaryDx + AgeDeath + Sex + mitoRate + rRNA_rate + 
 				totalAssignedGene + RIN, data = colData(rse_gene))
@@ -69,22 +47,14 @@ mod_sACC = cbind(modSep[sACC_Index,], qSV_mat[sACC_Index, ])
 Amyg_Index = which(colData(rse_gene)$BrainRegion == "Amygdala")
 mod_Amyg = cbind(modSep[Amyg_Index,], qSV_mat[Amyg_Index, ])
 
-
-
-###################
 ## load DE results
-########
-
 load("qSVA_MDD_gene_DEresults.rda", verbose=TRUE)
 load("qSVA_MDD_exon_DEresults.rda", verbose=TRUE)
 load("qSVA_MDD_jxn_DEresults.rda", verbose=TRUE)
 load("qSVA_MDD_tx_DEresults.rda", verbose=TRUE)
 
 
-
-
-##################
-## expression
+#### expression ####
 
 rse_gene$Dx = as.factor(rse_gene$PrimaryDx)
 rse_gene$Dx = factor(rse_gene$Dx, levels(rse_gene$Dx)[c(2,3,1)] )
@@ -115,16 +85,9 @@ tSaccExprs = cleaningY(tExprs[,sACC_Index], mod_sACC, P=3)
 tAmygExprs = cleaningY(tExprs[,Amyg_Index], mod_Amyg, P=3)
 
 
+#### plot ####
 
-
-
-
-######################
-### plot
-library(RColorBrewer)
-
-
-###### sACC
+## sACC
 ## residualize expression			
 
 sigOrderMat = as.data.frame(apply(outGene_sACC[,c(17:18)], 2, function(x) order(x)[1:100]))
@@ -207,9 +170,6 @@ for(i in ooL) {
  legend("top", paste0("p=",signif(outTx_sACC$P_PrimaryDxControl[i],3)), bg="white")
 }
 dev.off()
-
-
-
 
 
 
@@ -300,13 +260,7 @@ for(i in ooL) {
 dev.off()
 
 
-
-
-
-
-
-
-
+#sgejobs::job_single('qSV_model_DE_plot', create_shell = TRUE, memory = '80G', command = "Rscript qSV_model_DE_plot.R")
 
 ## Reproducibility information
 print('Reproducibility information:')

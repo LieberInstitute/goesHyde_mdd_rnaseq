@@ -8,8 +8,10 @@ library(sva)
 library(readxl)
 library(devtools)
 library(edgeR)
-
-setwd('/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/differential_expression/')
+library(VennDiagram)
+library(clusterProfiler)
+library(org.Hs.eg.db)
+library(sessioninfo)
 
 ########
 
@@ -59,42 +61,37 @@ sigTx_sACC_BP = outTx_sACC$gene_id[outTx_sACC$q_PrimaryDxBipolar < 0.05]
 
 
 
-
-library(VennDiagram)
-
 ## gene
 venn.diagram(list(Amygdala = sigGene_Amyg_Cnt, sACC = sigGene_sACC_Cnt ), 
-	fill = c("slateblue", "skyblue3"), main="", main.pos = c(.5, .05), cat.cex = 1.9, cex=3,
-	margin = .1, imagetype="png",  filename = "venns/venn_fdr05_gene_mddVScnt.png")
+             fill = c("slateblue", "skyblue3"), main="", main.pos = c(.5, .05), cat.cex = 1.9, cex=3,
+             margin = .1, imagetype="png",  filename = "venns/venn_fdr05_gene_mddVScnt.png")
 venn.diagram(list(Amygdala = sigGene_Amyg_BP, sACC = sigGene_sACC_BP ), 
-	fill = c("slateblue", "skyblue3"), main="", main.pos = c(.5, .05), cat.cex = 1.9, cex=3,
-	margin = .1, imagetype="png",  filename = "venns/venn_fdr05_gene_mddVSbip.png")
+             fill = c("slateblue", "skyblue3"), main="", main.pos = c(.5, .05), cat.cex = 1.9, cex=3,
+             margin = .1, imagetype="png",  filename = "venns/venn_fdr05_gene_mddVSbip.png")
 
 ## exon
 venn.diagram(list(Amygdala = sigExon_Amyg_Cnt, sACC = sigExon_sACC_Cnt ), 
-	fill = c("slateblue", "skyblue3"), main="", main.pos = c(.5, .05), cat.cex = 1.9, cex=3,
-	margin = .1, imagetype="png",  filename = "venns/venn_fdr05_exon_mddVScnt.png")
+             fill = c("slateblue", "skyblue3"), main="", main.pos = c(.5, .05), cat.cex = 1.9, cex=3,
+             margin = .1, imagetype="png",  filename = "venns/venn_fdr05_exon_mddVScnt.png")
 venn.diagram(list(Amygdala = sigExon_Amyg_BP, sACC = sigExon_sACC_BP ), 
-	fill = c("slateblue", "skyblue3"), main="", main.pos = c(.5, .05), cat.cex = 1.9, cex=3,
-	margin = .1, imagetype="png",  filename = "venns/venn_fdr05_exon_mddVSbip.png")
+             fill = c("slateblue", "skyblue3"), main="", main.pos = c(.5, .05), cat.cex = 1.9, cex=3,
+             margin = .1, imagetype="png",  filename = "venns/venn_fdr05_exon_mddVSbip.png")
 
 ## jxn
 venn.diagram(list(Amygdala = sigJxn_Amyg_Cnt, sACC = sigJxn_sACC_Cnt ), 
-	fill = c("slateblue", "skyblue3"), main="", main.pos = c(.5, .05), cat.cex = 1.9, cex=3,
-	margin = .1, imagetype="png",  filename = "venns/venn_fdr05_jxn_mddVScnt.png")
+             fill = c("slateblue", "skyblue3"), main="", main.pos = c(.5, .05), cat.cex = 1.9, cex=3,
+             margin = .1, imagetype="png",  filename = "venns/venn_fdr05_jxn_mddVScnt.png")
 venn.diagram(list(Amygdala = sigJxn_Amyg_BP, sACC = sigJxn_sACC_BP ), 
-	fill = c("slateblue", "skyblue3"), main="", main.pos = c(.5, .05), cat.cex = 1.9, cex=3,
-	margin = .1, imagetype="png",  filename = "venns/venn_fdr05_jxn_mddVSbip.png")
+             fill = c("slateblue", "skyblue3"), main="", main.pos = c(.5, .05), cat.cex = 1.9, cex=3,
+             margin = .1, imagetype="png",  filename = "venns/venn_fdr05_jxn_mddVSbip.png")
 
 ## tx
 venn.diagram(list(Amygdala = sigTx_Amyg_Cnt, sACC = sigTx_sACC_Cnt ), 
-	fill = c("slateblue", "skyblue3"), main="", main.pos = c(.5, .05), cat.cex = 1.9, cex=3,
-	margin = .1, imagetype="png",  filename = "venns/venn_fdr05_tx_mddVScnt.png")
+             fill = c("slateblue", "skyblue3"), main="", main.pos = c(.5, .05), cat.cex = 1.9, cex=3,
+             margin = .1, imagetype="png",  filename = "venns/venn_fdr05_tx_mddVScnt.png")
 venn.diagram(list(Amygdala = sigTx_Amyg_BP, sACC = sigTx_sACC_BP ), 
-	fill = c("slateblue", "skyblue3"), main="", main.pos = c(.5, .05), cat.cex = 1.9, cex=3,
-	margin = .1, imagetype="png",  filename = "venns/venn_fdr05_tx_mddVSbip.png")
-
-
+             fill = c("slateblue", "skyblue3"), main="", main.pos = c(.5, .05), cat.cex = 1.9, cex=3,
+             margin = .1, imagetype="png",  filename = "venns/venn_fdr05_tx_mddVSbip.png")
 
 
 ## Unique genes of any feature type
@@ -105,24 +102,15 @@ sACC_Cnt = c(sigGene_sACC_Cnt, sigExon_sACC_Cnt, sigJxn_sACC_Cnt, sigTx_sACC_Cnt
 sACC_Bp = c(sigGene_sACC_BP, sigExon_sACC_BP, sigJxn_sACC_BP, sigTx_sACC_BP)
 
 venn.diagram(list(Amygdala = Amyg_Cnt, sACC = sACC_Cnt ),
-	fill = c("slateblue", "skyblue3"), main="", main.pos = c(.5, .05), cat.cex = 1.9, cex=3,
-	margin = .1, imagetype="png",  filename = "venns/venn_fdr05_uniquegenes4feat_mddVScnt.png")
+             fill = c("slateblue", "skyblue3"), main="", main.pos = c(.5, .05), cat.cex = 1.9, cex=3,
+             margin = .1, imagetype="png",  filename = "venns/venn_fdr05_uniquegenes4feat_mddVScnt.png")
 venn.diagram(list(Amygdala = Amyg_Bp, sACC = sACC_Bp ), 
-	fill = c("slateblue", "skyblue3"), main="", main.pos = c(.5, .05), cat.cex = 1.9, cex=3,
-	margin = .1, imagetype="png",  filename = "venns/venn_fdr05_uniquegenes4feat_mddVSbip.png")
+             fill = c("slateblue", "skyblue3"), main="", main.pos = c(.5, .05), cat.cex = 1.9, cex=3,
+             margin = .1, imagetype="png",  filename = "venns/venn_fdr05_uniquegenes4feat_mddVSbip.png")
 
 
 
-
-
-	
-
-############################## 
-## run enrichment analysis ###
-##############################
-library(clusterProfiler)
-library(org.Hs.eg.db)
-
+#### run enrichment analysis ####
 
 moduleGeneList = outGene_sACC$EntrezID[outGene_sACC$q_PrimaryDxControl<0.05]
 moduleGeneList = moduleGeneList[!is.na(moduleGeneList)]
@@ -134,20 +122,20 @@ geneUniverse = geneUniverse[!is.na(geneUniverse)]
 
 ## run enrichment analysis
 goBP <- enrichGO(moduleGeneList,
-                universe = geneUniverse, OrgDb = org.Hs.eg.db,
-                ont = "BP", pAdjustMethod = "BH",
-                pvalueCutoff  = .21, qvalueCutoff  = .75,
-				readable= TRUE)
+                 universe = geneUniverse, OrgDb = org.Hs.eg.db,
+                 ont = "BP", pAdjustMethod = "BH",
+                 pvalueCutoff  = .21, qvalueCutoff  = .75,
+                 readable= TRUE)
 goMF <- enrichGO(moduleGeneList,
-                universe = geneUniverse, OrgDb = org.Hs.eg.db,
-                ont = "MF", pAdjustMethod = "BH",
-                pvalueCutoff  = .21, qvalueCutoff  = .75,
-				readable= TRUE)
+                 universe = geneUniverse, OrgDb = org.Hs.eg.db,
+                 ont = "MF", pAdjustMethod = "BH",
+                 pvalueCutoff  = .21, qvalueCutoff  = .75,
+                 readable= TRUE)
 goCC <- enrichGO(moduleGeneList,
-                universe = geneUniverse, OrgDb = org.Hs.eg.db,
-                ont = "CC", pAdjustMethod = "BH",
-                pvalueCutoff  = .21, qvalueCutoff  = .75,
-				readable= TRUE)
+                 universe = geneUniverse, OrgDb = org.Hs.eg.db,
+                 ont = "CC", pAdjustMethod = "BH",
+                 pvalueCutoff  = .21, qvalueCutoff  = .75,
+                 readable= TRUE)
 
 pdf("gene_enrichments_sACC_fdr05.pdf",h=6,w=12)
 dotplot(goBP, title="Biological Processes, sACC")
@@ -171,35 +159,35 @@ geneUniverse = geneUniverse[!is.na(geneUniverse)]
 
 ## run enrichment analysis
 goBP <- enrichGO(moduleGeneList[[1]],
-                universe = geneUniverse, OrgDb = org.Hs.eg.db,
-                ont = "BP", pAdjustMethod = "BH",
-                pvalueCutoff  = .2, qvalueCutoff  = .5,
-				readable= TRUE)
+                 universe = geneUniverse, OrgDb = org.Hs.eg.db,
+                 ont = "BP", pAdjustMethod = "BH",
+                 pvalueCutoff  = .2, qvalueCutoff  = .5,
+                 readable= TRUE)
 goBP2 <- enrichGO(moduleGeneList[[2]],
-                universe = geneUniverse, OrgDb = org.Hs.eg.db,
-                ont = "BP", pAdjustMethod = "BH",
-                pvalueCutoff  = .2, qvalueCutoff  = .5,
-				readable= TRUE)
+                  universe = geneUniverse, OrgDb = org.Hs.eg.db,
+                  ont = "BP", pAdjustMethod = "BH",
+                  pvalueCutoff  = .2, qvalueCutoff  = .5,
+                  readable= TRUE)
 goMF <- enrichGO(moduleGeneList[[1]],
-                universe = geneUniverse, OrgDb = org.Hs.eg.db,
-                ont = "MF", pAdjustMethod = "BH",
-                pvalueCutoff  = .2, qvalueCutoff  = .5,
-				readable= TRUE)
+                 universe = geneUniverse, OrgDb = org.Hs.eg.db,
+                 ont = "MF", pAdjustMethod = "BH",
+                 pvalueCutoff  = .2, qvalueCutoff  = .5,
+                 readable= TRUE)
 goMF2 <- enrichGO(moduleGeneList[[2]],
-                universe = geneUniverse, OrgDb = org.Hs.eg.db,
-                ont = "MF", pAdjustMethod = "BH",
-                pvalueCutoff  = .2, qvalueCutoff  = .5,
-				readable= TRUE)
+                  universe = geneUniverse, OrgDb = org.Hs.eg.db,
+                  ont = "MF", pAdjustMethod = "BH",
+                  pvalueCutoff  = .2, qvalueCutoff  = .5,
+                  readable= TRUE)
 goCC <- enrichGO(moduleGeneList[[1]],
-                universe = geneUniverse, OrgDb = org.Hs.eg.db,
-                ont = "CC", pAdjustMethod = "BH",
-                pvalueCutoff  = .2, qvalueCutoff  = .5,
-				readable= TRUE)
+                 universe = geneUniverse, OrgDb = org.Hs.eg.db,
+                 ont = "CC", pAdjustMethod = "BH",
+                 pvalueCutoff  = .2, qvalueCutoff  = .5,
+                 readable= TRUE)
 goCC2 <- enrichGO(moduleGeneList[[2]],
-                universe = geneUniverse, OrgDb = org.Hs.eg.db,
-                ont = "CC", pAdjustMethod = "BH",
-                pvalueCutoff  = .2, qvalueCutoff  = .5,
-				readable= TRUE)
+                  universe = geneUniverse, OrgDb = org.Hs.eg.db,
+                  ont = "CC", pAdjustMethod = "BH",
+                  pvalueCutoff  = .2, qvalueCutoff  = .5,
+                  readable= TRUE)
 
 pdf("gene_enrichments_sACC_up_down_fdr10.pdf",h=6,w=12)
 dotplot(goBP, title="CNT>MDD, Biological Processes, sACC")
@@ -209,7 +197,6 @@ dotplot(goMF2, title="CNT<MDD, Molecular Functions, sACC")
 dotplot(goCC, title="CNT>MDD, Cellular Components, sACC")
 dotplot(goCC2, title="CNT<MDD, Cellular Components, sACC")
 dev.off()
-
 
 
 
@@ -226,20 +213,20 @@ geneUniverse = geneUniverse[!is.na(geneUniverse)]
 
 ## run enrichment analysis
 goBP <- enrichGO(moduleGeneList,
-                universe = geneUniverse, OrgDb = org.Hs.eg.db,
-                ont = "BP", pAdjustMethod = "BH",
-                pvalueCutoff  = .21, qvalueCutoff  = .75,
-				readable= TRUE)
+                 universe = geneUniverse, OrgDb = org.Hs.eg.db,
+                 ont = "BP", pAdjustMethod = "BH",
+                 pvalueCutoff  = .21, qvalueCutoff  = .75,
+                 readable= TRUE)
 goMF <- enrichGO(moduleGeneList,
-                universe = geneUniverse, OrgDb = org.Hs.eg.db,
-                ont = "MF", pAdjustMethod = "BH",
-                pvalueCutoff  = .21, qvalueCutoff  = .75,
-				readable= TRUE)
+                 universe = geneUniverse, OrgDb = org.Hs.eg.db,
+                 ont = "MF", pAdjustMethod = "BH",
+                 pvalueCutoff  = .21, qvalueCutoff  = .75,
+                 readable= TRUE)
 goCC <- enrichGO(moduleGeneList,
-                universe = geneUniverse, OrgDb = org.Hs.eg.db,
-                ont = "CC", pAdjustMethod = "BH",
-                pvalueCutoff  = .21, qvalueCutoff  = .75,
-				readable= TRUE)
+                 universe = geneUniverse, OrgDb = org.Hs.eg.db,
+                 ont = "CC", pAdjustMethod = "BH",
+                 pvalueCutoff  = .21, qvalueCutoff  = .75,
+                 readable= TRUE)
 
 pdf("gene_enrichments_Amyg_fdr05.pdf",h=6,w=12)
 dotplot(goBP, title="Biological Processes, Amygdala")
@@ -263,35 +250,35 @@ geneUniverse = geneUniverse[!is.na(geneUniverse)]
 
 ## run enrichment analysis
 goBP <- enrichGO(moduleGeneList[[1]],
-                universe = geneUniverse, OrgDb = org.Hs.eg.db,
-                ont = "BP", pAdjustMethod = "BH",
-                pvalueCutoff  = .2, qvalueCutoff  = .5,
-				readable= TRUE)
+                 universe = geneUniverse, OrgDb = org.Hs.eg.db,
+                 ont = "BP", pAdjustMethod = "BH",
+                 pvalueCutoff  = .2, qvalueCutoff  = .5,
+                 readable= TRUE)
 goBP2 <- enrichGO(moduleGeneList[[2]],
-                universe = geneUniverse, OrgDb = org.Hs.eg.db,
-                ont = "BP", pAdjustMethod = "BH",
-                pvalueCutoff  = .2, qvalueCutoff  = .5,
-				readable= TRUE)
+                  universe = geneUniverse, OrgDb = org.Hs.eg.db,
+                  ont = "BP", pAdjustMethod = "BH",
+                  pvalueCutoff  = .2, qvalueCutoff  = .5,
+                  readable= TRUE)
 goMF <- enrichGO(moduleGeneList[[1]],
-                universe = geneUniverse, OrgDb = org.Hs.eg.db,
-                ont = "MF", pAdjustMethod = "BH",
-                pvalueCutoff  = .2, qvalueCutoff  = .5,
-				readable= TRUE)
+                 universe = geneUniverse, OrgDb = org.Hs.eg.db,
+                 ont = "MF", pAdjustMethod = "BH",
+                 pvalueCutoff  = .2, qvalueCutoff  = .5,
+                 readable= TRUE)
 goMF2 <- enrichGO(moduleGeneList[[2]],
-                universe = geneUniverse, OrgDb = org.Hs.eg.db,
-                ont = "MF", pAdjustMethod = "BH",
-                pvalueCutoff  = .2, qvalueCutoff  = .5,
-				readable= TRUE)
+                  universe = geneUniverse, OrgDb = org.Hs.eg.db,
+                  ont = "MF", pAdjustMethod = "BH",
+                  pvalueCutoff  = .2, qvalueCutoff  = .5,
+                  readable= TRUE)
 goCC <- enrichGO(moduleGeneList[[1]],
-                universe = geneUniverse, OrgDb = org.Hs.eg.db,
-                ont = "CC", pAdjustMethod = "BH",
-                pvalueCutoff  = .2, qvalueCutoff  = .5,
-				readable= TRUE)
+                 universe = geneUniverse, OrgDb = org.Hs.eg.db,
+                 ont = "CC", pAdjustMethod = "BH",
+                 pvalueCutoff  = .2, qvalueCutoff  = .5,
+                 readable= TRUE)
 goCC2 <- enrichGO(moduleGeneList[[2]],
-                universe = geneUniverse, OrgDb = org.Hs.eg.db,
-                ont = "CC", pAdjustMethod = "BH",
-                pvalueCutoff  = .2, qvalueCutoff  = .5,
-				readable= TRUE)
+                  universe = geneUniverse, OrgDb = org.Hs.eg.db,
+                  ont = "CC", pAdjustMethod = "BH",
+                  pvalueCutoff  = .2, qvalueCutoff  = .5,
+                  readable= TRUE)
 
 pdf("gene_enrichments_Amyg_up_down_fdr10.pdf",h=6,w=12)
 dotplot(goBP, title="CNT>MDD, Biological Processes, Amygdala")
@@ -303,11 +290,7 @@ dotplot(goCC2, title="CNT<MDD, Cellular Components, Amygdala")
 dev.off()
 
 
-
-
-
-
-
+#sgejobs::job_single('qSV_model_DE_explore', create_shell = TRUE, memory = '80G', command = "Rscript qSV_model_DE_explore.R")
 
 ## Reproducibility information
 print('Reproducibility information:')
