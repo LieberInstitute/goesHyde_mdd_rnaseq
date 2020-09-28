@@ -22,7 +22,7 @@ exp_title <- function(out, i){
 residExp_beeswarm <- function(expDx_table, titles){
   ggplot(expDx_table, aes(Dx, exp, color = Dx)) + 
     geom_beeswarm() +
-    scale_color_manual(values = mdd_colors) +
+    scale_color_manual(values = mdd_Dx_colors) +
     labs(y = "Residualized Expression",
          title = titles[["main"]],
          subtitle = titles[["p"]])
