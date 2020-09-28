@@ -30,7 +30,7 @@ residExp_beeswarm <- function(expDx_table, titles){
 
 
 topGenes_residExp_beeswarm <- function(out, exprs, pd, pdf_name , n = 100){
-  sigOrderMat = as.data.frame(apply(out[,c(17:18)], 2, function(x) order(x)[1:n]))
+  sigOrderMat = as.data.frame(apply(out[,c("P_PrimaryDxControl","P_PrimaryDxBipolar")], 2, function(x) order(x)[1:n]))
   ooL = sigOrderMat$"P_PrimaryDxControl"
   
   pdf(pdf_name,h=6,w=6)
