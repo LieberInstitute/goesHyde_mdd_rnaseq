@@ -11,26 +11,35 @@ make_expDx_table <- function(exprs, i, pd){
   return(exprs_i)
 }
 
-i <- 18843
-test <- make_expDx_table(gSaccExprs, i, pdSacc)
-
 exp_title <- function(out, i){
-  main = paste0(out$Symbol[i], "\n", out$gencodeID[i])
+  main = paste0(out$Symbol[i], ": ", out$gencodeID[i])
   p = paste0("p=",signif(out$P_PrimaryDxControl[i],3))
   titles <- c(main, p)
   names(titles) <- c("main", "p")
   return(titles)
 }
-test_title <- exp_title(outGene_sACC, i)
 
 residExp_beeswarm <- function(expDx_table, titles){
   ggplot(expDx_table, aes(Dx, exp, color = Dx)) + 
     geom_beeswarm() +
-    # scale_color_manual(mdd_colors) +
+    scale_color_manual(values = mdd_colors) +
     labs(y = "Residualized Expression",
          title = titles[["main"]],
          subtitle = titles[["p"]])
 }
 
-test_bee <- residExp_beeswarm(test, test_title)
-ggsave("Beeswarm_test.png", test_bee)
+
+topGenes_residExp_beeswarm <- function(out, exprs, pd, pdf_name , n = 100){
+  sigOrderMat = as.data.frame(apply(out[,c(17:18)], 2, function(x) order(x)[1:n]))
+  ooL = sigOrderMat$"P_PrimaryDxControl"
+  
+  pdf(pdf_name,h=6,w=6)
+  for(i in ooL) {
+    expDx_table <- make_expDx_table(exprs, i , pd)
+    exp_title <- exp_title(out, i)
+    print(residExp_beeswarm(expDx_table, exp_title))
+  }
+  dev.off()
+}
+
+
