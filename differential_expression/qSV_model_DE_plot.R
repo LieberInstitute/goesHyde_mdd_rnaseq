@@ -24,7 +24,7 @@ load(here("data","degradation_rse_MDDseq_BiPSeq_BothRegions.Rdata"), verbose = T
 ##### get qSVs ####
 
 modJoint = model.matrix(~PrimaryDx + AgeDeath + Sex + mitoRate + rRNA_rate + 
-                          totalAssignedGene + RIN, data = colData(rse_gene))
+                          totalAssignedGene + RIN + ERCCsumLogErr, data = colData(rse_gene))
 
 degExprs = log2(assays(cov_rse)$count+1)
 k = num.sv(degExprs, modJoint) # 23

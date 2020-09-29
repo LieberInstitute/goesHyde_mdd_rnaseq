@@ -82,7 +82,7 @@ colData(cov_rse) = cbind(colData(cov_rse), mds)
 
 ##### get qSVs ####
 modJoint = model.matrix(~PrimaryDx*BrainRegion + AgeDeath + Sex + snpPC1 + snpPC2 + snpPC3 +
-	mitoRate + rRNA_rate + totalAssignedGene + RIN,
+	mitoRate + rRNA_rate + totalAssignedGene + RIN + ERCCsumLogErr,
 	data=colData(rse_gene))
 
 colnames(modJoint)
@@ -115,7 +115,7 @@ sum(varExplQsva[1:k]) # 88.623%
 
 # model w/o interaction to subset by region
 modSep = model.matrix(~PrimaryDx + AgeDeath + Sex  + snpPC1 + snpPC2 + snpPC3 + mitoRate + rRNA_rate +
-				totalAssignedGene + RIN, data=colData(rse_gene))
+				totalAssignedGene + RIN + ERCCsumLogErr, data=colData(rse_gene))
 
 colnames(modSep)
 
