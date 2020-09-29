@@ -12,6 +12,7 @@ library(VennDiagram)
 library(clusterProfiler)
 library(org.Hs.eg.db)
 library(sessioninfo)
+library(purrr)
 
 ########
 
@@ -115,7 +116,7 @@ venn.diagram(list(Amygdala = Amyg_Bp, sACC = sACC_Bp ),
 moduleGeneList = outGene_sACC$EntrezID[outGene_sACC$q_PrimaryDxControl<0.05]
 moduleGeneList = moduleGeneList[!is.na(moduleGeneList)]
 length(moduleGeneList)
-# 588
+# 514
 
 geneUniverse = as.character(outGene_sACC$EntrezID)
 geneUniverse = geneUniverse[!is.na(geneUniverse)]
@@ -137,11 +138,15 @@ goCC <- enrichGO(moduleGeneList,
                  pvalueCutoff  = .21, qvalueCutoff  = .75,
                  readable= TRUE)
 
+map_int(c(goBP,goMF, goCC), nrow)
+# [1] 0 0 6
+
 pdf("gene_enrichments_sACC_fdr05.pdf",h=6,w=12)
 dotplot(goBP, title="Biological Processes, sACC")
 dotplot(goMF, title="Molecular Functions, sACC")
 dotplot(goCC, title="Cellular Components, sACC")
 dev.off()
+save(goBP, goMF, goCC, file = "gene_enrichments_sACC_fdr05.Rdata")
 
 
 ### split direction (use FDR 0.1)
@@ -151,8 +156,9 @@ moduleGeneList = list(up, down)
 moduleGeneList = lapply(moduleGeneList, function(x) x[!is.na(x)])
 names(moduleGeneList) = c("CNT>MDD","CNT<MDD")
 
-lapply(moduleGeneList, length)
-# 509, 555
+map_int(moduleGeneList, length)
+# CNT>MDD CNT<MDD 
+# 494     497
 
 geneUniverse = as.character(outGene_sACC$EntrezID)
 geneUniverse = geneUniverse[!is.na(geneUniverse)]
@@ -189,6 +195,9 @@ goCC2 <- enrichGO(moduleGeneList[[2]],
                   pvalueCutoff  = .2, qvalueCutoff  = .5,
                   readable= TRUE)
 
+map_int(c(goBP, goBP2, goMF, goMF2, goCC, goCC2), nrow)
+# [1] 0 0 3 0 0 0
+
 pdf("gene_enrichments_sACC_up_down_fdr10.pdf",h=6,w=12)
 dotplot(goBP, title="CNT>MDD, Biological Processes, sACC")
 dotplot(goBP2, title="CNT<MDD, Biological Processes, sACC")
@@ -197,7 +206,7 @@ dotplot(goMF2, title="CNT<MDD, Molecular Functions, sACC")
 dotplot(goCC, title="CNT>MDD, Cellular Components, sACC")
 dotplot(goCC2, title="CNT<MDD, Cellular Components, sACC")
 dev.off()
-
+save(goBP, goBP2, goMF, goMF2, goCC, goCC2,file="gene_enrichments_sACC_up_down_fdr10.Rdata")
 
 
 
@@ -228,12 +237,15 @@ goCC <- enrichGO(moduleGeneList,
                  pvalueCutoff  = .21, qvalueCutoff  = .75,
                  readable= TRUE)
 
+map_int(c(goBP,goMF, goCC), nrow)
+# [1] 93 27 28
+
 pdf("gene_enrichments_Amyg_fdr05.pdf",h=6,w=12)
 dotplot(goBP, title="Biological Processes, Amygdala")
 dotplot(goMF, title="Molecular Functions, Amygdala")
 dotplot(goCC, title="Cellular Components, Amygdala")
 dev.off()
-
+save(goBP, goMF, goCC, file = "gene_enrichments_Amyg_fdr05.Rdata")
 
 ## split up down
 up = outGene_Amyg$EntrezID[outGene_Amyg$q_PrimaryDxControl<0.1 & outGene_Amyg$PrimaryDxBipolar>0]
@@ -242,8 +254,9 @@ moduleGeneList = list(up, down)
 moduleGeneList = lapply(moduleGeneList, function(x) x[!is.na(x)])
 names(moduleGeneList) = c("CNT>MDD","CNT<MDD")
 
-lapply(moduleGeneList, length)
-# 108, 64
+map_int(moduleGeneList, length)
+# CNT>MDD CNT<MDD 
+# 121      71 
 
 geneUniverse = as.character(outGene_Amyg$EntrezID)
 geneUniverse = geneUniverse[!is.na(geneUniverse)]
@@ -280,6 +293,9 @@ goCC2 <- enrichGO(moduleGeneList[[2]],
                   pvalueCutoff  = .2, qvalueCutoff  = .5,
                   readable= TRUE)
 
+map_int(c(goBP, goBP2, goMF, goMF2, goCC, goCC2), nrow)
+# [1] 200  21  45   0  28   0
+
 pdf("gene_enrichments_Amyg_up_down_fdr10.pdf",h=6,w=12)
 dotplot(goBP, title="CNT>MDD, Biological Processes, Amygdala")
 dotplot(goBP2, title="CNT<MDD, Biological Processes, Amygdala")
@@ -288,6 +304,7 @@ dotplot(goMF2, title="CNT<MDD, Molecular Functions, Amygdala")
 dotplot(goCC, title="CNT>MDD, Cellular Components, Amygdala")
 dotplot(goCC2, title="CNT<MDD, Cellular Components, Amygdala")
 dev.off()
+save(goBP, goBP2, goMF, goMF2, goCC, goCC2, file = "gene_enrichments_Amyg_up_down_fdr10.Rdata")
 
 
 #sgejobs::job_single('qSV_model_DE_explore', create_shell = TRUE, memory = '80G', command = "Rscript qSV_model_DE_explore.R")
