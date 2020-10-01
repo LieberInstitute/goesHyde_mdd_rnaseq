@@ -75,6 +75,10 @@ stopifnot(all(colnames(cov_rse) == rse_gene$SAMPLE_ID))
 ## Add coldata
 colData(cov_rse) <- colData(rse_gene)
 
+## add snpPCs from genotype data
+load(here("genotype_data","goesHyde_bipolarMdd_Genotypes_mds.rda"), verbose = TRUE)
+colData(cov_rse) = cbind(colData(cov_rse), mds)
+
 ## use RNum_Experiment as as colnames
 colnames(cov_rse) <- paste0(cov_rse$RNum, "_", cov_rse$Experiment)
 
