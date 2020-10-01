@@ -13,6 +13,29 @@ load(here("data","rse_exon_GoesZandi.rda"), verbose = TRUE)
 load(here("data","rse_jxn_GoesZandi.rda"), verbose = TRUE)
 load(here("data","rse_tx_GoesZandi.rda"), verbose = TRUE)
 
+
+#### Add Mds data to rse objects ####
+load(here("genotype_data","goesHyde_bipolarMdd_Genotypes_mds.rda"), verbose = TRUE)
+
+## Check that all BrNum are included
+message("# BrNum in pd: ", length(unique(pd$BrNum)),
+        ", # BrNum in mds: ", nrow(mds))
+message("All mds BrNum in pd:", all(rownames(mds) %in% unique(pd$BrNum)))
+message("All pd BrNum in mds:", all(unique(pd$BrNum) %in% rownames(mds)))
+
+
+messge("BrNum order is identical: ", 
+       identical(rse_gene$BrNum, rse_exon$BrNum, rse_jxn$BrNum, rse_tx$BrNum))
+
+## reorders according to rse_gene$BrNum  (matched the order of rse_gene)
+mds = mds[rse_gene$BrNum,1:5]
+
+## Merge colData
+colData(rse_gene) = cbind(colData(rse_gene), mds)
+colData(rse_exon) = cbind(colData(rse_exon), mds)
+colData(rse_jxn) = cbind(colData(rse_jxn), mds)
+colData(rse_tx) = cbind(colData(rse_tx), mds)
+
 ####################
 ### Regions combined
 exprs <- list(
