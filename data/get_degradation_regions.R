@@ -77,6 +77,7 @@ colData(cov_rse) <- colData(rse_gene)
 
 ## add snpPCs from genotype data
 load(here("genotype_data","goesHyde_bipolarMdd_Genotypes_mds.rda"), verbose = TRUE)
+mds = mds[cov_rse$BrNum,1:5]
 colData(cov_rse) = cbind(colData(cov_rse), mds)
 
 ## use RNum_Experiment as as colnames
