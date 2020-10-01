@@ -51,36 +51,8 @@ summary(pd$AgeDeath)
 # Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
 # 17.37   34.62   47.21   46.58   55.86   95.27 
 
-#### Prep mds and cov_rse data ####
-
-# 
-# ## Check that all BrNum are included
-# message("# BrNum in pd: ", length(unique(pd$BrNum)),
-#         ", # BrNum in mds: ", nrow(mds))
-# message("All mds BrNum in pd:", all(rownames(mds) %in% unique(pd$BrNum)))
-# message("All pd BrNum in mds:", all(unique(pd$BrNum) %in% rownames(mds)))
-# 
-# if(!all(rownames(mds) %in% unique(pd$BrNum))){
-#   mds <- mds[rownames(mds) %in% unique(pd$BrNum),]
-#   message("After subset: all mds BrNum in pd:", all(rownames(mds) %in% unique(pd$BrNum)))
-# }
-# 
-# ## reorders according to rse_gene$BrNum  (matched the order of rse_gene)
-# mds = mds[rse_gene$BrNum,1:5]
-# ## Merge colData
-# colData(rse_gene) = cbind(colData(rse_gene), mds)
-
-# ## add ancestry
-load(here("genotype_data","goesHyde_bipolarMdd_Genotypes_mds.rda"), verbose = TRUE)
-
 ## load degradation data
 load(here("data","degradation_rse_MDDseq_BiPSeq_BothRegions.Rdata"), verbose = TRUE)
-
-message("All cov_rse BrNum in mds: ", all(cov_rse$BrNum %in% rownames(mds)))
-cov_rse <- cov_rse[, cov_rse$BrNum %in% rownames(mds)]
-
-colData(cov_rse) = cbind(colData(cov_rse), mds)
-
 
 ##### get qSVs ####
 modJoint = model.matrix(~PrimaryDx*BrainRegion + AgeDeath + Sex + snpPC1 + snpPC2 + snpPC3 +
