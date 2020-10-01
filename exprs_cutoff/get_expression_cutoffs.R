@@ -18,14 +18,10 @@ load(here("data","rse_tx_GoesZandi.rda"), verbose = TRUE)
 load(here("genotype_data","goesHyde_bipolarMdd_Genotypes_mds.rda"), verbose = TRUE)
 
 ## Check that all BrNum are included
-message("# BrNum in pd: ", length(unique(pd$BrNum)),
+message("# BrNum in rse: ", length(unique(rse_gene$BrNum)),
         ", # BrNum in mds: ", nrow(mds))
-message("All mds BrNum in pd:", all(rownames(mds) %in% unique(pd$BrNum)))
-message("All pd BrNum in mds:", all(unique(pd$BrNum) %in% rownames(mds)))
-
-
-messge("BrNum order is identical: ", 
-       identical(rse_gene$BrNum, rse_exon$BrNum, rse_jxn$BrNum, rse_tx$BrNum))
+message("All mds BrNum in rse:", all(rownames(mds) %in% unique(rse_gene$BrNum)))
+message("All rse BrNum in mds:", all(unique(rse_gene$BrNum) %in% rownames(mds)))
 
 ## reorders according to rse_gene$BrNum  (matched the order of rse_gene)
 mds = mds[rse_gene$BrNum,1:5]
