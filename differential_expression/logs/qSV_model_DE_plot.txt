@@ -6,12 +6,12 @@ Loading LIBD module for rmate/1.5.9
 Loading LIBD module for ruby/2.6.4p104
 Loading conda_R/4.0
 **** Job starts ****
-Tue Sep 29 14:13:25 EDT 2020
+Wed Sep 30 10:49:08 EDT 2020
 **** JHPCE info ****
 User: lhuuki
-Job id: 3167644
-Job name: qSV_model_DE_analysis
-Hostname: compute-095.cm.cluster
+Job id: 3181114
+Job name: qSV_model_DE_plot
+Hostname: compute-099.cm.cluster
 Task id: undefined
 Unloading conda_R/4.0
 Loading conda_R/4.0
@@ -126,256 +126,46 @@ Loading objects:
   rse_jxn
 Loading objects:
   rse_tx
-
-psychENCODE_MDD  psychENCODE_BP 
-            588             503 
-
-Amygdala     sACC 
-     540      551 
-          
-             F   M
-  Amygdala 160 380
-  sACC     167 384
-                 
-                  MDD Control Bipolar
-  psychENCODE_MDD 459     129       0
-  psychENCODE_BP    0     258     245
-          
-           MDD Control Bipolar
-  Amygdala 231     187     122
-  sACC     228     200     123
-   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-  17.37   34.62   47.21   46.58   55.86   95.27 
 Loading objects:
   cov_rse
+ [1] 67.700  4.860  3.010  1.990  1.430  1.210  1.120  0.803  0.778  0.677  0.574  0.521  0.487  0.444  0.347  0.342  0.329  0.300  0.246  0.237  0.230  0.223  0.205  0.196  0.190
+[1] 88.449
 Loading objects:
-  mds
-# BrNum in pd: 595, # BrNum in mds: 595
-All mds BrNum in pd:TRUE
-All pd BrNum in mds:TRUE
-All cov_rse BrNum in mds: TRUE
- [1] "(Intercept)"                      "PrimaryDxControl"                 "PrimaryDxBipolar"                 "BrainRegionsACC"                  "AgeDeath"                        
- [6] "SexM"                             "snpPC1"                           "snpPC2"                           "snpPC3"                           "mitoRate"                        
-[11] "rRNA_rate"                        "totalAssignedGene"                "RIN"                              "ERCCsumLogErr"                    "PrimaryDxControl:BrainRegionsACC"
-[16] "PrimaryDxBipolar:BrainRegionsACC"
-k=26
- [1] 67.700  4.860  3.010  1.990  1.430  1.210  1.120  0.803  0.778  0.677  0.574  0.521  0.487  0.444  0.347  0.342  0.329  0.300  0.246  0.237  0.230  0.223  0.205  0.196  0.190  0.174
-[1] 88.623
- [1] "(Intercept)"       "PrimaryDxControl"  "PrimaryDxBipolar"  "AgeDeath"          "SexM"              "snpPC1"            "snpPC2"            "snpPC3"            "mitoRate"         
-[10] "rRNA_rate"         "totalAssignedGene" "RIN"               "ERCCsumLogErr"    
-                   PrimaryDxControl PrimaryDxBipolar
-ENSG00000215717.5      1.144499e-09      0.086100579
-ENSG00000108468.14     5.323292e-08      0.002884728
-ENSG00000089280.18     2.336832e-07      0.002221483
-ENSG00000126767.17     5.039687e-07      0.671493317
-ENSG00000147121.15     5.747937e-07      0.103947438
-ENSG00000110987.8      6.184396e-07      0.214967718
-                  Length         gencodeID       ensemblID              gene_type        Symbol  EntrezID Class NumTx meanExprs passExprsCut PrimaryDxControl PrimaryDxBipolar   AveExpr         F
-ENSG00000227232.5   1351 ENSG00000227232.5 ENSG00000227232 unprocessed_pseudogene        WASH7P        NA InGen     1 1.8639851         TRUE       0.23484791       0.17608321  1.229087 4.9852288
-ENSG00000278267.1     68 ENSG00000278267.1 ENSG00000278267                  miRNA     MIR6859-1 102466751 InGen     1 6.5971879         TRUE       0.03279026      -0.12229563 -1.295440 1.1407675
-ENSG00000269981.1    284 ENSG00000269981.1 ENSG00000269981   processed_pseudogene RP11-34P13.16        NA InGen     1 0.9824126         TRUE      -0.15766108       0.02010391 -2.370875 0.9642159
-ENSG00000279457.3   1982 ENSG00000279457.3 ENSG00000279457         protein_coding    FO538757.1 102723897 InGen     3 2.2283375         TRUE       0.08223162       0.15800788  2.063763 2.1709281
-ENSG00000228463.9   4039 ENSG00000228463.9 ENSG00000228463                lincRNA    AP006222.2        NA InGen     5 0.9525765         TRUE       0.15688742       0.25925023  1.750830 2.1813435
-ENSG00000236679.2    385 ENSG00000236679.2 ENSG00000236679   processed_pseudogene     RPL23AP24        NA InGen     1 1.9892539         TRUE      -0.11942029      -0.08088827 -0.510983 1.1102709
-                      P.Value adj.P.Val P_PrimaryDxControl P_PrimaryDxBipolar q_PrimaryDxControl q_PrimaryDxBipolar
-ENSG00000227232.5 0.007170199 0.1106583        0.001726035         0.05758772          0.1321113          0.4839850
-ENSG00000278267.1 0.320375789 0.6411585        0.758694078         0.36081103          0.9538106          0.8151247
-ENSG00000269981.1 0.381965809 0.6890328        0.328117972         0.91924987          0.7952999          0.9862435
-ENSG00000279457.3 0.115109281 0.4173713        0.180725385         0.03770299          0.6758827          0.4206983
-ENSG00000228463.9 0.113926483 0.4150288        0.118333214         0.03887372          0.5998627          0.4254955
-ENSG00000236679.2 0.330253040 0.6480631        0.141319006         0.42586640          0.6300736          0.8486787
-[1] 149
-[1] "Gene_sACC"
-[1] 149
-[1] 29
-[1] 19
-[1] 3
-[1] 6
-[1] "Gene_Amyg"
-[1] 6
-[1] 1
-[1] 3
-[1] 2
-Adding LIBD modules
-Loading git
-Loading LIBD module for git-status-size/github
-Loading LIBD module for git-lfs/2.8.0
-Loading LIBD module for rmate/1.5.9
-Loading LIBD module for ruby/2.6.4p104
-Loading conda_R/4.0
-**** Job starts ****
-Tue Sep 29 14:30:40 EDT 2020
-**** JHPCE info ****
-User: lhuuki
-Job id: 3167649
-Job name: qSV_model_DE_analysis
-Hostname: compute-112.cm.cluster
-Task id: undefined
-Unloading conda_R/4.0
-Loading conda_R/4.0
-
-Currently Loaded Modules:
-  1) matlab/R2019a     6) COMMUNITY_CENTOS7_DEFAULT_ENV  11) ruby/2.6.4p104
-  2) stata/16          7) JHPCE_CENTOS7_DEFAULT_ENV      12) rmate/1.5.9
-  3) JHPCE_tools/1.0   8) git-status-size/github         13) conda/3-4.6.14
-  4) sge/8.1.9         9) git/2.28.0                     14) conda_R/4.0
-  5) gcc/4.4.7        10) git-lfs/2.8.0
-
- 
-
-Loading required package: rafalib
-Loading required package: GenomicRanges
-Loading required package: stats4
-Loading required package: BiocGenerics
-Loading required package: parallel
-
-Attaching package: ‘BiocGenerics’
-
-The following objects are masked from ‘package:parallel’:
-
-    clusterApply, clusterApplyLB, clusterCall, clusterEvalQ, clusterExport, clusterMap, parApply, parCapply, parLapply, parLapplyLB, parRapply, parSapply, parSapplyLB
-
-The following objects are masked from ‘package:stats’:
-
-    IQR, mad, sd, var, xtabs
-
-The following objects are masked from ‘package:base’:
-
-    anyDuplicated, append, as.data.frame, basename, cbind, colnames, dirname, do.call, duplicated, eval, evalq, Filter, Find, get, grep, grepl, intersect, is.unsorted, lapply,
-    Map, mapply, match, mget, order, paste, pmax, pmax.int, pmin, pmin.int, Position, rank, rbind, Reduce, rownames, sapply, setdiff, sort, table, tapply, union, unique, unsplit,
-    which, which.max, which.min
-
-Loading required package: S4Vectors
-
-Attaching package: ‘S4Vectors’
-
-The following object is masked from ‘package:base’:
-
-    expand.grid
-
-Loading required package: IRanges
-Loading required package: GenomeInfoDb
-Loading required package: Biobase
-Welcome to Bioconductor
-
-    Vignettes contain introductory material; view with 'browseVignettes()'. To cite Bioconductor, see 'citation("Biobase")', and for packages 'citation("pkgname")'.
-
-Loading required package: DelayedArray
-Loading required package: matrixStats
-
-Attaching package: ‘matrixStats’
-
-The following objects are masked from ‘package:Biobase’:
-
-    anyMissing, rowMedians
-
-
-Attaching package: ‘DelayedArray’
-
-The following objects are masked from ‘package:matrixStats’:
-
-    colMaxs, colMins, colRanges, rowMaxs, rowMins, rowRanges
-
-The following objects are masked from ‘package:base’:
-
-    aperm, apply, rowsum
-
-Loading required package: mgcv
-Loading required package: nlme
-
-Attaching package: ‘nlme’
-
-The following object is masked from ‘package:IRanges’:
-
-    collapse
-
-This is mgcv 1.8-31. For overview type 'help("mgcv-package")'.
-Loading required package: genefilter
-
-Attaching package: ‘genefilter’
-
-The following objects are masked from ‘package:matrixStats’:
-
-    rowSds, rowVars
-
-Loading required package: BiocParallel
-Loading required package: usethis
-
-Attaching package: ‘devtools’
-
-The following object is masked from ‘package:rafalib’:
-
-    install_bioc
-
-Loading required package: limma
-
-Attaching package: ‘limma’
-
-The following object is masked from ‘package:BiocGenerics’:
-
-    plotMA
-
-here() starts at /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq
+  outGene_Amyg
+  outGene_sACC
 Loading objects:
-  rse_gene
+  outExon_Amyg
+  outExon_sACC
 Loading objects:
-  rse_exon
-[1] 137
-[1] "Exon_sACC"
-[1] 137
-[1] 2
-[1] 82
-[1] 35
-[1] 0
-[1] 19
-[1] 6
-[1] "Exon_Amyg"
-[1] 6
-[1] 0
-[1] 6
-[1] 0
-[1] 0
-[1] 0
-Warning message:
-Partial NA coefficients for 2 probe(s) 
-[1] NA
-Warning message:
-Partial NA coefficients for 1 probe(s) 
-[1] 105
-[1] "Jxn_sACC"
-[1] NA
-[1] NA
-[1] 392
-[1] 339
-[1] 133
-[1] 248
-[1] "Jxn_Amyg"
-[1] 72
-[1] 28
-[1] 46
-[1] 58
-[1] 27
-[1] 38
-[1] 166
-[1] "Tx_sACC"
-[1] 166
-[1] 32
-[1] 163
-[1] 79
-[1] 25
-[1] 77
-[1] 39
-[1] "Tx_Amyg"
-[1] 39
-[1] 3
-[1] 36
-[1] 26
-[1] 4
-[1] 26
+  outJxn_Amyg
+  outJxn_Amyg_anno
+  outJxn_sACC
+  outJxn_sACC_anno
+Loading objects:
+  outTx_Amyg
+  outTx_sACC
+Setting options('download.file.method.GEOquery'='auto')
+Setting options('GEOquery.inmemory.gpl'=FALSE)
+null device 
+          1 
+null device 
+          1 
+null device 
+          1 
+null device 
+          1 
+null device 
+          1 
+null device 
+          1 
+null device 
+          1 
+null device 
+          1 
 [1] "Reproducibility information:"
-[1] "2020-09-29 16:00:40 EDT"
+[1] "2020-09-30 11:06:00 EDT"
     user   system  elapsed 
-6036.170  392.356 6434.225 
+ 913.970   91.424 1010.298 
 ─ Session info ───────────────────────────────────────────────────────────────────────────────────────────────────────
  setting  value                                      
  version  R version 4.0.2 Patched (2020-06-24 r78746)
@@ -386,46 +176,90 @@ Partial NA coefficients for 1 probe(s)
  collate  en_US.UTF-8                                
  ctype    en_US.UTF-8                                
  tz       US/Eastern                                 
- date     2020-09-29                                 
+ date     2020-09-30                                 
 
 ─ Packages ───────────────────────────────────────────────────────────────────────────────────────────────────────────
  package              * version  date       lib source                                   
+ acepack                1.4.1    2016-10-29 [2] CRAN (R 4.0.0)                           
  annotate               1.66.0   2020-04-27 [2] Bioconductor                             
  AnnotationDbi          1.50.0   2020-04-27 [2] Bioconductor                             
+ askpass                1.1      2019-01-13 [2] CRAN (R 4.0.0)                           
  assertthat             0.2.1    2019-03-21 [2] CRAN (R 4.0.0)                           
  backports              1.1.9    2020-08-24 [1] CRAN (R 4.0.2)                           
+ base64enc              0.1-3    2015-07-28 [2] CRAN (R 4.0.0)                           
+ beeswarm               0.2.3    2016-04-25 [1] CRAN (R 4.0.2)                           
  Biobase              * 2.48.0   2020-04-27 [2] Bioconductor                             
+ BiocFileCache          1.12.0   2020-04-27 [2] Bioconductor                             
  BiocGenerics         * 0.34.0   2020-04-27 [2] Bioconductor                             
  BiocParallel         * 1.22.0   2020-04-27 [2] Bioconductor                             
+ biomaRt                2.44.0   2020-04-27 [2] Bioconductor                             
+ Biostrings             2.56.0   2020-04-27 [2] Bioconductor                             
  bit                    1.1-15.2 2020-02-10 [2] CRAN (R 4.0.0)                           
  bit64                  0.9-7    2017-05-08 [2] CRAN (R 4.0.0)                           
  bitops                 1.0-6    2013-08-17 [2] CRAN (R 4.0.0)                           
  blob                   1.2.1    2020-01-20 [2] CRAN (R 4.0.0)                           
+ BSgenome               1.56.0   2020-04-27 [2] Bioconductor                             
+ bumphunter             1.30.0   2020-04-27 [2] Bioconductor                             
  callr                  3.4.3    2020-03-28 [2] CRAN (R 4.0.0)                           
  cellranger             1.1.0    2016-07-27 [2] CRAN (R 4.0.0)                           
+ checkmate              2.0.0    2020-02-06 [2] CRAN (R 4.0.0)                           
  cli                    2.0.2    2020-02-28 [1] CRAN (R 4.0.0)                           
+ cluster                2.1.0    2019-06-19 [3] CRAN (R 4.0.2)                           
+ codetools              0.2-16   2018-12-24 [3] CRAN (R 4.0.2)                           
+ colorspace             1.4-1    2019-03-18 [2] CRAN (R 4.0.0)                           
  crayon                 1.3.4    2017-09-16 [2] CRAN (R 4.0.0)                           
+ curl                   4.3      2019-12-02 [2] CRAN (R 4.0.0)                           
+ data.table             1.12.8   2019-12-09 [2] CRAN (R 4.0.0)                           
  DBI                    1.1.0    2019-12-15 [2] CRAN (R 4.0.0)                           
+ dbplyr                 1.4.3    2020-04-19 [2] CRAN (R 4.0.0)                           
  DelayedArray         * 0.14.0   2020-04-27 [2] Bioconductor                             
+ derfinder              1.22.0   2020-04-27 [2] Bioconductor                             
+ derfinderHelper        1.22.0   2020-04-27 [2] Bioconductor                             
  desc                   1.2.0    2018-05-01 [2] CRAN (R 4.0.0)                           
  devtools             * 2.3.1    2020-07-21 [1] CRAN (R 4.0.2)                           
  digest                 0.6.25   2020-02-23 [1] CRAN (R 4.0.0)                           
+ doRNG                  1.8.2    2020-01-27 [2] CRAN (R 4.0.0)                           
+ downloader             0.4      2015-07-09 [2] CRAN (R 4.0.0)                           
  dplyr                  1.0.2    2020-08-18 [1] CRAN (R 4.0.2)                           
  edgeR                * 3.30.0   2020-04-27 [2] Bioconductor                             
  ellipsis               0.3.1    2020-05-15 [2] CRAN (R 4.0.0)                           
  fansi                  0.4.1    2020-01-08 [2] CRAN (R 4.0.0)                           
+ farver                 2.0.3    2020-01-16 [2] CRAN (R 4.0.0)                           
+ foreach                1.5.0    2020-03-30 [2] CRAN (R 4.0.0)                           
+ foreign                0.8-80   2020-05-24 [3] CRAN (R 4.0.2)                           
+ Formula                1.2-3    2018-05-03 [2] CRAN (R 4.0.0)                           
  fs                     1.5.0    2020-07-31 [1] CRAN (R 4.0.2)                           
  genefilter           * 1.70.0   2020-04-27 [2] Bioconductor                             
  generics               0.0.2    2018-11-29 [2] CRAN (R 4.0.0)                           
  GenomeInfoDb         * 1.24.0   2020-04-27 [2] Bioconductor                             
  GenomeInfoDbData       1.2.3    2020-05-18 [2] Bioconductor                             
+ GenomicAlignments      1.24.0   2020-04-27 [2] Bioconductor                             
+ GenomicFeatures        1.40.0   2020-04-27 [2] Bioconductor                             
+ GenomicFiles           1.24.0   2020-04-27 [2] Bioconductor                             
  GenomicRanges        * 1.40.0   2020-04-27 [2] Bioconductor                             
+ GEOquery               2.56.0   2020-04-27 [2] Bioconductor                             
+ ggbeeswarm           * 0.6.0    2017-08-07 [1] CRAN (R 4.0.2)                           
+ ggplot2              * 3.3.0    2020-03-05 [2] CRAN (R 4.0.0)                           
  glue                   1.4.2    2020-08-27 [1] CRAN (R 4.0.2)                           
  googledrive            1.0.1    2020-05-05 [1] CRAN (R 4.0.0)                           
+ gridExtra              2.3      2017-09-09 [2] CRAN (R 4.0.0)                           
+ gtable                 0.3.0    2019-03-25 [2] CRAN (R 4.0.0)                           
  here                 * 0.1      2017-05-28 [1] CRAN (R 4.0.0)                           
+ Hmisc                  4.4-0    2020-03-23 [2] CRAN (R 4.0.0)                           
+ hms                    0.5.3    2020-01-08 [2] CRAN (R 4.0.0)                           
+ htmlTable              1.13.3   2019-12-04 [2] CRAN (R 4.0.0)                           
+ htmltools              0.5.0    2020-06-16 [1] CRAN (R 4.0.2)                           
+ htmlwidgets            1.5.1    2019-10-08 [2] CRAN (R 4.0.0)                           
+ httr                   1.4.2    2020-07-20 [1] CRAN (R 4.0.2)                           
  IRanges              * 2.22.2   2020-05-21 [1] Bioconductor                             
+ iterators              1.0.12   2019-07-26 [2] CRAN (R 4.0.0)                           
  jaffelab             * 0.99.30  2020-05-21 [1] Github (LieberInstitute/jaffelab@42637ff)
+ jpeg                   0.1-8.1  2019-10-24 [2] CRAN (R 4.0.0)                           
+ jsonlite               1.7.1    2020-09-07 [1] CRAN (R 4.0.2)                           
+ knitr                  1.29     2020-06-23 [1] CRAN (R 4.0.2)                           
+ labeling               0.3      2014-08-23 [2] CRAN (R 4.0.0)                           
  lattice                0.20-41  2020-04-02 [3] CRAN (R 4.0.2)                           
+ latticeExtra           0.6-29   2019-12-19 [2] CRAN (R 4.0.0)                           
  lifecycle              0.2.0    2020-03-06 [1] CRAN (R 4.0.0)                           
  limma                * 3.44.1   2020-04-28 [2] Bioconductor                             
  locfit                 1.5-9.4  2020-03-25 [2] CRAN (R 4.0.0)                           
@@ -434,38 +268,63 @@ Partial NA coefficients for 1 probe(s)
  matrixStats          * 0.56.0   2020-03-13 [2] CRAN (R 4.0.0)                           
  memoise                1.1.0    2017-04-21 [2] CRAN (R 4.0.0)                           
  mgcv                 * 1.8-31   2019-11-09 [3] CRAN (R 4.0.2)                           
+ munsell                0.5.0    2018-06-12 [2] CRAN (R 4.0.0)                           
  nlme                 * 3.1-148  2020-05-24 [3] CRAN (R 4.0.2)                           
+ nnet                   7.3-14   2020-04-26 [3] CRAN (R 4.0.2)                           
+ openssl                1.4.2    2020-06-27 [1] CRAN (R 4.0.2)                           
  pillar                 1.4.6    2020-07-10 [1] CRAN (R 4.0.2)                           
  pkgbuild               1.1.0    2020-07-13 [1] CRAN (R 4.0.2)                           
  pkgconfig              2.0.3    2019-09-22 [2] CRAN (R 4.0.0)                           
  pkgload                1.1.0    2020-05-29 [1] CRAN (R 4.0.2)                           
+ plyr                   1.8.6    2020-03-03 [2] CRAN (R 4.0.0)                           
+ png                    0.1-7    2013-12-03 [2] CRAN (R 4.0.0)                           
  prettyunits            1.1.1    2020-01-24 [2] CRAN (R 4.0.0)                           
  processx               3.4.4    2020-09-03 [1] CRAN (R 4.0.2)                           
+ progress               1.2.2    2019-05-16 [2] CRAN (R 4.0.0)                           
  ps                     1.3.4    2020-08-11 [1] CRAN (R 4.0.2)                           
  purrr                  0.3.4    2020-04-17 [1] CRAN (R 4.0.0)                           
+ qvalue                 2.20.0   2020-04-27 [2] Bioconductor                             
  R6                     2.4.1    2019-11-12 [2] CRAN (R 4.0.0)                           
  rafalib              * 1.0.0    2015-08-09 [1] CRAN (R 4.0.0)                           
- RColorBrewer           1.1-2    2014-12-07 [2] CRAN (R 4.0.0)                           
+ rappdirs               0.3.1    2016-03-28 [2] CRAN (R 4.0.0)                           
+ RColorBrewer         * 1.1-2    2014-12-07 [2] CRAN (R 4.0.0)                           
  Rcpp                   1.0.5    2020-07-06 [1] CRAN (R 4.0.2)                           
  RCurl                  1.98-1.2 2020-04-18 [2] CRAN (R 4.0.0)                           
+ readr                  1.3.1    2018-12-21 [2] CRAN (R 4.0.0)                           
  readxl               * 1.3.1    2019-03-13 [2] CRAN (R 4.0.0)                           
+ recount                1.14.0   2020-04-27 [2] Bioconductor                             
  remotes                2.2.0    2020-07-21 [1] CRAN (R 4.0.2)                           
+ rentrez                1.2.2    2019-05-02 [2] CRAN (R 4.0.0)                           
+ reshape2               1.4.4    2020-04-09 [2] CRAN (R 4.0.0)                           
  rlang                  0.4.7    2020-07-09 [1] CRAN (R 4.0.2)                           
+ rngtools               1.5      2020-01-23 [2] CRAN (R 4.0.0)                           
+ rpart                  4.1-15   2019-04-12 [3] CRAN (R 4.0.2)                           
  rprojroot              1.3-2    2018-01-03 [2] CRAN (R 4.0.0)                           
+ Rsamtools              2.4.0    2020-04-27 [2] Bioconductor                             
  RSQLite                2.2.0    2020-01-07 [2] CRAN (R 4.0.0)                           
+ rstudioapi             0.11     2020-02-07 [2] CRAN (R 4.0.0)                           
+ rtracklayer            1.48.0   2020-04-27 [2] Bioconductor                             
  S4Vectors            * 0.26.1   2020-05-16 [2] Bioconductor                             
+ scales                 1.1.1    2020-05-11 [2] CRAN (R 4.0.0)                           
  segmented              1.1-0    2019-12-10 [2] CRAN (R 4.0.0)                           
- sessioninfo          * 1.1.1    2018-11-05 [2] CRAN (R 4.0.0)                           
+ sessioninfo            1.1.1    2018-11-05 [2] CRAN (R 4.0.0)                           
+ stringi                1.5.3    2020-09-09 [1] CRAN (R 4.0.2)                           
+ stringr                1.4.0    2019-02-10 [2] CRAN (R 4.0.0)                           
  SummarizedExperiment * 1.18.1   2020-04-30 [2] Bioconductor                             
  survival               3.2-3    2020-06-13 [3] CRAN (R 4.0.2)                           
  sva                  * 3.36.0   2020-04-27 [2] Bioconductor                             
  testthat               2.3.2    2020-03-02 [2] CRAN (R 4.0.0)                           
  tibble                 3.0.3    2020-07-10 [1] CRAN (R 4.0.2)                           
+ tidyr                  1.0.3    2020-05-07 [2] CRAN (R 4.0.0)                           
  tidyselect             1.1.0    2020-05-11 [2] CRAN (R 4.0.0)                           
  usethis              * 1.6.1    2020-04-29 [2] CRAN (R 4.0.0)                           
+ VariantAnnotation      1.34.0   2020-04-27 [2] Bioconductor                             
  vctrs                  0.3.4    2020-08-29 [1] CRAN (R 4.0.2)                           
+ vipor                  0.4.5    2017-03-22 [1] CRAN (R 4.0.2)                           
  withr                  2.2.0    2020-04-20 [1] CRAN (R 4.0.0)                           
+ xfun                   0.16     2020-07-24 [1] CRAN (R 4.0.2)                           
  XML                    3.99-0.3 2020-01-20 [2] CRAN (R 4.0.0)                           
+ xml2                   1.3.2    2020-04-23 [2] CRAN (R 4.0.0)                           
  xtable                 1.8-4    2019-04-21 [2] CRAN (R 4.0.0)                           
  XVector                0.28.0   2020-04-27 [2] Bioconductor                             
  zlibbioc               1.34.0   2020-04-27 [2] Bioconductor                             
@@ -474,4 +333,4 @@ Partial NA coefficients for 1 probe(s)
 [2] /jhpce/shared/jhpce/core/conda/miniconda3-4.6.14/envs/svnR-4.0/R/4.0/lib64/R/site-library
 [3] /jhpce/shared/jhpce/core/conda/miniconda3-4.6.14/envs/svnR-4.0/R/4.0/lib64/R/library
 **** Job ends ****
-Tue Sep 29 16:00:46 EDT 2020
+Wed Sep 30 11:06:05 EDT 2020

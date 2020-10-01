@@ -1,0 +1,265 @@
+Adding LIBD modules
+Loading git
+Loading LIBD module for git-status-size/github
+Loading LIBD module for git-lfs/2.8.0
+Loading LIBD module for rmate/1.5.9
+Loading LIBD module for ruby/2.6.4p104
+Loading conda_R/4.0
+**** Job starts ****
+Wed Sep 23 09:38:40 EDT 2020
+**** JHPCE info ****
+User: lhuuki
+Job id: 3099215
+Job name: qc_plotly
+Hostname: compute-093.cm.cluster
+Task id: undefined
+Unloading conda_R/4.0
+Loading conda_R/4.0
+
+Currently Loaded Modules:
+  1) matlab/R2019a     6) COMMUNITY_CENTOS7_DEFAULT_ENV  11) ruby/2.6.4p104
+  2) stata/16          7) JHPCE_CENTOS7_DEFAULT_ENV      12) rmate/1.5.9
+  3) JHPCE_tools/1.0   8) git-status-size/github         13) conda/3-4.6.14
+  4) sge/8.1.9         9) git/2.28.0                     14) conda_R/4.0
+  5) gcc/4.4.7        10) git-lfs/2.8.0
+
+ 
+
+Loading required package: dbplyr
+Loading required package: stats4
+Loading required package: BiocGenerics
+Loading required package: parallel
+
+Attaching package: ‘BiocGenerics’
+
+The following objects are masked from ‘package:parallel’:
+
+    clusterApply, clusterApplyLB, clusterCall, clusterEvalQ, clusterExport, clusterMap, parApply, parCapply, parLapply, parLapplyLB, parRapply, parSapply, parSapplyLB
+
+The following objects are masked from ‘package:stats’:
+
+    IQR, mad, sd, var, xtabs
+
+The following objects are masked from ‘package:base’:
+
+    anyDuplicated, append, as.data.frame, basename, cbind, colnames, dirname, do.call, duplicated, eval, evalq, Filter, Find, get, grep, grepl, intersect, is.unsorted, lapply,
+    Map, mapply, match, mget, order, paste, pmax, pmax.int, pmin, pmin.int, Position, rank, rbind, Reduce, rownames, sapply, setdiff, sort, table, tapply, union, unique, unsplit,
+    which, which.max, which.min
+
+
+Attaching package: ‘S4Vectors’
+
+The following object is masked from ‘package:base’:
+
+    expand.grid
+
+
+Attaching package: ‘plotly’
+
+The following object is masked from ‘package:ggplot2’:
+
+    last_plot
+
+The following object is masked from ‘package:S4Vectors’:
+
+    rename
+
+The following object is masked from ‘package:stats’:
+
+    filter
+
+The following object is masked from ‘package:graphics’:
+
+    layout
+
+Loading required package: GenomicRanges
+Loading required package: IRanges
+
+Attaching package: ‘IRanges’
+
+The following object is masked from ‘package:plotly’:
+
+    slice
+
+Loading required package: GenomeInfoDb
+Loading required package: Biobase
+Welcome to Bioconductor
+
+    Vignettes contain introductory material; view with 'browseVignettes()'. To cite Bioconductor, see 'citation("Biobase")', and for packages 'citation("pkgname")'.
+
+Loading required package: DelayedArray
+Loading required package: matrixStats
+
+Attaching package: ‘matrixStats’
+
+The following objects are masked from ‘package:Biobase’:
+
+    anyMissing, rowMedians
+
+
+Attaching package: ‘DelayedArray’
+
+The following objects are masked from ‘package:matrixStats’:
+
+    colMaxs, colMins, colRanges, rowMaxs, rowMins, rowRanges
+
+The following objects are masked from ‘package:base’:
+
+    aperm, apply, rowsum
+
+
+Attaching package: ‘dplyr’
+
+The following object is masked from ‘package:matrixStats’:
+
+    count
+
+The following object is masked from ‘package:Biobase’:
+
+    combine
+
+The following objects are masked from ‘package:GenomicRanges’:
+
+    intersect, setdiff, union
+
+The following object is masked from ‘package:GenomeInfoDb’:
+
+    intersect
+
+The following objects are masked from ‘package:IRanges’:
+
+    collapse, desc, intersect, setdiff, slice, union
+
+The following objects are masked from ‘package:S4Vectors’:
+
+    first, intersect, rename, setdiff, setequal, union
+
+The following objects are masked from ‘package:BiocGenerics’:
+
+    combine, intersect, setdiff, union
+
+The following objects are masked from ‘package:dbplyr’:
+
+    ident, sql
+
+The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+
+Attaching package: ‘rlang’
+
+The following object is masked from ‘package:Biobase’:
+
+    exprs
+
+Loading objects:
+  rse_gene
+Joining, by = c("RNum", "BrNum", "Sex", "Race", "AgeDeath", "RIN", "PrimaryDx", "Experiment")
+Adding more colors to the selection color palette.
+[1] "Reproducibility information:"
+[1] "2020-09-23 09:39:03 EDT"
+   user  system elapsed 
+ 23.985   2.237  21.261 
+─ Session info ───────────────────────────────────────────────────────────────────────────────────────────────────────
+ setting  value                                      
+ version  R version 4.0.2 Patched (2020-06-24 r78746)
+ os       CentOS Linux 7 (Core)                      
+ system   x86_64, linux-gnu                          
+ ui       X11                                        
+ language (EN)                                       
+ collate  en_US.UTF-8                                
+ ctype    en_US.UTF-8                                
+ tz       US/Eastern                                 
+ date     2020-09-23                                 
+
+─ Packages ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+ package              * version  date       lib source        
+ assertthat             0.2.1    2019-03-21 [2] CRAN (R 4.0.0)
+ Biobase              * 2.48.0   2020-04-27 [2] Bioconductor  
+ BiocFileCache        * 1.12.0   2020-04-27 [2] Bioconductor  
+ BiocGenerics         * 0.34.0   2020-04-27 [2] Bioconductor  
+ bit                    1.1-15.2 2020-02-10 [2] CRAN (R 4.0.0)
+ bit64                  0.9-7    2017-05-08 [2] CRAN (R 4.0.0)
+ bitops                 1.0-6    2013-08-17 [2] CRAN (R 4.0.0)
+ blob                   1.2.1    2020-01-20 [2] CRAN (R 4.0.0)
+ cli                    2.0.2    2020-02-28 [1] CRAN (R 4.0.0)
+ colorspace             1.4-1    2019-03-18 [2] CRAN (R 4.0.0)
+ crayon                 1.3.4    2017-09-16 [2] CRAN (R 4.0.0)
+ crosstalk              1.1.0.1  2020-03-13 [2] CRAN (R 4.0.0)
+ curl                   4.3      2019-12-02 [2] CRAN (R 4.0.0)
+ data.table             1.12.8   2019-12-09 [2] CRAN (R 4.0.0)
+ DBI                    1.1.0    2019-12-15 [2] CRAN (R 4.0.0)
+ dbplyr               * 1.4.3    2020-04-19 [2] CRAN (R 4.0.0)
+ DelayedArray         * 0.14.0   2020-04-27 [2] Bioconductor  
+ digest                 0.6.25   2020-02-23 [1] CRAN (R 4.0.0)
+ dplyr                * 1.0.2    2020-08-18 [1] CRAN (R 4.0.2)
+ ellipsis               0.3.1    2020-05-15 [2] CRAN (R 4.0.0)
+ fansi                  0.4.1    2020-01-08 [2] CRAN (R 4.0.0)
+ farver                 2.0.3    2020-01-16 [2] CRAN (R 4.0.0)
+ fastmap                1.0.1    2019-10-08 [2] CRAN (R 4.0.0)
+ generics               0.0.2    2018-11-29 [2] CRAN (R 4.0.0)
+ GenomeInfoDb         * 1.24.0   2020-04-27 [2] Bioconductor  
+ GenomeInfoDbData       1.2.3    2020-05-18 [2] Bioconductor  
+ GenomicRanges        * 1.40.0   2020-04-27 [2] Bioconductor  
+ ggplot2              * 3.3.0    2020-03-05 [2] CRAN (R 4.0.0)
+ glue                   1.4.2    2020-08-27 [1] CRAN (R 4.0.2)
+ gtable                 0.3.0    2019-03-25 [2] CRAN (R 4.0.0)
+ htmltools              0.5.0    2020-06-16 [1] CRAN (R 4.0.2)
+ htmlwidgets            1.5.1    2019-10-08 [2] CRAN (R 4.0.0)
+ httpuv                 1.5.4    2020-06-06 [1] CRAN (R 4.0.2)
+ httr                   1.4.2    2020-07-20 [1] CRAN (R 4.0.2)
+ IRanges              * 2.22.2   2020-05-21 [1] Bioconductor  
+ jsonlite               1.7.1    2020-09-07 [1] CRAN (R 4.0.2)
+ labeling               0.3      2014-08-23 [2] CRAN (R 4.0.0)
+ later                  1.1.0.1  2020-06-05 [1] CRAN (R 4.0.2)
+ lattice                0.20-41  2020-04-02 [3] CRAN (R 4.0.2)
+ lazyeval               0.2.2    2019-03-15 [2] CRAN (R 4.0.0)
+ lifecycle              0.2.0    2020-03-06 [1] CRAN (R 4.0.0)
+ magrittr               1.5      2014-11-22 [2] CRAN (R 4.0.0)
+ Matrix                 1.2-18   2019-11-27 [3] CRAN (R 4.0.2)
+ matrixStats          * 0.56.0   2020-03-13 [2] CRAN (R 4.0.0)
+ memoise                1.1.0    2017-04-21 [2] CRAN (R 4.0.0)
+ mime                   0.9      2020-02-04 [2] CRAN (R 4.0.0)
+ munsell                0.5.0    2018-06-12 [2] CRAN (R 4.0.0)
+ pillar                 1.4.6    2020-07-10 [1] CRAN (R 4.0.2)
+ pkgconfig              2.0.3    2019-09-22 [2] CRAN (R 4.0.0)
+ plotly               * 4.9.2.1  2020-04-04 [2] CRAN (R 4.0.0)
+ plyr                   1.8.6    2020-03-03 [2] CRAN (R 4.0.0)
+ promises               1.1.1    2020-06-09 [1] CRAN (R 4.0.2)
+ purrr                  0.3.4    2020-04-17 [1] CRAN (R 4.0.0)
+ R6                     2.4.1    2019-11-12 [2] CRAN (R 4.0.0)
+ rappdirs               0.3.1    2016-03-28 [2] CRAN (R 4.0.0)
+ RColorBrewer           1.1-2    2014-12-07 [2] CRAN (R 4.0.0)
+ Rcpp                   1.0.5    2020-07-06 [1] CRAN (R 4.0.2)
+ RCurl                  1.98-1.2 2020-04-18 [2] CRAN (R 4.0.0)
+ reshape2             * 1.4.4    2020-04-09 [2] CRAN (R 4.0.0)
+ rlang                * 0.4.7    2020-07-09 [1] CRAN (R 4.0.2)
+ RSQLite                2.2.0    2020-01-07 [2] CRAN (R 4.0.0)
+ S4Vectors            * 0.26.1   2020-05-16 [2] Bioconductor  
+ scales                 1.1.1    2020-05-11 [2] CRAN (R 4.0.0)
+ sessioninfo          * 1.1.1    2018-11-05 [2] CRAN (R 4.0.0)
+ shiny                  1.5.0    2020-06-23 [1] CRAN (R 4.0.2)
+ stringi                1.5.3    2020-09-09 [1] CRAN (R 4.0.2)
+ stringr                1.4.0    2019-02-10 [2] CRAN (R 4.0.0)
+ SummarizedExperiment * 1.18.1   2020-04-30 [2] Bioconductor  
+ tibble                 3.0.3    2020-07-10 [1] CRAN (R 4.0.2)
+ tidyr                  1.0.3    2020-05-07 [2] CRAN (R 4.0.0)
+ tidyselect             1.1.0    2020-05-11 [2] CRAN (R 4.0.0)
+ vctrs                  0.3.4    2020-08-29 [1] CRAN (R 4.0.2)
+ viridisLite            0.3.0    2018-02-01 [2] CRAN (R 4.0.0)
+ withr                  2.2.0    2020-04-20 [1] CRAN (R 4.0.0)
+ xtable                 1.8-4    2019-04-21 [2] CRAN (R 4.0.0)
+ XVector                0.28.0   2020-04-27 [2] Bioconductor  
+ yaml                   2.2.1    2020-02-01 [2] CRAN (R 4.0.0)
+ zlibbioc               1.34.0   2020-04-27 [2] Bioconductor  
+
+[1] /users/lhuuki/R/4.0
+[2] /jhpce/shared/jhpce/core/conda/miniconda3-4.6.14/envs/svnR-4.0/R/4.0/lib64/R/site-library
+[3] /jhpce/shared/jhpce/core/conda/miniconda3-4.6.14/envs/svnR-4.0/R/4.0/lib64/R/library
+**** Job ends ****
+Wed Sep 23 09:39:03 EDT 2020

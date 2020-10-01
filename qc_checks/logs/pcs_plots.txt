@@ -6,12 +6,12 @@ Loading LIBD module for rmate/1.5.9
 Loading LIBD module for ruby/2.6.4p104
 Loading conda_R/4.0
 **** Job starts ****
-Tue Sep 29 12:52:35 EDT 2020
+Mon Aug 31 13:11:21 EDT 2020
 **** JHPCE info ****
 User: lhuuki
-Job id: 3166859
-Job name: genomewide_run_eqtls_amyg
-Hostname: compute-068.cm.cluster
+Job id: 2341033
+Job name: pcs_plots
+Hostname: compute-096.cm.cluster
 Task id: undefined
 Unloading conda_R/4.0
 Loading conda_R/4.0
@@ -20,7 +20,7 @@ Currently Loaded Modules:
   1) matlab/R2019a     6) COMMUNITY_CENTOS7_DEFAULT_ENV  11) ruby/2.6.4p104
   2) stata/16          7) JHPCE_CENTOS7_DEFAULT_ENV      12) rmate/1.5.9
   3) JHPCE_tools/1.0   8) git-status-size/github         13) conda/3-4.6.14
-  4) sge/8.1.9         9) git/2.28.0                     14) conda_R/4.0
+  4) sge/8.1.9         9) git/2.23.0                     14) conda_R/4.0
   5) gcc/4.4.7        10) git-lfs/2.8.0
 
  
@@ -81,42 +81,78 @@ The following objects are masked from ‘package:base’:
 
     aperm, apply, rowsum
 
-Loading required package: rafalib
-Loading required package: mgcv
-Loading required package: nlme
+Setting options('download.file.method.GEOquery'='auto')
+Setting options('GEOquery.inmemory.gpl'=FALSE)
+Loading required package: limma
 
-Attaching package: ‘nlme’
+Attaching package: ‘limma’
+
+The following object is masked from ‘package:BiocGenerics’:
+
+    plotMA
+
+Loading required package: rafalib
+
+clusterProfiler v3.16.1  For help: https://guangchuangyu.github.io/software/clusterProfiler
+
+If you use clusterProfiler in published research, please cite:
+Guangchuang Yu, Li-Gen Wang, Yanyan Han, Qing-Yu He. clusterProfiler: an R package for comparing biological themes among gene clusters. OMICS: A Journal of Integrative Biology. 2012, 16(5):284-287.
+
+Attaching package: ‘clusterProfiler’
+
+The following object is masked from ‘package:DelayedArray’:
+
+    simplify
 
 The following object is masked from ‘package:IRanges’:
 
-    collapse
+    slice
 
-This is mgcv 1.8-31. For overview type 'help("mgcv-package")'.
-Loading required package: genefilter
+The following object is masked from ‘package:S4Vectors’:
 
-Attaching package: ‘genefilter’
+    rename
 
-The following objects are masked from ‘package:matrixStats’:
+The following object is masked from ‘package:stats’:
 
-    rowSds, rowVars
+    filter
 
-Loading required package: BiocParallel
-here() starts at /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq
+Loading required package: AnnotationDbi
+
+Attaching package: ‘AnnotationDbi’
+
+The following object is masked from ‘package:clusterProfiler’:
+
+    select
+
+
+Warning message:
+In dir.create("tables") : 'tables' already exists
 Loading objects:
   rse_gene
-Loading objects:
-  rse_exon
-Loading objects:
-  rse_jxn
-Loading objects:
-  rse_tx
-Loading objects:
-  snpMapKeep
-Error in readChar(con, 5L, useBytes = TRUE) : cannot open the connection
-Calls: load -> readChar
-In addition: Warning message:
-In readChar(con, 5L, useBytes = TRUE) :
-  cannot open compressed file '/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/genotype_data/goesHyde_bipolarMdd_Genotypes_n593.rda', probable reason 'No such file or directory'
+null device 
+          1 
+
+ chr1  chr2  chr3  chr4  chr5  chr6  chr7  chr8  chr9 chr10 chr11 chr12 chr13 chr14 chr15 chr16 chr17 chr18 chr19 chr20 chr21 chr22  chrX  chrY  chrM 
+ 2776  2005  1650  1164  1505  1492  1417  1115  1186  1198  1534  1615   626  1050  1180  1372  1714   544  1724   750   336   664   985    55    37 
+[1] 29694   378
+null device 
+          1 
+null device 
+          1 
+
+Attaching package: ‘lattice’
+
+The following object is masked from ‘package:clusterProfiler’:
+
+    dotplot
+
+null device 
+          1 
+[1] "Reproducibility information:"
+[1] "2020-08-31 13:12:19 EDT"
+   user  system elapsed 
+ 51.719   2.431  56.152 
+Error in session_info() : could not find function "session_info"
 Execution halted
 **** Job ends ****
-Tue Sep 29 12:55:19 EDT 2020
+Mon Aug 31 13:12:19 EDT 2020

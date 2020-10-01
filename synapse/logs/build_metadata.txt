@@ -1,0 +1,180 @@
+Adding LIBD modules
+Loading git
+Loading LIBD module for git-status-size/github
+Loading LIBD module for git-lfs/2.8.0
+Loading LIBD module for rmate/1.5.9
+Loading LIBD module for ruby/2.6.4p104
+Loading conda_R/4.0
+**** Job starts ****
+Mon Sep 14 15:13:31 EDT 2020
+**** JHPCE info ****
+User: lhuuki
+Job id: 2602696
+Job name: build_metadata
+Hostname: compute-098.cm.cluster
+Task id: undefined
+Unloading conda_R/4.0
+Loading conda_R/4.0
+
+Currently Loaded Modules:
+  1) matlab/R2019a     6) COMMUNITY_CENTOS7_DEFAULT_ENV  11) ruby/2.6.4p104
+  2) stata/16          7) JHPCE_CENTOS7_DEFAULT_ENV      12) rmate/1.5.9
+  3) JHPCE_tools/1.0   8) git-status-size/github         13) conda/3-4.6.14
+  4) sge/8.1.9         9) git/2.23.0                     14) conda_R/4.0
+  5) gcc/4.4.7        10) git-lfs/2.8.0
+
+ 
+
+Loading required package: GenomicRanges
+Loading required package: stats4
+Loading required package: BiocGenerics
+Loading required package: parallel
+
+Attaching package: ‘BiocGenerics’
+
+The following objects are masked from ‘package:parallel’:
+
+    clusterApply, clusterApplyLB, clusterCall, clusterEvalQ, clusterExport, clusterMap, parApply, parCapply, parLapply, parLapplyLB, parRapply, parSapply, parSapplyLB
+
+The following objects are masked from ‘package:stats’:
+
+    IQR, mad, sd, var, xtabs
+
+The following objects are masked from ‘package:base’:
+
+    anyDuplicated, append, as.data.frame, basename, cbind, colnames, dirname, do.call, duplicated, eval, evalq, Filter, Find, get, grep, grepl, intersect, is.unsorted, lapply,
+    Map, mapply, match, mget, order, paste, pmax, pmax.int, pmin, pmin.int, Position, rank, rbind, Reduce, rownames, sapply, setdiff, sort, table, tapply, union, unique, unsplit,
+    which, which.max, which.min
+
+Loading required package: S4Vectors
+
+Attaching package: ‘S4Vectors’
+
+The following object is masked from ‘package:base’:
+
+    expand.grid
+
+Loading required package: IRanges
+Loading required package: GenomeInfoDb
+Loading required package: Biobase
+Welcome to Bioconductor
+
+    Vignettes contain introductory material; view with 'browseVignettes()'. To cite Bioconductor, see 'citation("Biobase")', and for packages 'citation("pkgname")'.
+
+Loading required package: DelayedArray
+Loading required package: matrixStats
+
+Attaching package: ‘matrixStats’
+
+The following objects are masked from ‘package:Biobase’:
+
+    anyMissing, rowMedians
+
+
+Attaching package: ‘DelayedArray’
+
+The following objects are masked from ‘package:matrixStats’:
+
+    colMaxs, colMins, colRanges, rowMaxs, rowMins, rowRanges
+
+The following objects are masked from ‘package:base’:
+
+    aperm, apply, rowsum
+
+Loading required package: rafalib
+
+Attaching package: ‘dplyr’
+
+The following object is masked from ‘package:matrixStats’:
+
+    count
+
+The following object is masked from ‘package:Biobase’:
+
+    combine
+
+The following objects are masked from ‘package:GenomicRanges’:
+
+    intersect, setdiff, union
+
+The following object is masked from ‘package:GenomeInfoDb’:
+
+    intersect
+
+The following objects are masked from ‘package:IRanges’:
+
+    collapse, desc, intersect, setdiff, slice, union
+
+The following objects are masked from ‘package:S4Vectors’:
+
+    first, intersect, rename, setdiff, setequal, union
+
+The following objects are masked from ‘package:BiocGenerics’:
+
+    combine, intersect, setdiff, union
+
+The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+
+Attaching package: ‘purrr’
+
+The following object is masked from ‘package:DelayedArray’:
+
+    simplify
+
+The following object is masked from ‘package:GenomicRanges’:
+
+    reduce
+
+The following object is masked from ‘package:IRanges’:
+
+    reduce
+
+Joining, by = "BrNum"
+Joining, by = "BrNum"
+
+Individual
+data ID: BrNum template id: individualID
+14 matches in data
+18 values to replace
+[1] 316  33
+
+Biospecimen
+New names:
+* `` -> ...6
+data ID: RNum template id: specimenID
+6 matches in data
+2 values to replace
+[1] 617  13
+
+Assay
+data ID: RNum template id: specimenID
+4 matches in data
+Error: Can't subset columns that don't exist.
+✖ Column `LIBD_value` doesn't exist.
+Backtrace:
+     █
+  1. └─global::build_metadata(...)
+  2.   └─global::replace_values(template_xlsx, dataV)
+  3.     └─global::make_value_df(template_xlsx)
+  4.       └─`%>%`(...)
+  5.         ├─base::withVisible(eval(quote(`_fseq`(`_lhs`)), env, env))
+  6.         └─base::eval(quote(`_fseq`(`_lhs`)), env, env)
+  7.           └─base::eval(quote(`_fseq`(`_lhs`)), env, env)
+  8.             └─`_fseq`(`_lhs`)
+  9.               └─magrittr::freduce(value, `_function_list`)
+ 10.                 └─function_list[[i]](value)
+ 11.                   ├─dplyr::select(., key, value, LIBD_value)
+ 12.                   └─dplyr:::select.data.frame(., key, value, LIBD_value)
+ 13.                     └─tidyselect::eval_select(expr(c(...)), .data)
+ 14.                       └─tidyselect:::eval_select_impl(...)
+ 15.                         ├─tidyselect:::with_s
+Execution halted
+**** Job ends ****
+Mon Sep 14 15:15:18 EDT 2020

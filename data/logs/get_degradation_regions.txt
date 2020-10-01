@@ -6,12 +6,12 @@ Loading LIBD module for rmate/1.5.9
 Loading LIBD module for ruby/2.6.4p104
 Loading conda_R/4.0
 **** Job starts ****
-Tue Sep 29 12:52:35 EDT 2020
+Thu Oct  1 13:43:13 EDT 2020
 **** JHPCE info ****
 User: lhuuki
-Job id: 3166859
-Job name: genomewide_run_eqtls_amyg
-Hostname: compute-068.cm.cluster
+Job id: 3224286
+Job name: get_degradation_regions
+Hostname: compute-096.cm.cluster
 Task id: undefined
 Unloading conda_R/4.0
 Loading conda_R/4.0
@@ -25,6 +25,7 @@ Currently Loaded Modules:
 
  
 
+Loading required package: rafalib
 Loading required package: GenomicRanges
 Loading required package: stats4
 Loading required package: BiocGenerics
@@ -56,6 +57,7 @@ The following object is masked from ‘package:base’:
 
 Loading required package: IRanges
 Loading required package: GenomeInfoDb
+Loading required package: SummarizedExperiment
 Loading required package: Biobase
 Welcome to Bioconductor
 
@@ -81,42 +83,10 @@ The following objects are masked from ‘package:base’:
 
     aperm, apply, rowsum
 
-Loading required package: rafalib
-Loading required package: mgcv
-Loading required package: nlme
-
-Attaching package: ‘nlme’
-
-The following object is masked from ‘package:IRanges’:
-
-    collapse
-
-This is mgcv 1.8-31. For overview type 'help("mgcv-package")'.
-Loading required package: genefilter
-
-Attaching package: ‘genefilter’
-
-The following objects are masked from ‘package:matrixStats’:
-
-    rowSds, rowVars
-
-Loading required package: BiocParallel
+Setting options('download.file.method.GEOquery'='auto')
+Setting options('GEOquery.inmemory.gpl'=FALSE)
 here() starts at /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq
 Loading objects:
   rse_gene
-Loading objects:
-  rse_exon
-Loading objects:
-  rse_jxn
-Loading objects:
-  rse_tx
-Loading objects:
-  snpMapKeep
-Error in readChar(con, 5L, useBytes = TRUE) : cannot open the connection
-Calls: load -> readChar
-In addition: Warning message:
-In readChar(con, 5L, useBytes = TRUE) :
-  cannot open compressed file '/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/genotype_data/goesHyde_bipolarMdd_Genotypes_n593.rda', probable reason 'No such file or directory'
-Execution halted
-**** Job ends ****
-Tue Sep 29 12:55:19 EDT 2020
+[1] TRUE
+2020-10-01 13:43:38 switched sumsdir to degradation_joint_strand_positive
