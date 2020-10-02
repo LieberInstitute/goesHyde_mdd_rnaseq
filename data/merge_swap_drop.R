@@ -194,7 +194,7 @@ pd$colnames <- NULL
 message("Overlap tables RNum order matches: ",all(rse_both_ol$RNum == pd_overlap$RNum))
 message("Overlap tables Experiment order matches: ",all(rse_both_ol$Experiment == pd_overlap$Experiment))
 colData(rse_both_ol) <- DataFrame(pd_overlap)
-
+colnames(rse_both_ol) <- paste0(rse_both_ol$RNum,"_", rse_both_ol$Experiment)
 rse_gene <- rse_both_ol
 table(rse_gene$Experiment)
 save(rse_gene, file = paste0("rse_gene_control_overlap.rda"))
