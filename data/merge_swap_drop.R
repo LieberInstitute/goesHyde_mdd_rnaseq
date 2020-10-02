@@ -11,11 +11,10 @@ library(here)
 #load objects
 load(here('preprocessed_data','rse_gene_goesHyde_MDD_n634.Rdata'), verbose=TRUE)
 rse_mdd = rse_gene					# 634
-rse_mdd$Experiment = "GoesMDD"
+rse_mdd$Experiment = "psychENCODE_MDD"
 load("/dcl01/lieber/ajaffe/lab/zandiHyde_bipolar_rnaseq/preprocessed_data/rse_gene_zandiHyde_Bipolar_LIBD_n540.Rdata", verbose=TRUE) #changed to 540
 rse_bip = rse_gene					# 540
-rse_bip$Experiment = "ZandiBPD"
-
+rse_bip$Experiment = "psychENCODE_BP"
 #### MERGE ####
 # make colData consistent
 rse_mdd$AgeDeath = rse_mdd$Age
@@ -42,6 +41,10 @@ rowData(rse_both)$meanExprs = rowMeans(tempRpkm)
 
 mdd_pd  = colData(rse_both)
 table(mdd_pd$BrainRegion,mdd_pd$PrimaryDx)
+#       MDD Control Bipolar Other
+# Amygdala 243     205     125     1
+# sACC     244     225     130     1
+
 # rse_gene n1174
 rse_gene = rse_both
 message("Raw comined data: n" , ncol(rse_gene))
@@ -62,21 +65,6 @@ pd$Experiment <- factor(pd$Experiment, levels = c("psychENCODE_MDD","psychENCODE
 table(pd$Experiment)
 # psychENCODE_MDD  psychENCODE_BP 
 # 634             540 
-
-# drop 10 overlapping BPD Control samples
-pd <- pd %>%
-  group_by(RNum) %>% 
-  arrange(Experiment) %>%
-  slice(1) %>% 
-  ungroup()
-
-pd %>% count(Experiment, BrNum == "drop")
-# Experiment      `BrNum == "drop"`     n
-# <fct>           <lgl>             <int>
-#   1 psychENCODE_MDD FALSE               631
-# 2 psychENCODE_MDD TRUE                  3
-# 3 psychENCODE_BP  FALSE               523
-# 4 psychENCODE_BP  TRUE                  7
 
 
 #### Match with Brain_Sentrix samples ####
@@ -124,11 +112,14 @@ dups <- pd %>%
   mutate(nSamp = n()) %>%
   filter(nSamp>1, BrNum != "drop", !is.na(rna_preSwap_BrNum))
 
-# check if in lims
+# check if in lims and for overlaping controls
 lims <- read.csv("/dcl01/lieber/RNAseq/Datasets/BrainGenotyping_2018/SampleFiles/preBrainStorm/shiny070220.csv")
 pd_check <- pd %>% 
   left_join(corLong2_mdd, by = c("RNum","genoSample")) %>%
-  mutate(lims = BrNum %in% lims$BrNum)
+  mutate(lims = BrNum %in% lims$BrNum) %>%
+  group_by(RNum) %>%
+  mutate(overlap = n() >1) %>%
+  ungroup
 
 # drop break down by Experiment
 pd_check %>%
@@ -136,23 +127,47 @@ pd_check %>%
         dna_match = cor >= 0.59 & !is.na(cor), 
         good_rna = BrNum != "drop",
         in_lims = good_rna & lims,
-        dups = RNum %in% dups$RNum)
-# Experiment      dna_match good_rna in_lims dups      n
-# <fct>           <lgl>     <lgl>    <lgl>   <lgl> <int>
-#   1 psychENCODE_MDD FALSE     FALSE    FALSE   FALSE     3
-# 2 psychENCODE_MDD FALSE     TRUE     TRUE    FALSE     4
-# 3 psychENCODE_MDD TRUE      TRUE     FALSE   FALSE     4
-# 4 psychENCODE_MDD TRUE      TRUE     TRUE    FALSE   617
-# 5 psychENCODE_MDD TRUE      TRUE     TRUE    TRUE      6
-# 6 psychENCODE_BP  FALSE     FALSE    FALSE   FALSE     7
-# 7 psychENCODE_BP  FALSE     TRUE     TRUE    FALSE     4
-# 8 psychENCODE_BP  TRUE      TRUE     FALSE   FALSE     2
-# 9 psychENCODE_BP  TRUE      TRUE     TRUE    FALSE   516
-# 10 psychENCODE_BP  TRUE      TRUE     TRUE    TRUE      1
+        dups = RNum %in% dups$RNum, 
+        not_overlap_control = !overlap | Experiment != "psychENCODE_BP")
+# # A tibble: 11 x 7
+# Experiment      dna_match good_rna in_lims dups  not_overlap_control     n
+# <fct>           <lgl>     <lgl>    <lgl>   <lgl> <lgl>               <int>
+#   1 psychENCODE_MDD FALSE     FALSE    FALSE   FALSE TRUE                    3
+# 2 psychENCODE_MDD FALSE     TRUE     TRUE    FALSE TRUE                    4
+# 3 psychENCODE_MDD TRUE      TRUE     FALSE   FALSE TRUE                    4
+# 4 psychENCODE_MDD TRUE      TRUE     TRUE    FALSE TRUE                  617
+# 5 psychENCODE_MDD TRUE      TRUE     TRUE    TRUE  TRUE                    6
+# 6 psychENCODE_BP  FALSE     FALSE    FALSE   FALSE TRUE                    7
+# 7 psychENCODE_BP  FALSE     TRUE     TRUE    FALSE TRUE                    4
+# 8 psychENCODE_BP  TRUE      TRUE     FALSE   FALSE TRUE                    2
+# 9 psychENCODE_BP  TRUE      TRUE     TRUE    FALSE FALSE                  10
+# 10 psychENCODE_BP  TRUE      TRUE     TRUE    FALSE TRUE                  516
+# 11 psychENCODE_BP  TRUE      TRUE     TRUE    TRUE  TRUE                    1
 
 #### DROP ####
+## Find overlapping control samples
+control_overlap <- pd %>%
+  group_by(RNum) %>%
+  filter(n() >1 )
+
+#Get paths for MDD fastq files
+fastq_mdd <- paste0("/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/preprocessed_data/FASTQ_merged/",pd$RNum[pd$Experiment == "psychENCODE_MDD"],".fastq.gz")
+fastq_mdd2 <- paste0("/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/preprocessed_data/FASTQ_merged/",pd$RNum[pd$Experiment == "psychENCODE_MDD"],"_read2.fastq.gz")
+#check valid paths
+fe_mdd <- file.exists(c(fastq_mdd, fastq_mdd2))
+message("All ",length(fe_mdd)," fastq files exist:", all(fe_mdd))
+
+fastd_df <- data.frame(pd$RNum[pd$Experiment == "psychENCODE_MDD"], fastq_mdd, fastq_mdd2)
+colnames(fastd_df) <- c("RNum", "read1", "read2")
+
+## Add fastq paths 
+pd_check <- pd_check %>% 
+  left_join(fastd_df, by = "RNum")
+
+## Drop Samples
 pd_good <- pd_check %>% 
-  filter(BrNum != "drop" & cor >=0.59 & lims & !RNum %in% dups$RNum) 
+  filter(BrNum != "drop" & cor >=0.59 & lims & !RNum %in% dups$RNum &
+           !(overlap & Experiment == "psychENCODE_BP")) 
 n = nrow(pd_good)
 message("After drop: n", n)
 
@@ -165,28 +180,30 @@ dna_rna_cor_histo <- pd_good %>%
 
 ggsave(filename = "MDDsamples_cor_histo.jpg", plot = dna_rna_cor_histo)
 
-#Get paths for MDD fastq files
-fastq_mdd <- paste0("/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/preprocessed_data/FASTQ_merged/",pd$RNum[pd$Experiment == "psychENCODE_MDD"],".fastq.gz")
-fastq_mdd2 <- paste0("/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/preprocessed_data/FASTQ_merged/",pd$RNum[pd$Experiment == "psychENCODE_MDD"],"_read2.fastq.gz")
-#check valid paths
-fe_mdd <- file.exists(c(fastq_mdd, fastq_mdd2))
-message("All ",length(fe_mdd)," fastq files exist:", all(fe_mdd))
+# After drop: n1133
+write.csv(pd_good, "raw_GoesZandi_pd.csv")
 
-fastd_df <- data.frame(pd$RNum[pd$Experiment == "psychENCODE_MDD"], fastq_mdd, fastq_mdd2)
-colnames(fastd_df) <- c("RNum", "read1", "read2")
-
-# Add fastq paths 
 pd <- pd_good %>% 
-  left_join(fastd_df, by = "RNum") %>%
-  arrange(BrNum) %>%
-  arrange(Experiment) %>%
-  select(-lims)
+  select(all_of(c(colKeep,"genoSample","SAMPLE_ID","rna_preSwap_BrNum","dna_preSwap_BrNum"))) 
 
-write.csv(pd, "raw_GoesZandi_pd.csv")
+#### Create rse_gene for overlap samples ####
+pd_overlap <- pd_check %>%
+  filter(overlap) %>% 
+  select(all_of(c(colKeep,"genoSample","SAMPLE_ID","rna_preSwap_BrNum","dna_preSwap_BrNum")))
 
-pd <- pd %>% select(all_of(c(colKeep,"genoSample","SAMPLE_ID","rna_preSwap_BrNum","dna_preSwap_BrNum"))) 
+rse_mdd_ol <- rse_mdd[,which(rse_mdd$RNum %in% pd_overlap$RNum)]
+rse_bip_ol <- rse_bip[,which(rse_bip$RNum %in% pd_overlap$RNum)]
+rse_both_ol = cbind(rse_mdd_ol, rse_bip_ol) #20
+pd_overlap <- pd_overlap[match(rse_both_ol$RNum, pd_overlap$RNum),]
+ncol(rse_both_ol) == nrow(pd_overlap)
+colData(rse_both_ol) <- DataFrame(pd_overlap)
+colnames(rse_both_ol) <- paste0(pd_overlap$RNum,"_", pd_overlap$Experiment)
+
+rse_gene <- rse_both_ol
+save(rse_gene, file = paste0("rse_gene_control_overlap.rda"))
+
 #### Update rse_gene ####
-### combine
+## combine
 rse_mdd <- rse_mdd[,which(rse_mdd$RNum %in% pd$RNum)]
 rse_bip <- rse_bip[,which(rse_bip$RNum %in% pd$RNum & !rse_bip$RNum %in% rse_mdd$RNum)]
 rse_both = cbind(rse_mdd, rse_bip) #1140
@@ -197,6 +214,7 @@ colnames(rse_both) <- paste0(pd$RNum,"_", pd$Experiment)
 
 rse_gene <- rse_both
 save(rse_gene, file = paste0("rse_gene_raw_GoesZandi.rda"))
+
 
 ## Reproducibility information
 print('Reproducibility information:')
