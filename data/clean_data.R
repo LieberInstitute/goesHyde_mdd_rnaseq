@@ -16,38 +16,48 @@ library(here)
 # load data
 load("rse_gene_raw_GoesZandi.rda", verbose = TRUE)
 qc <- read.csv(here("qc_checks","qc_dropping_results.csv"), stringsAsFactors = FALSE, row.names = 1)
-message("Samples match:", all(rse_gene$RNum == qc$RNum))
+message("Samples match: ", all(rse_gene$RNum == qc$RNum))
 
 #Correct BrainRegion
-qc[qc$BrainRegion != rse_gene$BrainRegion,]
-#             Experiment  BrNum AgeDeath Sex Race PrimaryDx BrainRegion RIN Plate dropMetrics dropRegion dropRace
-# R14179 psychENCODE_MDD Br1469    28.57   M CAUC   Control    Amygdala 7.6     2       FALSE      FALSE    FALSE
-# R17496 psychENCODE_MDD Br1469    28.57   M CAUC   Control        sACC 8.0     2       FALSE      FALSE    FALSE
 rse_gene$BrainRegion <- qc$BrainRegion
 
 ## Add ERCCsumLogErr
 rse_gene$ERCCsumLogErr <- qc$ERCCsumLogErr
 
+## Extract rse_gene_ol
+rse_gene_ol <- rse_gene[, which(rse_gene$overlap)]
+message("Overlapping control samples: ", ncol(rse_gene_ol))
+
 ## drop
-qc <- qc[rowSums(qc[, c("dropMetrics", "dropRegion", "dropRace")]) > 0, ]
-# filter from ppt_plot
+qc <- qc[qc$dropSum > 0, ]
+message("Drop ", nrow(qc), " from qc_checks")
+# filter from qc_checks results
 rse_gene <- rse_gene[, -which(rse_gene$RNum %in% qc$RNum)]
+n <- ncol(rse_gene)
 # other filters
-rse_gene <- rse_gene[, which(!rse_gene$RNum %in% c("R17538", "R18853") | rse_gene$PrimaryDx != "Other")]
-message("Drop: ", nrow(qc))
+other_filter <- which(!rse_gene$RNum %in% c("R17538", "R18853") &
+                        rse_gene$PrimaryDx != "Other"&
+                        !(rse_gene$overlap & rse_gene$Experiment == "psychENCODE_BP"))
+message("Drop ", n-length(other_filter), " for other filters")
+rse_gene <- rse_gene[, other_filter]
+
 n <- ncol(rse_gene)
 message("Remaining Samples: ", n)
 
 rse_gene$PrimaryDx <- factor(rse_gene$PrimaryDx, levels = c("MDD", "Control", "Bipolar"))
+rse_gene_ol$PrimaryDx <- factor(rse_gene_ol$PrimaryDx, levels = c("MDD", "Control", "Bipolar"))
 
 tempRpkm <- recount::getRPKM(rse_gene, "Length")
 rowData(rse_gene)$meanExprs <- rowMeans(tempRpkm)
 
+tempRpkm <- recount::getRPKM(rse_gene_ol, "Length")
+rowData(rse_gene_ol)$meanExprs <- rowMeans(tempRpkm)
 ## Confirm bam files exist
 # message("All bam files exist: ", all(file.exists(rse_gene$bamFile)))
 
-## Save rse_gene
+## Save rse_gene and rse_gene_ol
 save(rse_gene, file = "rse_gene_GoesZandi.rda")
+save(rse_gene_ol, file = "rse_gene_overlap_GoesZandi.rda")
 
 # create objects from rse_gene
 pd <- colData(rse_gene)
