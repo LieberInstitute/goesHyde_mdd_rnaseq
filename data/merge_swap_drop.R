@@ -155,10 +155,10 @@ pd_check <- pd_check %>%
 
 ## Drop Samples
 pd_good <- pd_check %>% 
-  filter(BrNum != "drop" & cor >=0.59 & lims & !RNum %in% dups$RNum &
-           !(overlap & Experiment == "psychENCODE_BP")) 
+  filter(BrNum != "drop" & cor >=0.59 & lims & !RNum %in% dups$RNum) 
 n = nrow(pd_good)
 message("After drop: n", n)
+message(sum(pd_good$overlap)/2, " Are control overlaps")
 
 # create histogram of rna-dna cor
 dna_rna_cor_histo <- pd_good %>%
@@ -169,42 +169,19 @@ dna_rna_cor_histo <- pd_good %>%
 
 ggsave(filename = "MDDsamples_cor_histo.jpg", plot = dna_rna_cor_histo)
 
-# After drop: n1133
 write.csv(pd_good, "raw_GoesZandi_pd.csv")
 
 pd <- pd_good %>% 
-  select(all_of(c(colKeep,"genoSample","SAMPLE_ID","rna_preSwap_BrNum","dna_preSwap_BrNum"))) 
-
-#### Create rse_gene for overlap samples ####
-pd_overlap <- pd_check %>%
-  filter(overlap) %>% 
-  select(all_of(c(colKeep,"genoSample","SAMPLE_ID","rna_preSwap_BrNum","dna_preSwap_BrNum"))) %>%
-  mutate(colnames = paste0(RNum,"_",Experiment))
-
-table(pd_overlap$Experiment)
-# psychENCODE_MDD  psychENCODE_BP 
-# 10              10 
-
-rse_mdd_ol <- rse_mdd[,which(rse_mdd$RNum %in% pd_overlap$RNum)]
-rse_bip_ol <- rse_bip[,which(rse_bip$RNum %in% pd_overlap$RNum)]
-rse_both_ol = cbind(rse_mdd_ol, rse_bip_ol) #20
-colnames(rse_both_ol) <- paste0(rse_both_ol$RNum,"_", rse_both_ol$Experiment)
-pd_overlap <- pd_overlap[match(colnames(rse_both_ol),pd_overlap$colnames),]
-pd$colnames <- NULL
-message("Overlap tables RNum order matches: ",all(rse_both_ol$RNum == pd_overlap$RNum))
-message("Overlap tables Experiment order matches: ",all(rse_both_ol$Experiment == pd_overlap$Experiment))
-colData(rse_both_ol) <- DataFrame(pd_overlap)
-colnames(rse_both_ol) <- paste0(rse_both_ol$RNum,"_", rse_both_ol$Experiment)
-rse_gene <- rse_both_ol
-table(rse_gene$Experiment)
-save(rse_gene, file = paste0("rse_gene_control_overlap.rda"))
+  select(all_of(c(colKeep,"genoSample","SAMPLE_ID","rna_preSwap_BrNum","dna_preSwap_BrNum","overlap"))) %>%
+  mutate(colname = paste0(RNum, "_", Experiment))
 
 #### Update rse_gene ####
 ## combine
 rse_mdd <- rse_mdd[,which(rse_mdd$RNum %in% pd$RNum)]
 rse_bip <- rse_bip[,which(rse_bip$RNum %in% pd$RNum & !rse_bip$RNum %in% rse_mdd$RNum)]
 rse_both = cbind(rse_mdd, rse_bip) #1140
-pd <- pd[match(rse_both$RNum, pd$RNum),]
+colnames(rse_both) <- paste0(rse_both$RNum, "_", rse_both$Experiment)
+pd <- pd[match(colnames(rse_both), pd$colname),]
 ncol(rse_both) == nrow(pd)
 colData(rse_both) <- DataFrame(pd)
 colnames(rse_both) <- paste0(pd$RNum,"_", pd$Experiment)
