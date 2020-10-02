@@ -43,8 +43,7 @@ rowData(rse_both)$meanExprs = rowMeans(tempRpkm)
 mdd_pd  = colData(rse_both)
 
 # rse_gene n1174
-rse_gene = rse_both
-message("Raw comined data: n" , ncol(rse_gene))
+message("Raw comined data: n" , ncol(rse_both))
 
 
 #### Swap and flag rna samples to drop####
@@ -170,7 +169,7 @@ dna_rna_cor_histo <- pd_good %>%
 ggsave(filename = "MDDsamples_cor_histo.jpg", plot = dna_rna_cor_histo)
 
 write.csv(pd_good, "raw_GoesZandi_pd.csv")
-
+## pd_good <- read.csv("raw_GoesZandi_pd.csv")
 pd <- pd_good %>% 
   select(all_of(c(colKeep,"genoSample","SAMPLE_ID","rna_preSwap_BrNum","dna_preSwap_BrNum","overlap"))) %>%
   mutate(colname = paste0(RNum, "_", Experiment))
@@ -178,7 +177,7 @@ pd <- pd_good %>%
 #### Update rse_gene ####
 ## combine
 rse_mdd <- rse_mdd[,which(rse_mdd$RNum %in% pd$RNum)]
-rse_bip <- rse_bip[,which(rse_bip$RNum %in% pd$RNum & !rse_bip$RNum %in% rse_mdd$RNum)]
+rse_bip <- rse_bip[,which(rse_bip$RNum %in% pd$RNum)]
 rse_both = cbind(rse_mdd, rse_bip) #1140
 colnames(rse_both) <- paste0(rse_both$RNum, "_", rse_both$Experiment)
 pd <- pd[match(colnames(rse_both), pd$colname),]
