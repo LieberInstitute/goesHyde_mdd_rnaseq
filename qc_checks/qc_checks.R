@@ -79,6 +79,12 @@ mix1conc = matrix(
 logErr = (log2(erccTPM + 1) - log2(10 * mix1conc + 1))
 pd$ERCCsumLogErr[pd$Experiment == "psychENCODE_MDD"] = colSums(logErr)
 
+## Save ERCC data then subset
+pd_w_overlap <- pd
+rse_gene <- rse_gene[,which(!(rse_gene$overlap & rse_gene$Experiment == "psychENCODE_BP"))]
+pd <- pd[which(!(pd$overlap & pd$Experiment == "psychENCODE_BP")),]
+
+
 colnames(erccTPM) <- paste0(colnames(erccTPM),": ",round(colSums(logErr),2))
 pdf(
     file.path('pdfs/ercc_spikein_check_mix1_drop_flagged_samples.pdf'),
@@ -131,34 +137,34 @@ table(table(pd$BrNum))
 summary(pd$Age)
 
 # > table(pd$BrainRegion, pd$PrimaryDx)
-
+# 
 # Bipolar Control MDD
-# Amygdala     125     194 240
-# sACC         128     214 239
+# Amygdala     124     194 238
+# sACC         128     211 238
 # > table(pd$Sex, pd$PrimaryDx)
-#
+# 
 # Bipolar Control MDD
-# F      99      86 159
-# M     154     322 320
+# F      99      85 159
+# M     153     320 317
 # > table(pd$Race, pd$PrimaryDx)
-#
+# 
 # Bipolar Control MDD
 # AA         0       5   0
 # AS         0       2   0
-# CAUC     253     397 479
+# CAUC     252     394 476
 # HISP       0       4   0
 # > table(table(pd$BrNum))
-#
-# 1   2   3
-# 71 524   7
+# 
+# 1   2 
+# 71 531 
 # > summary(pd$Age)
-# Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
-# 17.37   34.41   47.15   46.55   55.91   95.27
+# Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+# 17.37   34.56   47.21   46.61   55.91   95.27
 
 
 summary(pd$numReads)
-# Min.   1st Qu.    Median      Mean   3rd Qu.      Max.
-# 10284026  87697208 103523346 122609239 138632467 453612210
+# Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
+# 10284026  98329896 124876130 125324938 140370472 453612210
 
 
 aL <- min(pd$totalAssignedGene)
@@ -210,7 +216,7 @@ pd$dropMetrics[pd$overallMapRate < 0.5 |
 
 table(pd$dropMetrics)
 # FALSE  TRUE
-# 1133     10
+# 1123     10
 
 ####################################
 
@@ -373,8 +379,6 @@ dev.off()
 
 
 #################################
-### regional labeling
-
 gRpkm <- recount::getRPKM(rse_gene, "Length")
 
 ## filter low expressing genes
@@ -446,31 +450,32 @@ pd[which(pd$BrainRegion == "sACC" & pd$guess < .3), info_cols]
 pd[which(pd$BrainRegion == "Amygdala" & pd$guess > 0.9), info_cols]
 
 
+# > pd[which(pd$BrainRegion == "sACC" & pd$guess < .3), info_cols]
 # BrNum      Experiment AgeDeath Sex Race PrimaryDx BrainRegion dropMetrics       guess
-# R14179_psychENCODE_MDD Br1469 psychENCODE_MDD 28.57000   M CAUC   Control        sACC       FALSE -0.01452763
-# R17520_psychENCODE_MDD Br1635 psychENCODE_MDD 52.31000   M CAUC       MDD        sACC       FALSE  0.20640366
-# R17527_psychENCODE_MDD Br1675 psychENCODE_MDD 32.10000   M CAUC       MDD        sACC       FALSE -0.03900185
-# R17547_psychENCODE_MDD Br1754 psychENCODE_MDD 25.98000   F CAUC       MDD        sACC       FALSE  0.02626940
-# R17579_psychENCODE_MDD Br6099 psychENCODE_MDD 26.66381   M CAUC       MDD        sACC       FALSE  0.12403490
-# R17894_psychENCODE_MDD Br8017 psychENCODE_MDD 49.29500   M CAUC       MDD        sACC       FALSE  0.25591506
-# R17941_psychENCODE_MDD Br8133 psychENCODE_MDD 62.36813   M CAUC       MDD        sACC       FALSE -0.09759443
-# R17952_psychENCODE_MDD Br5549 psychENCODE_MDD 67.47000   M CAUC       MDD        sACC       FALSE  0.01866621
-# R18430_psychENCODE_MDD Br3863 psychENCODE_MDD 69.33904   M CAUC   Control        sACC       FALSE -0.12428720
-# R18458_psychENCODE_MDD Br8313 psychENCODE_MDD 55.41672   M CAUC   Control        sACC       FALSE  0.14767064
-# R19186_psychENCODE_MDD Br1475 psychENCODE_MDD 43.30000   M CAUC       MDD        sACC       FALSE  0.04996062
-# R14110_psychENCODE_BP  Br1562  psychENCODE_BP 36.15000   M CAUC   Bipolar        sACC       FALSE  0.27638628
-# R14175_psychENCODE_BP  Br1752  psychENCODE_BP 39.20000   F CAUC   Bipolar        sACC       FALSE  0.06713448
-# R14179_psychENCODE_BP  Br1469  psychENCODE_BP 28.57000   M CAUC   Control        sACC       FALSE -0.03493316
-# R14182_psychENCODE_BP  Br1558  psychENCODE_BP 23.43000   F CAUC   Control        sACC       FALSE  0.26839632
-# R14228_psychENCODE_BP  Br2333  psychENCODE_BP 62.99000   F CAUC   Control        sACC       FALSE  0.03937358
-# R14235_psychENCODE_BP  Br1661  psychENCODE_BP 51.15000   M CAUC   Bipolar        sACC       FALSE  0.27786712
-# R14269_psychENCODE_BP  Br5555  psychENCODE_BP 21.34000   M CAUC   Control        sACC       FALSE  0.13650520
-# R14295_psychENCODE_BP  Br2071  psychENCODE_BP 40.62000   F CAUC   Bipolar        sACC       FALSE  0.14280649
+# R14179_psychENCODE_MDD Br1469 psychENCODE_MDD 28.57000   M CAUC   Control        sACC       FALSE -0.02164456
+# R17520_psychENCODE_MDD Br1635 psychENCODE_MDD 52.31000   M CAUC       MDD        sACC       FALSE  0.23011238
+# R17527_psychENCODE_MDD Br1675 psychENCODE_MDD 32.10000   M CAUC       MDD        sACC       FALSE -0.05716669
+# R17547_psychENCODE_MDD Br1754 psychENCODE_MDD 25.98000   F CAUC       MDD        sACC       FALSE  0.01790201
+# R17579_psychENCODE_MDD Br6099 psychENCODE_MDD 26.66381   M CAUC       MDD        sACC       FALSE  0.15199089
+# R17894_psychENCODE_MDD Br8017 psychENCODE_MDD 49.29500   M CAUC       MDD        sACC       FALSE  0.26063444
+# R17941_psychENCODE_MDD Br8133 psychENCODE_MDD 62.36813   M CAUC       MDD        sACC       FALSE -0.10461149
+# R17952_psychENCODE_MDD Br5549 psychENCODE_MDD 67.47000   M CAUC       MDD        sACC       FALSE  0.00817374
+# R18430_psychENCODE_MDD Br3863 psychENCODE_MDD 69.33904   M CAUC   Control        sACC       FALSE -0.12310363
+# R18458_psychENCODE_MDD Br8313 psychENCODE_MDD 55.41672   M CAUC   Control        sACC       FALSE  0.13418687
+# R19186_psychENCODE_MDD Br1475 psychENCODE_MDD 43.30000   M CAUC       MDD        sACC       FALSE  0.06544030
+# R14110_psychENCODE_BP  Br1562  psychENCODE_BP 36.15000   M CAUC   Bipolar        sACC       FALSE  0.28045837
+# R14175_psychENCODE_BP  Br1752  psychENCODE_BP 39.20000   F CAUC   Bipolar        sACC       FALSE  0.06133343
+# R14182_psychENCODE_BP  Br1558  psychENCODE_BP 23.43000   F CAUC   Control        sACC       FALSE  0.26571007
+# R14228_psychENCODE_BP  Br2333  psychENCODE_BP 62.99000   F CAUC   Control        sACC       FALSE  0.03516886
+# R14235_psychENCODE_BP  Br1661  psychENCODE_BP 51.15000   M CAUC   Bipolar        sACC       FALSE  0.27344968
+# R14269_psychENCODE_BP  Br5555  psychENCODE_BP 21.34000   M CAUC   Control        sACC       FALSE  0.13404464
+# R14295_psychENCODE_BP  Br2071  psychENCODE_BP 40.62000   F CAUC   Bipolar        sACC       FALSE  0.12752884
 # > pd[which(pd$BrainRegion == "Amygdala" & pd$guess > 0.9), info_cols]
-# BrNum      Experiment AgeDeath Sex Race PrimaryDx BrainRegion dropMetrics    guess
-# R17496_psychENCODE_MDD Br1469 psychENCODE_MDD 28.57000   M CAUC   Control    Amygdala       FALSE 1.073050
-# R14081_psychENCODE_BP  Br5611  psychENCODE_BP 63.82000   F CAUC   Bipolar    Amygdala       FALSE 1.014568
-# R15072_psychENCODE_BP  Br5939  psychENCODE_BP 55.90965   M CAUC   Bipolar    Amygdala       FALSE 1.055168
+# BrNum      Experiment AgeDeath Sex Race PrimaryDx BrainRegion dropMetrics     guess
+# R17496_psychENCODE_MDD Br1469 psychENCODE_MDD 28.57000   M CAUC   Control    Amygdala       FALSE 1.0739337
+# R18938_psychENCODE_MDD Br6293 psychENCODE_MDD 27.85763   F CAUC       MDD    Amygdala       FALSE 0.9014287
+# R14081_psychENCODE_BP  Br5611  psychENCODE_BP 63.82000   F CAUC   Bipolar    Amygdala       FALSE 1.0084742
+# R15072_psychENCODE_BP  Br5939  psychENCODE_BP 55.90965   M CAUC   Bipolar    Amygdala       FALSE 1.0569380
 
 ## Br1469 labels got switched
 pd[which(pd$RNum == "R14179"), "BrainRegion"] <- "Amygdala"
@@ -483,11 +488,8 @@ pd$dropRegion <- FALSE
 pd$dropRegion[dropInd] <- TRUE
 
 table(pd$dropRegion)
-# FALSE  TRUE
-# 1119    21
-## With overlap controls included
 # FALSE  TRUE 
-# 1126    19
+# 1113    20
 
 ######################################################## .
 gia <- read.csv(here("synapse","genotypeInferredAncestry.csv"))
@@ -501,12 +503,12 @@ table(pd$Race, pd$geneticRace)
 # AA ambiguous   AS CAUC HISP
 # AA      5         0    0    0    0
 # AS      0         0    2    0    0
-# CAUC    0         2    0 1130    0
+# CAUC    0         2    0 1120    0
 # HISP    0         0    0    1    3
 
 table(pd$dropRace)
 # FALSE  TRUE 
-# 1131    12 
+# 1121    12 
 
 
 ######################################################## .
@@ -529,7 +531,7 @@ temp_info_cols <-
 pd[which(pd$dropMetrics == TRUE |
              pd$dropRegion == TRUE | pd$dropRace == TRUE), temp_info_cols]
 
-# BrNum Sex Race PrimaryDx BrainRegion RIN  numReads geneticRace dropMetrics dropRegion dropRace
+#                         BrNum Sex Race PrimaryDx BrainRegion RIN  numReads geneticRace dropMetrics dropRegion dropRace
 # R17514_psychENCODE_MDD Br1582   F CAUC       MDD    Amygdala 6.7  15252860        CAUC        TRUE      FALSE    FALSE
 # R17520_psychENCODE_MDD Br1635   M CAUC       MDD        sACC 6.6  72006392        CAUC       FALSE       TRUE    FALSE
 # R17527_psychENCODE_MDD Br1675   M CAUC       MDD        sACC 6.8  95710478        CAUC       FALSE       TRUE    FALSE
@@ -557,6 +559,7 @@ pd[which(pd$dropMetrics == TRUE |
 # R18461_psychENCODE_MDD Br5146   F   AA   Control    Amygdala 6.8  89905868          AA       FALSE      FALSE     TRUE
 # R18462_psychENCODE_MDD Br5146   F   AA   Control        sACC 7.6 179353610          AA       FALSE      FALSE     TRUE
 # R18824_psychENCODE_MDD Br3877   M CAUC       MDD    Amygdala 6.4 125328900   ambiguous       FALSE      FALSE     TRUE
+# R18938_psychENCODE_MDD Br6293   F CAUC       MDD    Amygdala 7.6  96275448        CAUC       FALSE       TRUE    FALSE
 # R19186_psychENCODE_MDD Br1475   M CAUC       MDD        sACC 8.9 313300392        CAUC       FALSE       TRUE    FALSE
 # R13935_psychENCODE_BP  Br0922   M CAUC   Control    Amygdala 6.2 116357154        CAUC        TRUE      FALSE    FALSE
 # R14003_psychENCODE_BP  Br2333   F CAUC   Control    Amygdala 6.4 139167058        CAUC        TRUE      FALSE    FALSE
@@ -578,13 +581,13 @@ pd$dropSum <-
 message("Number of samples to drop: ",sum(pd$dropSum > 0))
 
 ## Save qc_dropping results
-qcresults <- pd
+qc_results <- pd_w_overlap %>% left_join(pd)
 
 ## Update pd
-pd <- pd[-which(pd$dropSum > 0 & !(pd$overlap & pd$Experiment == "psychENCODE_BP")),]
+pd <- pd[-which(pd$dropSum > 0),]
 
 message("Remaining Samples: n", nrow(pd))
-# 1102
+# 1091
 
 table(pd$BrainRegion, pd$PrimaryDx)
 table(pd$Sex, pd$PrimaryDx)
@@ -596,28 +599,28 @@ summary(pd$Age)
 # > table(pd$BrainRegion, pd$PrimaryDx)
 #
 # Bipolar Control MDD
-# Amygdala     123     188 234
-# sACC         123     202 230
+# Amygdala     122     187 231
+# sACC         123     200 228
 # > table(pd$Sex, pd$PrimaryDx)
-#
+# 
 # Bipolar Control MDD
-# F      96      77 156
-# M     150     313 308
+# F      96      76 155
+# M     149     311 304
 # > table(pd$Race, pd$PrimaryDx)
-#
+# 
 # Bipolar Control MDD
-# CAUC     246     389 464
+# CAUC     245     386 459
 # HISP       0       1   0
 # > table(table(pd$BrNum))
-#
-# 1   2   3
-# 98 492   6
+# 
+# 1   2 
+# 99 496 
 # > summary(pd$Age)
-# Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
-# 17.37   34.53   47.09   46.55   55.87   95.27
+# Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+# 17.37   34.62   47.21   46.58   55.86   95.27
 
-rownames(qcresults) <- paste0(qcresults$RNum,"_",qcresults$Experiment)
-write.csv(qcresults, file = "qc_dropping_results.csv")
+rownames(qc_results) <- paste0(qc_results$RNum,"_",qc_results$Experiment)
+write.csv(qc_results, file = "qc_dropping_results.csv")
 
 
 #### PCA - Combined data ####
