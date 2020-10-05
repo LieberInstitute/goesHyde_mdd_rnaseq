@@ -73,6 +73,7 @@ RNum_mdd <- pd_mdd$RNum
 indi_md_fn <- "psychENCODE_MDD_individual_human.csv"
 bio_md_fn <- "psychENCODE_MDD_biospecimen.csv"
 assay_md_fn <- "psychENCODE_MDD_assay_rnaSeq.csv"
+assay_Array_md_fn <- "psychENCODE_MDD_assay_rnaArray.csv"
 mani_md_fn <- "psychENCODE_MDD_manifest.tsv"
 
 # Individual
@@ -91,10 +92,32 @@ write.csv(bio_md, file = bio_md_fn, row.names = FALSE)
 
 # Assay
 message("\nAssay")
+# rnaSeq
+message("\nrnaSeq Assay")
 assay_md <- build_metadata("template_assay_rnaSeq.xlsx", pd, "RNum", RNum_mdd)
 dim(assay_md)
 # [1] 627  19
 write.csv(assay_md, file = assay_md_fn, row.names = FALSE)
+
+
+# rnaArray
+message("\nrnaArray Assay")
+
+# build genotype file manifest
+geno_files <- scan("../genotype_data/manifest.txt", what="character", sep="\n")
+geno_assay <- tibble(file = geno_files,
+                     fileFormat = gsub("^.*\\.", "", geno_files)) %>% 
+    filter(fileFormat == "fam") %>%
+    mutate(chip_info = gsub(".fam", "", gsub("_mdd","",file)),
+           chip = gsub("v.*$|_v.*$|-8.*$","",chip_info))
+fam_tables <- map(geno_assay$file, ~read.delim(here("genotype_data",.x), header = FALSE,sep = " "))
+fam_df <- bind_rows(fam_tables) %>%
+    transmute(genoSample = paste0(V1, "_", V2)) %>%
+    left_join(brain_sentrix %>% select(genoSample = ID, BrNum, Batch))
+fam_df$chip <- rep(geno_assay$chip, map_int(fam_tables, nrow))
+# More info here: dcl01/lieber/RNAseq/Datasets/BrainGenotyping_2018/SampleFiles/
+fam_df_mdd <- fam_df %>% filter(!is.na(BrNum))
+rnaArray_md <- build_metadata("template_assay_snpArray.xlsx",fam_df_mdd, "genoSample", fam_df_mdd$genoSample)
 
 # Manifest
 message("\nManifest")
@@ -109,8 +132,6 @@ meta_manifest <- data.frame(
 )
 colnames(meta_manifest) <- c("path", "metadataType", "fileFormat","dataSubtype")
 
-# build genotype file manifest
-geno_files <- scan("../genotype_data/manifest.txt", what="character", sep="\n")
 geno_n <- length(geno_files)
 geno_paths <- paste0("/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/genotype_data/", geno_files)
 geno_manifest <- data.frame(
@@ -120,7 +141,6 @@ geno_manifest <- data.frame(
     rep("processed", geno_n)
 )
 colnames(geno_manifest) <- c("path", "fileFormat", "assay", "dataSubtype")
-
 
 mdd_all_mani <- meta_manifest %>%
     mutate(assay = NA) %>%
