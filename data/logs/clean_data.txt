@@ -6,10 +6,10 @@ Loading LIBD module for rmate/1.5.9
 Loading LIBD module for ruby/2.6.4p104
 Loading conda_R/4.0
 **** Job starts ****
-Wed Sep 23 09:09:12 EDT 2020
+Mon Oct  5 14:53:26 EDT 2020
 **** JHPCE info ****
 User: lhuuki
-Job id: 3099202
+Job id: 3281218
 Job name: clean_data
 Hostname: compute-098.cm.cluster
 Task id: undefined
@@ -35,7 +35,9 @@ Attaching package: ‘BiocGenerics’
 
 The following objects are masked from ‘package:parallel’:
 
-    clusterApply, clusterApplyLB, clusterCall, clusterEvalQ, clusterExport, clusterMap, parApply, parCapply, parLapply, parLapplyLB, parRapply, parSapply, parSapplyLB
+    clusterApply, clusterApplyLB, clusterCall, clusterEvalQ,
+    clusterExport, clusterMap, parApply, parCapply, parLapply,
+    parLapplyLB, parRapply, parSapply, parSapplyLB
 
 The following objects are masked from ‘package:stats’:
 
@@ -43,9 +45,12 @@ The following objects are masked from ‘package:stats’:
 
 The following objects are masked from ‘package:base’:
 
-    anyDuplicated, append, as.data.frame, basename, cbind, colnames, dirname, do.call, duplicated, eval, evalq, Filter, Find, get, grep, grepl, intersect, is.unsorted, lapply,
-    Map, mapply, match, mget, order, paste, pmax, pmax.int, pmin, pmin.int, Position, rank, rbind, Reduce, rownames, sapply, setdiff, sort, table, tapply, union, unique, unsplit,
-    which, which.max, which.min
+    anyDuplicated, append, as.data.frame, basename, cbind, colnames,
+    dirname, do.call, duplicated, eval, evalq, Filter, Find, get, grep,
+    grepl, intersect, is.unsorted, lapply, Map, mapply, match, mget,
+    order, paste, pmax, pmax.int, pmin, pmin.int, Position, rank,
+    rbind, Reduce, rownames, sapply, setdiff, sort, table, tapply,
+    union, unique, unsplit, which, which.max, which.min
 
 Loading required package: S4Vectors
 
@@ -60,7 +65,9 @@ Loading required package: GenomeInfoDb
 Loading required package: Biobase
 Welcome to Bioconductor
 
-    Vignettes contain introductory material; view with 'browseVignettes()'. To cite Bioconductor, see 'citation("Biobase")', and for packages 'citation("pkgname")'.
+    Vignettes contain introductory material; view with
+    'browseVignettes()'. To cite Bioconductor, see
+    'citation("Biobase")', and for packages 'citation("pkgname")'.
 
 Loading required package: DelayedArray
 Loading required package: matrixStats
@@ -117,13 +124,13 @@ The following object is masked from ‘package:BiocGenerics’:
 
     plotMA
 
+here() starts at /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq
 Loading objects:
   rse_gene
-Samples match:TRUE
-                         RNum  BrNum      Experiment AgeDeath Sex Race PrimaryDx BrainRegion RIN Plate  numReads ERCCsumLogErr geneticRace dropMetrics dropRegion dropRace
-R14179_psychENCODE_MDD R14179 Br1469 psychENCODE_MDD    28.57   M CAUC   Control    Amygdala 7.6     2 101294352     -13.74451        CAUC       FALSE      FALSE    FALSE
-R17496_psychENCODE_MDD R17496 Br1469 psychENCODE_MDD    28.57   M CAUC   Control        sACC 8.0     2  99900906     -16.95595        CAUC       FALSE      FALSE    FALSE
-Drop: 42
+Samples match: TRUE
+Overlapping control samples: 20
+Drop 54 from qc_checks
+Drop 10 for other filters
 Remaining Samples: 1091
 Setting options('download.file.method.GEOquery'='auto')
 Setting options('GEOquery.inmemory.gpl'=FALSE)
@@ -165,9 +172,9 @@ Loading objects:
 Loading objects:
   txNumReads
 [1] "Reproducibility information:"
-[1] "2020-09-23 09:47:43 EDT"
+[1] "2020-10-05 15:33:58 EDT"
     user   system  elapsed 
-2170.496  132.277 2309.434 
+2191.791  230.855 2430.200 
 ─ Session info ───────────────────────────────────────────────────────────────────────────────────────────────────────
  setting  value                                      
  version  R version 4.0.2 Patched (2020-06-24 r78746)
@@ -178,7 +185,7 @@ Loading objects:
  collate  en_US.UTF-8                                
  ctype    en_US.UTF-8                                
  tz       US/Eastern                                 
- date     2020-09-23                                 
+ date     2020-10-05                                 
 
 ─ Packages ───────────────────────────────────────────────────────────────────────────────────────────────────────────
  package              * version  date       lib source                                   
@@ -243,6 +250,7 @@ Loading objects:
  googledrive            1.0.1    2020-05-05 [1] CRAN (R 4.0.0)                           
  gridExtra              2.3      2017-09-09 [2] CRAN (R 4.0.0)                           
  gtable                 0.3.0    2019-03-25 [2] CRAN (R 4.0.0)                           
+ here                 * 0.1      2017-05-28 [1] CRAN (R 4.0.0)                           
  Hmisc                  4.4-0    2020-03-23 [2] CRAN (R 4.0.0)                           
  hms                    0.5.3    2020-01-08 [2] CRAN (R 4.0.0)                           
  htmlTable              1.13.3   2019-12-04 [2] CRAN (R 4.0.0)                           
@@ -329,4 +337,4 @@ Loading objects:
 [2] /jhpce/shared/jhpce/core/conda/miniconda3-4.6.14/envs/svnR-4.0/R/4.0/lib64/R/site-library
 [3] /jhpce/shared/jhpce/core/conda/miniconda3-4.6.14/envs/svnR-4.0/R/4.0/lib64/R/library
 **** Job ends ****
-Wed Sep 23 09:47:47 EDT 2020
+Mon Oct  5 15:34:04 EDT 2020

@@ -6,12 +6,12 @@ Loading LIBD module for rmate/1.5.9
 Loading LIBD module for ruby/2.6.4p104
 Loading conda_R/4.0
 **** Job starts ****
-Fri Oct  2 10:32:07 EDT 2020
+Fri Oct  2 14:42:31 EDT 2020
 **** JHPCE info ****
 User: lhuuki
-Job id: 3227635
+Job id: 3230384
 Job name: merge_swap_drop
-Hostname: compute-099.cm.cluster
+Hostname: compute-093.cm.cluster
 Task id: undefined
 Unloading conda_R/4.0
 Loading conda_R/4.0
@@ -133,10 +133,6 @@ Loading objects:
   rse_gene
 Setting options('download.file.method.GEOquery'='auto')
 Setting options('GEOquery.inmemory.gpl'=FALSE)
-          
-           MDD Control Bipolar Other
-  Amygdala 243     205     125     1
-  sACC     244     225     130     1
 Raw comined data: n1174
 
 psychENCODE_MDD  psychENCODE_BP 
@@ -144,30 +140,29 @@ psychENCODE_MDD  psychENCODE_BP
 One row per BrNum: TRUE
 Loading objects:
   corLong2
-# A tibble: 11 x 7
-   Experiment      dna_match good_rna in_lims dups  not_overlap_control     n
-   <fct>           <lgl>     <lgl>    <lgl>   <lgl> <lgl>               <int>
- 1 psychENCODE_MDD FALSE     FALSE    FALSE   FALSE TRUE                    3
- 2 psychENCODE_MDD FALSE     TRUE     TRUE    FALSE TRUE                    4
- 3 psychENCODE_MDD TRUE      TRUE     FALSE   FALSE TRUE                    4
- 4 psychENCODE_MDD TRUE      TRUE     TRUE    FALSE TRUE                  617
- 5 psychENCODE_MDD TRUE      TRUE     TRUE    TRUE  TRUE                    6
- 6 psychENCODE_BP  FALSE     FALSE    FALSE   FALSE TRUE                    7
- 7 psychENCODE_BP  FALSE     TRUE     TRUE    FALSE TRUE                    4
- 8 psychENCODE_BP  TRUE      TRUE     FALSE   FALSE TRUE                    2
- 9 psychENCODE_BP  TRUE      TRUE     TRUE    FALSE FALSE                  10
-10 psychENCODE_BP  TRUE      TRUE     TRUE    FALSE TRUE                  516
-11 psychENCODE_BP  TRUE      TRUE     TRUE    TRUE  TRUE                    1
+# A tibble: 9 x 3
+# Groups:   Experiment [2]
+  Experiment      status                    n
+  <fct>           <chr>                 <int>
+1 psychENCODE_MDD bad dna match             7
+2 psychENCODE_MDD KEEP                    617
+3 psychENCODE_MDD not in lims               4
+4 psychENCODE_MDD swap cauese duplicate     6
+5 psychENCODE_BP  bad dna match            11
+6 psychENCODE_BP  dup control              10
+7 psychENCODE_BP  KEEP                    516
+8 psychENCODE_BP  not in lims               2
+9 psychENCODE_BP  swap cauese duplicate     1
 All 1268 fastq files exist:TRUE
-After drop: n1133
+After drop: n1143
+10 Are control overlaps
 Saving 7 x 7 in image
 `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
 [1] TRUE
-[1] TRUE
 [1] "Reproducibility information:"
-[1] "2020-10-02 10:36:16 EDT"
+[1] "2020-10-02 14:45:22 EDT"
    user  system elapsed 
-170.510  20.099 247.684 
+162.418   5.856 169.752 
 ─ Session info ───────────────────────────────────────────────────────────────────────────────────────────────────────
  setting  value                                      
  version  R version 4.0.2 Patched (2020-06-24 r78746)
@@ -314,4 +309,4 @@ Saving 7 x 7 in image
 [2] /jhpce/shared/jhpce/core/conda/miniconda3-4.6.14/envs/svnR-4.0/R/4.0/lib64/R/site-library
 [3] /jhpce/shared/jhpce/core/conda/miniconda3-4.6.14/envs/svnR-4.0/R/4.0/lib64/R/library
 **** Job ends ****
-Fri Oct  2 10:36:18 EDT 2020
+Fri Oct  2 14:45:23 EDT 2020
