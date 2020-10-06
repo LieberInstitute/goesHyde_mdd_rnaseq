@@ -98,13 +98,15 @@ colnames(modSep)
 # [7] "snpPC2"            "snpPC3"            "mitoRate"         
 # [10] "rRNA_rate"         "totalAssignedGene" "RIN"
 
-
 #### split back by region ####
 ## both
 sACC_Index = which(colData(rse_gene)$BrainRegion == "sACC")
 mod_sACC = cbind(modSep[sACC_Index,], qSV_mat[sACC_Index, ])
 Amyg_Index = which(colData(rse_gene)$BrainRegion == "Amygdala")
 mod_Amyg = cbind(modSep[Amyg_Index,], qSV_mat[Amyg_Index, ])
+
+## Save Models
+save(modJoint, modSep, mod_Amyg, mod_sACC, file = "differental_models.Rdata")
 
 #### Gene ####
 
