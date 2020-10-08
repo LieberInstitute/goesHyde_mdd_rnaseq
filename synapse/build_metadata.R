@@ -67,6 +67,10 @@ pd <- pd %>%
     left_join(flow_cell, by = "RNum") %>%
     filter(Dataset == "psychENCODE_MDD")
 
+# list samples
+BrNum_mdd <- unique(pd_mdd$BrNum)
+RNum_mdd <- pd_mdd$RNum
+
 ## Build genodata table
 # build genotype file manifest
 pd_geno <- pd_all %>% 
@@ -78,30 +82,39 @@ geno_files <- scan(here("genotype_data","manifest.txt"), what="character", sep="
 geno_assay <- tibble(file = geno_files,
                      fileFormat = gsub("^.*\\.", "", geno_files)) %>% 
     filter(fileFormat == "fam") %>%
-    mutate(chip_info = gsub(".fam", "", gsub("_mdd","",file)),
-           chip = gsub("v.*$|_v.*$|-8.*$","",chip_info))
+    mutate(chip = gsub("_md\\S+.fam","",file))
+
 fam_tables <- map(geno_assay$file, ~read.delim(here("genotype_data",.x), header = FALSE,sep = " "))
 fam_df <- bind_rows(fam_tables) %>%
     transmute(genoSample = paste0(V1, "_", V2))
-fam_df$chip_info <- rep(geno_assay$chip_info, map_int(fam_tables, nrow))
+fam_df$file <- rep(geno_assay$file, map_int(fam_tables, nrow))
 fam_df <- fam_df %>% left_join(geno_assay)
-
+dim(fam_df)
+# [1] 1204    4
 fam_df_pd <- fam_df %>% left_join(pd_geno)
-fam_df_pd %>% count(chip)
 # More info here: dcl01/lieber/RNAseq/Datasets/BrainGenotyping_2018/SampleFiles/
-fam_df_pd %>% count(chip == "topmed_602sample_090120_maf005")
-# chip == "topmed_602sample_090120_maf005"   n
-# 1                                    FALSE 314
-# 2                                     TRUE 602
+fam_df_pd %>% count(chip)
+#                         chip   n
+# 1                Illumina_1M 125
+# 2  Illumina_HumanHap650Yv3_A  25
+# 3  Illumina_Omni2.5_v1.4_136  23 ?
+# 4    Illumina_Omni2.5-8_v1.1 143
+# 5    Illumina_Omni2.5-8_v1.3 212
+# 6 Illumina_Omni2.5-8_v1.5_56  19 ?
+# 7        Illumina_Omni5-Quad  55
+# 8                     topmed 602
+fam_df_pd %>% count(chip == "topmed")
+# chip == "topmed"   n
+# 1            FALSE 602
+# 2             TRUE 602
 fam_df_mdd <- fam_df_pd %>% filter(BrNum %in% pd_mdd$BrNum) %>%
     select(Individual = BrNum, specimenID = genoSample, file)
 ## Save annotation file
 annotation_fn = "psychENCODE_MDD_genotype_file_annotation.tsv"
 write.table(fam_df_mdd, file = annotation_fn, row.names = FALSE, sep = "\t")
 
-# list samples
-BrNum_mdd <- unique(pd_mdd$BrNum)
-RNum_mdd <- pd_mdd$RNum
+
+
 
 #### Build metadata ####
 #define filenames
@@ -121,6 +134,7 @@ write.csv(indi_md, file = indi_md_fn, row.names = FALSE)
 # Biospecimen
 message("\nBiospecimen")
 bio_md <- build_metadata("template_biospecimen.xlsx", pd_mdd, "RNum", RNum_mdd)
+bio_geno_md <- build_metadata("template_biospecimen_geno.xlsx", pd_mdd, "RNum", RNum_mdd)
 dim(bio_md)
 # [1] 627  12
 write.csv(bio_md, file = bio_md_fn, row.names = FALSE)
