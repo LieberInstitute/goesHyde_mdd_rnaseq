@@ -19,7 +19,9 @@ pd <- read.csv("/dcl01/lieber/RNAseq/Datasets/BrainGenotyping_2018/SampleFiles/p
 # add brain weight to pd
 brain_weight <- lims %>% select(BrNum, `Brain.Weight..gram.`)
 
-pd_mdd <- read.csv(here("data","raw_GoesZandi_pd.csv")) %>%
+pd_all <- read.csv(here("data","raw_GoesZandi_pd.csv")) %>%
+    filter(!overlap | Experiment == "psychENCODE_MDD") # remove overlaps
+pd_mdd <- pd_all %>%
     filter(Experiment == "psychENCODE_MDD") %>%
     left_join(brain_weight, by = "BrNum") %>%
     mutate(BrodmannArea = ifelse(BrainRegion == "anterior cingulate cortex", 25, NA))
@@ -64,6 +66,39 @@ flow_cell <- fastq_info_df %>%
 pd <- pd %>%
     left_join(flow_cell, by = "RNum") %>%
     filter(Dataset == "psychENCODE_MDD")
+
+## Build genodata table
+# build genotype file manifest
+pd_geno <- pd_all %>% 
+    select(BrNum, genoSample)%>%
+    unique %>%
+    left_join(brain_sentrix %>% select(genoSample = ID, BrNum, Batch))
+
+geno_files <- scan(here("genotype_data","manifest.txt"), what="character", sep="\n")
+geno_assay <- tibble(file = geno_files,
+                     fileFormat = gsub("^.*\\.", "", geno_files)) %>% 
+    filter(fileFormat == "fam") %>%
+    mutate(chip_info = gsub(".fam", "", gsub("_mdd","",file)),
+           chip = gsub("v.*$|_v.*$|-8.*$","",chip_info))
+fam_tables <- map(geno_assay$file, ~read.delim(here("genotype_data",.x), header = FALSE,sep = " "))
+fam_df <- bind_rows(fam_tables) %>%
+    transmute(genoSample = paste0(V1, "_", V2))
+fam_df$chip_info <- rep(geno_assay$chip_info, map_int(fam_tables, nrow))
+fam_df <- fam_df %>% left_join(geno_assay)
+
+fam_df_pd <- fam_df %>% left_join(pd_geno)
+fam_df_pd %>% count(chip)
+# More info here: dcl01/lieber/RNAseq/Datasets/BrainGenotyping_2018/SampleFiles/
+fam_df_pd %>% count(chip == "topmed_602sample_090120_maf005")
+# chip == "topmed_602sample_090120_maf005"   n
+# 1                                    FALSE 314
+# 2                                     TRUE 602
+fam_df_mdd <- fam_df_pd %>% filter(BrNum %in% pd_mdd$BrNum) %>%
+    select(Individual = BrNum, specimenID = genoSample, file)
+## Save annotation file
+annotation_fn = "psychENCODE_MDD_genotype_file_annotation.tsv"
+write.table(fam_df_mdd, file = annotation_fn, row.names = FALSE, sep = "\t")
+
 # list samples
 BrNum_mdd <- unique(pd_mdd$BrNum)
 RNum_mdd <- pd_mdd$RNum
@@ -102,23 +137,8 @@ write.csv(assay_md, file = assay_md_fn, row.names = FALSE)
 
 # rnaArray
 message("\nrnaArray Assay")
-
-# build genotype file manifest
-geno_files <- scan("../genotype_data/manifest.txt", what="character", sep="\n")
-geno_assay <- tibble(file = geno_files,
-                     fileFormat = gsub("^.*\\.", "", geno_files)) %>% 
-    filter(fileFormat == "fam") %>%
-    mutate(chip_info = gsub(".fam", "", gsub("_mdd","",file)),
-           chip = gsub("v.*$|_v.*$|-8.*$","",chip_info))
-fam_tables <- map(geno_assay$file, ~read.delim(here("genotype_data",.x), header = FALSE,sep = " "))
-fam_df <- bind_rows(fam_tables) %>%
-    transmute(genoSample = paste0(V1, "_", V2)) %>%
-    left_join(brain_sentrix %>% select(genoSample = ID, BrNum, Batch))
-fam_df$chip <- rep(geno_assay$chip, map_int(fam_tables, nrow))
-# More info here: dcl01/lieber/RNAseq/Datasets/BrainGenotyping_2018/SampleFiles/
-fam_df_mdd <- fam_df %>% filter(!is.na(BrNum))
 rnaArray_md <- build_metadata("template_assay_snpArray.xlsx",fam_df_mdd, "genoSample", fam_df_mdd$genoSample)
-
+dim(rnaArray_md)
 # Manifest
 message("\nManifest")
 
@@ -145,7 +165,9 @@ colnames(geno_manifest) <- c("path", "fileFormat", "assay", "dataSubtype")
 mdd_all_mani <- meta_manifest %>%
     mutate(assay = NA) %>%
     rbind(geno_manifest %>% mutate(metadataType = NA)) %>%
-    mutate(BrNum = NA,RNum = NA) %>%
+    mutate(BrNum = NA,RNum = NA,
+           isMultiIndividual = assay == "Genotyping",
+           isMultiSpecimen = isMultiIndividual) %>%
     rbind(mdd_manifest)
 
 mani_md <- build_metadata("template_manifest.xlsx", mdd_all_mani, "path", mdd_all_mani$path)
