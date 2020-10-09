@@ -41,22 +41,19 @@ lims <- lims %>%
     select(-PrimaryDx) %>%
     inner_join(pd_mdd %>% select(PrimaryDx, BrNum) %>% unique(), by = "BrNum")
 
-# build manifest
-mdd_manifest <- pd_mdd %>%
-    select(RNum, BrNum, read1, read2) %>%
-    melt(id.vars = c("RNum", "BrNum")) %>%
-    select(RNum, BrNum, path = value) %>%
-    mutate(metadataType = NA,
-           fileFormat = "fastq",
-           assay = "rnaSeq",
-           dataSubtype = "raw") %>%
-    filter(!is.na(path))
 
 # fastq info
-fastq_info <- map(mdd_manifest$path, get_fastq_info)
-fastq_info_df <- fastq_info %>%
-    as.data.frame() %>%
-    t()
+fastq_info_fn <- "fastq_info_mdd.csv"
+if(!file.exists("fastq_info_mdd.csv")){
+    fastq_info <- map(mdd_manifest$path, get_fastq_info)
+    fastq_info_df <- fastq_info %>%
+        as.data.frame() %>%
+        t()
+    write.csv(fastq_info_df, file = fastq_info_fn)
+}else{
+    fastq_info_df <-read.csv(fastq_info_fn)
+}
+
 fastq_info_df <- cbind(fastq_info_df, mdd_manifest[, "RNum", drop = FALSE])
 rownames(fastq_info_df) <- NULL
 
@@ -72,7 +69,6 @@ BrNum_mdd <- unique(pd_mdd$BrNum)
 RNum_mdd <- pd_mdd$RNum
 
 ## Build genodata table
-# build genotype file manifest
 pd_geno <- pd_all %>%
     select(BrNum, genoSample)%>%
     unique %>%
@@ -117,23 +113,72 @@ fam_df_mdd  %>%
 
 genoSample_mdd <- unique(fam_df_mdd$genoSample)
 
-#### Build metadata ####
-#define filenames
-indi_md_fn <- "psychENCODE_MDD_individual_human.csv"
-bio_md_fn <- "psychENCODE_MDD_biospecimen.csv"
-assay_rnaSeq_md_fn <- "psychENCODE_MDD_assay_rnaSeq.csv"
-assay_snpArray_md_fn <- "psychENCODE_MDD_assay_snpArray.csv"
-mani_md_fn <- "psychENCODE_MDD_manifest.tsv"
+#### Build Manifest tables####
+## define filenames
+metadata_types <- c("individual_human", "biospecimen", "assay_rnaSeq", "assay_snpArray","manifest")
+meta_files <- paste0("psychENCODE_MDD_", metadata_types,
+                     c(rep(".csv", length(metadata_types)-1), ".tsv"))
 
-# Individual
-message("\nIndividual")
+#Add annotation to metadata files
+meta_files <- c(meta_files, annotation_fn)
+names(meta_files) <- c(metadata_types, "snpArray_annotation")
+
+## build meta manifest
+meta_manifest <- data.frame(
+    path = paste0("/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/synapse/", meta_files),
+    metadataType = names(meta_files),
+    fileFormat = ss(meta_files, "\\.", 2)
+) %>% mutate(dataSubtype = "metadata",
+             BrNum = NA,RNum = NA,
+             assay = NA,
+             isMultiIndividual = NA,
+             isMultiSpecimen = NA)
+
+## build rnaSeq manifest
+# build manifest
+rnaSeq_manifest <- pd_mdd %>%
+    select(RNum, BrNum, read1, read2) %>%
+    melt(id.vars = c("RNum", "BrNum")) %>%
+    select(RNum, BrNum, path = value) %>%
+    mutate(metadataType = NA,
+           fileFormat = "fastq",
+           assay = "rnaSeq",
+           dataSubtype = "raw",
+           isMultiIndividual = FALSE,
+           isMultiSpecimen = FALSE) %>%
+    filter(!is.na(path))
+
+dim(mdd_manifest)
+# [1] 1234    7
+## build snpArray manifest
+snpArray_manifest <- data.frame(
+    path = paste0("/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/genotype_data/", geno_files),
+    fileFormat = gsub("^.*\\.", "", geno_files)
+) %>% mutate(metadataType = NA,
+             dataSubtype = "processed",
+             BrNum = NA,RNum = NA,
+             assay = "snpArray",
+             isMultiIndividual = TRUE,
+             isMultiSpecimen = TRUE)
+
+mdd_all_mani <- meta_manifest %>%
+    rbind(rnaSeq_manifest) %>%
+    rbind(snpArray_manifest)
+message("Dim full manifest:")
+dim(mdd_all_mani)
+# [1] 1270    9
+
+#### Build Metadata tables####
+message('**** Build Metadata tables ****')
+## Individual
+message("\n** Individual **")
 indi_md <- build_metadata("template_individual_human.xlsx", lims, "BrNum", BrNum_mdd)
 dim(indi_md)
 # [1] 317  33
-write.csv(indi_md, file = indi_md_fn, row.names = FALSE)
+write.csv(indi_md, file = meta_files[["individual_human"]], row.names = FALSE)
 
-# Biospecimen
-message("\nBiospecimen")
+## Biospecimen
+message("\n** Biospecimen **")
 bio_rna_md <- build_metadata("template_biospecimen.xlsx", pd_mdd, "RNum", RNum_mdd)
 dim(bio_rna_md)
 # [1] 617  12
@@ -142,60 +187,32 @@ dim(bio_geno_md)
 # [1] 316  13
 ## Combine and save
 bio_md <- rbind(bio_rna_md, bio_geno_md)
-write.csv(bio_md, file = bio_md_fn, row.names = FALSE)
+dim(bio_md)
+write.csv(bio_md, file = meta_files[["biospecimen"]], row.names = FALSE)
 
-# Assay
-message("\nAssay")
-# rnaSeq
-message("\nrnaSeq Assay")
+## Assay
+message("\n** Assay **")
+## rnaSeq
+message("rnaSeq Assay")
 rnaSeq_assay_md <- build_metadata("template_assay_rnaSeq.xlsx", pd, "RNum", RNum_mdd)
 dim(rnaSeq_assay_md)
 # [1] 627  19
-write.csv(rnaSeq_assay_md, file = assay_rnaSeq_md_fn, row.names = FALSE)
+write.csv(rnaSeq_assay_md, file = meta_files[["assay_rnaSeq"]], row.names = FALSE)
 
-
-# snpArray
-message("\nrnaArray Assay")
+## snpArray
+message("snpArray Assay")
 snpArray_assay_md <- build_metadata("template_assay_snpArray.xlsx",fam_df_mdd, "genoSample", genoSample_mdd)
-dim(rnaArray_md)
+dim(snpArray_assay_md)
 # [1] 632   8
-write.csv(rnaSeq_Array_md, file = assay_snpArray_md_fn, row.names = FALSE)
+write.csv(snpArray_assay_md, file = meta_files[["assay_snpArray"]], row.names = FALSE)
 
-# Manifest
-message("\nManifest")
-meta_files <- c(indi_md_fn, bio_md_fn, assay_rnaSeq_md_fn, assay_snpArray_md_fn, mani_md_fn)
-meta_paths <- paste0("/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/synapse/", meta_files)
-meta_manifest <- data.frame(
-    meta_paths,
-    c("individual", "biospecimen", "assay_rnaSeq", "assay_snpArray","manifest"),
-    ss(meta_files, "\\.", 2),
-    rep("metadata",length(meta_files))
-)
-colnames(meta_manifest) <- c("path", "metadataType", "fileFormat","dataSubtype")
-
-geno_n <- length(geno_files)
-geno_paths <- paste0("/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/genotype_data/", geno_files)
-geno_manifest <- data.frame(
-    geno_paths,
-    gsub("^.*\\.", "", geno_files),
-    rep("Genotyping",geno_n),
-    rep("processed", geno_n)
-)
-colnames(geno_manifest) <- c("path", "fileFormat", "assay", "dataSubtype")
-
-mdd_all_mani <- meta_manifest %>%
-    mutate(assay = NA) %>%
-    rbind(geno_manifest %>% mutate(metadataType = NA)) %>%
-    mutate(BrNum = NA,RNum = NA,
-           isMultiIndividual = assay == "Genotyping",
-           isMultiSpecimen = isMultiIndividual) %>%
-    rbind(mdd_manifest)
-
+## Manifest
+message("\n** Manifest **")
 mani_md <- build_metadata("template_manifest.xlsx", mdd_all_mani, "path", mdd_all_mani$path)
 map_int(mani_md, ~sum(is.na(.x)))
 dim(mani_md)
 # [1] 1258   16
-write.table(mani_md, file = mani_md_fn, row.names = FALSE, sep = "\t")
+write.table(mani_md, file = meta_files[["manifest"]], row.names = FALSE, sep = "\t")
 
 # sgejobs::job_single('build_metadata', create_shell = TRUE, queue= 'bluejay', memory = '50G', command = "Rscript build_metadata.R")
 
