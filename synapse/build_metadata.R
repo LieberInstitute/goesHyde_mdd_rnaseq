@@ -13,6 +13,7 @@ library("here")
 source("build_metadata_functions.R")
 
 #### load data ####
+message("Edit data tables")
 lims <- read.csv("/dcl01/lieber/RNAseq/Datasets/BrainGenotyping_2018/SampleFiles/preBrainStorm/shiny070220.csv")
 pd <- read.csv("/dcl01/lieber/RNAseq/Datasets/BrainGenotyping_2018/SampleFiles/preBrainStorm/pd_swap.csv", as.is = TRUE)
 
@@ -41,20 +42,33 @@ lims <- lims %>%
     select(-PrimaryDx) %>%
     inner_join(pd_mdd %>% select(PrimaryDx, BrNum) %>% unique(), by = "BrNum")
 
+## build rnaSeq manifest
+rnaSeq_manifest <- pd_mdd %>%
+    select(RNum, BrNum, read1, read2) %>%
+    melt(id.vars = c("RNum", "BrNum")) %>%
+    select(RNum, BrNum, path = value) %>%
+    mutate(metadataType = NA,
+           fileFormat = "fastq",
+           assay = "rnaSeq",
+           dataSubtype = "raw",
+           isMultiIndividual = FALSE,
+           isMultiSpecimen = FALSE) %>%
+    filter(!is.na(path))
 
 # fastq info
 fastq_info_fn <- "fastq_info_mdd.csv"
 if(!file.exists("fastq_info_mdd.csv")){
-    fastq_info <- map(mdd_manifest$path, get_fastq_info)
+    fastq_info <- map(rnaSeq_manifest$path, get_fastq_info)
     fastq_info_df <- fastq_info %>%
         as.data.frame() %>%
         t()
     write.csv(fastq_info_df, file = fastq_info_fn)
 }else{
+    message("Load fastq_info table")
     fastq_info_df <-read.csv(fastq_info_fn)
 }
 
-fastq_info_df <- cbind(fastq_info_df, mdd_manifest[, "RNum", drop = FALSE])
+fastq_info_df <- cbind(fastq_info_df, rnaSeq_manifest[, "RNum", drop = FALSE])
 rownames(fastq_info_df) <- NULL
 
 flow_cell <- fastq_info_df %>%
@@ -68,7 +82,7 @@ pd <- pd %>%
 BrNum_mdd <- unique(pd_mdd$BrNum)
 RNum_mdd <- pd_mdd$RNum
 
-## Build genodata table
+message("Build genodata table")
 pd_geno <- pd_all %>%
     select(BrNum, genoSample)%>%
     unique %>%
@@ -124,6 +138,7 @@ meta_files <- c(meta_files, annotation_fn)
 names(meta_files) <- c(metadata_types, "snpArray_annotation")
 
 ## build meta manifest
+message("Build manifest")
 meta_manifest <- data.frame(
     path = paste0("/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/synapse/", meta_files),
     metadataType = names(meta_files),
@@ -134,21 +149,9 @@ meta_manifest <- data.frame(
              isMultiIndividual = NA,
              isMultiSpecimen = NA)
 
-## build rnaSeq manifest
-# build manifest
-rnaSeq_manifest <- pd_mdd %>%
-    select(RNum, BrNum, read1, read2) %>%
-    melt(id.vars = c("RNum", "BrNum")) %>%
-    select(RNum, BrNum, path = value) %>%
-    mutate(metadataType = NA,
-           fileFormat = "fastq",
-           assay = "rnaSeq",
-           dataSubtype = "raw",
-           isMultiIndividual = FALSE,
-           isMultiSpecimen = FALSE) %>%
-    filter(!is.na(path))
 
-dim(mdd_manifest)
+
+dim(rnaSeq_manifest)
 # [1] 1234    7
 ## build snpArray manifest
 snpArray_manifest <- data.frame(
