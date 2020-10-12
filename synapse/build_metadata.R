@@ -16,6 +16,9 @@ source("build_metadata_functions.R")
 message("Edit data tables")
 lims <- read.csv("/dcl01/lieber/RNAseq/Datasets/BrainGenotyping_2018/SampleFiles/preBrainStorm/shiny070220.csv")
 pd <- read.csv("/dcl01/lieber/RNAseq/Datasets/BrainGenotyping_2018/SampleFiles/preBrainStorm/pd_swap.csv", as.is = TRUE)
+geno_details <- read.csv("mdd_brains_genotypeDetails.csv", row.names = "X") %>%
+    select(-BrNum, -Assay, -Platform, -specimenID, -Experiment) %>%
+    unique()
 
 # add brain weight to pd
 brain_weight <- lims %>% select(BrNum, `Brain.Weight..gram.`)
@@ -28,11 +31,15 @@ pd_mdd <- pd_all %>%
     mutate(BrodmannArea = ifelse(BrainRegion == "anterior cingulate cortex", 25, NA))
 
 # add imputed Sex to lims
-brain_sentrix <- read.csv("/dcl01/lieber/RNAseq/Datasets/BrainGenotyping_2018/SampleFiles/preBrainStorm/brain_sentrix_swap.csv") %>%
-    filter(ID %in% pd_mdd$genoSample)
+brain_sentrix <- read.csv("/dcl01/lieber/RNAseq/Datasets/BrainGenotyping_2018/SampleFiles/preBrainStorm/brain_sentrix_swap.csv", row.names = "X") %>%
+    filter(ID %in% pd_mdd$genoSample) 
 
 lims <- lims %>% left_join(brain_sentrix %>% select(BrNum, genoSex))
 
+brain_sentrix_geno <- brain_sentrix %>% 
+    rename(genoSample = ID) %>%
+    left_join(geno_details)%>%
+    left_join(brain_weight, by = "BrNum")
 # replace values
 gia <- read.csv("genotypeInferredAncestry.csv")
 
@@ -82,11 +89,8 @@ pd <- pd %>%
 BrNum_mdd <- unique(pd_mdd$BrNum)
 RNum_mdd <- pd_mdd$RNum
 
+## Build genotyping data tables
 message("Build genodata table")
-pd_geno <- pd_all %>%
-    select(BrNum, genoSample)%>%
-    unique %>%
-    left_join(brain_sentrix %>% select(genoSample = ID, BrNum, Batch))
 
 geno_files <- scan(here("genotype_data","manifest.txt"), what="character", sep="\n")
 geno_assay <- tibble(file = geno_files,
@@ -101,7 +105,7 @@ fam_df$file <- rep(geno_assay$file, map_int(fam_tables, nrow))
 fam_df <- fam_df %>% left_join(geno_assay)
 dim(fam_df)
 # [1] 1204    4
-fam_df_pd <- fam_df %>% left_join(pd_geno) %>%
+fam_df_pd <- fam_df %>% left_join(brain_sentrix_geno, by ="genoSample") %>%
     mutate(Batch = ifelse(chip == "topmed", NA, Batch))
 # More info here: dcl01/lieber/RNAseq/Datasets/BrainGenotyping_2018/SampleFiles/
 fam_df_pd %>% count(chip)
@@ -118,7 +122,7 @@ fam_df_pd %>% count(chip == "topmed")
 # chip == "topmed"   n
 # 1            FALSE 602
 # 2             TRUE 602
-fam_df_mdd <- fam_df_pd %>% filter(BrNum %in% pd_mdd$BrNum)
+fam_df_mdd <- fam_df_pd %>% filter(BrNum %in% pd_mdd$BrNum, chip != "topmed")
 ## Save annotation file
 annotation_fn = "psychENCODE_MDD_genotype_file_annotation.tsv"
 fam_df_mdd  %>%
@@ -148,8 +152,6 @@ meta_manifest <- data.frame(
              assay = NA,
              isMultiIndividual = NA,
              isMultiSpecimen = NA)
-
-
 
 dim(rnaSeq_manifest)
 # [1] 1234    7
@@ -185,7 +187,7 @@ message("\n** Biospecimen **")
 bio_rna_md <- build_metadata("template_biospecimen.xlsx", pd_mdd, "RNum", RNum_mdd)
 dim(bio_rna_md)
 # [1] 617  12
-bio_geno_md <- build_metadata("template_biospecimen_geno.xlsx", brain_sentrix, "BrNum", BrNum_mdd)
+bio_geno_md <- build_metadata("template_biospecimen_geno.xlsx", brain_sentrix_geno, "BrNum", BrNum_mdd)
 dim(bio_geno_md)
 # [1] 316  13
 ## Combine and save
