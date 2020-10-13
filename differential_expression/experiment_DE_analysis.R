@@ -37,38 +37,31 @@ save(outGene_ol, file = "outGene_overlap.rda")
 ## Experiment DE t-stat vs. full Diff Express F-stat
 outGene_ol <- outGene_ol[match(outGene_sACC$gencodeID, outGene_ol$gencodeID),]
 t_amyg <- data.frame(de_F = outGene_Amyg$F, de_log10_p = -log10(outGene_Amyg$P.Value), 
-                     exp_t = outGene_ol$t, exp_log10_p = -log10(outGene_ol$P.Value))
+                     exp_t = outGene_ol$t, exp_log10_p = -log10(outGene_ol$P.Value),
+                     BrainRegion = "Amygdyla")
 
 t_sacc <- data.frame(de_F = outGene_sACC$F, de_log10_p = -log10(outGene_sACC$P.Value),
-                     exp_t = outGene_ol$t, exp_log10_p = -log10(outGene_ol$P.Value))
+                     exp_t = outGene_ol$t, exp_log10_p = -log10(outGene_ol$P.Value),
+                     BrainRegion = "sACC")
+t_both <- rbind(t_amyg, t_sacc)
 
-t_amyg_scatter <- ggplot(t_amyg ,aes(x = de_F, y = exp_t)) +
+t_sacc_scatter <- ggplot(t_both ,aes(x = de_F, y = exp_t)) +
   geom_point(size = .5) +
-  labs(title = "DE vs. Experiment", subtitle = "Amyg",
+  labs(title = "DE Full model vs. Experiment model",
        x = "Full DE F-stat",
-       y = "Experimental DE t-stat")
-ggsave(t_amyg_scatter, filename = "plots/DE_vs_Experiment_Amyg.png")
+       y = "Experimental DE t-stat")+
+  facet_wrap(~BrainRegion)
+ggsave(t_sacc_scatter, filename = "plots/DE_tstat_vs_Experiment_fstat.png", 
+       width = 8, height = 5)
 
-log10p_amyg_scatter <- ggplot(t_amyg ,aes(x = de_log10_p, y = exp_log10_p)) +
+log10p_scatter <- ggplot(t_both ,aes(x = de_log10_p, y = exp_log10_p)) +
   geom_point(size = .5) +
-  labs(title = "DE vs. Experiment", subtitle = "Amyg",
-       x = "Full DE -log10(p)",
-       y = "Experimental DE -log10(p)")
-ggsave(log10p_amyg_scatter, filename = "plots/log10p_DE_vs_Experiment_Amyg.png")
-
-t_sacc_scatter <- ggplot(t_sacc ,aes(x = de_F, y = exp_t)) +
-  geom_point(size = .5) +
-  labs(title = "DE vs. Experiment", subtitle = "sACC",
-       x = "Full DE F-stat",
-       y = "Experimental DE t-stat")
-ggsave(t_sacc_scatter, filename = "plots/DE_vs_Experiment_sACC.png")
-
-log10p_sacc_scatter <- ggplot(t_sacc ,aes(x = de_log10_p, y = exp_log10_p)) +
-  geom_point(size = .5) +
-  labs(title = "DE vs. Experiment", subtitle = "Amyg",
-       x = "Full DE -log10(p)",
-       y = "Experimental DE -log10(p)")
-ggsave(log10p_sacc_scatter, filename = "plots/log10p_DE_vs_Experiment_sACC.png")
+  labs(title = "DE Full model vs. Experiment model",
+       x = "Full Data DE -log10(p-value)",
+       y = "Experimental DE -log10(p-value)") +
+  facet_wrap(~BrainRegion)
+ggsave(log10p_scatter, filename = "plots/DE_log10p_vs_Experiment_log10p.png", 
+       width = 8, height = 5)
 
 #sgejobs::job_single('experiment_DE_analysis', create_shell = TRUE, memory = '5G', command = "Rscript experiment_DE_analysis.R")
 
