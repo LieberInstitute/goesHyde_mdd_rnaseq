@@ -8,6 +8,8 @@ library(devtools)
 library(edgeR)
 library(GenomicRanges)
 library(rtracklayer)
+library(Matrix)
+library(reshape2)
 library(here)
 
 ## For styling this script
@@ -89,7 +91,7 @@ samples_bip <- rownames(pd_bip)
 message("Samples mmd: ", length(samples_mdd))
 message("Samples bip: ", length(samples_bip))
 
-##### Exons
+#### Exons ####
 
 # load objects
 load(here("preprocessed_data","rse_exon_goesHyde_MDD_n634.Rdata"), verbose = TRUE)
@@ -125,8 +127,8 @@ rowData(rse_exon)$meanExprs <- rowMeans(tempRpkm)
 
 save(rse_exon, file = "rse_exon_GoesZandi.rda")
 rm(rse_exon)
-##### Junctions
 
+#### Junctions ####
 # load objects
 load(here("preprocessed_data","rse_jx_goesHyde_MDD_n634.Rdata"), verbose = TRUE)
 rse_mdd <- rse_jx
@@ -139,26 +141,39 @@ rse_bip$Experiment <- "psychENCODE_BP"
 colnames(rse_bip) <- paste0(rse_bip$RNum, "_", rse_bip$Experiment)
 
 # filter samples
-rse_mdd <- rse_mdd[, samples_mdd]
-rse_bip <- rse_bip[, samples_bip]
+rse_mdd <- rse_mdd[1:1000, samples_mdd]
+dim(rse_mdd)
+# [1] 2272461     634
+rse_bip <- rse_bip[1:1000, samples_bip]
+dim(rse_bip)
+# [1] 2314770     540
 
-# asssign pd
+# assign pd
 colData(rse_mdd) <- pd_mdd
 colData(rse_bip) <- pd_bip
 
-# make rowData consistent
-m <- findMatches(rowRanges(rse_mdd), rowRanges(rse_bip))
-rse_mdd <- rse_mdd[queryHits(m), ]
-rse_bip <- rse_bip[subjectHits(m), ]
-rowData(rse_bip) <- rowData(rse_mdd)
+## Combine rowRanges
+all_rr <- unique(c(rowRanges(rse_mdd), rowRanges(rse_bip)))
 
-## fix class
-assays(rse_mdd)$counts = as.matrix(as.data.frame(assays(rse_mdd)$counts ))
-## bipseq is a weird SimpleDFrameList
-assays(rse_bip) = list(counts = as.matrix(as.data.frame(assays(rse_bip)$counts )))
+all(rownames(all_rd) == names(all_rr))
+# find union of jxns
+all_jxn <- names(all_rr)
+length(all_jxn)
+# [1] 2760639
 
-### combine
-rse_jxn <- cbind(rse_mdd, rse_bip)
+## melt count tables and make sparse matrix
+melt_mdd <- melt(assays(rse_mdd)$counts)
+melt_bip <- melt(as.matrix(as.data.frame(assays(rse_bip)$counts)))
+melt_all <- rbind(melt_mdd, melt_bip)
+melt_all <- melt_all[melt_all$value != 0, ]
+
+jxn_names_i <- match(melt_all$Var1, all_jxn) 
+sample_names_j <- match(melt_all$Var2, rownames(pd))
+
+sparse_jxn <- sparseMatrix(i = jxn_names_i, j = sample_names_j, x = melt_all$value)
+
+##define and populate new SE
+rse_jxn <- SummarizedExperiment(assays = list(counts = sparse_jxn), rowRanges = all_rr, colData = pd)
 
 rowData(rse_jxn)$Length <- 100
 tempRpkm <- recount::getRPKM(rse_jxn, "Length")
@@ -166,8 +181,7 @@ rowData(rse_jxn)$meanExprs <- rowMeans(tempRpkm)
 
 save(rse_jxn, file = "rse_jxn_GoesZandi.rda")
 
-
-##### Transcript
+#### Transcript ####
 
 # load objects
 load(here("preprocessed_data","rse_tx_goesHyde_MDD_n634.Rdata"), verbose = TRUE)
