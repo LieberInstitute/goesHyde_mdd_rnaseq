@@ -10,6 +10,7 @@ library(GenomicRanges)
 library(rtracklayer)
 library(Matrix)
 library(reshape2)
+library(data.table)
 library(here)
 
 ## For styling this script
@@ -141,46 +142,40 @@ rse_bip$Experiment <- "psychENCODE_BP"
 colnames(rse_bip) <- paste0(rse_bip$RNum, "_", rse_bip$Experiment)
 
 # filter samples
-rse_mdd <- rse_mdd[1:1000, samples_mdd]
+rse_mdd <- rse_mdd[, samples_mdd]
 dim(rse_mdd)
 # [1] 2272461     634
-rse_bip <- rse_bip[1:1000, samples_bip]
+rse_bip <- rse_bip[, samples_bip]
 dim(rse_bip)
 # [1] 2314770     540
 
-# assign pd
-colData(rse_mdd) <- pd_mdd
-colData(rse_bip) <- pd_bip
-
-## Combine rowRanges
-all_rr <- unique(c(rowRanges(rse_mdd), rowRanges(rse_bip)))
-
-all(rownames(all_rd) == names(all_rr))
-# find union of jxns
-all_jxn <- names(all_rr)
+## Combine rowRanges to find union of jxns
+all_jxn <- unique(c(rowRanges(rse_mdd), rowRanges(rse_bip)))
 length(all_jxn)
 # [1] 2760639
 
 ## melt count tables and make sparse matrix
 melt_mdd <- melt(assays(rse_mdd)$counts)
+melt_mdd <- melt_mdd[melt_mdd$value != 0,]
 melt_bip <- melt(as.matrix(as.data.frame(assays(rse_bip)$counts)))
-melt_all <- rbind(melt_mdd, melt_bip)
-melt_all <- melt_all[melt_all$value != 0, ]
+melt_bip <- melt_bip[melt_bip$value != 0,]
+melt_all <- rbindlist(list(melt_mdd, melt_bip))
+rm(melt_mdd, melt_bip)
 
-jxn_names_i <- match(melt_all$Var1, all_jxn) 
+jxn_names_i <- match(melt_all$Var1, names(all_jxn)) 
 sample_names_j <- match(melt_all$Var2, rownames(pd))
 
 sparse_jxn <- sparseMatrix(i = jxn_names_i, j = sample_names_j, x = melt_all$value)
 
 ##define and populate new SE
-rse_jxn <- SummarizedExperiment(assays = list(counts = sparse_jxn), rowRanges = all_rr, colData = pd)
+rse_jxn <- SummarizedExperiment(assays = list(counts = sparse_jxn), rowRanges = all_jxn, colData = pd)
 
 rowData(rse_jxn)$Length <- 100
 tempRpkm <- recount::getRPKM(rse_jxn, "Length")
 rowData(rse_jxn)$meanExprs <- rowMeans(tempRpkm)
 
 save(rse_jxn, file = "rse_jxn_GoesZandi.rda")
-
+rm(melt_all, jxn_names_i, sample_names_j, sparse_jxn, all_jxn)
 #### Transcript ####
 
 # load objects
