@@ -68,8 +68,8 @@ head(est_prop_sacc$Est.prop.weighted)
 load("prop_sacc.Rdata", verbose = TRUE)
 
 cell_bias <- music_basis(es_sc_sACC,
-                   clusters = 'cellType.Broad',
-                   samples = 'uniqueID')
+                         clusters = 'cellType.Broad',
+                         samples = 'uniqueID')
 # cell_bias$M.S
 # Oligo     Micro       OPC     Inhib     Astro     Excit     Tcell 
 # 6770.924  4980.110  9747.517 33398.770  7848.042 33804.591  3095.385 
@@ -87,3 +87,28 @@ bp_dx <- pd_sacc %>% select(PrimaryDx, names(cell_bias$M.S)) %>%
        subtitle = "sACC samples - MuSiC defaults")
 
 ggsave(filename = "sACC_CellType_boxplot.png", plot = bp_dx, width = 10)
+
+#### Drop t-cell from refrence ####
+
+es_sc_sACC_noT <- es_sc_sACC[,es_sc_sACC$cellType.Broad != "Tcell"]
+
+est_prop_sacc_noT = music_prop(bulk.eset = es_gene_sACC, 
+                               sc.eset = es_sc_sACC_noT, 
+                               clusters = 'cellType.Broad',
+                               samples = 'uniqueID')
+save(est_prop_sacc_noT, file = "prop_sacc_noT.Rdata")
+
+## merge data
+pd_sacc <- as.data.frame(colData(rse_gene_sACC))
+pd_sacc <- cbind(pd_sacc, est_prop_sacc_noT$Est.prop.weighted)
+
+## plot 
+bp_dx <- pd_sacc %>% select(PrimaryDx, colnames(est_prop_sacc_noT$Est.prop.weighted)) %>%
+  melt(id.vars = "PrimaryDx") %>%
+  rename(`Cell Type` = variable, Prop = value) %>%
+  ggplot(aes(`Cell Type`, Prop, fill = `PrimaryDx`)) +
+  geom_boxplot() +
+  labs(title = "Distribution of Cell Type Propotions",
+       subtitle = "sACC samples - MuSiC defaults - no T cell")
+
+ggsave(filename = "sACC_CellType_boxplot_noT.png", plot = bp_dx, width = 10)
