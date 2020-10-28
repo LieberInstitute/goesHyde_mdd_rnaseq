@@ -75,6 +75,7 @@ k = num.sv(degExprs, modJoint)
 message("k=", k)
 # k=26
 qSV_mat = prcomp(t(degExprs))$x[,1:k]
+save(qSV_mat, file = "qSV_mat.Rdata")
 varExplQsva = jaffelab::getPcaVars(prcomp(t(degExprs)))
 varExplQsva[1:k]
 
@@ -84,7 +85,6 @@ varExplQsva[1:k]
 
 
 sum(varExplQsva[1:k]) # 88.623%
-
 # [1] 88.125
 
 # model w/o interaction to subset by region
