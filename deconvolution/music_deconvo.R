@@ -29,7 +29,7 @@ table(sce.hpc$cellType.Broad)
 
 
 ## Load rse_gene data
-load(here("data", "rse_gene_GoesZandi.rda"), verbose = TRUE)
+load(here("exprs_cutoff", "rse_gene.Rdata"), verbose = TRUE)
 rownames(rse_gene) <- rowData(rse_gene)$Symbol
 ## Create input Expression sets for MuSiC
 rse_gene_sACC <- rse_gene[!duplicated(rownames(rse_gene)),rse_gene$BrainRegion == "sACC"]
@@ -97,7 +97,7 @@ est_prop_sacc_noT = music_prop(bulk.eset = es_gene_sACC,
                                clusters = 'cellType.Broad',
                                samples = 'uniqueID')
 save(est_prop_sacc_noT, file = "prop_sacc_noT.Rdata")
-
+#load("prop_sacc_noT.Rdata", verbose = TRUE)
 ## merge data
 pd_sacc <- as.data.frame(colData(rse_gene_sACC))
 pd_sacc <- cbind(pd_sacc, est_prop_sacc_noT$Est.prop.weighted)
@@ -112,3 +112,21 @@ bp_dx <- pd_sacc %>% select(PrimaryDx, colnames(est_prop_sacc_noT$Est.prop.weigh
        subtitle = "sACC samples - MuSiC defaults - no T cell")
 
 ggsave(filename = "sACC_CellType_boxplot_noT.png", plot = bp_dx, width = 10)
+
+#### check against qSV 1####
+load(here("differential_expression" ,"qSV_mat.Rdata"), verbose = TRUE)
+all(colnames(rse_gene)==rownames(qSV_mat))
+
+pd_sacc <- cbind(pd_sacc, qSV_mat[rownames(pd_sacc),])
+
+scatter_qsv1 <- pd_sacc %>% select(PrimaryDx, colnames(est_prop_sacc_noT$Est.prop.weighted), PC1) %>%
+  melt(id.vars = c("PrimaryDx","PC1")) %>% 
+  rename(`Cell Type` = variable, Prop = value) %>%
+  ggplot(aes(PC1, Prop, color = `Cell Type`)) +
+  geom_point() +
+  facet_wrap(~`Cell Type`, scales = "free_y")+
+  labs(title = "qSV1 vs. Cell Type Prop",
+       subtitle = "sACC samples - MuSiC defaults - no T cell")
+
+ggsave(filename = "sACC_CellType_qSV1.png", plot = scatter_qsv1, width = 14)
+
