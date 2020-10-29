@@ -80,7 +80,7 @@ table(rownames(sce.amy) %in% rownames(rse_gene))
 # 15021 18517 
 
 ## Create input Expression sets for MuSiC
-rse_gene_amyg <- rse_gene[,rse_gene$BrainRegion == "Amyg"]
+rse_gene_amyg <- rse_gene[,rse_gene$BrainRegion == "Amygdala"]
 es_gene_amyg <- ExpressionSet(assayData = assays(rse_gene_amyg)$counts)
 
 #create unique colnames
@@ -95,14 +95,14 @@ es_sc_sACC <- ExpressionSet(assayData = as.matrix(assays(sce.amy)$counts),
 
 
 ## estimate cell type props
-est_prop_amyg = music_prop(bulk.eset = es_gene_sACC, 
-                           sc.eset = es_sc_sACC, 
+est_prop_amyg = music_prop(bulk.eset = es_gene_amyg, 
+                           sc.eset = es_sc_amyg, 
                            clusters = 'cellType.split',
                            samples = 'uniqueID')
 save(est_prop_amyg, file = "prop_amyg.Rdata")
 
-est_prop_broad_amyg = music_prop(bulk.eset = es_gene_sACC, 
-                           sc.eset = es_sc_sACC, 
+est_prop_broad_amyg = music_prop(bulk.eset = es_gene_amyg, 
+                           sc.eset = es_sc_amyg, 
                            clusters = 'cellType.Broad',
                            samples = 'uniqueID')
 save(est_prop_broad_amyg, file = "prop_broad_amyg.Rdata")
