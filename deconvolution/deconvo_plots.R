@@ -56,15 +56,21 @@ bp_dx_amyg <- pd_amyg %>% select(all_of(c("PrimaryDx", cells_amyg))) %>%
 
 ggsave(filename = "cellType_boxplot_amyg.png", plot = bp_dx_amyg, width = 10)
 
-#### check against qSV 1####
+#### check against qSV ####
+qsv_names <- colnames(qSV_mat)
 
-scatter_qsv1 <- pd_sacc %>% select(PrimaryDx, colnames(est_prop_sacc_noT$Est.prop.weighted), PC1) %>%
-  melt(id.vars = c("PrimaryDx","PC1")) %>% 
-  rename(`Cell Type` = variable, Prop = value) %>%
-  ggplot(aes(PC1, Prop, color = `Cell Type`)) +
-  geom_point() +
-  facet_wrap(~`Cell Type`, scales = "free_y")+
-  labs(title = "qSV1 vs. Cell Type Prop",
-       subtitle = "sACC samples - MuSiC defaults - no T cell")
+prop_vs_qsv_sacc <- pd_sacc %>% select(all_of(c("RNum", cells_sacc))) %>%
+  melt(id.vars= c("RNum")) %>%
+  rename(`Cell Type` = variable, prop = value) %>%
+  left_join(pd_sacc %>% select(all_of(c("RNum", qsv_names))) %>%
+              melt(id.vars= c("RNum")) %>%
+              rename(qSV_name = variable, qSV = value)) 
 
-ggsave(filename = "sACC_CellType_qSV1.png", plot = scatter_qsv1, width = 14)
+
+scatter_qsv_sacc <- prop_vs_qsv_sacc %>%
+  ggplot(aes(qSV, prop)) +
+  geom_point(size = .5) +
+  facet_grid(`Cell Type`~qSV_name, scales = "free")+
+  theme_bw(base_size = 10)
+
+ggsave(filename = "sACC_CellType_qSV.png", plot = scatter_qsv_sacc, width = 26, height = 10)
