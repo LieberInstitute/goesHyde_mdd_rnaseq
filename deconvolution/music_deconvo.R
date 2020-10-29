@@ -1,5 +1,4 @@
-library(RColorBrewer)
-library(ggrepel)
+
 library(SummarizedExperiment)
 library(SingleCellExperiment)
 library(jaffelab)
@@ -7,8 +6,6 @@ library(here)
 library(MuSiC)
 library(Biobase)
 library(xbioc)
-library(dplyr)
-library(reshape2)
 
 ## Load rse_gene data
 load(here("exprs_cutoff", "rse_gene.Rdata"), verbose = TRUE)
@@ -18,11 +15,9 @@ rownames(rse_gene) <- rowData(rse_gene)$ensemblID
 load("/dcl01/lieber/ajaffe/Matt/MNT_thesis/snRNAseq/10x_pilot_FINAL/rdas/regionSpecific_sACC-n2_cleaned-combined_SCE_MNTFeb2020.rda", verbose = TRUE)
 dim(sce.sacc)
 # [1] 33538  7047
-table(sce.sacc$cellType)
-# Ambig.lowNtrxts           Astro         Excit.1         Excit.2         Excit.3         Excit.4         Inhib.1 
-# 43             623             586             410             185              85             515 
-# Inhib.2           Micro           Oligo             OPC 
-# 315             502            3252             531 
+## Exclude Ambig.lowNtrxts
+sce.sacc <- sce.sacc[,sce.sacc$cellType != "Ambig.lowNtrxts",]
+
 ## Add cellType.broad
 sce.sacc$cellType.Broad <- ss(as.character(sce.sacc$cellType), "\\.", 1)
 table(sce.sacc$cellType.Broad)
@@ -44,7 +39,7 @@ sce.sacc$uniqueID <- paste0(sce.sacc$donor, "_", sce.sacc$Barcode)
 colnames(sce.sacc) <- sce.sacc$uniqueID
 
 # create pheno Data
-pd_sce_sacc <- as.data.frame(colData(sce.sacc)[c("cellType.Broad", "uniqueID")])
+pd_sce_sacc <- as.data.frame(colData(sce.sacc)[c("cellType","cellType.Broad", "uniqueID")])
 # create 
 es_sc_sACC <- ExpressionSet(assayData = as.matrix(assays(sce.sacc)$counts),
                             phenoData=AnnotatedDataFrame(pd_sce_sacc))
@@ -52,10 +47,16 @@ es_sc_sACC <- ExpressionSet(assayData = as.matrix(assays(sce.sacc)$counts),
 
 ## estimate cell type props
 est_prop_sacc = music_prop(bulk.eset = es_gene_sACC, 
+                                 sc.eset = es_sc_sACC, 
+                                 clusters = 'cellType',
+                                 samples = 'uniqueID')
+save(est_prop_sacc, file = "prop_sacc.Rdata")
+
+est_prop_broad_sacc = music_prop(bulk.eset = es_gene_sACC, 
                            sc.eset = es_sc_sACC, 
                            clusters = 'cellType.Broad',
                            samples = 'uniqueID')
-save(est_prop_sacc, file = "prop_sacc.Rdata")
+save(est_prop_broad_sacc, file = "prop_broad_sacc.Rdata")
 
 #### Amyg Dat ####
 load("/dcl01/lieber/ajaffe/Matt/MNT_thesis/snRNAseq/10x_pilot_FINAL/rdas/regionSpecific_Amyg-n2_cleaned-combined_SCE_MNTFeb2020.rda", verbose = TRUE)
@@ -87,7 +88,7 @@ sce.amy$uniqueID <- paste0(sce.amy$donor, "_", sce.amy$Barcode)
 colnames(sce.amy) <- sce.amy$uniqueID
 
 # create pheno Data
-pd_sce_sacc <- as.data.frame(colData(sce.amy)[c("cellType.Broad", "uniqueID")])
+pd_sce_sacc <- as.data.frame(colData(sce.amy)[c("cellType.split","cellType.Broad", "uniqueID")])
 # create 
 es_sc_sACC <- ExpressionSet(assayData = as.matrix(assays(sce.amy)$counts),
                             phenoData=AnnotatedDataFrame(pd_sce_sacc))
@@ -96,44 +97,23 @@ es_sc_sACC <- ExpressionSet(assayData = as.matrix(assays(sce.amy)$counts),
 ## estimate cell type props
 est_prop_amyg = music_prop(bulk.eset = es_gene_sACC, 
                            sc.eset = es_sc_sACC, 
+                           clusters = 'cellType.split',
+                           samples = 'uniqueID')
+save(est_prop_amyg, file = "prop_amyg.Rdata")
+
+est_prop_broad_amyg = music_prop(bulk.eset = es_gene_sACC, 
+                           sc.eset = es_sc_sACC, 
                            clusters = 'cellType.Broad',
                            samples = 'uniqueID')
-save(est_prop_amyg, file = "prop_sacc.Rdata")
+save(est_prop_broad_amyg, file = "prop_broad_amyg.Rdata")
 
+# sgejobs::job_single('music_deconvo', create_shell = TRUE, queue= 'bluejay', memory = '100G', command = "Rscript music_deconvo.R")
 
+## Reproducibility information
+print("Reproducibility information:")
+Sys.time()
+proc.time()
+options(width = 120)
+session_info()
 
-
-#### plot ####
-# load("prop_sacc.Rdata", verbose = TRUE)
-pd_sacc <- as.data.frame(colData(rse_gene_sACC))
-pd_sacc <- cbind(pd_sacc, est_prop_sacc$Est.prop.weighted)
-
-
-bp_sacc_dx <- pd_sacc %>% select(PrimaryDx, names(cell_bias$M.S)) %>%
-  melt(id.vars = "PrimaryDx") %>%
-  rename(`Cell Type` = variable, Prop = value) %>%
-  ggplot(aes(`Cell Type`, Prop, fill = `PrimaryDx`)) +
-  geom_boxplot() +
-  labs(title = "Distribution of Cell Type Propotions",
-       subtitle = "sACC samples - MuSiC defaults")
-
-ggsave(filename = "sACC_CellType_boxplot.png", plot = bp_sacc_dx, width = 10)
-
-
-#### check against qSV 1####
-load(here("differential_expression" ,"qSV_mat.Rdata"), verbose = TRUE)
-all(colnames(rse_gene)==rownames(qSV_mat))
-
-pd_sacc <- cbind(pd_sacc, qSV_mat[rownames(pd_sacc),])
-
-scatter_qsv1 <- pd_sacc %>% select(PrimaryDx, colnames(est_prop_sacc_noT$Est.prop.weighted), PC1) %>%
-  melt(id.vars = c("PrimaryDx","PC1")) %>% 
-  rename(`Cell Type` = variable, Prop = value) %>%
-  ggplot(aes(PC1, Prop, color = `Cell Type`)) +
-  geom_point() +
-  facet_wrap(~`Cell Type`, scales = "free_y")+
-  labs(title = "qSV1 vs. Cell Type Prop",
-       subtitle = "sACC samples - MuSiC defaults - no T cell")
-
-ggsave(filename = "sACC_CellType_qSV1.png", plot = scatter_qsv1, width = 14)
 
