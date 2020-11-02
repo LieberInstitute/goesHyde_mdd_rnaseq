@@ -23,10 +23,9 @@ pd_sacc <- pd[pd$BrainRegion == "sACC",]
 pd_amyg <- pd[pd$BrainRegion == "Amygdala",]
 
 
-## bind with prop data
+## load and melt prop data
 load("prop_sacc.Rdata", verbose = TRUE)
 load("prop_amyg.Rdata", verbose = TRUE)
-
 cells_sacc <- colnames(est_prop_sacc$Est.prop.weighted)
 cells_amyg <- colnames(est_prop_amyg$Est.prop.weighted)
 
@@ -36,7 +35,16 @@ prop_sacc <- melt(est_prop_sacc$Est.prop.weighted) %>%
 prop_amyg <- melt(est_prop_amyg$Est.prop.weighted) %>%
   rename(sample = Var1, cell_type = Var2, prop = value)
 
-## create long data
+## broad data
+load("prop_broad_sacc.Rdata", verbose = TRUE)
+load("prop_broad_amyg.Rdata", verbose = TRUE)
+
+prop_broad_sacc <- melt(est_prop_broad_sacc$Est.prop.weighted) %>%
+  rename(sample = Var1, cell_type = Var2, prop = value) 
+
+prop_broad_amyg <- melt(est_prop_broad_amyg$Est.prop.weighted) %>%
+  rename(sample = Var1, cell_type = Var2, prop = value) 
+
 #### Compare with top 40 results ####
 load("prop_top40_sacc.Rdata", verbose = TRUE)
 load("prop_top40_amyg.Rdata", verbose = TRUE)
@@ -48,6 +56,18 @@ prop_sacc <- melt(est_prop_top40_sacc$Est.prop.weighted) %>%
 prop_amyg <- melt(est_prop_top40_amyg$Est.prop.weighted) %>%
   rename(sample = Var1, cell_type = Var2, prop_top40 = value)%>%
   right_join(prop_amyg,by = c("sample", "cell_type"))
+
+load("prop_top40_broad_sacc.Rdata", verbose = TRUE)
+load("prop_top40_broad_amyg.Rdata", verbose = TRUE)
+
+prop_broad_sacc <- melt(est_prop_top40_broad_sacc$Est.prop.weighted) %>%
+  rename(sample = Var1, cell_type = Var2, prop_top40 = value) %>%
+  right_join(prop_broad_sacc,by = c("sample", "cell_type"))
+
+prop_broad_amyg <- melt(est_prop_top40_broad_amyg$Est.prop.weighted) %>%
+  rename(sample = Var1, cell_type = Var2, prop_top40 = value)%>%
+  right_join(prop_broad_amyg,by = c("sample", "cell_type"))
+
 
 ## Plot
 top40_scatter_sacc <- prop40_sacc %>% 
@@ -71,48 +91,31 @@ ggsave(plot = top40_scatter_amyg , filename = "top40_scatter_amyg.png")
 prop_dx_sacc <- prop_sacc %>% 
   left_join(pd_sacc %>% select(PrimaryDx) %>% rownames_to_column("sample")) 
 
-prop_dx_amyg <-  prop_amyg %>%
+prop_broad_dx_sacc <- prop_broad_sacc %>% 
+  left_join(pd_sacc %>% select(PrimaryDx) %>% rownames_to_column("sample")) 
+
+prop_broad_dx_amyg <-  prop_broad_amyg %>%
   left_join(pd_amyg %>% select(PrimaryDx) %>% rownames_to_column("sample")) 
 
-## sACC boxplot
-big_little_boxplot(prop_dx_sacc, xvar = "cell_type", yvar = "prop",
-                   fillvar =  "PrimaryDx",
-                   title = "Distribution of Cell Type RNA-Propotions",
-                   subtitle = "sACC samples - MuSiC defaults", 
-                   fn = "cellType_boxplot_sACC.png")
+## specific cell types
+both_regions_bl_boxplot(prop_dx_sacc, prop_dx_amyg, yvar = "prop", 
+                        title = "Cell Type RNA-prop - all common genes",
+                        filename = "cellType_boxplots.png")
 
-## Amyg boxplot
-big_little_boxplot(prop_dx_amyg, xvar = "cell_type", yvar = "prop",
-                   fillvar =  "PrimaryDx",
-                   title = "Distribution of Cell Type RNA-Propotions",
-                   subtitle = "Amygdala samples - MuSiC defaults", 
-                   fn = "cellType_boxplot_amyg.png")
+both_regions_bl_boxplot(prop_dx_sacc, prop_dx_amyg, yvar = "prop_top40", 
+                        title = "Cell Type RNA-prop - all common genes",
+                        filename = "cellType_boxplots_top40.png")
 
-## Top 40 boxplots
-## sACC boxplot
-big_little_boxplot(prop_dx_sacc, xvar = "cell_type", yvar = "prop_top40",
-                   fillvar =  "PrimaryDx",
-                   title = "Distribution of Cell Type RNA-Propotions",
-                   subtitle = "sACC samples - top 40 genes", 
-                   fn = "cellType_boxplot_top40_sACC.png")
+## broad cell types
+both_regions_bl_boxplot(prop_broad_dx_sacc, prop_broad_dx_amyg, yvar = "prop", 
+                        title = "Cell Type RNA-prop - top 40 genes", 
+                        filename = "cellType_boxplots_broad.png")
 
-## Amyg boxplot
-big_little_boxplot(prop_dx_amyg, xvar = "cell_type", yvar = "prop_top40",
-                   fillvar =  "PrimaryDx",
-                   title = "Distribution of Cell Type RNA-Propotions",
-                   subtitle = "Amygdala samples - top 40 genes", 
-                   fn = "cellType_boxplot_top40_amyg.png")
+both_regions_bl_boxplot(prop_broad_dx_sacc, prop_broad_dx_amyg, yvar = "prop_top40", 
+                        title = "Cell Type RNA-prop - top 40 genes", 
+                        filename = "cellType_boxplots_broad_top40.png")
 
 
-#### Prop vs. Age ####
-# pd_age <- as.vector(pd_sacc$AgeDeath)
-# pd_y <- as.vector(pd_sacc$Oligo)
-# png("age_vs_Oligio.png")
-# agePlotter(age = pd_age, y = pd_y,
-#            mainText = "Avg vs. Prop",
-#            mod = model.matrix(~ pd_age),
-#            ageBreaks = c(-1, 0, 1, 10, 20, 50, 100))
-# dev.off()
 
 age_scatter_sacc <- pd_sacc %>%
   select(all_of(c("RNum", "AgeDeath", cells_sacc))) %>%
