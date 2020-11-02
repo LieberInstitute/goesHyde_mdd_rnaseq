@@ -26,6 +26,7 @@ table(sce.sacc$cellType.Broad)
 
 ## Match rownames
 rownames(sce.sacc) <- rowData(sce.sacc)$ID
+message("Matching genes:")
 table(rownames(sce.sacc) %in% rownames(rse_gene))
 # FALSE  TRUE 
 # 15021 18517 
@@ -45,19 +46,6 @@ es_sc_sacc <- ExpressionSet(assayData = as.matrix(assays(sce.sacc)$counts),
                             phenoData=AnnotatedDataFrame(pd_sce_sacc))
 
 
-## estimate cell type props
-est_prop_sacc = music_prop(bulk.eset = es_gene_sacc, 
-                           sc.eset = es_sc_sacc, 
-                           clusters = 'cellType',
-                           samples = 'uniqueID')
-save(est_prop_sacc, file = "prop_sacc.Rdata")
-
-est_prop_broad_sacc = music_prop(bulk.eset = es_gene_sacc, 
-                                 sc.eset = es_sc_sacc, 
-                                 clusters = 'cellType.Broad',
-                                 samples = 'uniqueID')
-save(est_prop_broad_sacc, file = "prop_broad_sacc.Rdata")
-
 #### Amyg Dat ####
 load("/dcl01/lieber/ajaffe/Matt/MNT_thesis/snRNAseq/10x_pilot_FINAL/rdas/regionSpecific_Amyg-n2_cleaned-combined_SCE_MNTFeb2020.rda", verbose = TRUE)
 dim(sce.amy)
@@ -75,6 +63,7 @@ table(sce.amy$cellType.Broad)
 
 ## Match rownames
 rownames(sce.amy) <- rowData(sce.amy)$ID
+message("Matching genes:")
 table(rownames(sce.amy) %in% rownames(rse_gene))
 # FALSE  TRUE 
 # 15021 18517 
@@ -94,7 +83,22 @@ es_sc_amyg <- ExpressionSet(assayData = as.matrix(assays(sce.amy)$counts),
                             phenoData=AnnotatedDataFrame(pd_sce_amyg))
 
 
-## estimate cell type props
+#### estimate cell type props ####
+
+message("**** MUSIC for sACC ****")
+est_prop_sacc = music_prop(bulk.eset = es_gene_sacc, 
+                           sc.eset = es_sc_sacc, 
+                           clusters = 'cellType',
+                           samples = 'uniqueID')
+save(est_prop_sacc, file = "prop_sacc.Rdata")
+
+est_prop_broad_sacc = music_prop(bulk.eset = es_gene_sacc, 
+                                 sc.eset = es_sc_sacc, 
+                                 clusters = 'cellType.Broad',
+                                 samples = 'uniqueID')
+save(est_prop_broad_sacc, file = "prop_broad_sacc.Rdata")
+
+message("**** MUSIC for Amyg ****")
 est_prop_amyg = music_prop(bulk.eset = es_gene_amyg, 
                            sc.eset = es_sc_amyg, 
                            clusters = 'cellType.split',
@@ -107,7 +111,8 @@ est_prop_broad_amyg = music_prop(bulk.eset = es_gene_amyg,
                                  samples = 'uniqueID')
 save(est_prop_broad_amyg, file = "prop_broad_amyg.Rdata")
 
-# sgejobs::job_single('music_deconvo', create_shell = TRUE, queue= 'bluejay', memory = '100G', command = "Rscript music_deconvo.R")
+
+
 
 #### Top 40 data ####
 top40_amyg <- read.csv("/dcl01/lieber/ajaffe/Matt/MNT_thesis/snRNAseq/10x_pilot_FINAL/tables/top40genesLists_Amyg-n2_cellType.split_SN-LEVEL-tests_May2020.csv")
@@ -141,7 +146,7 @@ est_prop_top40_amyg = music_prop(bulk.eset = es_gene_sacc[top40all_ensm_amyg,],
                                  samples = 'uniqueID')
 save(est_prop_top40_amyg, file = "prop_top40_amyg.Rdata")
 
-
+# sgejobs::job_single('music_deconvo', create_shell = TRUE, queue= 'bluejay', memory = '100G', command = "Rscript music_deconvo.R")
 ## Reproducibility information
 print("Reproducibility information:")
 Sys.time()
