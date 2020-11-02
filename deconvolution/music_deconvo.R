@@ -46,7 +46,7 @@ es_sc_sacc <- ExpressionSet(assayData = as.matrix(assays(sce.sacc)$counts),
                             phenoData=AnnotatedDataFrame(pd_sce_sacc))
 
 
-#### Amyg Dat ####
+#### Amyg Data ####
 load("/dcl01/lieber/ajaffe/Matt/MNT_thesis/snRNAseq/10x_pilot_FINAL/rdas/regionSpecific_Amyg-n2_cleaned-combined_SCE_MNTFeb2020.rda", verbose = TRUE)
 dim(sce.amy)
 # [1] 33538  6632
@@ -116,7 +116,7 @@ save(est_prop_broad_amyg, file = "prop_broad_amyg.Rdata")
 
 #### Top 40 data ####
 top40_amyg <- read.csv("/dcl01/lieber/ajaffe/Matt/MNT_thesis/snRNAseq/10x_pilot_FINAL/tables/top40genesLists_Amyg-n2_cellType.split_SN-LEVEL-tests_May2020.csv")
-top40_sacc <- read.csv("/dcl01/lieber/ajaffe/Matt/MNT_thesis/snRNAseq/10x_pilot_FINAL/tables/top40genesLists_sacc-n2_cellType_SN-LEVEL-tests_May2020.csv")
+top40_sacc <- read.csv("/dcl01/lieber/ajaffe/Matt/MNT_thesis/snRNAseq/10x_pilot_FINAL/tables/top40genesLists_sACC-n2_cellType_SN-LEVEL-tests_May2020.csv")
 
 ## sacc
 top40all_sacc <- unique(unlist(top40_sacc[,grepl("1vAll", colnames(top40_sacc))]))
@@ -140,9 +140,9 @@ length(top40all_amyg)
 top40all_ensm_amyg <-  rowData(rse_gene)$ensemblID[rowData(rse_gene)$Symbol %in% top40all_amyg]
 top40all_ensm_amyg <- top40all_ensm_amyg[top40all_ensm_amyg %in% rownames(es_sc_amyg)]
 ## estimate cell type props
-est_prop_top40_amyg = music_prop(bulk.eset = es_gene_sacc[top40all_ensm_amyg,], 
-                                 sc.eset = es_sc_sacc[top40all_ensm_amyg,], 
-                                 clusters = 'cellType',
+est_prop_top40_amyg = music_prop(bulk.eset = es_gene_amyg[top40all_ensm_amyg,], 
+                                 sc.eset = es_sc_amyg[top40all_ensm_amyg,], 
+                                 clusters = 'cellType.split',
                                  samples = 'uniqueID')
 save(est_prop_top40_amyg, file = "prop_top40_amyg.Rdata")
 
