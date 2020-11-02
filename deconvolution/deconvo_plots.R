@@ -2,15 +2,13 @@ library(SummarizedExperiment)
 library(RColorBrewer)
 library(jaffelab)
 library(here)
-# library(dplyr)
 library(reshape2)
-# library(ggplot2)
 library(patchwork)
 library(purrr)
 library(tidyverse)
-## Load theme colors
-source(here("main_colors.R"))
 
+source(here("main_colors.R"))
+source("big_little_boxplot.R")
 #### Load Data ####
 load(here("exprs_cutoff", "rse_gene.Rdata"), verbose = TRUE)
 pd <- as.data.frame(colData(rse_gene))
@@ -31,10 +29,6 @@ load("prop_amyg.Rdata", verbose = TRUE)
 
 cells_sacc <- colnames(est_prop_sacc$Est.prop.weighted)
 cells_amyg <- colnames(est_prop_amyg$Est.prop.weighted)
-
-## Separate large from small proportions to make plots clear
-big_sacc <- map_lgl(est_prop_sacc$Est.prop.weighted, ~mean(.x) > 0.1)
-big_amyg <- map_lgl(est_prop_amyg$Est.prop.weighted, ~mean(.x) > 0.1)
 
 prop_sacc <- melt(est_prop_sacc$Est.prop.weighted) %>%
   rename(sample = Var1, cell_type = Var2, prop = value)
@@ -72,9 +66,8 @@ top40_scatter_amyg <- prop40_amyg %>%
 
 ggsave(plot = top40_scatter_amyg , filename = "top40_scatter_amyg.png")
 
-
-
 #### cell type boxplot ####
+## Add dx to long data
 prop_dx_sacc <- prop_sacc %>% 
   left_join(pd_sacc %>% select(PrimaryDx) %>% rownames_to_column("sample")) 
 
@@ -82,83 +75,33 @@ prop_dx_amyg <-  prop_amyg %>%
   left_join(pd_amyg %>% select(PrimaryDx) %>% rownames_to_column("sample")) 
 
 ## sACC boxplot
-bp_dx_sacc_big <- prop_dx_sacc %>% 
-  filter(cell_type %in% cells_sacc[big_sacc]) %>%
-  ggplot(aes(cell_type, prop, fill = `PrimaryDx`)) +
-  geom_boxplot() +
-  scale_fill_manual(values = mdd_Dx_colors)+
-  labs(title = "Distribution of Cell Type RNA-Propotions",
-       subtitle = "sACC samples - MuSiC defaults")+
-  theme(legend.position = "None")
-
-bp_dx_sacc_little <- prop_dx_sacc %>% 
-  filter(cell_type %in% cells_sacc[!big_sacc]) %>%
-  ggplot(aes(cell_type, Prop, fill = `PrimaryDx`)) +
-  geom_boxplot() +
-  scale_fill_manual(values = mdd_Dx_colors)
-
-ggsave(filename = "cellType_boxplot_sACC.png", 
-       plot = bp_dx_sacc_big + bp_dx_sacc_little, 
-       width = 10)
+big_little_boxplot(prop_dx_sacc, xvar = "cell_type", yvar = "prop",
+                   fillvar =  "PrimaryDx",
+                   title = "Distribution of Cell Type RNA-Propotions",
+                   subtitle = "sACC samples - MuSiC defaults", 
+                   fn = "cellType_boxplot_sACC.png")
 
 ## Amyg boxplot
-bp_dx_amyg_big <- prop_dx_amyg %>% 
-  filter(cell_type %in% cells_amyg[big_amyg]) %>%
-  ggplot(aes(cell_type, Prop, fill = `PrimaryDx`)) +
-  geom_boxplot() +
-  scale_fill_manual(values = mdd_Dx_colors) +
-  labs(title = "Distribution of Cell Type RNA-Propotions",
-       subtitle = "Amygdala samples - MuSiC defaults") +
-  theme(legend.position = "None")
-
-bp_dx_amyg_little <- prop_dx_amyg %>% 
-  filter(cell_type %in% cells_amyg[!big_amyg]) %>%
-  ggplot(aes(cell_type, Prop, fill = `PrimaryDx`)) +
-  geom_boxplot() +
-  scale_fill_manual(values = mdd_Dx_colors)
-
-ggsave(filename = "cellType_boxplot_amyg.png", 
-       plot = bp_dx_amyg_big + bp_dx_amyg_little, width = 10)
+big_little_boxplot(prop_dx_amyg, xvar = "cell_type", yvar = "prop",
+                   fillvar =  "PrimaryDx",
+                   title = "Distribution of Cell Type RNA-Propotions",
+                   subtitle = "Amygdala samples - MuSiC defaults", 
+                   fn = "cellType_boxplot_amyg.png")
 
 ## Top 40 boxplots
 ## sACC boxplot
-bp_dx_sacc_big <- prop_dx_sacc %>% 
-  filter(cell_type %in% cells_sacc[big_sacc]) %>%
-  ggplot(aes(cell_type, prop_top40, fill = `PrimaryDx`)) +
-  geom_boxplot() +
-  scale_fill_manual(values = mdd_Dx_colors)+
-  labs(title = "Distribution of Cell Type RNA-Propotions",
-       subtitle = "sACC samples - top 40 genes")+
-  theme(legend.position = "None")
-
-bp_dx_sacc_little <- prop_dx_sacc %>% 
-  filter(cell_type %in% cells_sacc[!big_sacc]) %>%
-  ggplot(aes(cell_type, prop_top40, fill = `PrimaryDx`)) +
-  geom_boxplot() +
-  scale_fill_manual(values = mdd_Dx_colors)
-
-ggsave(filename = "cellType_boxplot_top40_sACC.png", 
-       plot = bp_dx_sacc_big + bp_dx_sacc_little, 
-       width = 10)
+big_little_boxplot(prop_dx_sacc, xvar = "cell_type", yvar = "prop_top40",
+                   fillvar =  "PrimaryDx",
+                   title = "Distribution of Cell Type RNA-Propotions",
+                   subtitle = "sACC samples - top 40 genes", 
+                   fn = "cellType_boxplot_top40_sACC.png")
 
 ## Amyg boxplot
-bp_dx_amyg_big <- prop_dx_amyg %>% 
-  filter(cell_type %in% cells_amyg[big_amyg]) %>%
-  ggplot(aes(cell_type, prop_top40, fill = `PrimaryDx`)) +
-  geom_boxplot() +
-  scale_fill_manual(values = mdd_Dx_colors) +
-  labs(title = "Distribution of Cell Type RNA-Propotions",
-       subtitle = "Amygdala samples - top 40 genes") +
-  theme(legend.position = "None")
-
-bp_dx_amyg_little <- prop_dx_amyg %>% 
-  filter(cell_type %in% cells_amyg[!big_amyg]) %>%
-  ggplot(aes(cell_type, prop_top40, fill = `PrimaryDx`)) +
-  geom_boxplot() +
-  scale_fill_manual(values = mdd_Dx_colors)
-
-ggsave(filename = "cellType_boxplot_top40_amyg.png", 
-       plot = bp_dx_amyg_big + bp_dx_amyg_little, width = 10)
+big_little_boxplot(prop_dx_amyg, xvar = "cell_type", yvar = "prop_top40",
+                   fillvar =  "PrimaryDx",
+                   title = "Distribution of Cell Type RNA-Propotions",
+                   subtitle = "Amygdala samples - top 40 genes", 
+                   fn = "cellType_boxplot_top40_amyg.png")
 
 
 #### Prop vs. Age ####
@@ -198,4 +141,5 @@ scatter_qsv_sacc <- prop_vs_qsv_sacc %>%
   theme_bw(base_size = 10)
 
 ggsave(filename = "sACC_CellType_qSV.png", plot = scatter_qsv_sacc, width = 26, height = 10)
+
 
