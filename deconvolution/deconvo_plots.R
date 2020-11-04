@@ -73,18 +73,43 @@ prop_broad_amyg <- melt(est_prop_top40_broad_amyg$Est.prop.weighted) %>%
 ## Plot
 top40_scatter_sacc <- prop_sacc %>% 
   ggplot(aes(prop, prop_top40, color = cell_type)) +
-  geom_point()+ 
+  geom_point(size = 0.5)+ 
   # geom_smooth(method='lm')+
   labs(title = "Prop top-40 vs. all genes",
-       subtitle = "sACC")
+       subtitle = "sACC")+
+  facet_wrap(~cell_type, scales = "free")+
+  theme(legend.position = "None")
 
 top40_scatter_amyg <- prop_amyg %>% 
   ggplot(aes(prop, prop_top40, color = cell_type)) +
-  geom_point()  + 
+  geom_point(size = 0.5)  + 
   # geom_smooth(method='lm')+
-  labs(subtitle = "Amygdala")
+  labs(subtitle = "Amygdala") +
+  facet_wrap(~cell_type, scales = "free")+
+  theme(legend.position = "None")
 
-ggsave(plot = top40_scatter_sacc + top40_scatter_amyg , filename = "plots/top40_scatter.png", width = 14)
+ggsave(plot = top40_scatter_sacc + top40_scatter_amyg , filename = "plots/top40_scatter.png", width = 16)
+
+## Plot broad
+top40_scatter_broad_sacc <- prop_broad_sacc %>% 
+  ggplot(aes(prop, prop_top40, color = cell_type)) +
+  geom_point(size = 0.5)+ 
+  # geom_smooth(method='lm')+
+  labs(title = "Prop top-40 vs. all genes",
+       subtitle = "sACC")+
+  facet_wrap(~cell_type, scales = "free")+
+  theme(legend.position = "None")
+
+top40_scatter_broad_amyg <- prop_broad_amyg %>% 
+  ggplot(aes(prop, prop_top40, color = cell_type)) +
+  geom_point(size = 0.5)  + 
+  # geom_smooth(method='lm')+
+  labs(subtitle = "Amygdala") +
+  facet_wrap(~cell_type, scales = "free")+
+  theme(legend.position = "None")
+
+ggsave(plot = top40_scatter_broad_sacc + top40_scatter_broad_amyg , filename = "plots/top40_scatter_broad.png", width = 16)
+
 
 #### cell type boxplot ####
 ## Add dx to long data
@@ -111,11 +136,11 @@ both_regions_bl_boxplot(prop_dx_sacc, prop_dx_amyg, yvar = "prop_top40",
 
 ## broad cell types
 both_regions_bl_boxplot(prop_broad_dx_sacc, prop_broad_dx_amyg, yvar = "prop", 
-                        title = "Cell Type RNA-prop -  all common genes - Broad cell types", 
+                        title = "Cell Type RNA-prop -  all common genes", 
                         filename = "plots/cellType_boxplots_broad.png")
 
 both_regions_bl_boxplot(prop_broad_dx_sacc, prop_broad_dx_amyg, yvar = "prop_top40", 
-                        title = "Cell Type RNA-prop - top 40 genes - Broad cell types", 
+                        title = "Cell Type RNA-prop - top 40 genes", 
                         filename = "plots/cellType_boxplots_broad_top40.png")
 
 ## Age scatter
@@ -147,14 +172,148 @@ qsv_long_amyg <- pd_amyg %>%
 prop_qsv_sacc <- prop_sacc %>%
   left_join(qsv_long_sacc, by = "sample")
 
-scatter_qsv_sacc <- prop_qsv_sacc %>%
-  ggplot(aes(qSV, prop)) +
+prop_qsv_amyg <- prop_amyg %>%
+  left_join(qsv_long_amyg, by = "sample")
+
+#### Calculate p-values ####
+##sACC
+cross_sacc <- cross2(cells_sacc, qsv_names)
+
+cross_df_sacc <- as.data.frame(do.call("rbind", cross_sacc))
+colnames(cross_df_sacc) <- c("cell_type","qSV_name")
+cross_df_sacc$cell_type <- factor(cross_df_sacc$cell_type, levels = unique(cross_df_sacc$cell_type))
+cross_df_sacc$qSV_name <- factor(cross_df_sacc$qSV_name, levels = unique(cross_df_sacc$qSV_name))
+
+## All genes
+qsv_lm_sacc <- bind_rows(map(cross_sacc, function(x){
+  cell = x[[1]]
+  qsv = x[[2]]
+  prop_qsv <- prop_qsv_sacc %>%
+    filter(cell_type == cell & qSV_name == qsv) 
+  
+  tidy(lm(prop~qSV-1, data = prop_qsv))
+}))
+
+qsv_lm_sacc_df <- cbind(cross_df_sacc,qsv_lm_sacc) 
+
+qsv_lm_sacc_df$p.bonf <- p.adjust(qsv_lm_sacc_df$p.value, 'bonf')
+qsv_lm_sacc_df$p.bonf.sig <- qsv_lm_sacc_df$p.bonf < 0.05
+qsv_lm_sacc_df$p.fdr<- p.adjust(qsv_lm_sacc_df$p.value, 'fdr')
+
+sum(qsv_lm_sacc_df$p.bonf < 0.05)
+# [1] 74
+head(qsv_lm_sacc_df)
+
+## top40 
+qsv_lm_top40_sacc <- bind_rows(map(cross_sacc, function(x){
+  cell = x[[1]]
+  qsv = x[[2]]
+  prop_qsv <- prop_qsv_sacc %>%
+    filter(cell_type == cell & qSV_name == qsv) 
+  
+  tidy(lm(prop_top40~qSV-1, data = prop_qsv))
+}))
+
+qsv_lm_top40_sacc_df <- cbind(cross_df_sacc,qsv_lm_top40_sacc) 
+
+qsv_lm_top40_sacc_df$p.bonf <- p.adjust(qsv_lm_top40_sacc_df$p.value, 'bonf')
+qsv_lm_top40_sacc_df$p.bonf.sig <- qsv_lm_top40_sacc_df$p.bonf < 0.05
+qsv_lm_top40_sacc_df$p.fdr<- p.adjust(qsv_lm_top40_sacc_df$p.value, 'fdr')
+
+sum(qsv_lm_top40_sacc_df$p.bonf < 0.05)
+# [1] 83
+head(qsv_lm_top40_sacc_df)
+
+## Amyg
+cross_amyg <- cross2(cells_amyg, qsv_names)
+
+cross_df_amyg <- as.data.frame(do.call("rbind", cross_amyg))
+colnames(cross_df_amyg) <- c("cell_type","qSV_name")
+cross_df_amyg$cell_type <- factor(cross_df_amyg$cell_type, levels = unique(cross_df_amyg$cell_type))
+cross_df_amyg$qSV_name <- factor(cross_df_amyg$qSV_name, levels = unique(cross_df_amyg$qSV_name))
+
+## All genes
+qsv_lm_amyg <- bind_rows(map(cross_amyg, function(x){
+  cell = x[[1]]
+  qsv = x[[2]]
+  prop_qsv <- prop_qsv_amyg %>%
+    filter(cell_type == cell & qSV_name == qsv) 
+  
+  tidy(lm(prop~qSV-1, data = prop_qsv))
+}))
+
+qsv_lm_amyg_df <- cbind(cross_df_amyg, qsv_lm_amyg) 
+
+qsv_lm_amyg_df$p.bonf <- p.adjust(qsv_lm_amyg_df$p.value, 'bonf')
+qsv_lm_amyg_df$p.bonf.sig <- qsv_lm_amyg_df$p.bonf < 0.05
+qsv_lm_amyg_df$p.fdr<- p.adjust(qsv_lm_amyg_df$p.value, 'fdr')
+
+sum(is.na(qsv_lm_amyg_df$p.value))
+# [1] 26
+## Replace NA with FALSE 
+qsv_lm_amyg_df$p.bonf.sig[is.na(qsv_lm_amyg_df$p.bonf.sig)] <- FALSE
+sum(qsv_lm_amyg_df$p.bonf.sig)
+# [1] 69
+
+## top40
+qsv_lm_top40_top40_amyg <- bind_rows(map(cross_amyg, function(x){
+  cell = x[[1]]
+  qsv = x[[2]]
+  prop_qsv <- prop_qsv_amyg %>%
+    filter(cell_type == cell & qSV_name == qsv) 
+  
+  tidy(lm(prop_top40~qSV-1, data = prop_qsv))
+}))
+
+qsv_lm_top40_amyg_df <- cbind(cross_df_amyg, qsv_lm_top40_amyg) 
+
+qsv_lm_top40_amyg_df$p.bonf <- p.adjust(qsv_lm_top40_amyg_df$p.value, 'bonf')
+qsv_lm_top40_amyg_df$p.bonf.sig <- qsv_lm_top40_amyg_df$p.bonf < 0.05
+qsv_lm_top40_amyg_df$p.fdr<- p.adjust(qsv_lm_top40_amyg_df$p.value, 'fdr')
+
+sum(qsv_lm_top40_amyg_df$p.bonf.sig)
+# [1] 85
+
+#### Create scatter plots ####
+scatter_qsv_sacc <- prop_qsv_sacc %>% 
+  left_join(qsv_lm_sacc_df %>% select(cell_type, qSV_name, p.bonf.sig)) %>% 
+  ggplot(aes(qSV, prop, color= p.bonf.sig)) +
+  geom_point(size = .4) +
+  facet_grid(cell_type~qSV_name, scales = "free")+
+  theme_bw(base_size = 10)+
+  scale_color_manual(values = c('FALSE' = 'black', 'TRUE' = 'red'))
+
+ggsave(filename = "plots/cellType_qSV_sACC.png", plot = scatter_qsv_sacc, width = 26, height = 10)
+
+scatter_qsv_top40_sacc <- prop_qsv_sacc %>% 
+  left_join(qsv_lm_top40_sacc_df %>% select(cell_type, qSV_name, p.bonf.sig)) %>% 
+  ggplot(aes(qSV, prop_top40, color= p.bonf.sig)) +
+  geom_point(size = .4) +
+  facet_grid(cell_type~qSV_name, scales = "free")+
+  theme_bw(base_size = 10)+
+  scale_color_manual(values = c('FALSE' = 'black', 'TRUE' = 'red'))
+
+ggsave(filename = "plots/cellType_qSV_top40_sACC.png", plot = scatter_qsv_top40_sacc, width = 26, height = 10)
+
+scatter_qsv_amyg <- prop_qsv_amyg %>% 
+  left_join(qsv_lm_amyg_df %>% select(cell_type, qSV_name, p.bonf.sig)) %>% 
+  ggplot(aes(qSV, prop, color= p.bonf.sig)) +
   geom_point(size = .5) +
   facet_grid(cell_type~qSV_name, scales = "free")+
-  theme_bw(base_size = 10)
+  theme_bw(base_size = 10)+
+  scale_color_manual(values = c('FALSE' = 'black', 'TRUE' = 'red'))
 
-ggsave(filename = "plots/sACC_CellType_qSV.png", plot = scatter_qsv_sacc, width = 26, height = 10)
+ggsave(filename = "plots/cellType_qSV_amyg.png", plot = scatter_qsv_amyg, width = 26, height = 10)
 
+scatter_qsv_top40_amyg <- prop_qsv_amyg %>% 
+  left_join(qsv_lm_amyg_df %>% select(cell_type, qSV_name, p.bonf.sig)) %>% 
+  ggplot(aes(qSV, prop_top40, color= p.bonf.sig)) +
+  geom_point(size = .5) +
+  facet_grid(cell_type~qSV_name, scales = "free")+
+  theme_bw(base_size = 10)+
+  scale_color_manual(values = c('FALSE' = 'black', 'TRUE' = 'red'))
+
+ggsave(filename = "plots/cellType_qSV_top40_amyg.png", plot = scatter_qsv_top40_amyg, width = 26, height = 10)
 
 # sgejobs::job_single('deconvo_plots', create_shell = TRUE, queue= 'bluejay', memory = '10G', command = "Rscript deconvo_plots.R")
 ## Reproducibility information
