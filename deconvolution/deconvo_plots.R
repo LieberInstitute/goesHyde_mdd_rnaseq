@@ -6,6 +6,7 @@ library(reshape2)
 library(patchwork)
 library(purrr)
 library(tidyverse)
+library(broom)
 
 source(here("main_colors.R"))
 source("big_little_boxplot.R")
@@ -256,7 +257,7 @@ sum(qsv_lm_amyg_df$p.bonf.sig)
 # [1] 69
 
 ## top40
-qsv_lm_top40_top40_amyg <- bind_rows(map(cross_amyg, function(x){
+qsv_lm_top40_amyg <- bind_rows(map(cross_amyg, function(x){
   cell = x[[1]]
   qsv = x[[2]]
   prop_qsv <- prop_qsv_amyg %>%
@@ -306,7 +307,7 @@ scatter_qsv_amyg <- prop_qsv_amyg %>%
 ggsave(filename = "plots/cellType_qSV_amyg.png", plot = scatter_qsv_amyg, width = 26, height = 10)
 
 scatter_qsv_top40_amyg <- prop_qsv_amyg %>% 
-  left_join(qsv_lm_amyg_df %>% select(cell_type, qSV_name, p.bonf.sig)) %>% 
+  left_join(qsv_lm_top40_amyg_df %>% select(cell_type, qSV_name, p.bonf.sig)) %>% 
   ggplot(aes(qSV, prop_top40, color= p.bonf.sig)) +
   geom_point(size = .5) +
   facet_grid(cell_type~qSV_name, scales = "free")+
