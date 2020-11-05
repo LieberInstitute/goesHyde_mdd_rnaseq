@@ -7,6 +7,7 @@ library(patchwork)
 library(purrr)
 library(tidyverse)
 library(broom)
+library(sessioninfo)
 
 source(here("main_colors.R"))
 source("big_little_boxplot.R")
@@ -28,8 +29,6 @@ pd_amyg <- pd[pd$BrainRegion == "Amygdala",]
 ## load and melt prop data
 load("prop_sacc.Rdata", verbose = TRUE)
 load("prop_amyg.Rdata", verbose = TRUE)
-cells_sacc <- colnames(est_prop_sacc$Est.prop.weighted)
-cells_amyg <- colnames(est_prop_amyg$Est.prop.weighted)
 
 prop_sacc <- melt(est_prop_sacc$Est.prop.weighted) %>%
   rename(sample = Var1, cell_type = Var2, prop = value)
@@ -47,7 +46,22 @@ prop_broad_sacc <- melt(est_prop_broad_sacc$Est.prop.weighted) %>%
 prop_broad_amyg <- melt(est_prop_broad_amyg$Est.prop.weighted) %>%
   rename(sample = Var1, cell_type = Var2, prop = value) 
 
-#### Compare with top 40 results ####
+## extract cell_types establish color pallet
+cells_sacc <- colnames(est_prop_sacc$Est.prop.weighted)
+cells_amyg <- colnames(est_prop_amyg$Est.prop.weighted)
+cells_broad_sacc <- colnames(est_prop_broad_sacc$Est.prop.weighted)
+cells_broad_amyg <- colnames(est_prop_broad_amyg$Est.prop.weighted)
+
+cells_broad <- unique(c(cells_broad_amyg, cells_broad_sacc))
+cells_specific <- unique(c(cells_sacc, cells_amyg))
+cells_specific <- cells_specific[!cells_specific %in% cells_broad]
+
+cell_colors <- c(brewer.pal(n = length(cells_broad), name = "Set1"),
+                 brewer.pal(n= length(cells_specific), name = "Set3"))
+names(cell_colors) <- c(cells_broad, cells_specific)
+
+
+#### Compare all genes with top 40 results ####
 load("prop_top40_sacc.Rdata", verbose = TRUE)
 load("prop_top40_amyg.Rdata", verbose = TRUE)
 
@@ -75,18 +89,20 @@ prop_broad_amyg <- melt(est_prop_top40_broad_amyg$Est.prop.weighted) %>%
 top40_scatter_sacc <- prop_sacc %>% 
   ggplot(aes(prop, prop_top40, color = cell_type)) +
   geom_point(size = 0.5)+ 
-  # geom_smooth(method='lm')+
   labs(title = "Prop top-40 vs. all genes",
        subtitle = "sACC")+
+  geom_abline()+
   facet_wrap(~cell_type, scales = "free")+
+  scale_color_manual(values = cell_colors)+
   theme(legend.position = "None")
 
 top40_scatter_amyg <- prop_amyg %>% 
   ggplot(aes(prop, prop_top40, color = cell_type)) +
   geom_point(size = 0.5)  + 
-  # geom_smooth(method='lm')+
   labs(subtitle = "Amygdala") +
+  geom_abline()+
   facet_wrap(~cell_type, scales = "free")+
+  scale_color_manual(values = cell_colors)+
   theme(legend.position = "None")
 
 ggsave(plot = top40_scatter_sacc + top40_scatter_amyg , filename = "plots/top40_scatter.png", width = 16)
@@ -95,7 +111,8 @@ ggsave(plot = top40_scatter_sacc + top40_scatter_amyg , filename = "plots/top40_
 top40_scatter_broad_sacc <- prop_broad_sacc %>% 
   ggplot(aes(prop, prop_top40, color = cell_type)) +
   geom_point(size = 0.5)+ 
-  # geom_smooth(method='lm')+
+  geom_abline()+
+  scale_color_manual(values = cell_colors)+
   labs(title = "Prop top-40 vs. all genes",
        subtitle = "sACC")+
   facet_wrap(~cell_type, scales = "free")+
@@ -103,14 +120,14 @@ top40_scatter_broad_sacc <- prop_broad_sacc %>%
 
 top40_scatter_broad_amyg <- prop_broad_amyg %>% 
   ggplot(aes(prop, prop_top40, color = cell_type)) +
-  geom_point(size = 0.5)  + 
-  # geom_smooth(method='lm')+
+  geom_point(size = 0.5)  +  
+  geom_abline()+
+  scale_color_manual(values = cell_colors)+
   labs(subtitle = "Amygdala") +
   facet_wrap(~cell_type, scales = "free")+
   theme(legend.position = "None")
 
 ggsave(plot = top40_scatter_broad_sacc + top40_scatter_broad_amyg , filename = "plots/top40_scatter_broad.png", width = 16)
-
 
 #### cell type boxplot ####
 ## Add dx to long data
@@ -118,7 +135,7 @@ prop_dx_sacc <- prop_sacc %>%
   left_join(pd_sacc %>% select(PrimaryDx) %>% rownames_to_column("sample")) 
 
 prop_dx_amyg <- prop_amyg %>% 
-  left_join(pd_sacc %>% select(PrimaryDx) %>% rownames_to_column("sample")) 
+  left_join(pd_amyg %>% select(PrimaryDx) %>% rownames_to_column("sample")) 
 
 prop_broad_dx_sacc <- prop_broad_sacc %>% 
   left_join(pd_sacc %>% select(PrimaryDx) %>% rownames_to_column("sample")) 
@@ -132,7 +149,7 @@ both_regions_bl_boxplot(prop_dx_sacc, prop_dx_amyg, yvar = "prop",
                         filename = "plots/cellType_boxplots.png")
 
 both_regions_bl_boxplot(prop_dx_sacc, prop_dx_amyg, yvar = "prop_top40", 
-                        title = "Cell Type RNA-prop - all common genes",
+                        title = "Cell Type RNA-prop - top 40 genes",
                         filename = "plots/cellType_boxplots_top40.png")
 
 ## broad cell types
@@ -154,6 +171,70 @@ age_scatter_broad_sacc <- prop_age_broad_sacc %>%
   facet_wrap(~cell_type, scales = "free_y", nrow = 6)
 
 ggsave(filename = "plots/age_vs_celltype_broad_sACC.png", plot = age_scatter_broad_sacc)
+
+#### Compare summed specific cell types with broad ####
+prop_sum_sacc <- prop_sacc %>% 
+  filter(!cell_type %in% cells_broad_sacc) %>%
+  mutate(cell_type = gsub(".[0-9]", "", cell_type)) %>%
+  group_by(sample, cell_type) %>%
+  summarise(sum_prop = sum(prop),
+            sum_prop_top40 = sum(prop_top40)) %>%
+  left_join(prop_broad_sacc, by = c("sample","cell_type"))
+
+prop_sum_amyg <- prop_amyg %>% 
+  filter(!cell_type %in% cells_broad_amyg) %>%
+  mutate(cell_type = gsub(".[0-9]", "", cell_type)) %>%
+  group_by(sample, cell_type) %>%
+  summarise(sum_prop = sum(prop),
+            sum_prop_top40 = sum(prop_top40)) %>%
+  left_join(prop_broad_amyg, by = c("sample","cell_type"))
+
+## plot
+sum_scatter_sacc <- prop_sum_sacc %>%
+  ggplot(aes(prop, sum_prop, color = cell_type)) +
+  geom_point()  +  
+  geom_abline()+
+  scale_color_manual(values = cell_colors)+
+  facet_wrap(~cell_type, scales = "free")+
+  theme(legend.position = "None") +
+  labs(title = "Specific prop summed vs. Broad prop",
+       subtitle = "all genes - sACC")
+
+sum_scatter_amyg <- prop_sum_amyg %>%
+  ggplot(aes(prop, sum_prop, color = cell_type)) +
+  geom_point()  +  
+  geom_abline()+
+  scale_color_manual(values = cell_colors)+
+  facet_wrap(~cell_type, scales = "free")+
+  theme(legend.position = "None") +
+  labs(subtitle = "Amygdala")
+
+ggsave(filename = "plots/sum_scatter.png",
+       plot = sum_scatter_sacc + sum_scatter_amyg, width = 14)
+
+## plot
+sum_scatter_sacc <- prop_sum_sacc %>%
+  ggplot(aes(prop_top40, sum_prop_top40, color = cell_type)) +
+  geom_point()  +  
+  geom_abline()+
+  scale_color_manual(values = cell_colors)+
+  facet_wrap(~cell_type, scales = "free")+
+  theme(legend.position = "None") +
+  labs(title = "Specific prop summed vs. Broad prop",
+       subtitle = "top 40 - sACC")
+
+sum_scatter_amyg <- prop_sum_amyg %>%
+  ggplot(aes(prop_top40, sum_prop_top40, color = cell_type)) +
+  geom_point()  +  
+  geom_abline()+
+  scale_color_manual(values = cell_colors)+
+  facet_wrap(~cell_type, scales = "free")+
+  theme(legend.position = "None") +
+  labs(subtitle = "Amygdala")
+
+ggsave(filename = "plots/sum_scatter_top40.png",
+       plot = sum_scatter_sacc + sum_scatter_amyg, width = 14)
+
 
 #### check against qSV ####
 qsv_names <- colnames(qSV_mat)
@@ -279,7 +360,7 @@ sum(qsv_lm_top40_amyg_df$p.bonf.sig)
 scatter_qsv_sacc <- prop_qsv_sacc %>% 
   left_join(qsv_lm_sacc_df %>% select(cell_type, qSV_name, p.bonf.sig)) %>% 
   ggplot(aes(qSV, prop, color= p.bonf.sig)) +
-  geom_point(size = .4) +
+  geom_point(size = .4, alpha = .25) +
   facet_grid(cell_type~qSV_name, scales = "free")+
   theme_bw(base_size = 10)+
   scale_color_manual(values = c('FALSE' = 'black', 'TRUE' = 'red'))
@@ -289,7 +370,7 @@ ggsave(filename = "plots/cellType_qSV_sACC.png", plot = scatter_qsv_sacc, width 
 scatter_qsv_top40_sacc <- prop_qsv_sacc %>% 
   left_join(qsv_lm_top40_sacc_df %>% select(cell_type, qSV_name, p.bonf.sig)) %>% 
   ggplot(aes(qSV, prop_top40, color= p.bonf.sig)) +
-  geom_point(size = .4) +
+  geom_point(size = .4, alpha = .25) +
   facet_grid(cell_type~qSV_name, scales = "free")+
   theme_bw(base_size = 10)+
   scale_color_manual(values = c('FALSE' = 'black', 'TRUE' = 'red'))
@@ -299,7 +380,7 @@ ggsave(filename = "plots/cellType_qSV_top40_sACC.png", plot = scatter_qsv_top40_
 scatter_qsv_amyg <- prop_qsv_amyg %>% 
   left_join(qsv_lm_amyg_df %>% select(cell_type, qSV_name, p.bonf.sig)) %>% 
   ggplot(aes(qSV, prop, color= p.bonf.sig)) +
-  geom_point(size = .5) +
+  geom_point(size = .5, alpha = .25) +
   facet_grid(cell_type~qSV_name, scales = "free")+
   theme_bw(base_size = 10)+
   scale_color_manual(values = c('FALSE' = 'black', 'TRUE' = 'red'))
@@ -309,7 +390,7 @@ ggsave(filename = "plots/cellType_qSV_amyg.png", plot = scatter_qsv_amyg, width 
 scatter_qsv_top40_amyg <- prop_qsv_amyg %>% 
   left_join(qsv_lm_top40_amyg_df %>% select(cell_type, qSV_name, p.bonf.sig)) %>% 
   ggplot(aes(qSV, prop_top40, color= p.bonf.sig)) +
-  geom_point(size = .5) +
+  geom_point(size = .5, alpha = .25) +
   facet_grid(cell_type~qSV_name, scales = "free")+
   theme_bw(base_size = 10)+
   scale_color_manual(values = c('FALSE' = 'black', 'TRUE' = 'red'))
@@ -322,4 +403,4 @@ print("Reproducibility information:")
 Sys.time()
 proc.time()
 options(width = 120)
-session_info()
+sessionsession_info()
