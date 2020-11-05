@@ -126,12 +126,6 @@ top40all_ensm_sacc <-  rowData(rse_gene)$ensemblID[rowData(rse_gene)$Symbol %in%
 top40all_ensm_sacc <- top40all_ensm_sacc[top40all_ensm_sacc %in% rownames(es_sc_sacc)]
 length(top40all_ensm_sacc)
 # [1] 332
-## estimate cell type props
-est_prop_top40_sacc = music_prop(bulk.eset = es_gene_sacc[top40all_ensm_sacc,], 
-                                 sc.eset = es_sc_sacc[top40all_ensm_sacc,], 
-                                 clusters = 'cellType',
-                                 samples = 'uniqueID')
-save(est_prop_top40_sacc, file = "prop_top40_sacc.Rdata")
 
 ##Amyg
 top40all_amyg <- unique(unlist(top40_amyg[,grepl("1vAll", colnames(top40_amyg))]))
@@ -139,14 +133,37 @@ length(top40all_amyg)
 # [1] 441
 top40all_ensm_amyg <-  rowData(rse_gene)$ensemblID[rowData(rse_gene)$Symbol %in% top40all_amyg]
 top40all_ensm_amyg <- top40all_ensm_amyg[top40all_ensm_amyg %in% rownames(es_sc_amyg)]
+length(top40all_ensm_amyg)
+# [1] 376      
 ## estimate cell type props
 est_prop_top40_amyg = music_prop(bulk.eset = es_gene_amyg[top40all_ensm_amyg,], 
                                  sc.eset = es_sc_amyg[top40all_ensm_amyg,], 
                                  clusters = 'cellType.split',
                                  samples = 'uniqueID')
 save(est_prop_top40_amyg, file = "prop_top40_amyg.Rdata")
+## 
+est_prop_top40_sacc = music_prop(bulk.eset = es_gene_sacc[top40all_ensm_sacc,], 
+                                 sc.eset = es_sc_sacc[top40all_ensm_sacc,], 
+                                 clusters = 'cellType',
+                                 samples = 'uniqueID')
+save(est_prop_top40_sacc, file = "prop_top40_sacc.Rdata")
 
-# sgejobs::job_single('music_deconvo', create_shell = TRUE, queue= 'bluejay', memory = '100G', command = "Rscript music_deconvo.R")
+
+## estimate cell type props for broad cell types
+est_prop_top40_broad_sacc = music_prop(bulk.eset = es_gene_sacc[top40all_ensm_sacc,], 
+                                       sc.eset = es_sc_sacc[top40all_ensm_sacc,], 
+                                       clusters = 'cellType.Broad',
+                                       samples = 'uniqueID')
+save(est_prop_top40_broad_sacc, file = "prop_top40_broad_sacc.Rdata")
+
+##Amyg
+est_prop_top40_broad_amyg = music_prop(bulk.eset = es_gene_amyg[top40all_ensm_amyg,], 
+                                       sc.eset = es_sc_amyg[top40all_ensm_amyg,], 
+                                       clusters = 'cellType.Broad',
+                                       samples = 'uniqueID')
+save(est_prop_top40_broad_amyg, file = "prop_top40_broad_amyg.Rdata")
+
+# sgejobs::job_single('music_deconvo', create_shell = TRUE, queue= 'bluejay', memory = '50G', command = "Rscript music_deconvo.R")
 ## Reproducibility information
 print("Reproducibility information:")
 Sys.time()
