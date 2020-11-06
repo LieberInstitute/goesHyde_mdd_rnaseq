@@ -5,6 +5,7 @@ library(jaffelab)
 library(here)
 library(pheatmap)
 library(scuttle)
+library(lattice)
 
 ## Load rse_gene data
 load(here("exprs_cutoff", "rse_gene.Rdata"), verbose = TRUE)
@@ -64,3 +65,40 @@ sce.amy <- sce.amy[top40all_ensm_amyg,]
 
 pb_sacc <- aggregateAcrossCells(sce.sacc, 
                                 id = colData(sce.sacc)[,c("donor","cellType")])
+colnames(colData(pb_sacc))[[20]] <- "cellType_num"
+colnames(pb_sacc) <- paste0(pb_sacc$cellType, "_", pb_sacc$donor)
+
+dim(pb_sacc)
+# [1] 332  20
+
+pb_mat_sacc <- as.matrix(assays(pb_sacc)$counts)
+pb_mat_sacc <- scale(pb_mat_sacc)
+pb_mat_sacc <- pb_mat_sacc[,order(colnames(pb_mat_sacc))]
+
+bulk_mat_sacc <- as.matrix(assays(rse_gene_sacc)$counts)
+bulk_mat_sacc <- scale(bulk_mat_sacc)
+
+anno_sc_sacc <- as.data.frame(colData(pb_sacc)[,c("donor", "cellType","cellType.Broad")])
+anno_bulk_sacc <- as.data.frame(colData(rse_gene_sacc)[,c("PrimaryDx","Experiment")])
+
+
+pdf("plots/heatmap_sc_sacc.pdf")
+sc_heatmap <- pheatmap(pb_mat_sacc,
+                       show_rownames = FALSE,
+                       show_colnames = FALSE,
+                       annotation_col = anno_sc_sacc, 
+                       main = "sACC single cell ref")
+dev.off()
+
+bulk_mat_sacc <- bulk_mat_sacc[sc_heatmap$tree_row$order,]
+
+pdf("plots/heatmap_bulk_sacc.pdf")
+pheatmap(bulk_mat_sacc,
+         show_rownames = FALSE,
+         show_colnames = FALSE,
+         annotation_col = anno_bulk_sacc, 
+         cluster_rows = FALSE,
+         main = "sACC bulk")
+dev.off()
+
+
