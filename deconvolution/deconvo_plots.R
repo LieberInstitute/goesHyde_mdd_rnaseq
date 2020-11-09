@@ -11,6 +11,8 @@ library(sessioninfo)
 
 source(here("main_colors.R"))
 source("big_little_boxplot.R")
+## extract cell_types establish color pallet
+load("cell_colors.Rdata", verbose = TRUE)
 
 #### Load Data ####
 load(here("exprs_cutoff", "rse_gene.Rdata"), verbose = TRUE)
@@ -46,20 +48,6 @@ prop_broad_sacc <- melt(est_prop_broad_sacc$Est.prop.weighted) %>%
 prop_broad_amyg <- melt(est_prop_broad_amyg$Est.prop.weighted) %>%
   rename(sample = Var1, cell_type = Var2, prop = value) 
 
-## extract cell_types establish color pallet
-cells_sacc <- colnames(est_prop_sacc$Est.prop.weighted)
-cells_amyg <- colnames(est_prop_amyg$Est.prop.weighted)
-cells_broad_sacc <- colnames(est_prop_broad_sacc$Est.prop.weighted)
-cells_broad_amyg <- colnames(est_prop_broad_amyg$Est.prop.weighted)
-
-cells_broad <- unique(c(cells_broad_amyg, cells_broad_sacc))
-cells_specific <- unique(c(cells_sacc, cells_amyg))
-cells_specific <- cells_specific[!cells_specific %in% cells_broad]
-
-cell_colors <- c(brewer.pal(n = length(cells_broad), name = "Set1"),
-                 brewer.pal(n= length(cells_specific), name = "Set3"))
-names(cell_colors) <- c(cells_broad, cells_specific)
-
 
 #### Compare all genes with top 40 results ####
 load("prop_top40_sacc.Rdata", verbose = TRUE)
@@ -73,6 +61,16 @@ prop_amyg <- melt(est_prop_top40_amyg$Est.prop.weighted) %>%
   rename(sample = Var1, cell_type = Var2, prop_top40 = value)%>%
   right_join(prop_amyg,by = c("sample", "cell_type"))
 
+prop_sacc$cell_type <- factor(prop_sacc$cell_type, 
+                              levels = c("Astro","Micro","Oligo","OPC",
+                                         "Inhib.1","Inhib.2",
+                                         "Excit.1","Excit.2","Excit.3","Excit.4"))
+
+prop_amyg$cell_type <- factor(prop_amyg$cell_type, 
+                              levels = c("Astro","Micro","Oligo","OPC",
+                                         "Inhib.1","Inhib.2","Inhib.3","Inhib.4","Inhib.5",
+                                         "Excit.1","Excit.2","Excit.3"))
+
 load("prop_top40_broad_sacc.Rdata", verbose = TRUE)
 load("prop_top40_broad_amyg.Rdata", verbose = TRUE)
 
@@ -84,6 +82,17 @@ prop_broad_amyg <- melt(est_prop_top40_broad_amyg$Est.prop.weighted) %>%
   rename(sample = Var1, cell_type = Var2, prop_top40 = value)%>%
   right_join(prop_broad_amyg,by = c("sample", "cell_type"))
 
+prop_broad_sacc$cell_type <- factor(prop_broad_sacc$cell_type, 
+                                    levels = c("Astro","Micro","Oligo","OPC","Inhib","Excit"))
+
+prop_broad_amyg$cell_type <- factor(prop_broad_amyg$cell_type, 
+                                    levels = c("Astro","Micro","Oligo","OPC","Inhib","Excit"))
+
+## Arrange 
+prop_sacc <- prop_sacc %>% arrange(cell_type)
+prop_amyg <- prop_amyg %>% arrange(cell_type)
+prop_broad_sacc <- prop_broad_sacc %>% arrange(cell_type)
+prop_broad_amyg <- prop_broad_amyg %>% arrange(cell_type)
 
 ## Plot
 top40_scatter_sacc <- prop_sacc %>% 
