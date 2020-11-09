@@ -5,7 +5,6 @@ library(jaffelab)
 library(here)
 library(pheatmap)
 library(scuttle)
-library(lattice)
 library(tidyverse)
 library(reshape2)
 library(here)
@@ -54,18 +53,14 @@ top40_anno_sacc <- top40_sacc %>%
             cell_top40 = paste(cellType, collapse = "_")) %>%
   ungroup() %>%
   dplyr::rename(Symbol = value) %>%
-  filter(Symbol %in% rowData(rse_gene)$Symbol &
-           Symbol %in% rowData(sce.sacc)$Symbol) %>%
+  filter(Symbol %in% rowData(rse_gene)$Symbol,
+         Symbol %in% rowData(sce.sacc)$Symbol) %>%
   arrange(cell_top40)
 
 dim(top40_anno_sacc)
 # [1] 332   3
 
 top40_anno_sacc$ensemblID <- rowData(rse_gene)$ensemblID[match(top40_anno_sacc$Symbol, rowData(rse_gene)$Symbol)]
-## create gene anno obj
-gene_anno <- top40_anno_sacc %>% select(cell_top40) %>% as.data.frame()
-rownames(gene_anno) <- top40_anno_sacc$ensemblID
-
 top40_anno_sacc %>% filter(n>1) %>% count(cell_top40)
 # cell_top40          n
 # <chr>           <int>
@@ -76,18 +71,12 @@ top40_anno_sacc %>% filter(n>1) %>% count(cell_top40)
 # 5 Excit.3_Inhib.1     1
 # 6 Inhib.1_Inhib.2     4
 
-## give colors to new celltypes 
-new_celltypes <- unique(gene_anno$cell_top40)
-new_celltypes <- double_celltypes[!double_celltypes %in% names(cell_colors)]
-new_celltypes_colors <- cm.colors(length(new_celltypes))
-names(new_celltypes_colors) <- new_celltypes
-
 ## sacc
-top40all_sacc <- unique(unlist(top40_sacc[,grepl("1vAll", colnames(top40_sacc))]))
-length(top40all_sacc)
-# [1] 388
-top40all_ensm_sacc <-  rowData(rse_gene)$ensemblID[rowData(rse_gene)$Symbol %in% top40all_sacc]
-top40all_ensm_sacc <- top40all_ensm_sacc[top40all_ensm_sacc %in% rownames(sce.sacc)]
+top40_anno_sacc <- top40_anno_sacc %>% 
+  filter(ensemblID %in% rownames(sce.sacc),
+         ensemblID %in% rownames(rse_gene_sacc))
+
+top40all_ensm_sacc <- top40_anno_sacc$ensemblID
 length(top40all_ensm_sacc)
 # [1] 332
 
@@ -118,8 +107,8 @@ dim(pb_sacc)
 # [1] 332  20
 
 #rearrange pb_sacc to match top40 anno 
-pb_sacc <- pb_sacc[rownames(gene_anno),]
-rse_gene_sacc <- rse_gene_sacc[row.names(gene_anno),]
+pb_sacc <- pb_sacc[top40_anno_sacc$ensemblID,]
+rse_gene_sacc <- rse_gene_sacc[top40_anno_sacc$ensemblID,]
 
 ## Transform counts by log and scale
 pb_mat_sacc <- as.matrix(assays(pb_sacc)$counts)
@@ -133,6 +122,15 @@ bulk_mat_sacc <- scale(bulk_mat_sacc)
 ## define annotation tables
 anno_sc_sacc <- as.data.frame(colData(pb_sacc)[,c("donor","cellType","cellType.Broad")])
 anno_bulk_sacc <- as.data.frame(colData(rse_gene_sacc)[,c("PrimaryDx","Experiment")])
+## create gene anno obj
+gene_anno <- top40_anno_sacc %>% select(cell_top40) %>% as.data.frame()
+rownames(gene_anno) <- top40_anno_sacc$ensemblID
+
+## give colors to new celltypes 
+new_celltypes <- unique(gene_anno$cell_top40)
+new_celltypes <- new_celltypes[!new_celltypes %in% names(cell_colors)]
+new_celltypes_colors <- cm.colors(length(new_celltypes))
+names(new_celltypes_colors) <- new_celltypes
 
 ## define color scale
 breaks_log <- seq(0, max(c(pb_mat_log_sacc, bulk_mat_log_sacc)), length = 100)
