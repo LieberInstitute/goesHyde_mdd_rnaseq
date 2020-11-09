@@ -8,7 +8,12 @@ library(scuttle)
 library(lattice)
 library(tidyverse)
 library(reshape2)
+library(here)
 
+# source(here("main_colors.R"))
+# source("cell_colors.R")
+# 
+# my_anno_colors <- c(cell_colors,mdd_Dx_colors, mdd_dataset_colors)
 ## Load rse_gene data
 load(here("exprs_cutoff", "rse_gene.Rdata"), verbose = TRUE)
 rownames(rse_gene) <- rowData(rse_gene)$ensemblID
@@ -55,10 +60,11 @@ top40_anno_sacc <- top40_sacc %>%
   arrange(cell_top40)
 
 dim(top40_anno_sacc)
+# [1] 332   3
 
 top40_anno_sacc$ensemblID <- rowData(rse_gene)$ensemblID[match(top40_anno_sacc$Symbol, rowData(rse_gene)$Symbol)]
 ## create gene anno obj
-gene_anno <- top40_anno_sacc %>% select(cell_top40) %>%as.data.frame()
+gene_anno <- top40_anno_sacc %>% select(cell_top40) %>% as.data.frame()
 rownames(gene_anno) <- top40_anno_sacc$ensemblID
 
 top40_anno_sacc %>% filter(n>1) %>% count(cell_top40)
@@ -79,7 +85,6 @@ top40all_ensm_sacc <-  rowData(rse_gene)$ensemblID[rowData(rse_gene)$Symbol %in%
 top40all_ensm_sacc <- top40all_ensm_sacc[top40all_ensm_sacc %in% rownames(sce.sacc)]
 length(top40all_ensm_sacc)
 # [1] 332
-
 
 # filter expression data
 rse_gene_sacc <- rse_gene_sacc[top40all_ensm_sacc,]
@@ -109,40 +114,26 @@ dim(pb_sacc)
 
 #rearrange pb_sacc to match top40 anno 
 pb_sacc <- pb_sacc[rownames(gene_anno),]
+rse_gene_sacc <- rse_gene_sacc[row.names(gene_anno),]
 
+## Transform counts by log and scale
 pb_mat_sacc <- as.matrix(assays(pb_sacc)$counts)
 pb_mat_log_sacc <- log(pb_mat_sacc + 1)
 pb_mat_sacc <- scale(pb_mat_sacc)
-pb_mat_sacc <- pb_mat_sacc[,order(colnames(pb_mat_sacc))]
 
 bulk_mat_sacc <- as.matrix(assays(rse_gene_sacc)$counts)
 bulk_mat_log_sacc <- log(bulk_mat_sacc + 1)
 bulk_mat_sacc <- scale(bulk_mat_sacc)
 
+## define annotation tables
 anno_sc_sacc <- as.data.frame(colData(pb_sacc)[,c("donor", "cellType","cellType.Broad")])
 anno_bulk_sacc <- as.data.frame(colData(rse_gene_sacc)[,c("PrimaryDx","Experiment")])
 
+#### Create Heat maps ####
+## log plots
+## Unsorted genes
 
-
-pdf("plots/heatmap_sc_sacc.pdf", height = 10)
-sc_heatmap <- pheatmap(pb_mat_sacc,
-                       show_rownames = FALSE,
-                       show_colnames = FALSE,
-                       annotation_row = gene_anno,
-                       annotation_col = anno_sc_sacc, 
-                       main = "sACC single cell ref")
-dev.off()
-
-pdf("plots/heatmap_sc_log_sacc.pdf", height = 10)
-sc_log_heatmap <- pheatmap(pb_mat_log_sacc,
-                       show_rownames = FALSE,
-                       show_colnames = FALSE,
-                       annotation_row = gene_anno,
-                       annotation_col = anno_sc_sacc, 
-                       main = "sACC single cell ref - log(counts + 1)")
-dev.off()
-
-pdf("plots/heatmap_sc_log_top40_sacc.pdf", height = 10)
+pdf("plots/heatmap_log_unclustered_sc_sacc.pdf", height = 10)
 pheatmap(pb_mat_log_sacc,
          show_rownames = FALSE,
          show_colnames = FALSE,
@@ -152,9 +143,75 @@ pheatmap(pb_mat_log_sacc,
          main = "sACC single cell ref - log(counts + 1)")
 dev.off()
 
+pdf("plots/heatmap_log_unclustered_bulk_sacc.pdf", height = 10)
+pheatmap(bulk_mat_log_sacc,
+         show_rownames = FALSE,
+         show_colnames = FALSE,
+         annotation_row = gene_anno,
+         annotation_col = anno_bulk_sacc,
+         # annotation_colors = my_anno_colors,
+         cluster_rows = FALSE,
+         main = "sACC bulk - log(counts + 1)")
+dev.off()
+
+## Sort genes by sc clustering
+pdf("plots/heatmap_log_sc_sacc.pdf", height = 10)
+sc_log_heatmap <- pheatmap(pb_mat_log_sacc,
+                           show_rownames = FALSE,
+                           show_colnames = FALSE,
+                           annotation_row = gene_anno,
+                           annotation_col = anno_sc_sacc, 
+                           main = "sACC single cell ref - log(counts + 1)")
+dev.off()
+
+bulk_mat_log_sacc <- bulk_mat_log_sacc[sc_log_heatmap$tree_row$order,]
+
+pdf("plots/heatmap_log_bulk_sacc.pdf", height = 10)
+pheatmap(bulk_mat_log_sacc,
+         show_rownames = FALSE,
+         show_colnames = FALSE,
+         annotation_col = anno_bulk_sacc, 
+         annotation_row = gene_anno,
+         cluster_rows = FALSE,
+         main = "sACC bulk- log(counts + 1)")
+dev.off()
+
+## Scale plots
+## Unsorted genes
+pdf("plots/heatmap_scale_unclustered_sc_sacc.pdf", height = 10)
+pheatmap(pb_mat_sacc,
+         show_rownames = FALSE,
+         show_colnames = FALSE,
+         annotation_row = gene_anno,
+         annotation_col = anno_sc_sacc, 
+         cluster_rows = FALSE,
+         main = "sACC single cell ref")
+dev.off()
+
+pdf("plots/heatmap_scale_unclustered_bulk_sacc.pdf", height = 10)
+pheatmap(bulk_mat_sacc,
+         show_rownames = FALSE,
+         show_colnames = FALSE,
+         annotation_row = gene_anno,
+         annotation_col = anno_bulk_sacc,
+         # annotation_colors = my_anno_colors,
+         cluster_rows = FALSE,
+         main = "sACC bulk")
+dev.off()
+
+## Sort genes by sc clustering
+pdf("plots/heatmap_scale_sc_sacc.pdf", height = 10)
+sc_heatmap <- pheatmap(pb_mat_sacc,
+                       show_rownames = FALSE,
+                       show_colnames = FALSE,
+                       annotation_row = gene_anno,
+                       annotation_col = anno_sc_sacc, 
+                       main = "sACC single cell ref")
+dev.off()
+
 bulk_mat_sacc <- bulk_mat_sacc[sc_heatmap$tree_row$order,]
 
-pdf("plots/heatmap_bulk_sacc.pdf", height = 10)
+pdf("plots/heatmap_scale_bulk_sacc.pdf", height = 10)
 pheatmap(bulk_mat_sacc,
          show_rownames = FALSE,
          show_colnames = FALSE,
@@ -164,14 +221,6 @@ pheatmap(bulk_mat_sacc,
          main = "sACC bulk")
 dev.off()
 
-pdf("plots/heatmap_bulk_log_sacc.pdf", height = 10)
-pheatmap(bulk_mat_log_sacc,
-         show_rownames = FALSE,
-         show_colnames = FALSE,
-         annotation_col = anno_bulk_sacc,
-         annotation_row = gene_anno,
-         cluster_rows = FALSE,
-         main = "sACC bulk - log(counts + 1)")
-dev.off()
+
 
 
