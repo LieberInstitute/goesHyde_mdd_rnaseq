@@ -10,10 +10,9 @@ library(tidyverse)
 library(reshape2)
 library(here)
 
-# source(here("main_colors.R"))
-# source("cell_colors.R")
-# 
-# my_anno_colors <- c(cell_colors,mdd_Dx_colors, mdd_dataset_colors)
+source(here("main_colors.R"))
+load("cell_color.Rdata", verbose = TRUE)
+
 ## Load rse_gene data
 load(here("exprs_cutoff", "rse_gene.Rdata"), verbose = TRUE)
 rownames(rse_gene) <- rowData(rse_gene)$ensemblID
@@ -77,6 +76,12 @@ top40_anno_sacc %>% filter(n>1) %>% count(cell_top40)
 # 5 Excit.3_Inhib.1     1
 # 6 Inhib.1_Inhib.2     4
 
+## give colors to new celltypes 
+new_celltypes <- unique(gene_anno$cell_top40)
+new_celltypes <- double_celltypes[!double_celltypes %in% names(cell_colors)]
+new_celltypes_colors <- cm.colors(length(new_celltypes))
+names(new_celltypes_colors) <- new_celltypes
+
 ## sacc
 top40all_sacc <- unique(unlist(top40_sacc[,grepl("1vAll", colnames(top40_sacc))]))
 length(top40all_sacc)
@@ -126,9 +131,20 @@ bulk_mat_log_sacc <- log(bulk_mat_sacc + 1)
 bulk_mat_sacc <- scale(bulk_mat_sacc)
 
 ## define annotation tables
-anno_sc_sacc <- as.data.frame(colData(pb_sacc)[,c("donor", "cellType","cellType.Broad")])
+anno_sc_sacc <- as.data.frame(colData(pb_sacc)[,c("donor","cellType","cellType.Broad")])
 anno_bulk_sacc <- as.data.frame(colData(rse_gene_sacc)[,c("PrimaryDx","Experiment")])
 
+## define color scale
+breaks_log <- seq(0, max(c(pb_mat_log_sacc, bulk_mat_log_sacc)), length = 100)
+breaks_scale <- seq(min(c(pb_mat_sacc, bulk_mat_sacc)), max(c(pb_mat_sacc, bulk_mat_sacc)), length = 100)
+
+## create annotation color schemes
+all_cell_colors <- c(cell_colors,new_celltypes_colors)
+my_anno_colors <- list(cellType = cell_colors[names(cell_colors) %in% anno_sc_sacc$cellType],
+                       cellType.Broad = cell_colors[names(cell_colors) %in% anno_sc_sacc$cellType.Broad],
+                       PrimaryDx = mdd_Dx_colors, 
+                       Experiment = mdd_dataset_colors, 
+                       cell_top40 = all_cell_colors[names(all_cell_colors) %in% gene_anno$cell_top40])
 #### Create Heat maps ####
 ## log plots
 ## Unsorted genes
@@ -137,8 +153,10 @@ pdf("plots/heatmap_log_unclustered_sc_sacc.pdf", height = 10)
 pheatmap(pb_mat_log_sacc,
          show_rownames = FALSE,
          show_colnames = FALSE,
+         breaks = breaks_log,
          annotation_row = gene_anno,
          annotation_col = anno_sc_sacc, 
+         annotation_colors = my_anno_colors,
          cluster_rows = FALSE,
          main = "sACC single cell ref - log(counts + 1)")
 dev.off()
@@ -147,9 +165,10 @@ pdf("plots/heatmap_log_unclustered_bulk_sacc.pdf", height = 10)
 pheatmap(bulk_mat_log_sacc,
          show_rownames = FALSE,
          show_colnames = FALSE,
+         breaks = breaks_log,
          annotation_row = gene_anno,
          annotation_col = anno_bulk_sacc,
-         # annotation_colors = my_anno_colors,
+         annotation_colors = my_anno_colors,
          cluster_rows = FALSE,
          main = "sACC bulk - log(counts + 1)")
 dev.off()
@@ -159,8 +178,10 @@ pdf("plots/heatmap_log_sc_sacc.pdf", height = 10)
 sc_log_heatmap <- pheatmap(pb_mat_log_sacc,
                            show_rownames = FALSE,
                            show_colnames = FALSE,
+                           breaks = breaks_log,
                            annotation_row = gene_anno,
                            annotation_col = anno_sc_sacc, 
+                           annotation_colors = my_anno_colors,
                            main = "sACC single cell ref - log(counts + 1)")
 dev.off()
 
@@ -170,8 +191,10 @@ pdf("plots/heatmap_log_bulk_sacc.pdf", height = 10)
 pheatmap(bulk_mat_log_sacc,
          show_rownames = FALSE,
          show_colnames = FALSE,
+         breaks = breaks_log,
          annotation_col = anno_bulk_sacc, 
          annotation_row = gene_anno,
+         annotation_colors = my_anno_colors,
          cluster_rows = FALSE,
          main = "sACC bulk- log(counts + 1)")
 dev.off()
@@ -182,8 +205,10 @@ pdf("plots/heatmap_scale_unclustered_sc_sacc.pdf", height = 10)
 pheatmap(pb_mat_sacc,
          show_rownames = FALSE,
          show_colnames = FALSE,
+         breaks = breaks_scale,
          annotation_row = gene_anno,
          annotation_col = anno_sc_sacc, 
+         annotation_colors = my_anno_colors,
          cluster_rows = FALSE,
          main = "sACC single cell ref")
 dev.off()
@@ -192,9 +217,10 @@ pdf("plots/heatmap_scale_unclustered_bulk_sacc.pdf", height = 10)
 pheatmap(bulk_mat_sacc,
          show_rownames = FALSE,
          show_colnames = FALSE,
+         breaks = breaks_scale,
          annotation_row = gene_anno,
          annotation_col = anno_bulk_sacc,
-         # annotation_colors = my_anno_colors,
+         annotation_colors = my_anno_colors,
          cluster_rows = FALSE,
          main = "sACC bulk")
 dev.off()
@@ -204,8 +230,10 @@ pdf("plots/heatmap_scale_sc_sacc.pdf", height = 10)
 sc_heatmap <- pheatmap(pb_mat_sacc,
                        show_rownames = FALSE,
                        show_colnames = FALSE,
+                       breaks = breaks_scale,
                        annotation_row = gene_anno,
                        annotation_col = anno_sc_sacc, 
+                       annotation_colors = my_anno_colors,
                        main = "sACC single cell ref")
 dev.off()
 
@@ -215,12 +243,20 @@ pdf("plots/heatmap_scale_bulk_sacc.pdf", height = 10)
 pheatmap(bulk_mat_sacc,
          show_rownames = FALSE,
          show_colnames = FALSE,
+         breaks = breaks_scale,
          annotation_col = anno_bulk_sacc, 
          annotation_row = gene_anno,
+         annotation_colors = my_anno_colors,
          cluster_rows = FALSE,
          main = "sACC bulk")
 dev.off()
 
 
-
+# sgejobs::job_single('deconvo_heatmap', create_shell = TRUE, queue= 'bluejay', memory = '10G', command = "Rscript deconvo_heatmap.R")
+## Reproducibility information
+print("Reproducibility information:")
+Sys.time()
+proc.time()
+options(width = 120)
+sessionsession_info()
 
