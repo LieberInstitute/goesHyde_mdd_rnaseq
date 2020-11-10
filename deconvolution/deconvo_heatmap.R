@@ -176,57 +176,6 @@ pheatmap(bulk_mat_log_sacc,
          main = "sACC bulk- log(counts + 1)")
 dev.off()
 
-## Scale plots
-## Unsorted genes
-pdf("plots/heatmap_scale_unclustered_sc_sacc.pdf", height = 10)
-pheatmap(pb_mat_sacc,
-         show_rownames = FALSE,
-         show_colnames = FALSE,
-         breaks = breaks_scale,
-         annotation_row = gene_anno,
-         annotation_col = anno_sc_sacc, 
-         annotation_colors = my_anno_colors,
-         cluster_rows = FALSE,
-         main = "sACC single cell ref")
-dev.off()
-
-pdf("plots/heatmap_scale_unclustered_bulk_sacc.pdf", height = 10)
-pheatmap(bulk_mat_sacc,
-         show_rownames = FALSE,
-         show_colnames = FALSE,
-         breaks = breaks_scale,
-         annotation_row = gene_anno,
-         annotation_col = anno_bulk_sacc,
-         annotation_colors = my_anno_colors,
-         cluster_rows = FALSE,
-         main = "sACC bulk")
-dev.off()
-
-## Sort genes by sc clustering
-pdf("plots/heatmap_scale_sc_sacc.pdf", height = 10)
-sc_heatmap <- pheatmap(pb_mat_sacc,
-                       show_rownames = FALSE,
-                       show_colnames = FALSE,
-                       breaks = breaks_scale,
-                       annotation_row = gene_anno,
-                       annotation_col = anno_sc_sacc, 
-                       annotation_colors = my_anno_colors,
-                       main = "sACC single cell ref")
-dev.off()
-
-bulk_mat_sacc <- bulk_mat_sacc[sc_heatmap$tree_row$order,]
-
-pdf("plots/heatmap_scale_bulk_sacc.pdf", height = 10)
-pheatmap(bulk_mat_sacc,
-         show_rownames = FALSE,
-         show_colnames = FALSE,
-         breaks = breaks_scale,
-         annotation_col = anno_bulk_sacc, 
-         annotation_row = gene_anno,
-         annotation_colors = my_anno_colors,
-         cluster_rows = FALSE,
-         main = "sACC bulk")
-dev.off()
 
 #### Amyg Data ####
 load("/dcl01/lieber/ajaffe/Matt/MNT_thesis/snRNAseq/10x_pilot_FINAL/rdas/regionSpecific_Amyg-n2_cleaned-combined_SCE_MNTFeb2020.rda", verbose = TRUE)
@@ -387,58 +336,6 @@ pheatmap(bulk_mat_log_sacc,
          annotation_colors = my_anno_colors,
          cluster_rows = FALSE,
          main = "sACC bulk- log(counts + 1)")
-dev.off()
-
-## Scale plots
-## Unsorted genes
-pdf("plots/heatmap_scale_unclustered_sc_sacc.pdf", height = 10)
-pheatmap(pb_mat_sacc,
-         show_rownames = FALSE,
-         show_colnames = FALSE,
-         breaks = breaks_scale,
-         annotation_row = gene_anno,
-         annotation_col = anno_sc_sacc, 
-         annotation_colors = my_anno_colors,
-         cluster_rows = FALSE,
-         main = "sACC single cell ref")
-dev.off()
-
-pdf("plots/heatmap_scale_unclustered_bulk_sacc.pdf", height = 10)
-pheatmap(bulk_mat_sacc,
-         show_rownames = FALSE,
-         show_colnames = FALSE,
-         breaks = breaks_scale,
-         annotation_row = gene_anno,
-         annotation_col = anno_bulk_sacc,
-         annotation_colors = my_anno_colors,
-         cluster_rows = FALSE,
-         main = "sACC bulk")
-dev.off()
-
-## Sort genes by sc clustering
-pdf("plots/heatmap_scale_sc_sacc.pdf", height = 10)
-sc_heatmap <- pheatmap(pb_mat_sacc,
-                       show_rownames = FALSE,
-                       show_colnames = FALSE,
-                       breaks = breaks_scale,
-                       annotation_row = gene_anno,
-                       annotation_col = anno_sc_sacc, 
-                       annotation_colors = my_anno_colors,
-                       main = "sACC single cell ref")
-dev.off()
-
-bulk_mat_sacc <- bulk_mat_sacc[sc_heatmap$tree_row$order,]
-
-pdf("plots/heatmap_scale_bulk_sacc.pdf", height = 10)
-pheatmap(bulk_mat_sacc,
-         show_rownames = FALSE,
-         show_colnames = FALSE,
-         breaks = breaks_scale,
-         annotation_col = anno_bulk_sacc, 
-         annotation_row = gene_anno,
-         annotation_colors = my_anno_colors,
-         cluster_rows = FALSE,
-         main = "sACC bulk")
 dev.off()
 
 # sgejobs::job_single('deconvo_heatmap', create_shell = TRUE, queue= 'bluejay', memory = '10G', command = "Rscript deconvo_heatmap.R")
