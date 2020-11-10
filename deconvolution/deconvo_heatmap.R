@@ -93,11 +93,9 @@ rse_gene_sacc <- rse_gene_sacc[top40_anno_sacc$ensemblID,]
 ## Transform counts by log and scale
 pb_mat_sacc <- as.matrix(assays(pb_sacc)$counts)
 pb_mat_log_sacc <- log(pb_mat_sacc + 1)
-pb_mat_sacc <- scale(pb_mat_sacc)
 
 bulk_mat_sacc <- as.matrix(assays(rse_gene_sacc)$counts)
 bulk_mat_log_sacc <- log(bulk_mat_sacc + 1)
-bulk_mat_sacc <- scale(bulk_mat_sacc)
 
 ## define annotation tables
 anno_sc_sacc <- as.data.frame(colData(pb_sacc)[,c("donor","cellType","cellType.Broad")])
@@ -106,28 +104,27 @@ anno_bulk_sacc <- as.data.frame(colData(rse_gene_sacc)[,c("PrimaryDx","Experimen
 gene_anno <- top40_anno_sacc %>% select(cell_top40) %>% as.data.frame()
 rownames(gene_anno) <- top40_anno_sacc$ensemblID
 
-## give colors to new celltypes 
-new_celltypes <- unique(gene_anno$cell_top40)
-new_celltypes <- new_celltypes[!new_celltypes %in% names(cell_colors)]
-new_celltypes_colors <- cm.colors(length(new_celltypes))
-names(new_celltypes_colors) <- new_celltypes
 
 ## define color scale
 breaks_log <- seq(0, max(c(pb_mat_log_sacc, bulk_mat_log_sacc)), length = 100)
 breaks_scale <- seq(min(c(pb_mat_sacc, bulk_mat_sacc)), max(c(pb_mat_sacc, bulk_mat_sacc)), length = 100)
 
+## define donor colrs
+donor_colors <- c(Br5161 = "black",
+                  Br5212 = "lightgrey")
+
 ## create annotation color schemes
-all_cell_colors <- c(cell_colors,new_celltypes_colors)
 my_anno_colors <- list(cellType = cell_colors[names(cell_colors) %in% anno_sc_sacc$cellType],
                        cellType.Broad = cell_colors[names(cell_colors) %in% anno_sc_sacc$cellType.Broad],
                        PrimaryDx = mdd_Dx_colors, 
                        Experiment = mdd_dataset_colors, 
-                       cell_top40 = all_cell_colors[names(all_cell_colors) %in% gene_anno$cell_top40])
+                       cell_top40 = cell_colors[names(cell_colors) %in% gene_anno$cell_top40],
+                       donor = donor_colors)
 #### Create Heat maps ####
 ## log plots
 ## Unsorted genes
 
-pdf("plots/heatmap_log_unclustered_sc_sacc.pdf", height = 10)
+png("plots/heatmap_log_unclustered_sc_sacc.png", height = 800, width = 580)
 pheatmap(pb_mat_log_sacc,
          show_rownames = FALSE,
          show_colnames = FALSE,
@@ -139,7 +136,7 @@ pheatmap(pb_mat_log_sacc,
          main = "sACC single cell ref - log(counts + 1)")
 dev.off()
 
-pdf("plots/heatmap_log_unclustered_bulk_sacc.pdf", height = 10)
+png("plots/heatmap_log_unclustered_bulk_sacc.png", height = 800, width = 580)
 pheatmap(bulk_mat_log_sacc,
          show_rownames = FALSE,
          show_colnames = FALSE,
@@ -152,7 +149,7 @@ pheatmap(bulk_mat_log_sacc,
 dev.off()
 
 ## Sort genes by sc clustering
-pdf("plots/heatmap_log_sc_sacc.pdf", height = 10)
+png("plots/heatmap_log_sc_sacc.png", height = 800, width = 580)
 sc_log_heatmap <- pheatmap(pb_mat_log_sacc,
                            show_rownames = FALSE,
                            show_colnames = FALSE,
@@ -165,7 +162,7 @@ dev.off()
 
 bulk_mat_log_sacc <- bulk_mat_log_sacc[sc_log_heatmap$tree_row$order,]
 
-pdf("plots/heatmap_log_bulk_sacc.pdf", height = 10)
+png("plots/heatmap_log_bulk_sacc.png", height = 800, width = 580)
 pheatmap(bulk_mat_log_sacc,
          show_rownames = FALSE,
          show_colnames = FALSE,
@@ -234,7 +231,7 @@ sce.amy <- sce.amy[top40all_ensm_amyg,]
 #### pseudobulk single cell data ####
 
 pb_amyg <- aggregateAcrossCells(sce.amy, 
-                                id = colData(sce.amyg)[,c("donor","cellType.split")])
+                                id = colData(sce.amy)[,c("donor","cellType.split")])
 colnames(colData(pb_amyg))[[21]] <- "cellType.split_num"
 colnames(pb_amyg) <- paste0(pb_amyg$cellType.split, "_", pb_amyg$donor)
 
@@ -261,29 +258,24 @@ anno_bulk_amyg <- as.data.frame(colData(rse_gene_amyg)[,c("PrimaryDx","Experimen
 gene_anno <- top40_anno_amyg %>% select(cell_top40) %>% as.data.frame()
 rownames(gene_anno) <- top40_anno_amyg$ensemblID
 
-## give colors to new celltypes 
-new_celltypes <- unique(gene_anno$cell_top40)
-new_celltypes <- new_celltypes[!new_celltypes %in% names(cell_colors)]
-new_celltypes_colors <- cm.colors(length(new_celltypes))
-names(new_celltypes_colors) <- new_celltypes
-
 ## define color scale
 breaks_log <- seq(0, max(c(pb_mat_log_amyg, bulk_mat_log_amyg)), length = 100)
 breaks_scale <- seq(min(c(pb_mat_amyg, bulk_mat_amyg)), max(c(pb_mat_amyg, bulk_mat_amyg)), length = 100)
 
 ## create annotation color schemes
-all_cell_colors <- c(cell_colors,new_celltypes_colors)
+
 my_anno_colors <- list(cellType.split = cell_colors[names(cell_colors) %in% anno_sc_amyg$cellType.split],
                        cellType.Broad = cell_colors[names(cell_colors) %in% anno_sc_amyg$cellType.Broad],
                        PrimaryDx = mdd_Dx_colors, 
                        Experiment = mdd_dataset_colors, 
-                       cell_top40 = all_cell_colors[names(all_cell_colors) %in% gene_anno$cell_top40])
+                       cell_top40 = cell_colors[names(cell_colors) %in% gene_anno$cell_top40],
+                       donor = donor_colors)
 
 #### Create Heat maps ####
 ## log plots
 ## Unsorted genes
 
-pdf("plots/heatmap_log_unclustered_sc_amyg.pdf", height = 10)
+png("plots/heatmap_log_unclustered_sc_amyg.png", height = 800, width = 580)
 pheatmap(pb_mat_log_amyg,
          show_rownames = FALSE,
          show_colnames = FALSE,
@@ -295,7 +287,7 @@ pheatmap(pb_mat_log_amyg,
          main = "amyg single cell ref - log(counts + 1)")
 dev.off()
 
-pdf("plots/heatmap_log_unclustered_bulk_amyg.pdf", height = 10)
+png("plots/heatmap_log_unclustered_bulk_amyg.png", height = 800, width = 580)
 pheatmap(bulk_mat_log_amyg,
          show_rownames = FALSE,
          show_colnames = FALSE,
@@ -308,7 +300,7 @@ pheatmap(bulk_mat_log_amyg,
 dev.off()
 
 ## Sort genes by sc clustering
-pdf("plots/heatmap_log_sc_amyg.pdf", height = 10)
+png("plots/heatmap_log_sc_amyg.png", height = 800, width = 580)
 sc_log_heatmap <- pheatmap(pb_mat_log_amyg,
                            show_rownames = FALSE,
                            show_colnames = FALSE,
@@ -321,7 +313,7 @@ dev.off()
 
 bulk_mat_log_amyg <- bulk_mat_log_amyg[sc_log_heatmap$tree_row$order,]
 
-pdf("plots/heatmap_log_bulk_amyg.pdf", height = 10)
+png("plots/heatmap_log_bulk_amyg.png", height = 800, width = 580)
 pheatmap(bulk_mat_log_amyg,
          show_rownames = FALSE,
          show_colnames = FALSE,
