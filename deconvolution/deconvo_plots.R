@@ -12,9 +12,10 @@ library(sessioninfo)
 source(here("main_colors.R"))
 source("big_little_boxplot.R")
 ## extract cell_types establish color pallet
-load("cell_colors.Rdata", verbose = TRUE)
-load(here("deconvolution","data","prop_long.R"), verbose = TRUE)
+load(here("deconvolution","data","cell_colors.Rdata"), verbose = TRUE)
+load(here("deconvolution","data","prop_long.Rdata"), verbose = TRUE)
 
+cells_broad <- c("Inhib", "Excit","Astro","Micro","Oligo","OPC")
 ## Plot
 top40_scatter_sacc <- prop_sacc %>% 
   ggplot(aes(prop, prop_top40, color = cell_type)) +
@@ -60,41 +61,26 @@ top40_scatter_broad_amyg <- prop_broad_amyg %>%
 ggsave(plot = top40_scatter_broad_sacc + top40_scatter_broad_amyg , filename = "plots/top40_scatter_broad.png", width = 16)
 
 #### cell type boxplot ####
-## Add dx to long data
-prop_dx_sacc <- prop_sacc %>% 
-  left_join(pd_sacc %>% select(PrimaryDx) %>% rownames_to_column("sample")) 
-
-prop_dx_amyg <- prop_amyg %>% 
-  left_join(pd_amyg %>% select(PrimaryDx) %>% rownames_to_column("sample")) 
-
-prop_broad_dx_sacc <- prop_broad_sacc %>% 
-  left_join(pd_sacc %>% select(PrimaryDx) %>% rownames_to_column("sample")) 
-
-prop_broad_dx_amyg <-  prop_broad_amyg %>%
-  left_join(pd_amyg %>% select(PrimaryDx) %>% rownames_to_column("sample")) 
 
 ## specific cell types
-both_regions_bl_boxplot(prop_dx_sacc, prop_dx_amyg, yvar = "prop", 
+both_regions_bl_boxplot(prop_sacc, prop_amyg, yvar = "prop", 
                         title = "Cell Type RNA-prop - all common genes",
                         filename = "plots/cellType_boxplots.png")
 
-both_regions_bl_boxplot(prop_dx_sacc, prop_dx_amyg, yvar = "prop_top40", 
+both_regions_bl_boxplot(prop_sacc, prop_amyg, yvar = "prop_top40", 
                         title = "Cell Type RNA-prop - top 40 genes",
                         filename = "plots/cellType_boxplots_top40.png")
 
 ## broad cell types
-both_regions_bl_boxplot(prop_broad_dx_sacc, prop_broad_dx_amyg, yvar = "prop", 
+both_regions_bl_boxplot(prop_broad_sacc, prop_broad_amyg, yvar = "prop", 
                         title = "Cell Type RNA-prop -  all common genes", 
                         filename = "plots/cellType_boxplots_broad.png")
 
-both_regions_bl_boxplot(prop_broad_dx_sacc, prop_broad_dx_amyg, yvar = "prop_top40", 
+both_regions_bl_boxplot(prop_broad_sacc, prop_broad_amyg, yvar = "prop_top40", 
                         title = "Cell Type RNA-prop - top 40 genes", 
                         filename = "plots/cellType_boxplots_broad_top40.png")
 
 ## Age scatter
-prop_age_broad_sacc <- prop_broad_sacc %>% 
-  left_join(pd_sacc %>% select(AgeDeath) %>% rownames_to_column("sample")) 
-
 age_scatter_broad_sacc <- prop_age_broad_sacc %>%
   ggplot(aes(AgeDeath, prop, color = cell_type))+
   geom_point() +
@@ -104,7 +90,7 @@ ggsave(filename = "plots/age_vs_celltype_broad_sACC.png", plot = age_scatter_bro
 
 #### Compare summed specific cell types with broad ####
 prop_sum_sacc <- prop_sacc %>% 
-  filter(!cell_type %in% cells_broad_sacc) %>%
+  filter(!cell_type %in% cells_broad) %>%
   mutate(cell_type = gsub(".[0-9]", "", cell_type)) %>%
   group_by(sample, cell_type) %>%
   summarise(sum_prop = sum(prop),
@@ -112,7 +98,7 @@ prop_sum_sacc <- prop_sacc %>%
   left_join(prop_broad_sacc, by = c("sample","cell_type"))
 
 prop_sum_amyg <- prop_amyg %>% 
-  filter(!cell_type %in% cells_broad_amyg) %>%
+  filter(!cell_type %in% cells_broad) %>%
   mutate(cell_type = gsub(".[0-9]", "", cell_type)) %>%
   group_by(sample, cell_type) %>%
   summarise(sum_prop = sum(prop),
@@ -142,7 +128,7 @@ sum_scatter_amyg <- prop_sum_amyg %>%
 ggsave(filename = "plots/sum_scatter.png",
        plot = sum_scatter_sacc + sum_scatter_amyg, width = 14)
 
-## plot
+## plot top 40 
 sum_scatter_sacc <- prop_sum_sacc %>%
   ggplot(aes(prop_top40, sum_prop_top40, color = cell_type)) +
   geom_point()  +  
