@@ -5,12 +5,14 @@ library(jaffelab)
 library(here)
 library(pheatmap)
 library(scuttle)
+library(recount)
+library(GenomicFeatures)
 library(tidyverse)
 library(reshape2)
 library(here)
 
 source(here("main_colors.R"))
-load("cell_colors.Rdata", verbose = TRUE)
+load(here("deconvolution","data","cell_colors.Rdata"), verbose = TRUE)
 
 ## Load rse_gene data
 load(here("exprs_cutoff", "rse_gene.Rdata"), verbose = TRUE)
@@ -33,7 +35,7 @@ rownames(sce.sacc) <- rowData(sce.sacc)$ID
 
 ## Build gene annotation table
 top40_anno_sacc <- top40_sacc %>%
-  select(grep("1vAll", colnames(top40_sacc))) %>%
+  dplyr::select(grep("1vAll", colnames(top40_sacc))) %>%
   rownames_to_column("n") %>%
   melt(id.vars = "n") %>%
   separate(variable,"_",into = c("cellType",NA)) %>%
@@ -75,6 +77,24 @@ length(top40all_ensm_sacc)
 rse_gene_sacc <- rse_gene_sacc[top40all_ensm_sacc,]
 sce.sacc <- sce.sacc[top40all_ensm_sacc,]
 
+#### Import gnomic features ####
+txdb <- makeTxDbFromGFF("/dcl01/ajaffe/data/lab/singleCell/10x_pilot/premRNA/GRCh38-3.0.0_premrna/genes/genes.gtf")
+g <- genes(txdb)
+e <- exonsBy(txdb, by = "gene")
+
+if (!all(names(e) %in% names(g))) {
+  warning("Dropping exons with gene ids not present in the gene list")
+  e <- e[names(e) %in% names(g)]
+}
+e2 <- disjoin(e)
+g$bp_length <- sum(width(e2))
+summary(g$bp_length)
+
+g_sacc <- g[top40all_ensm_sacc,]
+summary(g_sacc$bp_length)
+table(g_sacc$bp_length > 205012)
+
+rowRanges(sce.sacc) <- g_sacc
 
 #### pseudobulk single cell data ####
 
@@ -90,24 +110,27 @@ dim(pb_sacc)
 pb_sacc <- pb_sacc[top40_anno_sacc$ensemblID,]
 rse_gene_sacc <- rse_gene_sacc[top40_anno_sacc$ensemblID,]
 
-## Transform counts by log and scale
-pb_mat_sacc <- as.matrix(assays(pb_sacc)$counts)
-pb_mat_log_sacc <- log(pb_mat_sacc + 1)
+## Compute RPKM
+pb_rpkm_sacc <- getRPKM(pb_sacc, "bp_length")
+bulk_rpkm_sacc <- getRPKM(rse_gene_sacc, "Length")
 
-bulk_mat_sacc <- as.matrix(assays(rse_gene_sacc)$counts)
-bulk_mat_log_sacc <- log(bulk_mat_sacc + 1)
+## Transform counts and rpkm by log
+pb_counts_log_sacc <- log(as.matrix(assays(pb_sacc)$counts) + 1)
+pb_rpkm_log_sacc <- log(pb_rpkm_sacc + 1)
+bulk_counts_log_sacc <- log(as.matrix(assays(pb_sacc)$counts) + 1)
+bulk_rpkm_log_sacc <- log(bulk_rpkm_sacc +1)
+
+## define color scale
+breaks_count <- seq(0, max(c(pb_counts_log_sacc, bulk_counts_log_sacc)), length = 100)
+breaks_rpkm <- seq(0, max(c(pb_rpkm_log_sacc, bulk_rpkm_log_sacc)), length = 100)
 
 ## define annotation tables
 anno_sc_sacc <- as.data.frame(colData(pb_sacc)[,c("donor","cellType","cellType.Broad")])
 anno_bulk_sacc <- as.data.frame(colData(rse_gene_sacc)[,c("PrimaryDx","Experiment")])
+
 ## create gene anno obj
 gene_anno <- top40_anno_sacc %>% select(cell_top40) %>% as.data.frame()
 rownames(gene_anno) <- top40_anno_sacc$ensemblID
-
-
-## define color scale
-breaks_log <- seq(0, max(c(pb_mat_log_sacc, bulk_mat_log_sacc)), length = 100)
-breaks_scale <- seq(min(c(pb_mat_sacc, bulk_mat_sacc)), max(c(pb_mat_sacc, bulk_mat_sacc)), length = 100)
 
 ## define donor colrs
 donor_colors <- c(Br5161 = "black",
@@ -120,15 +143,13 @@ my_anno_colors <- list(cellType = cell_colors[names(cell_colors) %in% anno_sc_sa
                        Experiment = mdd_dataset_colors, 
                        cell_top40 = cell_colors[names(cell_colors) %in% gene_anno$cell_top40],
                        donor = donor_colors)
-#### Create Heat maps ####
-## log plots
+#### Create Heat maps - sacc counts ####
 ## Unsorted genes
-
-png("plots/heatmap_log_unclustered_sc_sacc.png", height = 800, width = 580)
-pheatmap(pb_mat_log_sacc,
+png("plots/heatmap_counts_sacc_sc_unclustered.png", height = 800, width = 580)
+pheatmap(pb_counts_log_sacc,
          show_rownames = FALSE,
          show_colnames = FALSE,
-         breaks = breaks_log,
+         breaks = breaks_count,
          annotation_row = gene_anno,
          annotation_col = anno_sc_sacc, 
          annotation_colors = my_anno_colors,
@@ -136,11 +157,11 @@ pheatmap(pb_mat_log_sacc,
          main = "sACC single cell ref - log(counts + 1)")
 dev.off()
 
-png("plots/heatmap_log_unclustered_bulk_sacc.png", height = 800, width = 580)
-pheatmap(bulk_mat_log_sacc,
+png("plots/heatmap_counts_sacc_bulk_unclustered.png", height = 800, width = 580)
+pheatmap(bulk_counts_log_sacc,
          show_rownames = FALSE,
          show_colnames = FALSE,
-         breaks = breaks_log,
+         breaks = breaks_count,
          annotation_row = gene_anno,
          annotation_col = anno_bulk_sacc,
          annotation_colors = my_anno_colors,
@@ -148,25 +169,38 @@ pheatmap(bulk_mat_log_sacc,
          main = "sACC bulk - log(counts + 1)")
 dev.off()
 
+## Sort by 
+png("plots/heatmap_counts_sacc_bulk_explore.png", height = 800, width = 580)
+bulk_explore_sacc <- pheatmap(bulk_counts_log_sacc,
+                              show_rownames = FALSE,
+                              show_colnames = FALSE,
+                              breaks = breaks_count,
+                              annotation_row = gene_anno,
+                              annotation_col = anno_bulk_sacc,
+                              annotation_colors = my_anno_colors,
+                              cutree_cols = 4,
+                              main = "sACC bulk - log(counts + 1)")
+dev.off()
+
 ## Sort genes by sc clustering
-png("plots/heatmap_log_sc_sacc.png", height = 800, width = 580)
-sc_log_heatmap <- pheatmap(pb_mat_log_sacc,
+png("plots/heatmap_counts_sacc_sc.png", height = 800, width = 580)
+sc_log_heatmap <- pheatmap(pb_counts_log_sacc,
                            show_rownames = FALSE,
                            show_colnames = FALSE,
-                           breaks = breaks_log,
+                           breaks = breaks_count,
                            annotation_row = gene_anno,
                            annotation_col = anno_sc_sacc, 
                            annotation_colors = my_anno_colors,
                            main = "sACC single cell ref - log(counts + 1)")
 dev.off()
 
-bulk_mat_log_sacc <- bulk_mat_log_sacc[sc_log_heatmap$tree_row$order,]
+bulk_counts_log_sacc <- bulk_counts_log_sacc[sc_log_heatmap$tree_row$order,]
 
-png("plots/heatmap_log_bulk_sacc.png", height = 800, width = 580)
-pheatmap(bulk_mat_log_sacc,
+png("plots/heatmap_counts_sacc_bulk.png", height = 800, width = 580)
+pheatmap(bulk_counts_log_sacc,
          show_rownames = FALSE,
          show_colnames = FALSE,
-         breaks = breaks_log,
+         breaks = breaks_count,
          annotation_col = anno_bulk_sacc, 
          annotation_row = gene_anno,
          annotation_colors = my_anno_colors,
@@ -174,6 +208,70 @@ pheatmap(bulk_mat_log_sacc,
          main = "sACC bulk- log(counts + 1)")
 dev.off()
 
+#### Create Heat maps - saACC RPKM ####
+## Unsorted genes
+png("plots/heatmap_rpkm_sacc_sc_unclustered.png", height = 800, width = 580)
+pheatmap(pb_rpkm_log_sacc,
+         show_rownames = FALSE,
+         show_colnames = FALSE,
+         breaks = breaks_rpkm,
+         annotation_row = gene_anno,
+         annotation_col = anno_sc_sacc, 
+         annotation_colors = my_anno_colors,
+         cluster_rows = FALSE,
+         main = "sACC single cell ref - log(RPKM + 1)")
+dev.off()
+
+png("plots/heatmap_rpkm_sacc_bulk_unclustered.png", height = 800, width = 580)
+pheatmap(bulk_rpkm_log_sacc,
+         show_rownames = FALSE,
+         show_colnames = FALSE,
+         breaks = breaks_rpkm,
+         annotation_row = gene_anno,
+         annotation_col = anno_bulk_sacc,
+         annotation_colors = my_anno_colors,
+         cluster_rows = FALSE,
+         main = "sACC bulk - log(RPKM + 1)")
+dev.off()
+
+## Sort by genes by bulk data
+png("plots/heatmap_rpkm_sacc_bulk_explore.png", height = 800, width = 580)
+bulk_explore_sacc <- pheatmap(bulk_counts_log_sacc,
+                              show_rownames = FALSE,
+                              show_colnames = FALSE,
+                              breaks = breaks_rpkm,
+                              annotation_row = gene_anno,
+                              annotation_col = anno_bulk_sacc,
+                              annotation_colors = my_anno_colors,
+                              cutree_cols = 4,
+                              main = "sACC bulk - log(rpkm + 1)")
+dev.off()
+
+## Sort genes by sc clustering
+png("plots/heatmap_rpkm_sacc_sc.png", height = 800, width = 580)
+sc_log_heatmap <- pheatmap(pb_rpkm_log_sacc,
+                           show_rownames = FALSE,
+                           show_colnames = FALSE,
+                           breaks = breaks_rpkm,
+                           annotation_row = gene_anno,
+                           annotation_col = anno_sc_sacc, 
+                           annotation_colors = my_anno_colors,
+                           main = "sACC single cell ref - log(rpkm + 1)")
+dev.off()
+
+bulk_counts_log_sacc <- bulk_counts_log_sacc[sc_log_heatmap$tree_row$order,]
+
+png("plots/heatmap_rpkm_sacc_bulk.png", height = 800, width = 580)
+pheatmap(bulk_counts_log_sacc,
+         show_rownames = FALSE,
+         show_colnames = FALSE,
+         breaks = breaks_rpkm,
+         annotation_col = anno_bulk_sacc, 
+         annotation_row = gene_anno,
+         annotation_colors = my_anno_colors,
+         cluster_rows = FALSE,
+         main = "sACC bulk- log(rpkm + 1)")
+dev.off()
 
 #### Amyg Data ####
 load("/dcl01/lieber/ajaffe/Matt/MNT_thesis/snRNAseq/10x_pilot_FINAL/rdas/regionSpecific_Amyg-n2_cleaned-combined_SCE_MNTFeb2020.rda", verbose = TRUE)
@@ -186,7 +284,7 @@ rownames(sce.amy) <- rowData(sce.amy)$ID
 
 ## Build gene annotation table
 top40_anno_amyg <- top40_amyg %>%
-  select(grep("1vAll", colnames(top40_amyg))) %>%
+  dplyr::select(grep("1vAll", colnames(top40_amyg))) %>%
   rownames_to_column("n") %>%
   melt(id.vars = "n") %>%
   separate(variable,"_",into = c("cellType",NA)) %>%
@@ -228,6 +326,13 @@ length(top40all_ensm_amyg)
 rse_gene_amyg <- rse_gene_amyg[top40all_ensm_amyg,]
 sce.amy <- sce.amy[top40all_ensm_amyg,]
 
+## Add rowRanges
+g_amyg <- g[top40all_ensm_amyg,]
+summary(g_amyg$bp_length)
+table(g_amyg$bp_length > 205012)
+
+rowRanges(sce.amy) <- g_amyg
+
 #### pseudobulk single cell data ####
 
 pb_amyg <- aggregateAcrossCells(sce.amy, 
@@ -238,18 +343,15 @@ colnames(pb_amyg) <- paste0(pb_amyg$cellType.split, "_", pb_amyg$donor)
 dim(pb_amyg)
 # [1] 376  21
 
-#rearrange pb_amyg to match top40 anno 
-pb_amyg <- pb_amyg[top40_anno_amyg$ensemblID,]
-rse_gene_amyg <- rse_gene_amyg[top40_anno_amyg$ensemblID,]
+## Compute RPKM
+pb_rpkm_amyg <- getRPKM(pb_amyg, "bp_length")
+bulk_rpkm_amyg <- getRPKM(rse_gene_amyg, "Length")
 
 ## Transform counts by log and scale
-pb_mat_amyg <- as.matrix(assays(pb_amyg)$counts)
-pb_mat_log_amyg <- log(pb_mat_amyg + 1)
-pb_mat_amyg <- scale(pb_mat_amyg)
-
-bulk_mat_amyg <- as.matrix(assays(rse_gene_amyg)$counts)
-bulk_mat_log_amyg <- log(bulk_mat_amyg + 1)
-bulk_mat_amyg <- scale(bulk_mat_amyg)
+pb_counts_log_amyg <- log(as.matrix(assays(pb_amyg)$counts) + 1)
+pb_rpkm_log_amyg <- log(pb_rpkm_amyg + 1)
+bulk_counts_log_amyg <- log(as.matrix(assays(rse_gene_amyg)$counts) + 1)
+bulk_rpkm_log_amyg <- log(bulk_rpkm_amyg + 1)
 
 ## define annotation tables
 anno_sc_amyg <- as.data.frame(colData(pb_amyg)[,c("donor","cellType.split","cellType.Broad")])
@@ -259,8 +361,8 @@ gene_anno <- top40_anno_amyg %>% select(cell_top40) %>% as.data.frame()
 rownames(gene_anno) <- top40_anno_amyg$ensemblID
 
 ## define color scale
-breaks_log <- seq(0, max(c(pb_mat_log_amyg, bulk_mat_log_amyg)), length = 100)
-breaks_scale <- seq(min(c(pb_mat_amyg, bulk_mat_amyg)), max(c(pb_mat_amyg, bulk_mat_amyg)), length = 100)
+breaks_count <- seq(0, max(c(pb_counts_log_amyg, bulk_counts_log_amyg)), length = 100)
+breaks_rpkm <- seq(0, max(c(pb_rpkm_log_amyg, bulk_rpkm_log_amyg)), length = 100)
 
 ## create annotation color schemes
 
@@ -271,58 +373,136 @@ my_anno_colors <- list(cellType.split = cell_colors[names(cell_colors) %in% anno
                        cell_top40 = cell_colors[names(cell_colors) %in% gene_anno$cell_top40],
                        donor = donor_colors)
 
-#### Create Heat maps ####
+#### Create Heat maps - amyg counts ####
 ## log plots
 ## Unsorted genes
 
-png("plots/heatmap_log_unclustered_sc_amyg.png", height = 800, width = 580)
-pheatmap(pb_mat_log_amyg,
+png("plots/heatmap_counts_amyg_sc_unclustered.png", height = 800, width = 580)
+pheatmap(pb_counts_log_amyg,
          show_rownames = FALSE,
          show_colnames = FALSE,
-         breaks = breaks_log,
+         breaks = breaks_count,
          annotation_row = gene_anno,
          annotation_col = anno_sc_amyg, 
          annotation_colors = my_anno_colors,
          cluster_rows = FALSE,
-         main = "amyg single cell ref - log(counts + 1)")
+         main = "Amyg single cell ref - log(counts + 1)")
 dev.off()
 
-png("plots/heatmap_log_unclustered_bulk_amyg.png", height = 800, width = 580)
-pheatmap(bulk_mat_log_amyg,
+png("plots/heatmap_counts_amyg_bulk_unclustered.png", height = 800, width = 580)
+pheatmap(bulk_counts_log_amyg,
          show_rownames = FALSE,
          show_colnames = FALSE,
-         breaks = breaks_log,
+         breaks = breaks_count,
          annotation_row = gene_anno,
          annotation_col = anno_bulk_amyg,
          annotation_colors = my_anno_colors,
          cluster_rows = FALSE,
-         main = "amyg bulk - log(counts + 1)")
+         main = "Amyg bulk - log(counts + 1)")
+dev.off()
+
+png("plots/heatmap_counts_amyg_bulk_explore.png", height = 800, width = 580)
+bulk_explore <- pheatmap(bulk_counts_log_amyg,
+                         show_rownames = FALSE,
+                         show_colnames = FALSE,
+                         breaks = breaks_count,
+                         annotation_row = gene_anno,
+                         annotation_col = anno_bulk_amyg,
+                         annotation_colors = my_anno_colors,
+                         cutree_cols = 4,
+                         main = "Amyg bulk - log(counts + 1)")
 dev.off()
 
 ## Sort genes by sc clustering
-png("plots/heatmap_log_sc_amyg.png", height = 800, width = 580)
-sc_log_heatmap <- pheatmap(pb_mat_log_amyg,
+png("plots/heatmap_counts_amyg_sc.png", height = 800, width = 580)
+sc_log_heatmap <- pheatmap(pb_counts_log_amyg,
                            show_rownames = FALSE,
                            show_colnames = FALSE,
-                           breaks = breaks_log,
+                           breaks = breaks_count,
                            annotation_row = gene_anno,
                            annotation_col = anno_sc_amyg, 
                            annotation_colors = my_anno_colors,
-                           main = "amyg single cell ref - log(counts + 1)")
+                           main = "Amyg single cell ref - log(counts + 1)")
 dev.off()
 
-bulk_mat_log_amyg <- bulk_mat_log_amyg[sc_log_heatmap$tree_row$order,]
+bulk_counts_log_amyg <- bulk_counts_log_amyg[sc_log_heatmap$tree_row$order,]
 
-png("plots/heatmap_log_bulk_amyg.png", height = 800, width = 580)
-pheatmap(bulk_mat_log_amyg,
+png("plots/heatmap_counts_amyg_bulk.png", height = 800, width = 580)
+pheatmap(bulk_counts_log_amyg,
          show_rownames = FALSE,
          show_colnames = FALSE,
-         breaks = breaks_log,
+         breaks = breaks_count,
          annotation_col = anno_bulk_amyg, 
          annotation_row = gene_anno,
          annotation_colors = my_anno_colors,
          cluster_rows = FALSE,
          main = "amyg bulk- log(counts + 1)")
+dev.off()
+
+#### Create Heat maps - amyg rpkm ####
+## log plots
+## Unsorted genes
+
+png("plots/heatmap_rpkm_amyg_sc_unclustered.png", height = 800, width = 580)
+pheatmap(pb_rpkm_log_amyg,
+         show_rownames = FALSE,
+         show_colnames = FALSE,
+         breaks = breaks_rpkm,
+         annotation_row = gene_anno,
+         annotation_col = anno_sc_amyg, 
+         annotation_colors = my_anno_colors,
+         cluster_rows = FALSE,
+         main = "Amyg single cell ref - log(RPKM + 1)")
+dev.off()
+
+png("plots/heatmap_rpkm_amyg_bulk_unclustered.png", height = 800, width = 580)
+pheatmap(bulk_rpkm_log_amyg,
+         show_rownames = FALSE,
+         show_colnames = FALSE,
+         breaks = breaks_rpkm,
+         annotation_row = gene_anno,
+         annotation_col = anno_bulk_amyg,
+         annotation_colors = my_anno_colors,
+         cluster_rows = FALSE,
+         main = "Amyg bulk - log(RPKM + 1)")
+dev.off()
+
+png("plots/heatmap_rpkm_amyg_bulk_explore.png", height = 800, width = 580)
+bulk_explore <- pheatmap(bulk_rpkm_log_amyg,
+                         show_rownames = FALSE,
+                         show_colnames = FALSE,
+                         breaks = breaks_rpkm,
+                         annotation_row = gene_anno,
+                         annotation_col = anno_bulk_amyg,
+                         annotation_colors = my_anno_colors,
+                         cutree_cols = 4,
+                         main = "Amyg bulk - log(RPKM + 1)")
+dev.off()
+
+## Sort genes by sc clustering
+png("plots/heatmap_rpkm_amyg_sc.png", height = 800, width = 580)
+sc_log_heatmap <- pheatmap(pb_rpkm_log_amyg,
+                           show_rownames = FALSE,
+                           show_colnames = FALSE,
+                           breaks = breaks_rpkm,
+                           annotation_row = gene_anno,
+                           annotation_col = anno_sc_amyg, 
+                           annotation_colors = my_anno_colors,
+                           main = "Amyg single cell ref - log(RPKM + 1)")
+dev.off()
+
+bulk_rpkm_log_amyg <- bulk_rpkm_log_amyg[sc_log_heatmap$tree_row$order,]
+
+png("plots/heatmap_rpkm_amyg_bulk.png", height = 800, width = 580)
+pheatmap(bulk_rpkm_log_amyg,
+         show_rownames = FALSE,
+         show_colnames = FALSE,
+         breaks = breaks_rpkm,
+         annotation_col = anno_bulk_amyg, 
+         annotation_row = gene_anno,
+         annotation_colors = my_anno_colors,
+         cluster_rows = FALSE,
+         main = "amyg bulk- log(rpkm + 1)")
 dev.off()
 
 # sgejobs::job_single('deconvo_heatmap', create_shell = TRUE, queue= 'bluejay', memory = '10G', command = "Rscript deconvo_heatmap.R")
