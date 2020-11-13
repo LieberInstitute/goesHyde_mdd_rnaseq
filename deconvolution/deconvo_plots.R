@@ -81,7 +81,7 @@ both_regions_bl_boxplot(prop_broad_sacc, prop_broad_amyg, yvar = "prop_top40",
                         filename = "plots/cellType_boxplots_broad_top40.png")
 
 ## Age scatter
-age_scatter_broad_sacc <- prop_age_broad_sacc %>%
+age_scatter_broad_sacc <- prop_broad_sacc %>%
   ggplot(aes(AgeDeath, prop, color = cell_type))+
   geom_point() +
   facet_wrap(~cell_type, scales = "free_y", nrow = 6)
