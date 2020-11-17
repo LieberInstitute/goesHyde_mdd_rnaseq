@@ -117,7 +117,7 @@ bulk_rpkm_sacc <- getRPKM(rse_gene_sacc, "Length")
 ## Transform counts and rpkm by log
 pb_counts_log_sacc <- log(as.matrix(assays(pb_sacc)$counts) + 1)
 pb_rpkm_log_sacc <- log(pb_rpkm_sacc + 1)
-bulk_counts_log_sacc <- log(as.matrix(assays(pb_sacc)$counts) + 1)
+bulk_counts_log_sacc <- log(as.matrix(assays(rse_gene_sacc)$counts) + 1)
 bulk_rpkm_log_sacc <- log(bulk_rpkm_sacc +1)
 
 ## define color scale
@@ -208,7 +208,7 @@ pheatmap(bulk_counts_log_sacc,
          main = "sACC bulk- log(counts + 1)")
 dev.off()
 
-#### Create Heat maps - saACC RPKM ####
+#### Create Heat maps - sACC RPKM ####
 ## Unsorted genes
 png("plots/heatmap_rpkm_sacc_sc_unclustered.png", height = 800, width = 580)
 pheatmap(pb_rpkm_log_sacc,
@@ -259,10 +259,10 @@ sc_log_heatmap <- pheatmap(pb_rpkm_log_sacc,
                            main = "sACC single cell ref - log(rpkm + 1)")
 dev.off()
 
-bulk_counts_log_sacc <- bulk_counts_log_sacc[sc_log_heatmap$tree_row$order,]
+bulk_rpkm_log_sacc <- bulk_rpkm_log_sacc[sc_log_heatmap$tree_row$order,]
 
 png("plots/heatmap_rpkm_sacc_bulk.png", height = 800, width = 580)
-pheatmap(bulk_counts_log_sacc,
+pheatmap(bulk_rpkm_log_sacc,
          show_rownames = FALSE,
          show_colnames = FALSE,
          #breaks = breaks_rpkm,
