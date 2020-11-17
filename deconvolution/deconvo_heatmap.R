@@ -28,10 +28,28 @@ top40_sacc <- read.csv("/dcl01/lieber/ajaffe/Matt/MNT_thesis/snRNAseq/10x_pilot_
 load("/dcl01/lieber/ajaffe/Matt/MNT_thesis/snRNAseq/10x_pilot_FINAL/rdas/regionSpecific_sACC-n2_cleaned-combined_SCE_MNTFeb2020.rda", verbose = TRUE)
 ## Exclude Ambig.lowNtrxts
 sce.sacc <- sce.sacc[,sce.sacc$cellType != "Ambig.lowNtrxts",]
+sce.sacc$cellType <- factor(sce.sacc$cellType)
 ## Add cellType.broad
 sce.sacc$cellType.Broad <- ss(as.character(sce.sacc$cellType), "\\.", 1)
 ## Match rownames
 rownames(sce.sacc) <- rowData(sce.sacc)$ID
+
+round(table(sce.sacc$cellType)/ncol(sce.sacc),2)
+# Astro Excit.1 Excit.2 Excit.3 Excit.4 Inhib.1 Inhib.2   Micro   Oligo     OPC 
+# 0.09    0.08    0.06    0.03    0.01    0.07    0.04    0.07    0.46    0.08 
+
+round(table(sce.sacc$cellType.Broad)/ncol(sce.sacc),2)
+# Astro Excit Inhib Micro Oligo   OPC 
+# 0.09  0.18  0.12  0.07  0.46  0.08 
+
+table(sce.sacc$cellType.Broad, sce.sacc$donor)
+#       Br5161 Br5212
+# Astro    188    435
+# Excit    444    822
+# Inhib    224    606
+# Micro    235    267
+# Oligo   1852   1400
+# OPC      227    304
 
 ## Build gene annotation table
 top40_anno_sacc <- top40_sacc %>%
@@ -236,7 +254,7 @@ dev.off()
 
 ## Sort by genes by bulk data
 png("plots/heatmap_rpkm_sacc_bulk_explore.png", height = 800, width = 580)
-bulk_explore_sacc <- pheatmap(bulk_counts_log_sacc,
+bulk_explore_sacc <- pheatmap(bulk_rpkm_log_sacc,
                               show_rownames = FALSE,
                               show_colnames = FALSE,
                               #breaks = breaks_rpkm,
@@ -277,10 +295,28 @@ dev.off()
 load("/dcl01/lieber/ajaffe/Matt/MNT_thesis/snRNAseq/10x_pilot_FINAL/rdas/regionSpecific_Amyg-n2_cleaned-combined_SCE_MNTFeb2020.rda", verbose = TRUE)
 ## Exclude Ambig.lowNtrxts
 sce.amy <- sce.amy[,sce.amy$cellType.split != "Ambig.lowNtrxts",]
+sce.amy$cellType.split <- factor(sce.amy$cellType.split)
 ## Add cellType.broad
 sce.amy$cellType.Broad <- ss(as.character(sce.amy$cellType.split), "\\.", 1)
 ## Match rownames
 rownames(sce.amy) <- rowData(sce.amy)$ID
+
+round(table(sce.amy$cellType.split)/ncol(sce.amy),2)
+# Astro Excit.1 Excit.2 Excit.3 Inhib.1 Inhib.2 Inhib.3 Inhib.4 Inhib.5   Micro   Oligo     OPC 
+# 0.13    0.05    0.01    0.01    0.03    0.02    0.01    0.00    0.01    0.12    0.53    0.10 
+round(table(sce.amy$cellType.Broad)/ncol(sce.amy),2)
+# Astro Excit Inhib Micro Oligo   OPC 
+# 0.13  0.07  0.07  0.12  0.53  0.10 
+
+table(sce.amy$cellType.Broad, sce.amy$donor)
+
+#       Br5161 Br5212
+# Astro    489    363
+# Excit    141    288
+# Inhib    169    268
+# Micro    425    339
+# Oligo   1697   1776
+# OPC      335    292
 
 ## Build gene annotation table
 top40_anno_amyg <- top40_amyg %>%
