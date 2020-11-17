@@ -69,19 +69,19 @@ table(pd$BrainRegion, pd$PrimaryDx)
 table(pd$Sex, pd$PrimaryDx)
 summary(pd$AgeDeath)
 
-# > table(pd$BrainRegion,pd$PrimaryDx)
-#
+# > table(pd$BrainRegion, pd$PrimaryDx)
+# 
 # MDD Control Bipolar
-# Amygdala 234     188     123
-# sACC     230     202     123
+# Amygdala 231     187     122
+# sACC     228     200     123
 # > table(pd$Sex, pd$PrimaryDx)
-#
+# 
 # MDD Control Bipolar
-# F 156      77      96
-# M 308     313     150
+# F 155      76      96
+# M 304     311     149
 # > summary(pd$AgeDeath)
-# Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
-# 17.37   34.53   47.09   46.55   55.87   95.27
+# Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+# 17.37   34.62   47.21   46.58   55.86   95.27
 
 
 pd_mdd <- pd[pd$Experiment == "psychENCODE_MDD", ]
@@ -154,24 +154,43 @@ all_jxn <- unique(c(rowRanges(rse_mdd), rowRanges(rse_bip)))
 length(all_jxn)
 # [1] 2760639
 
-## melt count tables and make sparse matrix
-melt_mdd <- melt(assays(rse_mdd)$counts)
-melt_mdd <- melt_mdd[melt_mdd$value != 0,]
-melt_bip <- melt(as.matrix(as.data.frame(assays(rse_bip)$counts)))
-melt_bip <- melt_bip[melt_bip$value != 0,]
-melt_all <- rbindlist(list(melt_mdd, melt_bip))
-# % non-zero data
-100*nrow(melt_all)/(as.numeric(length(all_jxn))*nrow(pd))
-# [1] 11.75345
-rm(melt_mdd, melt_bip)
+## Create union matrix
+jxn_add <- all_jxn[!names(all_jxn) %in% rownames(rse_mdd),]
+jxn_mat_mdd <- rbind(assays(rse_mdd)$counts, 
+                     matrix(data = 0, 
+                            ncol = length(samples_mdd), 
+                            nrow = length(jxn_add),
+                            dimnames = list(names(jxn_add),samples_mdd)))
 
-jxn_names_i <- match(melt_all$Var1, names(all_jxn)) 
-sample_names_j <- match(melt_all$Var2, rownames(pd))
+jxn_add <- all_jxn[!names(all_jxn) %in% rownames(rse_bip),]
+jxn_mat_bip <- rbind(as.matrix(assays(rse_bip)$counts), 
+                     matrix(data = 0, 
+                            ncol = length(samples_bip), 
+                            nrow = length(jxn_add),
+                            dimnames = list(names(jxn_add),samples_bip)))
 
-sparse_jxn <- sparseMatrix(i = jxn_names_i, j = sample_names_j, x = melt_all$value)
+
+jxn_mat_both <- cbind(jxn_mat_mdd, jxn_mat_bip)
+
+# ## melt count tables and make sparse matrix
+# melt_mdd <- melt(assays(rse_mdd)$counts)
+# melt_mdd <- melt_mdd[melt_mdd$value != 0,]
+# melt_bip <- melt(as.matrix(as.data.frame(assays(rse_bip)$counts)))
+# melt_bip <- melt_bip[melt_bip$value != 0,]
+# melt_all <- rbindlist(list(melt_mdd, melt_bip))
+# # % non-zero data
+# 100*nrow(melt_all)/(as.numeric(length(all_jxn))*nrow(pd))
+# # [1] 11.75345
+# rm(melt_mdd, melt_bip)
+# 
+# jxn_names_i <- match(melt_all$Var1, names(all_jxn)) 
+# sample_names_j <- match(melt_all$Var2, rownames(pd))
+# 
+# sparse_jxn <- sparseMatrix(i = jxn_names_i, j = sample_names_j, x = melt_all$value)
 
 ##define and populate new SE
-rse_jxn <- SummarizedExperiment(assays = list(counts = sparse_jxn), rowRanges = all_jxn, colData = pd)
+# rse_jxn <- SummarizedExperiment(assays = list(counts = sparse_jxn), rowRanges = all_jxn, colData = pd)
+rse_jxn <- SummarizedExperiment(assays = list(counts = jxn_mat_both), rowRanges = all_jxn, colData = pd)
 
 rowData(rse_jxn)$Length <- 100
 tempRpkm <- recount::getRPKM(rse_jxn, "Length")
