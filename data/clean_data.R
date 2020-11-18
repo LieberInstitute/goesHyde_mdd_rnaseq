@@ -163,7 +163,7 @@ jxn_mat_mdd <- rbind(assays(rse_mdd)$counts,
                             dimnames = list(names(jxn_add),samples_mdd)))
 
 jxn_add <- all_jxn[!names(all_jxn) %in% rownames(rse_bip),]
-jxn_mat_bip <- rbind(as.matrix(assays(rse_bip)$counts), 
+jxn_mat_bip <- rbind(as.data.frame(assays(rse_bip)$counts), 
                      matrix(data = 0, 
                             ncol = length(samples_bip), 
                             nrow = length(jxn_add),
@@ -172,7 +172,18 @@ jxn_mat_bip <- rbind(as.matrix(assays(rse_bip)$counts),
 
 jxn_mat_both <- cbind(jxn_mat_mdd, jxn_mat_bip)
 
-# ## melt count tables and make sparse matrix
+## define and populate new SE
+rse_jxn <- SummarizedExperiment(assays = list(counts = jxn_mat_both), rowRanges = all_jxn, colData = pd)
+rm(jxn_mat_mdd, jxn_mat_bip, jxn_mat_both, rse_bip, rse_mdd, rse_jx)
+
+pryr::object_size(rse_jxn)
+# 24.8 GB
+rowData(rse_jxn)$Length <- 100
+tempRpkm <- recount::getRPKM(rse_jxn, "Length")
+rowData(rse_jxn)$meanExprs <- rowMeans(tempRpkm)
+
+save(rse_jxn, file = "rse_jxn_GoesZandi.rda")
+#### Create Sparse Matrix of Data ####
 # melt_mdd <- melt(assays(rse_mdd)$counts)
 # melt_mdd <- melt_mdd[melt_mdd$value != 0,]
 # melt_bip <- melt(as.matrix(as.data.frame(assays(rse_bip)$counts)))
@@ -190,25 +201,25 @@ jxn_mat_both <- cbind(jxn_mat_mdd, jxn_mat_bip)
 
 ##define and populate new SE
 # rse_jxn <- SummarizedExperiment(assays = list(counts = sparse_jxn), rowRanges = all_jxn, colData = pd)
-rse_jxn <- SummarizedExperiment(assays = list(counts = jxn_mat_both), rowRanges = all_jxn, colData = pd)
 
-rowData(rse_jxn)$Length <- 100
-tempRpkm <- recount::getRPKM(rse_jxn, "Length")
-rowData(rse_jxn)$meanExprs <- rowMeans(tempRpkm)
+# rowData(rse_jxn)$Length <- 100
+# tempRpkm <- recount::getRPKM(rse_jxn, "Length")
+# rowData(rse_jxn)$meanExprs <- rowMeans(tempRpkm)
+# pryr::object_size(rse_jxn)
 ## save
-save(rse_jxn, file = "rse_jxn_sparse_GoesZandi.rda")
+# save(rse_jxn, file = "rse_jxn_sparse_GoesZandi.rda")
 ## make test data
-rse_jxn_test <- rse_jxn[1:100000,]
-save(rse_jxn_test, file = "rse_jxn_sparse_test_GoesZandi.rda")
+# rse_jxn_test <- rse_jxn[1:100000,]
+# save(rse_jxn_test, file = "rse_jxn_sparse_test_GoesZandi.rda")
 ## make non-sparse
 # pryr::object_size(rse_jxn)
 # 4.65 GB
-sparsity(assays(rse_jxn)$counts)
+# sparsity(assays(rse_jxn)$counts)
 
-assays(rse_jxn)$counts <- as.matrix(assays(rse_jxn)$counts)
-save(rse_jxn, file = "rse_jxn_GoesZandi.rda")
-
-rm(melt_all, jxn_names_i, sample_names_j, sparse_jxn, all_jxn, rse_jxn, rse_jxn_test)
+# assays(rse_jxn)$counts <- as.matrix(assays(rse_jxn)$counts)
+# save(rse_jxn, file = "rse_jxn_GoesZandi.rda")
+# 
+# rm(melt_all, jxn_names_i, sample_names_j, sparse_jxn, all_jxn, rse_jxn, rse_jxn_test)
 #### Transcript ####
 
 # load objects
