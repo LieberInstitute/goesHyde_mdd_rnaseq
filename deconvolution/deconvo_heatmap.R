@@ -10,6 +10,7 @@ library(GenomicFeatures)
 library(tidyverse)
 library(reshape2)
 library(here)
+library(ggbeeswarm)
 
 source(here("main_colors.R"))
 load(here("deconvolution","data","cell_colors.Rdata"), verbose = TRUE)
@@ -20,12 +21,20 @@ rownames(rse_gene) <- rowData(rse_gene)$ensemblID
 rse_gene_amyg <- rse_gene[,rse_gene$BrainRegion == "Amygdala"]
 rse_gene_sacc <- rse_gene[,rse_gene$BrainRegion == "sACC"]
 
+## Add estimates to bulk data
+load(here("deconvolution","data","prop_top40_sacc.Rdata"), verbose = TRUE)
+load(here("deconvolution","data","prop_top40_amyg.Rdata"), verbose = TRUE)
+colData(rse_gene_sacc) <- cbind(colData(rse_gene_sacc), est_prop_top40_sacc$Est.prop.weighted)
+colData(rse_gene_amyg) <- cbind(colData(rse_gene_amyg), est_prop_top40_amyg$Est.prop.weighted)
+
 #### Top 40 data ####
-top40_amyg <- read.csv("/dcl01/lieber/ajaffe/Matt/MNT_thesis/snRNAseq/10x_pilot_FINAL/tables/top40genesLists_Amyg-n2_cellType.split_SN-LEVEL-tests_May2020.csv")
 top40_sacc <- read.csv("/dcl01/lieber/ajaffe/Matt/MNT_thesis/snRNAseq/10x_pilot_FINAL/tables/top40genesLists_sACC-n2_cellType_SN-LEVEL-tests_May2020.csv")
+top40_amyg <- read.csv("/dcl01/lieber/ajaffe/Matt/MNT_thesis/snRNAseq/10x_pilot_FINAL/tables/top40genesLists_Amyg-n2_cellType.split_SN-LEVEL-tests_May2020.csv")
 
 #### sACC data ####
 load("/dcl01/lieber/ajaffe/Matt/MNT_thesis/snRNAseq/10x_pilot_FINAL/rdas/regionSpecific_sACC-n2_cleaned-combined_SCE_MNTFeb2020.rda", verbose = TRUE)
+sce.sacc$uniqueID <- paste0(sce.sacc$donor, "_", sce.sacc$Barcode)
+colnames(sce.sacc) <- sce.sacc$uniqueID
 ## Exclude Ambig.lowNtrxts
 sce.sacc <- sce.sacc[,sce.sacc$cellType != "Ambig.lowNtrxts",]
 sce.sacc$cellType <- factor(sce.sacc$cellType)
@@ -34,13 +43,13 @@ sce.sacc$cellType.Broad <- ss(as.character(sce.sacc$cellType), "\\.", 1)
 ## Match rownames
 rownames(sce.sacc) <- rowData(sce.sacc)$ID
 
-round(table(sce.sacc$cellType)/ncol(sce.sacc),2)
+round(table(sce.sacc$cellType)/ncol(sce.sacc),3)
 # Astro Excit.1 Excit.2 Excit.3 Excit.4 Inhib.1 Inhib.2   Micro   Oligo     OPC 
-# 0.09    0.08    0.06    0.03    0.01    0.07    0.04    0.07    0.46    0.08 
+# 0.089   0.084   0.059   0.026   0.012   0.074   0.045   0.072   0.464   0.076 
 
-round(table(sce.sacc$cellType.Broad)/ncol(sce.sacc),2)
+round(table(sce.sacc$cellType.Broad)/ncol(sce.sacc),3)
 # Astro Excit Inhib Micro Oligo   OPC 
-# 0.09  0.18  0.12  0.07  0.46  0.08 
+# 0.089 0.181 0.119 0.072 0.464 0.076
 
 table(sce.sacc$cellType.Broad, sce.sacc$donor)
 #       Br5161 Br5212
@@ -129,8 +138,70 @@ pb_sacc <- pb_sacc[top40_anno_sacc$ensemblID,]
 rse_gene_sacc <- rse_gene_sacc[top40_anno_sacc$ensemblID,]
 
 ## Compute RPKM
+assays(sce.sacc)$counts <- as.array(assays(sce.sacc)$counts)
+sce_rpkm_sacc <- getRPKM(sce.sacc, "bp_length")
 pb_rpkm_sacc <- getRPKM(pb_sacc, "bp_length")
 bulk_rpkm_sacc <- getRPKM(rse_gene_sacc, "Length")
+
+#### Plot Mean RPKM ####
+cell_types_sacc <- as.tibble(colData(sce.sacc)) %>% 
+  select(sample = uniqueID , cellType) %>%
+  mutate(cellType = as.character(cellType))
+
+rpkm_long_sacc <- cbind(sce_rpkm_sacc, bulk_rpkm_sacc) %>% 
+  melt() %>%
+  rename(Gene = Var1, sample = Var2, RPKM = value) %>%
+  left_join(cell_types_sacc, by = "sample") %>%
+  replace_na(list(cellType = "bulk"))
+
+rpkm_long_sacc$cellType <- factor(rpkm_long_sacc$cellType)
+rpkm_long_sacc$cellType <- relevel(rpkm_long_sacc$cellType, "bulk")
+
+mean_rpkm_sacc <- rpkm_long_sacc %>% group_by(sample, cellType) %>%
+  summarise(mean_rpkm = mean(RPKM)) %>%
+  ungroup() %>%
+  mutate(id = row_number())
+
+scatter_mean_rpkm <- mean_rpkm_sacc%>%
+  ggplot(aes(id, mean_rpkm, color= cellType))+
+  geom_point()
+
+ggsave(plot = scatter_mean_rpkm, filename = "plots/meanRPKM_scatter_sacc.png")
+
+boxplot_mean_rpkm <- mean_rpkm_sacc%>%
+  ggplot(aes(cellType, mean_rpkm, fill= cellType))+
+  geom_boxplot() +
+  labs( x= "Data type", y = "Sample Mean RPKM", title = "Mean RPKM Distribution",
+        subtitle = "sACC") + 
+  scale_fill_manual(values = c(cell_colors, bulk = "grey"))
+
+ggsave(plot = boxplot_mean_rpkm, filename = "plots/meanRPKM_boxplot_sacc.png")
+
+
+beeswarm_mean_rpkm <- mean_rpkm_sacc%>%
+  ggplot(aes(cellType, mean_rpkm, color= cellType))+
+  geom_beeswarm() +
+  labs( x= "Data type", y = "Sample Mean RPKM", title = "Mean RPKM Distribution",
+        subtitle = "sACC") + 
+  scale_color_manual(values = c(cell_colors, bulk = "grey"))
+
+ggsave(plot = beeswarm_mean_rpkm, filename = "plots/meanRPKM_beeswarm_sacc.png")
+
+rpkm_by_gene <- rpkm_long_sacc %>%
+  group_by(Gene, bulk = cellType == "bulk") %>%
+  summarise(sd = sd(RPKM), mean = mean(RPKM)) %>% dim()
+left_join(top40_anno_sacc %>% select(cell_top40, Gene = ensemblID)) %>%
+  mutate(Data = ifelse(bulk, "Bulk","SC"))
+
+
+rpkm_gene_scatter <- rpkm_by_gene %>% 
+  ggplot(aes(mean, sd, color = cell_top40)) +
+  geom_point() +
+  scale_color_manual(values = cell_colors)+
+  facet_wrap(~Data, scales = "free" ) +
+  labs(x = 'Mean RPKM', y = 'SD RPKM')
+
+ggsave(plot = rpkm_gene_scatter, filename = "plots/rpkm_gene_scatter_sacc.png", width = 15)
 
 ## Transform counts and rpkm by log
 pb_counts_log_sacc <- log(as.matrix(assays(pb_sacc)$counts) + 1)
@@ -301,13 +372,12 @@ sce.amy$cellType.Broad <- ss(as.character(sce.amy$cellType.split), "\\.", 1)
 ## Match rownames
 rownames(sce.amy) <- rowData(sce.amy)$ID
 
-round(table(sce.amy$cellType.split)/ncol(sce.amy),2)
+round(table(sce.amy$cellType.split)/ncol(sce.amy),3)
 # Astro Excit.1 Excit.2 Excit.3 Inhib.1 Inhib.2 Inhib.3 Inhib.4 Inhib.5   Micro   Oligo     OPC 
-# 0.13    0.05    0.01    0.01    0.03    0.02    0.01    0.00    0.01    0.12    0.53    0.10 
-round(table(sce.amy$cellType.Broad)/ncol(sce.amy),2)
+# 0.129   0.051   0.006   0.008   0.026   0.017   0.005   0.004   0.015   0.116   0.528   0.095 
+round(table(sce.amy$cellType.Broad)/ncol(sce.amy),3)
 # Astro Excit Inhib Micro Oligo   OPC 
-# 0.13  0.07  0.07  0.12  0.53  0.10 
-
+# 0.129 0.065 0.066 0.116 0.528 0.095 
 table(sce.amy$cellType.Broad, sce.amy$donor)
 
 #       Br5161 Br5212
