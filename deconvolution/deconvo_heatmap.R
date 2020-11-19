@@ -28,7 +28,9 @@ colData(rse_gene_sacc) <- cbind(colData(rse_gene_sacc), est_prop_top40_sacc$Est.
 colData(rse_gene_amyg) <- cbind(colData(rse_gene_amyg), est_prop_top40_amyg$Est.prop.weighted)
 
 #### Top 40 data ####
-top40_sacc <- read.csv("/dcl01/lieber/ajaffe/Matt/MNT_thesis/snRNAseq/10x_pilot_FINAL/tables/top40genesLists_sACC-n2_cellType_SN-LEVEL-tests_May2020.csv")
+# top40_sacc <- read.csv("/dcl01/lieber/ajaffe/Matt/MNT_thesis/snRNAseq/10x_pilot_FINAL/tables/top40genesLists_sACC-n2_cellType_SN-LEVEL-tests_May2020.csv")
+top40_sacc <- read.csv("/dcl01/lieber/ajaffe/Matt/MNT_thesis/snRNAseq/10x_pilot_FINAL/tables/top40genesLists-REFINED_sACC-n2_cellType.split_Nov2020.csv")
+
 top40_amyg <- read.csv("/dcl01/lieber/ajaffe/Matt/MNT_thesis/snRNAseq/10x_pilot_FINAL/tables/top40genesLists_Amyg-n2_cellType.split_SN-LEVEL-tests_May2020.csv")
 
 #### sACC data ####
@@ -148,19 +150,23 @@ cell_types_sacc <- as.tibble(colData(sce.sacc)) %>%
   select(sample = uniqueID , cellType) %>%
   mutate(cellType = as.character(cellType))
 
-rpkm_long_sacc <- cbind(sce_rpkm_sacc, bulk_rpkm_sacc) %>% 
+rpkm_long_sacc <- cbind(pb_rpkm_sacc, bulk_rpkm_sacc) %>% 
   melt() %>%
-  rename(Gene = Var1, sample = Var2, RPKM = value) %>%
-  left_join(cell_types_sacc, by = "sample") %>%
-  replace_na(list(cellType = "bulk"))
+  rename(Gene = Var1, sample = Var2, RPKM = value) 
+# %>%
+# left_join(cell_types_sacc, by = "sample") %>%
+# replace_na(list(cellType = "bulk"))
 
 rpkm_long_sacc$cellType <- factor(rpkm_long_sacc$cellType)
 rpkm_long_sacc$cellType <- relevel(rpkm_long_sacc$cellType, "bulk")
 
-mean_rpkm_sacc <- rpkm_long_sacc %>% group_by(sample, cellType) %>%
-  summarise(mean_rpkm = mean(RPKM)) %>%
+mean_rpkm_sacc <- rpkm_long_sacc %>% group_by(sample) %>%
+  summarise(mean_rpkm = mean(RPKM),
+            sum_rpkm = sum(RPKM)) %>%
   ungroup() %>%
-  mutate(id = row_number())
+  mutate(id = row_number()) %>%
+  separate(sample, "_", into = c("cellType", "donor",NA))  %>%
+  mutate(cellType = ifelse(grepl('^R', cellType), "bulk",cellType))
 
 scatter_mean_rpkm <- mean_rpkm_sacc%>%
   ggplot(aes(id, mean_rpkm, color= cellType))+
@@ -176,6 +182,16 @@ boxplot_mean_rpkm <- mean_rpkm_sacc%>%
   scale_fill_manual(values = c(cell_colors, bulk = "grey"))
 
 ggsave(plot = boxplot_mean_rpkm, filename = "plots/meanRPKM_boxplot_sacc.png")
+
+
+boxplot_sum_rpkm <- mean_rpkm_sacc%>%
+  ggplot(aes(cellType, sum_rpkm, fill= cellType))+
+  geom_boxplot() +
+  labs( x= "Data type", y = "Sum of Sample RPKM", title = "Top40 marker genes per cell type",
+        subtitle = "sACC") + 
+  scale_fill_manual(values = c(cell_colors, bulk = "grey"))
+
+ggsave(plot = boxplot_sum_rpkm, filename = "plots/sumRPKM_boxplot_sacc.png")
 
 
 beeswarm_mean_rpkm <- mean_rpkm_sacc%>%
@@ -234,7 +250,7 @@ my_anno_colors <- list(cellType = cell_colors[names(cell_colors) %in% anno_sc_sa
                        donor = donor_colors)
 #### Create Heat maps - sacc counts ####
 ## Unsorted genes
-png("plots/heatmap_counts_sacc_sc_unclustered.png", height = 800, width = 580)
+png("plots/heatmap_counts_sacc_sc_unclustered_nov.png", height = 800, width = 580)
 pheatmap(pb_counts_log_sacc,
          show_rownames = FALSE,
          show_colnames = FALSE,
@@ -272,7 +288,7 @@ bulk_explore_sacc <- pheatmap(bulk_counts_log_sacc,
 dev.off()
 
 ## Sort genes by sc clustering
-png("plots/heatmap_counts_sacc_sc.png", height = 800, width = 580)
+png("plots/heatmap_counts_sacc_sc_nov.png", height = 800, width = 580)
 sc_log_heatmap <- pheatmap(pb_counts_log_sacc,
                            show_rownames = FALSE,
                            show_colnames = FALSE,
