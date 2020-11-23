@@ -90,26 +90,26 @@ est_prop_sacc = music_prop(bulk.eset = es_gene_sacc,
                            sc.eset = es_sc_sacc, 
                            clusters = 'cellType',
                            samples = 'donor')
-save(est_prop_sacc, file = "prop_sacc.Rdata")
+save(est_prop_sacc, file = "data/prop_sacc.Rdata")
 
 est_prop_broad_sacc = music_prop(bulk.eset = es_gene_sacc, 
                                  sc.eset = es_sc_sacc, 
                                  clusters = 'cellType.Broad',
                                  samples = 'donor')
-save(est_prop_broad_sacc, file = "prop_broad_sacc.Rdata")
+save(est_prop_broad_sacc, file = "data/prop_broad_sacc.Rdata")
 
 message("**** MUSIC for Amyg ****")
 est_prop_amyg = music_prop(bulk.eset = es_gene_amyg, 
                            sc.eset = es_sc_amyg, 
                            clusters = 'cellType.split',
                            samples = 'donor')
-save(est_prop_amyg, file = "prop_amyg.Rdata")
+save(est_prop_amyg, file = "data/prop_amyg.Rdata")
 
 est_prop_broad_amyg = music_prop(bulk.eset = es_gene_amyg, 
                                  sc.eset = es_sc_amyg, 
                                  clusters = 'cellType.Broad',
                                  samples = 'donor')
-save(est_prop_broad_amyg, file = "prop_broad_amyg.Rdata")
+save(est_prop_broad_amyg, file = "data/prop_broad_amyg.Rdata")
 
 
 
@@ -167,14 +167,14 @@ est_prop_top40_amyg = music_prop(bulk.eset = es_gene_amyg,
                                  clusters = 'cellType.split',
                                  samples = 'donor',
                                  markers = top40all_ensm_amyg)
-save(est_prop_top40_amyg, file = "prop_top40_amyg.Rdata")
+save(est_prop_top40_amyg, file = "data/prop_top40_amyg.Rdata")
 ## 
 est_prop_top40_sacc = music_prop(bulk.eset = es_gene_sacc, 
                                  sc.eset = es_sc_sacc, 
                                  clusters = 'cellType',
                                  samples = 'donor',
                                  markers = top40all_ensm_sacc)
-save(est_prop_top40_sacc, file = "prop_top40_sacc.Rdata")
+save(est_prop_top40_sacc, file = "data/prop_top40_sacc.Rdata")
 
 
 ## estimate cell type props
@@ -183,14 +183,14 @@ est_prop_top40_amyg = music_prop(bulk.eset = es_gene_amyg,
                                  clusters = 'cellType.split',
                                  samples = 'donor',
                                  markers = top40all_ensm_new_amyg)
-save(est_prop_top40_amyg, file = "prop_top40_new_amyg.Rdata")
+save(est_prop_top40_amyg, file = "data/prop_top40_new_amyg.Rdata")
 ## 
 est_prop_top40_sacc = music_prop(bulk.eset = es_gene_sacc, 
                                  sc.eset = es_sc_sacc, 
                                  clusters = 'cellType',
                                  samples = 'donor',
                                  markers = top40all_ensm_new_sacc)
-save(est_prop_top40_sacc, file = "prop_top40_new_sacc.Rdata")
+save(est_prop_top40_sacc, file = "data/prop_top40_new_sacc.Rdata")
 
 
 
