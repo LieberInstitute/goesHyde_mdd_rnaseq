@@ -7,12 +7,15 @@ library(scran)
 library(jaffelab)
 library(limma)
 library(here)
+library(reshape2)
+library(stringr)
 
+#### Filter and filter data ####
 ## Load rse_gene data
 load(here("exprs_cutoff", "rse_gene.Rdata"), verbose = TRUE)
 rownames(rse_gene) <- rowData(rse_gene)$ensemblID
 
-#### sACC data ####
+## sACC data
 load("/dcl01/lieber/ajaffe/Matt/MNT_thesis/snRNAseq/10x_pilot_FINAL/rdas/regionSpecific_sACC-n2_cleaned-combined_SCE_MNTFeb2020.rda", verbose = TRUE)
 
 sce.sacc <- sce.sacc[,sce.sacc$cellType != "Ambig.lowNtrxts",]
@@ -26,7 +29,6 @@ table(rownames(sce.sacc) %in% rownames(rse_gene))
 # FALSE  TRUE 
 # 15021 18517 
 
-#### Filter data ####
 ## filter for common between sc and bulk data
 common_genes <- rownames(rse_gene)[rownames(rse_gene) %in% rownames(sce.sacc)]
 sce.sacc <- sce.sacc[common_genes, ]
@@ -35,8 +37,9 @@ sce.sacc <- sce.sacc[common_genes, ]
 sce.sacc <- sce.sacc[!rowSums(assay(sce.sacc, "counts"))==0, ] 
 dim(sce.sacc)
 # [1] 17785  7004
-## Filter
 
+#### Find markers ####
+## create filters for median != 0
 cellSubtype.idx <- splitit(sce.sacc$cellType.Broad)
 medianNon0.idx <- lapply(cellSubtype.idx, function(x){
   apply(as.matrix(assay(sce.sacc, "logcounts")), 1, function(y){
@@ -103,6 +106,9 @@ for(i in levels(sce.sacc$cellType.Broad)){
 
 save(markers.sacc.t.1vAll, file = here("deconvolution","data","markers_broad.sacc.Rdata"))
 
+#### Classify and plot ####
+
+# load(here("deconvolution","data","markers_broad.sacc.Rdata"), verbose = TRUE)
 markerList.t.1vAll <- lapply(markers.sacc.t.1vAll, function(x){
   rownames(x)[x$log.FDR < log10(0.000001) & x$non0median==TRUE]
 }
@@ -115,13 +121,20 @@ lengths(markerList.t.1vAll)
 genes.top.t <- lapply(markerList.t.1vAll, function(x){head(x, n=25)})
 load("data/cell_colors.Rdata", verbose = TRUE)
 for(i in names(genes.top.t)){
+  
+  ## fix ordereing of plotExpression
+  temp_sce <- sce.sacc[genes.top.t[[i]],]
+  temp_gene_names <- paste0(str_pad(1:length(genes.top.t[[1]]),2,"left"),": ",rownames(temp_sce))
+  rownames(temp_sce) <- temp_gene_names
+  
   marker_stats <- markers.sacc.t.1vAll[[i]][genes.top.t[[i]],]
-  anno <- data.frame(Feature = rownames(marker_stats),
+  anno <- data.frame(Feature = temp_gene_names,
                      label = paste0(" log(p-value) = ", round(marker_stats$log.p.value,3),
                                     "\n std logFC = ", round(marker_stats$std.logFC,3)))
+  
   png(paste0("plots/expr/sACC_t-sn-level_1vALL_topMarkers-REFINED-",i,"_logExprs.png"), height=1900, width=1200)
   print(
-    plotExpression(sce.sacc[genes.top.t[[i]],], exprs_values = "logcounts", features=genes.top.t[[i]],
+    plotExpression(temp_sce, exprs_values = "logcounts", features=temp_gene_names,
                    x="cellType.Broad", colour_by="cellType.Broad", point_alpha=0.5, point_size=.7, ncol=5,
                    add_legend=F) + 
       scale_color_manual(values = cell_colors)+
@@ -134,3 +147,4 @@ for(i in names(genes.top.t)){
   )
   dev.off()
 }
+
