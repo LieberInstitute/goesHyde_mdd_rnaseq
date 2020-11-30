@@ -59,8 +59,8 @@ for(i in levels(sce.sacc$cellType.Broad)){
   sce.sacc$contrast <- ifelse(sce.sacc$cellType.Broad==i, 1, 0)
   # Test cluster vs. all
   markers.sacc.t.1vAll[[i]] <- findMarkers(sce.sacc, groups=sce.sacc$contrast,
-                                          assay.type="logcounts", design=mod, test="t",
-                                          direction="up", pval.type="all", full.stats=T)
+                                           assay.type="logcounts", design=mod, test="t",
+                                           direction="up", pval.type="all", full.stats=T)
 }
 
 temp.1vAll <- list()
@@ -70,9 +70,9 @@ for(i in levels(sce.sacc$cellType.Broad)){
   sce.sacc$contrast <- ifelse(sce.sacc$cellType.Broad==i, 1, 0)
   # Test cluster vs. all
   temp.1vAll[[i]] <- findMarkers(sce.sacc, groups=sce.sacc$contrast,
-                                           assay.type="logcounts", design=mod, test="t",
-                                           std.lfc=TRUE,
-                                           direction="up", pval.type="all", full.stats=T)
+                                 assay.type="logcounts", design=mod, test="t",
+                                 std.lfc=TRUE,
+                                 direction="up", pval.type="all", full.stats=T)
 }
 
 # Replace that empty slot with the entry with the actual stats
@@ -96,8 +96,8 @@ for(i in levels(sce.sacc$cellType.Broad)){
   # Then re-organize
   markers.sacc.t.1vAll[[i]] <- markers.sacc.t.1vAll[[i]][ ,c("logFC","std.logFC","log.p.value","log.FDR")]
   markers.sacc.t.1vAll[[i]] <- cbind(markers.sacc.t.1vAll[[i]],
-                                    medianNon0.idx[[i]][match(rownames(markers.sacc.t.1vAll[[i]]),
-                                                              names(medianNon0.idx[[i]]))])
+                                     medianNon0.idx[[i]][match(rownames(markers.sacc.t.1vAll[[i]]),
+                                                               names(medianNon0.idx[[i]]))])
   colnames(markers.sacc.t.1vAll[[i]])[5] <- "non0median"
 }
 
@@ -112,18 +112,25 @@ lengths(markerList.t.1vAll)
 # Astro Excit Inhib Micro Oligo   OPC 
 # 832  5162  4186   708   841  1160    
 
-genes.top40.t <- lapply(markerList.t.1vAll, function(x){head(x, n=40)})
-
-for(i in names(genes.top40.t)){
-  png(paste0("plots/expr/sACC_t-sn-level_1vALL_top40markers-REFINED-",i,"_logExprs.png"), height=1900, width=1200)
+genes.top.t <- lapply(markerList.t.1vAll, function(x){head(x, n=25)})
+load("data/cell_colors.Rdata", verbose = TRUE)
+for(i in names(genes.top.t)){
+  marker_stats <- markers.sacc.t.1vAll[[i]][genes.top.t[[i]],]
+  anno <- data.frame(Feature = rownames(marker_stats),
+                     label = paste0(" log(p-value) = ", round(marker_stats$log.p.value,3),
+                                    "\n std logFC = ", round(marker_stats$std.logFC,3)))
+  png(paste0("plots/expr/sACC_t-sn-level_1vALL_topMarkers-REFINED-",i,"_logExprs.png"), height=1900, width=1200)
   print(
-    plotExpression(sce.amy, exprs_values = "logcounts", features=genes.top40.t[[i]],
-                   x="cellType.split", colour_by="cellType.split", point_alpha=0.5, point_size=.7, ncol=5,
-                   add_legend=F) + stat_summary(fun.y = median, fun.ymin = median, fun.ymax = median,
-                                                geom = "crossbar", width = 0.3,
-                                                colour=rep(tableau20[1:12], length(genes.top40.t[[i]]))) +
+    plotExpression(sce.sacc[genes.top.t[[i]],], exprs_values = "logcounts", features=genes.top.t[[i]],
+                   x="cellType.Broad", colour_by="cellType.Broad", point_alpha=0.5, point_size=.7, ncol=5,
+                   add_legend=F) + 
+      scale_color_manual(values = cell_colors)+
+      stat_summary(fun = median, fun.min = median, fun.max = median,
+                   geom = "crossbar", width = 0.3) +
+      geom_text(data = anno, aes(x = -Inf, y = Inf, label = label),
+                vjust = "inward", hjust = "inward")+
       theme(axis.text.x = element_text(angle = 90, hjust = 1), plot.title = element_text(size = 25)) +  
-      ggtitle(label=paste0(i, " top 40 markers, refined: single-nucleus-level p.w. t-tests, cluster-vs-all"))
+      ggtitle(label=paste(i, "top", length(genes.top.t[[i]]) ,"markers, refined: single-nucleus-level p.w. t-tests, cluster-vs-all"))
   )
   dev.off()
 }
