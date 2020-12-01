@@ -120,7 +120,7 @@ lengths(markerList.t.1vAll)
 map_int(markers.sacc.t.1vAll, ~sum(.x$log10.p.value == -Inf))
 # Astro Excit Inhib Micro Oligo   OPC 
 # 249   789   226   322   360   148 
-genes.top.t <- lapply(markerList.t.1vAll, function(x){head(x, n=25)})
+genes.top.t <- lapply(markerList.t.1vAll, function(x){head(x, n=40)})
 load("data/cell_colors.Rdata", verbose = TRUE)
 
 ## Plot expression
@@ -155,3 +155,30 @@ for(i in names(genes.top.t)){
   dev.off()
 }
 
+#### Check Overlaps with old data ####
+top40_old_sacc <- read.csv("/dcl01/lieber/ajaffe/Matt/MNT_thesis/snRNAseq/10x_pilot_FINAL/tables/top40genesLists_sACC-n2_cellType_SN-LEVEL-tests_May2020.csv")
+top40_old_sacc <- top40_old_sacc[,grepl("1vAll", colnames(top40_old_sacc))]
+
+top40_new_sacc <- read.csv("/dcl01/lieber/ajaffe/Matt/MNT_thesis/snRNAseq/10x_pilot_FINAL/tables/top40genesLists-REFINED_sACC-n2_cellType.split_Nov2020.csv")
+top40_new_sacc <- top40_new_sacc[,grepl("1vAll", colnames(top40_new_sacc))]
+
+data.frame(cell_types = ss(colnames(top40_old_sacc),"_"),
+           overlap_old = map_int(names(top40_old_sacc), ~sum(top40_old_sacc[[.x]] %in% rowData(sce.sacc)[genes.top.t[[ss(ss(.x,"_"),"\\.")]],]$Symbol)),
+           overlap_new = map_int(names(top40_new_sacc), ~sum(top40_new_sacc[[.x]] %in% rowData(sce.sacc)[genes.top.t[[ss(ss(.x,"_"),"\\.")]],]$Symbol)))
+#    cell_types overlap_old overlap_new
+# 1       Astro          40          40
+# 2     Excit.1          13          13
+# 3     Excit.2           8           8
+# 4     Excit.3           3           4
+# 5     Excit.4           0           0
+# 6     Inhib.1          20          20
+# 7     Inhib.2          15          18
+# 8       Micro          38          38
+# 9       Oligo          39          39
+# 10        OPC          37          37 
+
+#### Save new markers ####
+
+broad_markers_sacc <-data.frame(gene = unlist(genes.top.t))
+broad_markers_sacc$cellType.Broad <- gsub("\\d+","",rownames(broad_markers_sacc))
+write.csv(broad_markers_sacc,file = "data/braod_markers_sacc.csv")
