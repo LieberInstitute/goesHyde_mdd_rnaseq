@@ -9,7 +9,7 @@ library(limma)
 library(here)
 library(reshape2)
 library(stringr)
-
+library(purrr)
 #### Filter and filter data ####
 ## Load rse_gene data
 load(here("exprs_cutoff", "rse_gene.Rdata"), verbose = TRUE)
@@ -84,24 +84,24 @@ markers.sacc.t.1vAll <- lapply(markers.sacc.t.1vAll, function(x){ x[[2]] })
 # Same for that with std.lfc
 temp.1vAll <- lapply(temp.1vAll, function(x){ x[[2]] })
 
-
+# Save all marker stats
+m <- markers.sacc.t.1vAll
 # Now just pull from the 'stats.0' DataFrame column
 markers.sacc.t.1vAll <- lapply(markers.sacc.t.1vAll, function(x){ x$stats.0 })
 temp.1vAll <- lapply(temp.1vAll, function(x){ x$stats.0 })
-m <- markers.sacc.t.1vAll
-t <- temp.1vAll
+
 # Re-name std.lfc column and add to the first result
 for(i in levels(sce.sacc$cellType.Broad)){
   colnames(temp.1vAll[[i]])[1] <- "std.logFC"
-  markers.sacc.t.1vAll[[i]] <- cbind(markers.sacc.t.1vAll[[i]], temp.1vAll[[i]]$std.logFC)
+  markers.sacc.t.1vAll[[i]] <- cbind(markers.sacc.t.1vAll[[i]], temp.1vAll[[i]]$std.logFC, log10(m[[i]]$p.value))
   # Oh the colname is kept weird
-  colnames(markers.sacc.t.1vAll[[i]])[4] <- "std.logFC"
+  colnames(markers.sacc.t.1vAll[[i]])[4:5] <- c("std.logFC","log10.p.value")
   # Then re-organize
-  markers.sacc.t.1vAll[[i]] <- markers.sacc.t.1vAll[[i]][ ,c("logFC","std.logFC","log.p.value","log.FDR")]
+  markers.sacc.t.1vAll[[i]] <- markers.sacc.t.1vAll[[i]][ ,c("logFC","std.logFC","log.p.value","log10.p.value","log.FDR")]
   markers.sacc.t.1vAll[[i]] <- cbind(markers.sacc.t.1vAll[[i]],
                                      medianNon0.idx[[i]][match(rownames(markers.sacc.t.1vAll[[i]]),
                                                                names(medianNon0.idx[[i]]))])
-  colnames(markers.sacc.t.1vAll[[i]])[5] <- "non0median"
+  colnames(markers.sacc.t.1vAll[[i]])[6] <- "non0median"
 }
 
 save(markers.sacc.t.1vAll, file = here("deconvolution","data","markers_broad.sacc.Rdata"))
@@ -117,19 +117,26 @@ markerList.t.1vAll <- lapply(markers.sacc.t.1vAll, function(x){
 lengths(markerList.t.1vAll)
 # Astro Excit Inhib Micro Oligo   OPC 
 # 832  5162  4186   708   841  1160    
-
+map_int(markers.sacc.t.1vAll, ~sum(.x$log10.p.value == -Inf))
+# Astro Excit Inhib Micro Oligo   OPC 
+# 249   789   226   322   360   148 
 genes.top.t <- lapply(markerList.t.1vAll, function(x){head(x, n=25)})
 load("data/cell_colors.Rdata", verbose = TRUE)
+
+## Plot expression
 for(i in names(genes.top.t)){
   
   ## fix ordereing of plotExpression
   temp_sce <- sce.sacc[genes.top.t[[i]],]
-  temp_gene_names <- paste0(str_pad(1:length(genes.top.t[[1]]),2,"left"),": ",rownames(temp_sce))
+  # temp_gene_names <- paste0(str_pad(1:length(genes.top.t[[1]]),2,"left"),": ",rownames(temp_sce))
+  temp_gene_names <- paste0(c(paste0(" ", 1:9),10:length(genes.top.t[[1]])),": ",
+                            rownames(temp_sce)," - ",
+                            rowData(sce.sacc)[genes.top.t[[i]],]$Symbol)
   rownames(temp_sce) <- temp_gene_names
   
   marker_stats <- markers.sacc.t.1vAll[[i]][genes.top.t[[i]],]
   anno <- data.frame(Feature = temp_gene_names,
-                     label = paste0(" log(p-value) = ", round(marker_stats$log.p.value,3),
+                     label = paste0(" log10(p-value) = ", round(marker_stats$log10.p.value,3),
                                     "\n std logFC = ", round(marker_stats$std.logFC,3)))
   
   png(paste0("plots/expr/sACC_t-sn-level_1vALL_topMarkers-REFINED-",i,"_logExprs.png"), height=1900, width=1200)
