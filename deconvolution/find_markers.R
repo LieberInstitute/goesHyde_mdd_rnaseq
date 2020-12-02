@@ -10,13 +10,16 @@ library(here)
 library(reshape2)
 library(stringr)
 library(purrr)
-#### Filter and filter data ####
+library(tidyverse)
+#### Load and filter data ####
 ## Load rse_gene data
 load(here("exprs_cutoff", "rse_gene.Rdata"), verbose = TRUE)
 rownames(rse_gene) <- rowData(rse_gene)$ensemblID
 
 ## sACC data
 load("/dcl01/lieber/ajaffe/Matt/MNT_thesis/snRNAseq/10x_pilot_FINAL/rdas/regionSpecific_sACC-n2_cleaned-combined_SCE_MNTFeb2020.rda", verbose = TRUE)
+sce.sacc$uniqueID <- paste0(sce.sacc$donor, "_", sce.sacc$Barcode)
+colnames(sce.sacc) <- sce.sacc$uniqueID
 
 sce.sacc <- sce.sacc[,sce.sacc$cellType != "Ambig.lowNtrxts",]
 sce.sacc$cellType <- droplevels(sce.sacc$cellType)
@@ -106,11 +109,11 @@ for(i in levels(sce.sacc$cellType.Broad)){
 
 save(markers.sacc.t.1vAll, file = here("deconvolution","data","markers_broad.sacc.Rdata"))
 
-#### Classify and plot ####
+#### Classify and add stats ####
 
 # load(here("deconvolution","data","markers_broad.sacc.Rdata"), verbose = TRUE)
 markerList.t.1vAll <- lapply(markers.sacc.t.1vAll, function(x){
-  rownames(x)[x$log.FDR < log10(0.000001) & x$non0median==TRUE]
+  rownames(x)[x$log.FDR < -6 & x$non0median==TRUE]
 }
 )
 
@@ -120,12 +123,77 @@ lengths(markerList.t.1vAll)
 map_int(markers.sacc.t.1vAll, ~sum(.x$log10.p.value == -Inf))
 # Astro Excit Inhib Micro Oligo   OPC 
 # 249   789   226   322   360   148 
-genes.top.t <- lapply(markerList.t.1vAll, function(x){head(x, n=40)})
-load("data/cell_colors.Rdata", verbose = TRUE)
+top_n = 40 
+genes.top.t <- lapply(markerList.t.1vAll, function(x){head(x, n=top_n)})
 
-## Plot expression
+## Save new markers
+broad_markers_sacc <-data.frame(gene = unlist(markerList.t.1vAll))
+broad_markers_sacc$cellType.Broad <- gsub("\\d+","",rownames(broad_markers_sacc))
+write.csv(broad_markers_sacc,file = "data/braod_markers_sacc.csv")
+
+## Find ratios
+sce_celltypes <- as.data.frame(colData(sce.sacc)) %>%
+  select(uniqueID, cellType.Broad)
+
+marker_medians <- as.matrix(assays(sce.sacc)$logcounts[unlist(markerList.t.1vAll),]) %>%
+  melt() %>%
+  rename(gene = Var1, uniqueID = Var2, logcounts = value) %>%
+  left_join(sce_celltypes, by = "uniqueID")  %>%
+  group_by(gene,cellType.Broad) %>%
+  summarise(median_log_count = median(logcounts))%>%
+  arrange(gene, -median_log_count) %>%
+  mutate(rank = row_number()) %>%
+  left_join(broad_markers_sacc %>% rename(cellType.marker = cellType.Broad), by = "gene") %>%
+  ungroup()
+
+marker_medians %>% ungroup() %>% filter(cellType.Broad == cellType.marker) %>% count(rank)
+
+marker_ratio <- marker_medians %>% filter(cellType.Broad == cellType.marker) %>%
+  select(gene, cellType.marker, marker_median = median_log_count) %>%
+  left_join(marker_medians %>% filter(cellType.Broad != cellType.marker)) %>%
+  mutate(ratio = median_log_count/marker_median,
+         ratio_anno = paste0(cellType.Broad,"/",cellType.marker," = ",round(ratio, 3))) %>%
+  group_by(gene, cellType.marker) %>%
+  slice(1) %>%
+  ungroup
+
+# how many markers ratio == 0
+marker_ratio %>% filter(ratio == 0) %>% 
+  count(cellType.marker)
+# cellType.marker     n
+# <chr>           <int>
+# 1 Astro             109
+# 2 Excit            1080
+# 3 Inhib             139
+# 4 Micro             118
+# 5 Oligo              98
+# 6 OPC                85
+
+marker_ratio %>% filter(ratio !=0 ) %>% ungroup() %>%
+  count(cellType.marker, cellType.Broad) %>%
+  arrange(cellType.marker,-n)
+
+## compare with other stats
+markers.sacc.table <- do.call("rbind",markers.sacc.t.1vAll) %>% 
+  as.data.frame() %>%
+  rownames_to_column("gene")%>%
+  as_tibble() %>%
+  add_column(cellType.marker = rep(names(markers.sacc.t.1vAll), each = nrow(sce.sacc))) %>%
+  mutate(gene = ss(gene,"\\."))
+
+marker_stat <- markers.sacc.table %>%
+  right_join(marker_ratio, by = c("gene", "cellType.marker")) 
+
+ratio_plot <- ggplot(marker_stat, aes(x=ratio, y=std.logFC))+
+  geom_point(size = .5) +
+  facet_wrap(~cellType.marker, scales = "free_x") +
+  labs(x = "highest other cell type median exp/target cell type median exp")
+
+ggsave(filename = "plots/expr/ratio_vs_stdFC.png")
+#### Plot expression ####
+load("data/cell_colors.Rdata", verbose = TRUE)
 for(i in names(genes.top.t)){
-  
+  ratio <- marker_ratio %>% filter(cellType.marker == i)
   ## fix ordereing of plotExpression
   temp_sce <- sce.sacc[genes.top.t[[i]],]
   # temp_gene_names <- paste0(str_pad(1:length(genes.top.t[[1]]),2,"left"),": ",rownames(temp_sce))
@@ -150,7 +218,7 @@ for(i in names(genes.top.t)){
       geom_text(data = anno, aes(x = -Inf, y = Inf, label = label),
                 vjust = "inward", hjust = "inward")+
       theme(axis.text.x = element_text(angle = 90, hjust = 1), plot.title = element_text(size = 25)) +  
-      ggtitle(label=paste(i, "top", length(genes.top.t[[i]]) ,"markers, refined: single-nucleus-level p.w. t-tests, cluster-vs-all"))
+      ggtitle(label=paste(i, "top", top_n ,"markers, refined: single-nucleus-level p.w. t-tests, cluster-vs-all"))
   )
   dev.off()
 }
@@ -177,8 +245,4 @@ data.frame(cell_types = ss(colnames(top40_old_sacc),"_"),
 # 9       Oligo          39          39
 # 10        OPC          37          37 
 
-#### Save new markers ####
 
-broad_markers_sacc <-data.frame(gene = unlist(genes.top.t))
-broad_markers_sacc$cellType.Broad <- gsub("\\d+","",rownames(broad_markers_sacc))
-write.csv(broad_markers_sacc,file = "data/braod_markers_sacc.csv")
