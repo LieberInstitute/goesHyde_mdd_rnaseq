@@ -151,27 +151,15 @@ marker_medians %>% ungroup() %>% filter(cellType.Broad == cellType.marker) %>% c
 marker_ratio <- marker_medians %>% filter(cellType.Broad == cellType.marker) %>%
   select(gene, cellType.marker, marker_median = median_log_count) %>%
   left_join(marker_medians %>% filter(cellType.Broad != cellType.marker)) %>%
-  mutate(ratio = median_log_count/marker_median,
-         ratio_anno = paste0(cellType.Broad,"/",cellType.marker," = ",round(ratio, 3))) %>%
+  mutate(ratio = (marker_median + 0.01)/(median_log_count + 0.01),
+         anno = paste0(cellType.marker,"/",cellType.Broad," = ",round(ratio, 3))) %>%
   group_by(gene, cellType.marker) %>%
   slice(1) %>%
-  ungroup
-
-# how many markers ratio == 0
-marker_ratio %>% filter(ratio == 0) %>% 
-  count(cellType.marker)
-# cellType.marker     n
-# <chr>           <int>
-# 1 Astro             109
-# 2 Excit            1080
-# 3 Inhib             139
-# 4 Micro             118
-# 5 Oligo              98
-# 6 OPC                85
-
-marker_ratio %>% filter(ratio !=0 ) %>% ungroup() %>%
-  count(cellType.marker, cellType.Broad) %>%
-  arrange(cellType.marker,-n)
+  group_by(cellType.marker) %>%
+  arrange(-ratio) %>%
+  mutate(ratio_rank = row_number()) %>%
+  ungroup() %>%
+  select(-rank)
 
 ## compare with other stats
 markers.sacc.table <- do.call("rbind",markers.sacc.t.1vAll) %>% 
@@ -179,46 +167,55 @@ markers.sacc.table <- do.call("rbind",markers.sacc.t.1vAll) %>%
   rownames_to_column("gene")%>%
   as_tibble() %>%
   add_column(cellType.marker = rep(names(markers.sacc.t.1vAll), each = nrow(sce.sacc))) %>%
-  mutate(gene = ss(gene,"\\."))
+  mutate(gene = ss(gene,"\\.")) %>%
+  group_by(cellType.marker) %>%
+  mutate(marker_rank = row_number())
+
+markers.sacc.table$Symbol <- rowData(sce.sacc)[markers.sacc.table$gene,]$Symbol
 
 marker_stat <- markers.sacc.table %>%
-  right_join(marker_ratio, by = c("gene", "cellType.marker")) 
+  right_join(marker_ratio, by = c("gene", "cellType.marker")) %>%
+  ungroup() %>%
+  mutate(Feature = paste0(str_pad(ratio_rank, 4, "left"),": ", gene, "-", Symbol),
+         anno = paste0(" ",anno,"\n std logFC = ", round(std.logFC,3)))
 
-ratio_plot <- ggplot(marker_stat, aes(x=ratio, y=std.logFC))+
+#### Create Ratio plots #### 
+ratio_plot <- ggplot(marker_stat, aes(x=ratio, y=std.logFC, color = cellType.Broad))+
   geom_point(size = .5) +
   facet_wrap(~cellType.marker, scales = "free_x") +
-  labs(x = "highest other cell type median exp/target cell type median exp")
+  labs(x = "target + 0.01/highest non-target + 0.01")+ 
+  scale_x_continuous(trans = 'log10') +
+  scale_color_manual(values = cell_colors)
 
 ggsave(filename = "plots/expr/ratio_vs_stdFC.png")
+
+ratio_median_plot <- ggplot(marker_stat, aes(x=ratio, y=marker_median))+
+  geom_point(size = .5) +
+  facet_wrap(~cellType.marker, scales = "free_x") +
+  labs(x = "target + 0.01/highest non-target + 0.01")
+
+ggsave(plot= ratio_median_plot, filename = "plots/expr/ratio_vs_median.png")
+
 #### Plot expression ####
 load("data/cell_colors.Rdata", verbose = TRUE)
-for(i in names(genes.top.t)){
-  ratio <- marker_ratio %>% filter(cellType.marker == i)
-  ## fix ordereing of plotExpression
-  temp_sce <- sce.sacc[genes.top.t[[i]],]
-  # temp_gene_names <- paste0(str_pad(1:length(genes.top.t[[1]]),2,"left"),": ",rownames(temp_sce))
-  temp_gene_names <- paste0(c(paste0(" ", 1:9),10:length(genes.top.t[[1]])),": ",
-                            rownames(temp_sce)," - ",
-                            rowData(sce.sacc)[genes.top.t[[i]],]$Symbol)
-  rownames(temp_sce) <- temp_gene_names
-  
-  marker_stats <- markers.sacc.t.1vAll[[i]][genes.top.t[[i]],]
-  anno <- data.frame(Feature = temp_gene_names,
-                     label = paste0(" log10(p-value) = ", round(marker_stats$log10.p.value,3),
-                                    "\n std logFC = ", round(marker_stats$std.logFC,3)))
+for(i in names(markerList.t.1vAll)){
+  marker_stat_cell <- marker_stat %>% filter(cellType.marker == i, ratio_rank <= 40)
+  temp_sce <- sce.sacc[marker_stat_cell$gene,]
+  rownames(temp_sce) <- marker_stat_cell$Feature
   
   png(paste0("plots/expr/sACC_t-sn-level_1vALL_topMarkers-REFINED-",i,"_logExprs.png"), height=1900, width=1200)
   print(
-    plotExpression(temp_sce, exprs_values = "logcounts", features=temp_gene_names,
+    plotExpression(temp_sce, exprs_values = "logcounts", features = marker_stat_cell$Feature,
                    x="cellType.Broad", colour_by="cellType.Broad", point_alpha=0.5, point_size=.7, ncol=5,
                    add_legend=F) + 
       scale_color_manual(values = cell_colors)+
       stat_summary(fun = median, fun.min = median, fun.max = median,
                    geom = "crossbar", width = 0.3) +
-      geom_text(data = anno, aes(x = -Inf, y = Inf, label = label),
+      geom_text(data = marker_stat_cell, aes(x = -Inf, y = Inf, label = anno),
                 vjust = "inward", hjust = "inward")+
       theme(axis.text.x = element_text(angle = 90, hjust = 1), plot.title = element_text(size = 25)) +  
-      ggtitle(label=paste(i, "top", top_n ,"markers, refined: single-nucleus-level p.w. t-tests, cluster-vs-all"))
+      # ggtitle(label=paste(i, "top", top_n ,"markers, refined: single-nucleus-level p.w. t-tests, cluster-vs-all")
+      ggtitle(label=paste(i, "top", top_n ,"markers: Ranked by median ratios"))
   )
   dev.off()
 }
