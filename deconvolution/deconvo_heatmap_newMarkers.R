@@ -10,7 +10,6 @@ library(GenomicFeatures)
 library(tidyverse)
 library(reshape2)
 library(here)
-library(ggbeeswarm)
 
 source(here("main_colors.R"))
 load(here("deconvolution","data","cell_colors.Rdata"), verbose = TRUE)
@@ -55,7 +54,7 @@ e2 <- disjoin(e)
 g$bp_length <- sum(width(e2))
 summary(g$bp_length)
 
-g_sacc <- g[top40all_ensm_sacc,]
+g_sacc <- g[broad_markers_sacc$gene,]
 summary(g_sacc$bp_length)
 table(g_sacc$bp_length > 205012)
 
@@ -64,20 +63,20 @@ rowRanges(sce.sacc) <- g_sacc
 #### pseudobulk single cell data ####
 
 pb_sacc <- aggregateAcrossCells(sce.sacc, 
-                                id = colData(sce.sacc)[,c("donor","cellType")])
+                                id = colData(sce.sacc)[,c("donor","cellType.Broad")])
 colnames(colData(pb_sacc))[[20]] <- "cellType_num"
-colnames(pb_sacc) <- paste0(pb_sacc$cellType, "_", pb_sacc$donor)
+colnames(pb_sacc) <- paste0(pb_sacc$cellType.Broad, "_", pb_sacc$donor)
 
 dim(pb_sacc)
-# [1] 332  20
+# [1] 240  12
 
 #rearrange pb_sacc to match top40 anno 
-pb_sacc <- pb_sacc[top40_anno_sacc$ensemblID,]
-rse_gene_sacc <- rse_gene_sacc[top40_anno_sacc$ensemblID,]
+pb_sacc <- pb_sacc[broad_markers_sacc$gene,]
+rse_gene_sacc <- rse_gene_sacc[broad_markers_sacc$gene,]
 
 ## Compute RPKM
 assays(sce.sacc)$counts <- as.array(assays(sce.sacc)$counts)
-sce_rpkm_sacc <- getRPKM(sce.sacc, "bp_length")
+# sce_rpkm_sacc <- getRPKM(sce.sacc, "bp_length") 
 pb_rpkm_sacc <- getRPKM(pb_sacc, "bp_length")
 bulk_rpkm_sacc <- getRPKM(rse_gene_sacc, "Length")
 
@@ -171,7 +170,7 @@ anno_bulk_sacc <- as.data.frame(colData(rse_gene_sacc)[,c("PrimaryDx","Experimen
 
 ## create gene anno obj
 gene_anno <- top40_anno_sacc %>% select(cell_top40) %>% as.data.frame()
-rownames(gene_anno) <- top40_anno_sacc$ensemblID
+rownames(gene_anno) <- broad_markers_sacc$gene
 
 ## define donor colrs
 donor_colors <- c(Br5161 = "black",
