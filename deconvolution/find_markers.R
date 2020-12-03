@@ -1,9 +1,6 @@
 library(SingleCellExperiment)
-# library(EnsDb.Hsapiens.v86)
 library(scater)
 library(scran)
-# library(batchelor)
-# library(DropletUtils)
 library(jaffelab)
 library(limma)
 library(here)
@@ -128,8 +125,10 @@ genes.top.t <- lapply(markerList.t.1vAll, function(x){head(x, n=top_n)})
 
 ## Save new markers
 broad_markers_sacc <-data.frame(gene = unlist(markerList.t.1vAll))
-broad_markers_sacc$cellType.Broad <- gsub("\\d+","",rownames(broad_markers_sacc))
-write.csv(broad_markers_sacc,file = "data/braod_markers_sacc.csv")
+broad_markers_sacc$cellType.marker <- gsub("\\d+","",rownames(broad_markers_sacc))
+broad_markers_sacc$marker_rank <- gsub("[A-Za-z]+","",rownames(broad_markers_sacc))
+head(broad_markers_sacc)
+write_csv(broad_markers_sacc,file = here("deconvolution","data","broad_markers_sacc.csv"))
 
 ## Find ratios
 sce_celltypes <- as.data.frame(colData(sce.sacc)) %>%
@@ -179,27 +178,45 @@ marker_stat <- markers.sacc.table %>%
   mutate(Feature = paste0(str_pad(ratio_rank, 4, "left"),": ", gene, "-", Symbol),
          anno = paste0(" ",anno,"\n std logFC = ", round(std.logFC,3)))
 
+## Save ratio markers
+ratio_markers <- marker_stat  %>%
+  select(gene, cellType.marker, ratio_rank) %>%
+  arrange(cellType.marker,ratio_rank)
+
+write_csv(ratio_markers, file = here("deconvolution","data","braod_ratio_markers_sacc.csv."))
+
 #### Create Ratio plots #### 
+load("data/cell_colors.Rdata", verbose = TRUE)
+
 ratio_plot <- ggplot(marker_stat, aes(x=ratio, y=std.logFC, color = cellType.Broad))+
   geom_point(size = .5) +
   facet_wrap(~cellType.marker, scales = "free_x") +
   labs(x = "target + 0.01/highest non-target + 0.01")+ 
-  scale_x_continuous(trans = 'log10') +
+  # scale_x_continuous(trans = 'log10') +
   scale_color_manual(values = cell_colors)
 
 ggsave(filename = "plots/expr/ratio_vs_stdFC.png")
 
-ratio_median_plot <- ggplot(marker_stat, aes(x=ratio, y=marker_median))+
+ratio_plot <- ggplot(marker_stat, aes(x=log10(ratio), y=std.logFC, color = cellType.Broad))+
   geom_point(size = .5) +
   facet_wrap(~cellType.marker, scales = "free_x") +
-  labs(x = "target + 0.01/highest non-target + 0.01")
+  labs(x = "log10(target + 0.01/highest non-target + 0.01)")+ 
+  # scale_x_continuous(trans = 'log10') +
+  scale_color_manual(values = cell_colors)
+
+ggsave(filename = "plots/expr/log10ratio_vs_stdFC.png")
+
+ratio_median_plot <- ggplot(marker_stat, aes(x=ratio, y=marker_median, color = cellType.Broad))+
+  geom_point(size = .5) +
+  facet_wrap(~cellType.marker, scales = "free_x") +
+  labs(x = "target + 0.01/highest non-target + 0.01")+
+  scale_color_manual(values = cell_colors)
 
 ggsave(plot= ratio_median_plot, filename = "plots/expr/ratio_vs_median.png")
 
 #### Plot expression ####
-load("data/cell_colors.Rdata", verbose = TRUE)
 for(i in names(markerList.t.1vAll)){
-  marker_stat_cell <- marker_stat %>% filter(cellType.marker == i, ratio_rank <= 40)
+  marker_stat_cell <- marker_stat %>% filter(cellType.marker == i, ratio_rank <= top_n)
   temp_sce <- sce.sacc[marker_stat_cell$gene,]
   rownames(temp_sce) <- marker_stat_cell$Feature
   
