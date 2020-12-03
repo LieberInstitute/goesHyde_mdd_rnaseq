@@ -139,18 +139,19 @@ marker_medians <- as.matrix(assays(sce.sacc)$logcounts[unlist(markerList.t.1vAll
   rename(gene = Var1, uniqueID = Var2, logcounts = value) %>%
   left_join(sce_celltypes, by = "uniqueID")  %>%
   group_by(gene,cellType.Broad) %>%
-  summarise(median_log_count = median(logcounts))%>%
-  arrange(gene, -median_log_count) %>%
+  summarise(median_log_count = median(logcounts),
+            mean_log_count = mean(logcounts))%>%
+  arrange(gene, -mean_log_count) %>%
   mutate(rank = row_number()) %>%
-  left_join(broad_markers_sacc %>% rename(cellType.marker = cellType.Broad), by = "gene") %>%
+  left_join(broad_markers_sacc, by = "gene") %>%
   ungroup()
 
 marker_medians %>% ungroup() %>% filter(cellType.Broad == cellType.marker) %>% count(rank)
 
 marker_ratio <- marker_medians %>% filter(cellType.Broad == cellType.marker) %>%
-  select(gene, cellType.marker, marker_median = median_log_count) %>%
+  select(gene, cellType.marker, marker_mean = mean_log_count) %>%
   left_join(marker_medians %>% filter(cellType.Broad != cellType.marker)) %>%
-  mutate(ratio = (marker_median + 0.01)/(median_log_count + 0.01),
+  mutate(ratio = (marker_mean + 0.01)/(mean_log_count + 0.01),
          anno = paste0(cellType.marker,"/",cellType.Broad," = ",round(ratio, 3))) %>%
   group_by(gene, cellType.marker) %>%
   slice(1) %>%
@@ -175,12 +176,12 @@ markers.sacc.table$Symbol <- rowData(sce.sacc)[markers.sacc.table$gene,]$Symbol
 marker_stat <- markers.sacc.table %>%
   right_join(marker_ratio, by = c("gene", "cellType.marker")) %>%
   ungroup() %>%
-  mutate(Feature = paste0(str_pad(ratio_rank, 4, "left"),": ", gene, "-", Symbol),
+  mutate(Feature = paste0(str_pad(ratio_rank, 4, "left"),": ","-", Symbol),
          anno = paste0(" ",anno,"\n std logFC = ", round(std.logFC,3)))
 
 ## Save ratio markers
 ratio_markers <- marker_stat  %>%
-  select(gene, cellType.marker, ratio_rank) %>%
+  select(gene, cellType.marker,ratio, ratio_rank) %>%
   arrange(cellType.marker,ratio_rank)
 
 write_csv(ratio_markers, file = here("deconvolution","data","braod_ratio_markers_sacc.csv."))
@@ -188,11 +189,10 @@ write_csv(ratio_markers, file = here("deconvolution","data","braod_ratio_markers
 #### Create Ratio plots #### 
 load("data/cell_colors.Rdata", verbose = TRUE)
 
-ratio_plot <- ggplot(marker_stat, aes(x=ratio, y=std.logFC, color = cellType.Broad))+
+ratio_plot <- ggplot(marker_stat, aes(x=ratio, y=std.logFC, color = cellType.Broad, shape = ratio_rank <= 10))+
   geom_point(size = .5) +
   facet_wrap(~cellType.marker, scales = "free_x") +
   labs(x = "target + 0.01/highest non-target + 0.01")+ 
-  # scale_x_continuous(trans = 'log10') +
   scale_color_manual(values = cell_colors)
 
 ggsave(filename = "plots/expr/ratio_vs_stdFC.png")
