@@ -10,84 +10,23 @@ library(purrr)
 library(tidyverse)
 
 source(here("deconvolution","get_mean_ratio.R"))
+source(here("deconvolution","findMarkers_1vAll.R"))
 #### Load sce data ####
 load(here("deconvolution","data","sce.sacc_filtered.Rdata"), verbose = TRUE)
 
 #### Find mean ratio for all genes ####
 ct <- list(broad = "cellType.Broad", specific = "cellType")
 
-mean_ratio <- map(ct, ~get_mean_ratio(sce = sce.sacc, .x))
+mean_ratio <- map(ct, ~get_mean_ratio(sce = sce.sacc, cellType_col = .x))
 map_int(mean_ratio, nrow)
 # broad specific 
 # 18581    44783 
 
+#### Run findMarkers ####
+markers.t.1vAll <- map(ct, ~findMarkers_1vAll(sce = sce.sacc, cellType_col = .x))
 
-cellSubtype.idx <- map(ct , ~splitit(sce.sacc[[.x]]))
-medianNon0.idx <- as.matrix()
-
-medianNon0.idx <- lapply(cellSubtype.idx[[1]], function(x){
-  apply(as.matrix(assay(sce.sacc, "logcounts")), 1, function(y){
-    median(y[x]) > 0
-  })
-})
-
-sapply(medianNon0.idx, sum)
-# Astro Excit Inhib Micro Oligo   OPC 
-# 1501  6892  5658   992  1259  2279
-
-## Traditional t-test with design as in PB'd/limma approach ===
-mod <- with(colData(sce.sacc), model.matrix(~ donor))
-mod <- mod[ , -1, drop=F] # intercept otherwise automatically dropped by `findMarkers()`
-
-markers.sacc.t.1vAll <- list()
-for(i in levels(sce.sacc$cellType.Broad)){
-  # Make temporary contrast
-  message(i)
-  sce.sacc$contrast <- ifelse(sce.sacc$cellType.Broad==i, 1, 0)
-  # Test cluster vs. all
-  markers.sacc.t.1vAll[[i]] <- findMarkers(sce.sacc, groups=sce.sacc$contrast,
-                                           assay.type="logcounts", design=mod, test="t",
-                                           direction="up", pval.type="all", full.stats=T)
-}
-
-temp.1vAll <- list()
-for(i in levels(sce.sacc$cellType.Broad)){
-  # Make temporary contrast
-  message(i)
-  sce.sacc$contrast <- ifelse(sce.sacc$cellType.Broad==i, 1, 0)
-  # Test cluster vs. all
-  temp.1vAll[[i]] <- findMarkers(sce.sacc, groups=sce.sacc$contrast,
-                                 assay.type="logcounts", design=mod, test="t",
-                                 std.lfc=TRUE,
-                                 direction="up", pval.type="all", full.stats=T)
-}
-
-# Replace that empty slot with the entry with the actual stats
-# What is stats 1 vs. stats 0? 
-markers.sacc.t.1vAll <- lapply(markers.sacc.t.1vAll, function(x){ x[[2]] })
-# Same for that with std.lfc
-temp.1vAll <- lapply(temp.1vAll, function(x){ x[[2]] })
-
-# Save all marker stats
-m <- markers.sacc.t.1vAll
-# Now just pull from the 'stats.0' DataFrame column
-markers.sacc.t.1vAll <- lapply(markers.sacc.t.1vAll, function(x){ x$stats.0 })
-temp.1vAll <- lapply(temp.1vAll, function(x){ x$stats.0 })
-
-# Re-name std.lfc column and add to the first result
-for(i in levels(sce.sacc$cellType.Broad)){
-  colnames(temp.1vAll[[i]])[1] <- "std.logFC"
-  markers.sacc.t.1vAll[[i]] <- cbind(markers.sacc.t.1vAll[[i]], temp.1vAll[[i]]$std.logFC, log10(m[[i]]$p.value))
-  # Oh the colname is kept weird
-  colnames(markers.sacc.t.1vAll[[i]])[4:5] <- c("std.logFC","log10.p.value")
-  # Then re-organize
-  markers.sacc.t.1vAll[[i]] <- markers.sacc.t.1vAll[[i]][ ,c("logFC","std.logFC","log.p.value","log10.p.value","log.FDR")]
-  markers.sacc.t.1vAll[[i]] <- cbind(markers.sacc.t.1vAll[[i]],
-                                     medianNon0.idx[[i]][match(rownames(markers.sacc.t.1vAll[[i]]),
-                                                               names(medianNon0.idx[[i]]))])
-  colnames(markers.sacc.t.1vAll[[i]])[6] <- "non0median"
-}
-
+#### join stats ####
+marker_stats <- map2(mean_ratio, markers.t.1vAll, ~left_join(.x, .y, by = c("gene", "cellType.target")))
 save(markers.sacc.t.1vAll, file = here("deconvolution","data","markers_broad.sacc.Rdata"))
 
 #### Classify and add stats ####
