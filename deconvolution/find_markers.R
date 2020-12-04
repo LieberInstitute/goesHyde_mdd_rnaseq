@@ -8,40 +8,42 @@ library(reshape2)
 library(stringr)
 library(purrr)
 library(tidyverse)
-#### Load and filter data ####
-## Load rse_gene data
-load(here("exprs_cutoff", "rse_gene.Rdata"), verbose = TRUE)
-rownames(rse_gene) <- rowData(rse_gene)$ensemblID
 
-## sACC data
-load("/dcl01/lieber/ajaffe/Matt/MNT_thesis/snRNAseq/10x_pilot_FINAL/rdas/regionSpecific_sACC-n2_cleaned-combined_SCE_MNTFeb2020.rda", verbose = TRUE)
-sce.sacc$uniqueID <- paste0(sce.sacc$donor, "_", sce.sacc$Barcode)
-colnames(sce.sacc) <- sce.sacc$uniqueID
-
-sce.sacc <- sce.sacc[,sce.sacc$cellType != "Ambig.lowNtrxts",]
-sce.sacc$cellType <- droplevels(sce.sacc$cellType)
-## Add cellType.broad
-sce.sacc$cellType.Broad <- ss(as.character(sce.sacc$cellType), "\\.", 1)
-sce.sacc$cellType.Broad <- factor(sce.sacc$cellType.Broad)
-## Match rownames
-rownames(sce.sacc) <- rowData(sce.sacc)$ID
-table(rownames(sce.sacc) %in% rownames(rse_gene))
-# FALSE  TRUE 
-# 15021 18517 
-
-## filter for common between sc and bulk data
-common_genes <- rownames(rse_gene)[rownames(rse_gene) %in% rownames(sce.sacc)]
-sce.sacc <- sce.sacc[common_genes, ]
-
-# Remove 0 genes across all nuclei
-sce.sacc <- sce.sacc[!rowSums(assay(sce.sacc, "counts"))==0, ] 
-dim(sce.sacc)
-# [1] 17785  7004
+#### Load sce data ####
+load(here("deconvolution","data","sce.sacc_filtered.Rdata"), verbose = TRUE)
 
 #### Find markers ####
+## Find ratios
+sce_celltypes <- as.data.frame(colData(sce.sacc)) %>%
+  select(uniqueID, cellType, cellType.Broad)
+
+## find expr medians and means for each gene at broad and specific cell types
+ct <- list(broad = "cellType.Broad", specific = "cellType")
+
+expr_stats <- map(ct,~as.matrix(assays(sce.sacc)$logcounts) %>%
+                        melt() %>%
+                        rename(gene = Var1, uniqueID = Var2, logcounts = value) %>%
+                        left_join(sce_celltypes, by = "uniqueID")  %>%
+                        group_by(gene,!!sym(.x)) %>%
+                        summarise(median_log_count = median(logcounts),
+                                  mean_log_count = mean(logcounts)) %>%
+                    ungroup()
+  )
+## rename cellType.Broad to keep things simple
+expr_stats[["broad"]] <- expr_stats[["broad"]] %>% rename(cellType = cellType.Broad)
+
+target_stats <- map(expr_stats, ~filter(.x, median_log_count != 0))
+map_int(target_stats, nrow)
+# broad specific 
+# 18581    44783 
+
+map(target_stats, ~count(.x, cellType))
 ## create filters for median != 0
-cellSubtype.idx <- splitit(sce.sacc$cellType.Broad)
-medianNon0.idx <- lapply(cellSubtype.idx, function(x){
+
+cellSubtype.idx <- map(ct , ~splitit(sce.sacc[[.x]]))
+medianNon0.idx <- as.matrix()
+
+medianNon0.idx <- lapply(cellSubtype.idx[[1]], function(x){
   apply(as.matrix(assay(sce.sacc, "logcounts")), 1, function(y){
     median(y[x]) > 0
   })
@@ -220,7 +222,7 @@ for(i in names(markerList.t.1vAll)){
   temp_sce <- sce.sacc[marker_stat_cell$gene,]
   rownames(temp_sce) <- marker_stat_cell$Feature
   
-  png(paste0("plots/expr/sACC_t-sn-level_1vALL_topMarkers-REFINED-",i,"_logExprs.png"), height=1900, width=1200)
+  png(paste0("plots/expr/sACC_t-sn-level_1vALL_topMarkers-REFINED-",i,"_logExprs.png"), height=2850, width=1800)
   print(
     plotExpression(temp_sce, exprs_values = "logcounts", features = marker_stat_cell$Feature,
                    x="cellType.Broad", colour_by="cellType.Broad", point_alpha=0.5, point_size=.7, ncol=5,
@@ -229,8 +231,9 @@ for(i in names(markerList.t.1vAll)){
       stat_summary(fun = median, fun.min = median, fun.max = median,
                    geom = "crossbar", width = 0.3) +
       geom_text(data = marker_stat_cell, aes(x = -Inf, y = Inf, label = anno),
-                vjust = "inward", hjust = "inward")+
-      theme(axis.text.x = element_text(angle = 90, hjust = 1), plot.title = element_text(size = 25)) +  
+                vjust = "inward", hjust = "inward",
+                size = 7)+
+      theme(axis.text.x = element_text(angle = 90, hjust = 1), plot.title = element_text(size = 25), text = element_text(size=20)) +  
       # ggtitle(label=paste(i, "top", top_n ,"markers, refined: single-nucleus-level p.w. t-tests, cluster-vs-all")
       ggtitle(label=paste(i, "top", top_n ,"markers: Ranked by median ratios"))
   )
