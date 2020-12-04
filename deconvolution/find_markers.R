@@ -9,15 +9,15 @@ library(stringr)
 library(purrr)
 library(tidyverse)
 
-source(here("deconvolution","get_mean_prop.R"))
+source(here("deconvolution","get_mean_ratio.R"))
 #### Load sce data ####
 load(here("deconvolution","data","sce.sacc_filtered.Rdata"), verbose = TRUE)
 
 #### Find mean ratio for all genes ####
 ct <- list(broad = "cellType.Broad", specific = "cellType")
 
-mean_prop <- map(ct, ~get_mean_prop(sce = sce.sacc, .x))
-map_int(mean_prop, nrow)
+mean_ratio <- map(ct, ~get_mean_ratio(sce = sce.sacc, .x))
+map_int(mean_ratio, nrow)
 # broad specific 
 # 18581    44783 
 
