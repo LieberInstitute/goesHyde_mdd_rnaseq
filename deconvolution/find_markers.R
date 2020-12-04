@@ -9,36 +9,18 @@ library(stringr)
 library(purrr)
 library(tidyverse)
 
+source(here("deconvolution","get_mean_prop.R"))
 #### Load sce data ####
 load(here("deconvolution","data","sce.sacc_filtered.Rdata"), verbose = TRUE)
 
-#### Find markers ####
-## Find ratios
-sce_celltypes <- as.data.frame(colData(sce.sacc)) %>%
-  select(uniqueID, cellType, cellType.Broad)
-
-## find expr medians and means for each gene at broad and specific cell types
+#### Find mean ratio for all genes ####
 ct <- list(broad = "cellType.Broad", specific = "cellType")
 
-expr_stats <- map(ct,~as.matrix(assays(sce.sacc)$logcounts) %>%
-                        melt() %>%
-                        rename(gene = Var1, uniqueID = Var2, logcounts = value) %>%
-                        left_join(sce_celltypes, by = "uniqueID")  %>%
-                        group_by(gene,!!sym(.x)) %>%
-                        summarise(median_log_count = median(logcounts),
-                                  mean_log_count = mean(logcounts)) %>%
-                    ungroup()
-  )
-## rename cellType.Broad to keep things simple
-expr_stats[["broad"]] <- expr_stats[["broad"]] %>% rename(cellType = cellType.Broad)
-
-target_stats <- map(expr_stats, ~filter(.x, median_log_count != 0))
-map_int(target_stats, nrow)
+mean_prop <- map(ct, ~get_mean_prop(sce = sce.sacc, .x))
+map_int(mean_prop, nrow)
 # broad specific 
 # 18581    44783 
 
-map(target_stats, ~count(.x, cellType))
-## create filters for median != 0
 
 cellSubtype.idx <- map(ct , ~splitit(sce.sacc[[.x]]))
 medianNon0.idx <- as.matrix()
