@@ -30,7 +30,10 @@ map_int(markers.t.1vAll, nrow)
 
 #### join stats ####
 marker_stats <- map2(mean_ratio, markers.t.1vAll, ~left_join(.x, .y, by = c("gene", "cellType.target")) %>%
-                       filter(log.FDR < -6))
+                       filter(log.FDR < -6) %>% 
+                       mutate(Feature = paste0(str_pad(ratio_rank, 4, "left"),": ",Symbol),
+                              anno = paste0(" ",anno,"\n std logFC = ", round(std.logFC,3)))
+                     )
 map_int(marker_stats, nrow)
 # broad specific 
 # 12889    26554
@@ -104,28 +107,34 @@ ggsave(mean_plots[[1]] + theme(legend.position = "None") + mean_plots[[2]], file
 
 
 #### Plot expression ####
-for(i in names(markerList.t.1vAll)){
-  marker_stat_cell <- marker_stat %>% filter(cellType.marker == i, ratio_rank <= top_n)
-  temp_sce <- sce.sacc[marker_stat_cell$gene,]
-  rownames(temp_sce) <- marker_stat_cell$Feature
-  
-  png(paste0("plots/expr/sACC_t-sn-level_1vALL_topMarkers-REFINED-",i,"_logExprs.png"), height=2850, width=1800)
-  print(
-    plotExpression(temp_sce, exprs_values = "logcounts", features = marker_stat_cell$Feature,
-                   x="cellType.Broad", colour_by="cellType.Broad", point_alpha=0.5, point_size=.7, ncol=5,
-                   add_legend=F) + 
-      scale_color_manual(values = cell_colors)+
-      stat_summary(fun = median, fun.min = median, fun.max = median,
-                   geom = "crossbar", width = 0.3) +
-      geom_text(data = marker_stat_cell, aes(x = -Inf, y = Inf, label = anno),
-                vjust = "inward", hjust = "inward",
-                size = 7)+
-      theme(axis.text.x = element_text(angle = 90, hjust = 1), plot.title = element_text(size = 25), text = element_text(size=20)) +  
-      # ggtitle(label=paste(i, "top", top_n ,"markers, refined: single-nucleus-level p.w. t-tests, cluster-vs-all")
-      ggtitle(label=paste(i, "top", top_n ,"markers: Ranked by median ratios"))
-  )
-  dev.off()
-}
+top_n <- 25
+walk2(marker_stats, names(marker_stats), function(x,y){
+  cells <- unique(x$cellType.target)
+  for(i in cells){
+    marker_stat_cell <- x %>% filter(cellType.target == i, ratio_rank <= top_n)
+    temp_sce <- sce.sacc[marker_stat_cell$gene,]
+    rownames(temp_sce) <- marker_stat_cell$Feature
+    png_name <- paste0("plots/expr/sACC-",y,"_",i,"_top",top_n,"_expression.png")
+    png(png_name, height=2850, width=1800)
+    print(
+      plotExpression(temp_sce, exprs_values = "logcounts", features = marker_stat_cell$Feature,
+                     x="cellType.Broad", colour_by="cellType.Broad", point_alpha=0.5, point_size=.7, ncol=5,
+                     add_legend=F) +
+        scale_color_manual(values = cell_colors)+
+        stat_summary(fun = mean, fun.min = mean, fun.max = mean,
+                     geom = "crossbar", width = 0.3) +
+        geom_text(data = marker_stat_cell, aes(x = -Inf, y = Inf, label = anno),
+                  vjust = "inward", hjust = "inward",
+                  size = 7)+
+        theme(axis.text.x = element_text(angle = 90, hjust = 1), plot.title = element_text(size = 25), text = element_text(size=20)) +
+        # ggtitle(label=paste(i, "top", top_n ,"markers, refined: single-nucleus-level p.w. t-tests, cluster-vs-all")
+        ggtitle(label=paste(i, "top", top_n ,"markers: Ranked by median ratios"))
+    )
+    dev.off()
+    message(png_name, " COMPLETE!")
+  }
+})
+
 
 #### Check Overlaps with old data ####
 top40_old_sacc <- read.csv("/dcl01/lieber/ajaffe/Matt/MNT_thesis/snRNAseq/10x_pilot_FINAL/tables/top40genesLists_sACC-n2_cellType_SN-LEVEL-tests_May2020.csv")

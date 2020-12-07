@@ -24,7 +24,7 @@ get_mean_ratio <- function(sce, cellType_col =  "cellType"){
             mean_logcount.target = mean_logcount,
             median_logcount.target = median_logcount)
    
-   mean_prop <- target_stat %>% right_join(gene_stat, by = "gene") %>%
+   mean_ratio <- target_stat %>% right_join(gene_stat, by = "gene") %>%
      filter(cellType.target != cellType) %>%
      mutate(ratio = (mean_logcount.target + 0.01)/(mean_logcount + 0.01)) %>%
      arrange(gene, cellType.target,ratio) %>%
@@ -32,7 +32,10 @@ get_mean_ratio <- function(sce, cellType_col =  "cellType"){
      slice(1) %>%
      group_by(cellType.target) %>%
      arrange(-ratio) %>%
-     mutate(ratio_rank = row_number())
+     mutate(ratio_rank = row_number(),
+            anno = paste0(cellType.target,"/",cellType," = ",round(ratio, 3)))
    
-   return(mean_prop)
+   mean_ratio$Symbol <- rowData(sce)[mean_ratio$gene,]$Symbol
+   
+   return(mean_ratio %>% select(-median_logcount))
 }
