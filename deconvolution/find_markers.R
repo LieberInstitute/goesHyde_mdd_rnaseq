@@ -24,118 +24,84 @@ map_int(mean_ratio, nrow)
 
 #### Run findMarkers ####
 markers.t.1vAll <- map(ct, ~findMarkers_1vAll(sce = sce.sacc, cellType_col = .x))
+map_int(markers.t.1vAll, nrow)
+# broad specific 
+# 106710   177850
 
 #### join stats ####
-marker_stats <- map2(mean_ratio, markers.t.1vAll, ~left_join(.x, .y, by = c("gene", "cellType.target")))
-save(markers.sacc.t.1vAll, file = here("deconvolution","data","markers_broad.sacc.Rdata"))
+marker_stats <- map2(mean_ratio, markers.t.1vAll, ~left_join(.x, .y, by = c("gene", "cellType.target")) %>%
+                       filter(log.FDR < -6))
+map_int(marker_stats, nrow)
+# broad specific 
+# 12889    26554
+save(marker_stats, file = here("deconvolution","data","marker_stats_sacc.Rdata"))
 
-#### Classify and add stats ####
-
-# load(here("deconvolution","data","markers_broad.sacc.Rdata"), verbose = TRUE)
-markerList.t.1vAll <- lapply(markers.sacc.t.1vAll, function(x){
-  rownames(x)[x$log.FDR < -6 & x$non0median==TRUE]
-}
-)
-
-lengths(markerList.t.1vAll)
-# Astro Excit Inhib Micro Oligo   OPC 
-# 832  5162  4186   708   841  1160    
-map_int(markers.sacc.t.1vAll, ~sum(.x$log10.p.value == -Inf))
-# Astro Excit Inhib Micro Oligo   OPC 
-# 249   789   226   322   360   148 
-top_n = 40 
-genes.top.t <- lapply(markerList.t.1vAll, function(x){head(x, n=top_n)})
-
-## Save new markers
-broad_markers_sacc <-data.frame(gene = unlist(markerList.t.1vAll))
-broad_markers_sacc$cellType.marker <- gsub("\\d+","",rownames(broad_markers_sacc))
-broad_markers_sacc$marker_rank <- gsub("[A-Za-z]+","",rownames(broad_markers_sacc))
-head(broad_markers_sacc)
-write_csv(broad_markers_sacc,file = here("deconvolution","data","broad_markers_sacc.csv"))
-
-## Find ratios
-sce_celltypes <- as.data.frame(colData(sce.sacc)) %>%
-  select(uniqueID, cellType.Broad)
-
-marker_medians <- as.matrix(assays(sce.sacc)$logcounts[unlist(markerList.t.1vAll),]) %>%
-  melt() %>%
-  rename(gene = Var1, uniqueID = Var2, logcounts = value) %>%
-  left_join(sce_celltypes, by = "uniqueID")  %>%
-  group_by(gene,cellType.Broad) %>%
-  summarise(median_log_count = median(logcounts),
-            mean_log_count = mean(logcounts))%>%
-  arrange(gene, -mean_log_count) %>%
-  mutate(rank = row_number()) %>%
-  left_join(broad_markers_sacc, by = "gene") %>%
-  ungroup()
-
-marker_medians %>% ungroup() %>% filter(cellType.Broad == cellType.marker) %>% count(rank)
-
-marker_ratio <- marker_medians %>% filter(cellType.Broad == cellType.marker) %>%
-  select(gene, cellType.marker, marker_mean = mean_log_count) %>%
-  left_join(marker_medians %>% filter(cellType.Broad != cellType.marker)) %>%
-  mutate(ratio = (marker_mean + 0.01)/(mean_log_count + 0.01),
-         anno = paste0(cellType.marker,"/",cellType.Broad," = ",round(ratio, 3))) %>%
-  group_by(gene, cellType.marker) %>%
-  slice(1) %>%
-  group_by(cellType.marker) %>%
-  arrange(-ratio) %>%
-  mutate(ratio_rank = row_number()) %>%
-  ungroup() %>%
-  select(-rank)
-
-## compare with other stats
-markers.sacc.table <- do.call("rbind",markers.sacc.t.1vAll) %>% 
-  as.data.frame() %>%
-  rownames_to_column("gene")%>%
-  as_tibble() %>%
-  add_column(cellType.marker = rep(names(markers.sacc.t.1vAll), each = nrow(sce.sacc))) %>%
-  mutate(gene = ss(gene,"\\.")) %>%
-  group_by(cellType.marker) %>%
-  mutate(marker_rank = row_number())
-
-markers.sacc.table$Symbol <- rowData(sce.sacc)[markers.sacc.table$gene,]$Symbol
-
-marker_stat <- markers.sacc.table %>%
-  right_join(marker_ratio, by = c("gene", "cellType.marker")) %>%
-  ungroup() %>%
-  mutate(Feature = paste0(str_pad(ratio_rank, 4, "left"),": ","-", Symbol),
-         anno = paste0(" ",anno,"\n std logFC = ", round(std.logFC,3)))
-
-## Save ratio markers
-ratio_markers <- marker_stat  %>%
-  select(gene, cellType.marker,ratio, ratio_rank) %>%
-  arrange(cellType.marker,ratio_rank)
-
-write_csv(ratio_markers, file = here("deconvolution","data","braod_ratio_markers_sacc.csv."))
+map(marker_stats, ~count(.x))
+# A tibble: 6 x 2
+# Groups:   cellType.target [6]
+# cellType.target     n
+# <chr>           <int>
+#   1 Astro             832
+# 2 Excit            5162
+# 3 Inhib            4186
+# 4 Micro             708
+# 5 Oligo             841
+# 6 OPC              1160
+# 
+# $specific
+# # A tibble: 10 x 2
+# # Groups:   cellType.target [10]
+# cellType.target     n
+# <chr>           <int>
+#   1 Astro             832
+# 2 Excit.1          4698
+# 3 Excit.2          4603
+# 4 Excit.3          3355
+# 5 Excit.4          2883
+# 6 Inhib.1          3887
+# 7 Inhib.2          3587
+# 8 Micro             708
+# 9 Oligo             841
+# 10 OPC              1160
 
 #### Create Ratio plots #### 
 load("data/cell_colors.Rdata", verbose = TRUE)
 
-ratio_plot <- ggplot(marker_stat, aes(x=ratio, y=std.logFC, color = cellType.Broad, shape = ratio_rank <= 10))+
-  geom_point(size = .5) +
-  facet_wrap(~cellType.marker, scales = "free_x") +
-  labs(x = "target + 0.01/highest non-target + 0.01")+ 
-  scale_color_manual(values = cell_colors)
 
-ggsave(filename = "plots/expr/ratio_vs_stdFC.png")
+ratio_plots <- map2(marker_stats, names(marker_stats), 
+                   ~ggplot(.x, aes(x=ratio, y=std.logFC, color = cellType, shape = ratio_rank <= 10))+
+                     geom_point(size = .5) +
+                     facet_wrap(~cellType.target, scales = "free_x") +
+                     labs(x = "target + 0.01/highest non-target + 0.01",
+                          title = paste(.y,"cell types"))+ 
+                     scale_color_manual(values = cell_colors)
+)
 
-ratio_plot <- ggplot(marker_stat, aes(x=log10(ratio), y=std.logFC, color = cellType.Broad))+
-  geom_point(size = .5) +
-  facet_wrap(~cellType.marker, scales = "free_x") +
-  labs(x = "log10(target + 0.01/highest non-target + 0.01)")+ 
-  # scale_x_continuous(trans = 'log10') +
-  scale_color_manual(values = cell_colors)
+ggsave(ratio_plots[[1]] + theme(legend.position = "None") + ratio_plots[[2]], filename = "plots/expr/ratio_vs_stdFC.png", width = 15)
 
-ggsave(filename = "plots/expr/log10ratio_vs_stdFC.png")
+ratio_plots_log10 <- map2(marker_stats, names(marker_stats), 
+                    ~ggplot(.x, aes(x=log10(ratio), y=std.logFC, color = cellType, shape = ratio_rank <= 10))+
+                      geom_point(size = .5) +
+                      facet_wrap(~cellType.target, scales = "free_x") +
+                      labs(x = "target + 0.01/highest non-target + 0.01",
+                           title = paste(.y,"cell types"))+ 
+                      scale_color_manual(values = cell_colors)
+)
 
-ratio_median_plot <- ggplot(marker_stat, aes(x=ratio, y=marker_median, color = cellType.Broad))+
-  geom_point(size = .5) +
-  facet_wrap(~cellType.marker, scales = "free_x") +
-  labs(x = "target + 0.01/highest non-target + 0.01")+
-  scale_color_manual(values = cell_colors)
+ggsave(ratio_plots_log10[[1]] + theme(legend.position = "None") + ratio_plots_log10[[2]], filename = "plots/expr/ratio_vs_stdFC_log10.png", width = 15)
 
-ggsave(plot= ratio_median_plot, filename = "plots/expr/ratio_vs_median.png")
+
+mean_plots <- map2(marker_stats, names(marker_stats), 
+                   ~ggplot(.x, aes(x=ratio, y=mean_logcount.target, color = cellType, shape = ratio_rank <= 10))+
+                     geom_point(size = .5) +
+                     facet_wrap(~cellType.target, scales = "free_x") +
+                     labs(title = paste(.y,"cell types"))+ 
+                     scale_color_manual(values = cell_colors)
+)
+
+ggsave(mean_plots[[1]] + theme(legend.position = "None") + mean_plots[[2]], filename = "plots/expr/ratio_vs_mean.png", width = 15)
+
+
 
 #### Plot expression ####
 for(i in names(markerList.t.1vAll)){

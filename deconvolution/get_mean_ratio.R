@@ -3,7 +3,7 @@ library(SingleCellExperiment)
 library(reshape2)
 library(tidyverse)
 
-get_mean_prop <- function(sce, cellType_col =  "cellType"){
+get_mean_ratio <- function(sce, cellType_col =  "cellType"){
   
   sce_celltypes <- as.data.frame(colData(sce)) %>%
     select(cellType = !!sym(cellType_col)) %>%
@@ -27,7 +27,7 @@ get_mean_prop <- function(sce, cellType_col =  "cellType"){
    mean_prop <- target_stat %>% right_join(gene_stat, by = "gene") %>%
      filter(cellType.target != cellType) %>%
      mutate(ratio = (mean_logcount.target + 0.01)/(mean_logcount + 0.01)) %>%
-     arrange(gene, cellType.target,-ratio,) %>%
+     arrange(gene, cellType.target,ratio) %>%
      group_by(gene, cellType.target) %>%
      slice(1) %>%
      group_by(cellType.target) %>%

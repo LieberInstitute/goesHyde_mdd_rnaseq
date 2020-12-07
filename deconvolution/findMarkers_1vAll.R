@@ -24,6 +24,7 @@ findMarkers_1vAll <- function(sce, assay = "logcounts", cellType_col = "cellType
   markers.t.1vAll.table <- do.call("rbind",markers.t.1vAll) %>% 
     as.data.frame() %>%
     rownames_to_column("gene")%>% 
+    mutate(gene = gsub("\\.\\d+","",gene)) %>%
     as_tibble %>%
     add_column(cellType.target = rep(ct, each = nrow(sce)))
   
