@@ -6,12 +6,12 @@ library(here)
 library(pheatmap)
 library(scuttle)
 library(recount)
-library(GenomicFeatures)
 library(tidyverse)
 library(reshape2)
 library(here)
 library(purrr)
 
+# Load colors
 source(here("main_colors.R"))
 load(here("deconvolution","data","cell_colors.Rdata"), verbose = TRUE)
 
@@ -22,60 +22,23 @@ rse_gene_amyg <- rse_gene[,rse_gene$BrainRegion == "Amygdala"]
 rse_gene_sacc <- rse_gene[,rse_gene$BrainRegion == "sACC"]
 
 #### Marker genes ####
-broad_markers_sacc <- read_csv(here("deconvolution","data","broad_markers_sacc.csv"))
-broad_ratio_markers_sacc <- read_csv(here("deconvolution","data","braod_ratio_markers_sacc.csv."))
+load(here("deconvolution","data","marker_stats_sacc.Rdata"), verbose = TRUE)
 
-marker_genes_table <- full_join(broad_markers_sacc, broad_ratio_markers_sacc) 
 top_n <- 10
-
-rank_type <- list("marker","ratio")
-names(rank_type) <- rank_type
-marker_genes <- map(rank_type, ~marker_genes_table %>%
-                      rename(rank = paste0(.x,"_rank")) %>%
-                      filter(rank <= top_n) %>%
-                      arrange(cellType.marker, rank) %>% 
+marker_genes <- map(marker_stats, ~.x %>%
+                      arrange(-ratio) %>%
+                      slice(1:top_n) %>%
+                      arrange(cellType.target, ratio_rank) %>% 
                       pull(gene))
 
 #### sACC data ####
-load("/dcl01/lieber/ajaffe/Matt/MNT_thesis/snRNAseq/10x_pilot_FINAL/rdas/regionSpecific_sACC-n2_cleaned-combined_SCE_MNTFeb2020.rda", verbose = TRUE)
-sce.sacc$uniqueID <- paste0(sce.sacc$donor, "_", sce.sacc$Barcode)
-colnames(sce.sacc) <- sce.sacc$uniqueID
-## Exclude Ambig.lowNtrxts
-sce.sacc <- sce.sacc[,sce.sacc$cellType != "Ambig.lowNtrxts",]
-sce.sacc$cellType <- factor(sce.sacc$cellType)
-## Add cellType.broad
-sce.sacc$cellType.Broad <- ss(as.character(sce.sacc$cellType), "\\.", 1)
-## Match rownames
-rownames(sce.sacc) <- rowData(sce.sacc)$ID
-sce.sacc <- sce.sacc[marker_genes_table$gene,]
+load(here("deconvolution","data","sce.sacc_filtered.Rdata"), verbose = TRUE)
 
-rd <- rowData(sce.sacc)
-#### Import gnomic features ####
-txdb <- makeTxDbFromGFF("/dcl01/ajaffe/data/lab/singleCell/10x_pilot/premRNA/GRCh38-3.0.0_premrna/genes/genes.gtf")
-g <- genes(txdb)
-e <- exonsBy(txdb, by = "gene")
+##pseudobulk single cell data
 
-if (!all(names(e) %in% names(g))) {
-  warning("Dropping exons with gene ids not present in the gene list")
-  e <- e[names(e) %in% names(g)]
-}
-e2 <- disjoin(e)
-g$bp_length <- sum(width(e2))
-summary(g$bp_length)
-
-g_sacc <- g[broad_markers_sacc$gene,]
-summary(g_sacc$bp_length)
-table(g_sacc$bp_length > 205012)
-
-rowRanges(sce.sacc) <- g_sacc
-all(rownames(rd) == rownames(sce.sacc))
-rowData(sce.sacc)$Symbol <- rd$Symbol
-#### pseudobulk single cell data ####
-## findMarker ranked genes
-
-pb_sacc <- map(marker_genes, ~aggregateAcrossCells(sce.sacc[.x], 
-                                                   id = colData(sce.sacc)[,c("donor","cellType.Broad")]))
-colnames(pb_sacc[["marker"]])
+pb_sacc <- map2(marker_genes, c("cellType.Broad", "cellType"), ~aggregateAcrossCells(sce.sacc[.x], 
+                                                                                     id = colData(sce.sacc)[,c("donor",.y)]))
+map(pb_sacc, dim)
 ## fix this
 colnames(pb_sacc[[1]]) <- paste0(pb_sacc[[1]]$cellType.Broad, "_", pb_sacc[[1]]$donor)
 colnames(pb_sacc[[2]]) <- paste0(pb_sacc[[2]]$cellType.Broad, "_", pb_sacc[[2]]$donor)
@@ -83,53 +46,51 @@ colnames(pb_sacc[[2]]) <- paste0(pb_sacc[[2]]$cellType.Broad, "_", pb_sacc[[2]]$
 ## Compute RPKM
 pb_rpkm_sacc <- map(pb_sacc, ~log(getRPKM(.x, "bp_length") +1 )) 
 ## Use symbol as rownames
-rownames(pb_rpkm_sacc[[1]]) <- rd[rownames(pb_rpkm_sacc[[1]]),]$Symbol
-rownames(pb_rpkm_sacc[[2]]) <- rd[rownames(pb_rpkm_sacc[[2]]),]$Symbol
+rownames(pb_rpkm_sacc[[1]]) <- rowData(sce.sacc)[rownames(pb_rpkm_sacc[[1]]),]$Symbol
+rownames(pb_rpkm_sacc[[2]]) <- rowData(sce.sacc)[rownames(pb_rpkm_sacc[[2]]),]$Symbol
 #### Prep for heatmaps ####
 ## define annotation tables
-anno_sc_sacc <- as.data.frame(colData(pb_sacc[[1]])[,c("donor","cellType.Broad")])
+anno_sc_sacc <- (map2(pb_sacc,c("cellType.Broad","cellType"), ~colData(.x) %>% 
+                        as.data.frame() %>% 
+                        select(donor, .y)))
 
 ## create gene anno obj
 marker_anno <- marker_genes_table %>% 
   filter(ratio_rank <= top_n | marker_rank <= top_n) %>%
   select(-ratio_rank, -marker_rank) %>%
   column_to_rownames(var = "gene")
-  
-rownames(marker_anno) <- rd[rownames(marker_anno),]$Symbol
-head(marker_anno)
+
+marker_anno <- map(marker_stats, ~.x %>%
+                     arrange(-ratio) %>%
+                     slice(1:top_n) %>%
+                     column_to_rownames(var = "Symbol") %>%
+                     select(cellType.target,  ratio) 
+)
+
 
 ## define donor colrs
 donor_colors <- c(Br5161 = "black",
                   Br5212 = "lightgrey")
 
-
-cell_colors <- cell_colors[unique(broad_markers_sacc$cellType.marker)]
-my_anno_colors <- list(cellType.marker = cell_colors,
+cell_colors = cell_colors[unique(c(marker_anno[[1]]$cellType.target,marker_anno[[2]]$cellType.target))]
+my_anno_colors <- list(cellType.target = cell_colors,
                        cellType.Broad = cell_colors,
+                       cellType = cell_colors,
                        PrimaryDx = mdd_Dx_colors, 
                        Experiment = mdd_dataset_colors, 
                        donor = donor_colors)
 
 #### Create Heat maps - sACC RPKM ####
-for(r in rank_type){
-  # png(paste0("plots/heatmap_sacc_",r,"-rank_unclustered_sc.png"), height = 800, width = 580)
-  # pheatmap(pb_rpkm_sacc[[r]],
-  #          show_colnames = FALSE,
-  #          annotation_row = marker_anno,
-  #          annotation_col = anno_sc_sacc, 
-  #          annotation_colors = my_anno_colors,
-  #          cluster_rows = FALSE,
-  #          main = paste("sACC single cell- log(RPKM + 1) rank",r)
-  # )
-  # dev.off()
-  png(paste0("plots/heatmap_sacc_",r,"-rank_clustered_sc.png"), height = 800, width = 580)
+
+for(r in names(pb_rpkm_sacc)){
+  png(paste0("plots/heatmap_sacc_",r,"_clustered_sc.png"), height = 800, width = 580)
   pheatmap(pb_rpkm_sacc[[r]],
            show_colnames = FALSE,
-           annotation_row = marker_anno,
-           annotation_col = anno_sc_sacc, 
+           annotation_row = marker_anno[[r]],
+           annotation_col = anno_sc_sacc[[r]], 
            annotation_colors = my_anno_colors,
            cluster_rows = TRUE,
-           main = paste("sACC single cell- log(RPKM + 1) rank",r)
+           main = paste("sACC single cell- log(RPKM + 1) ratio rank - ",r)
   )
   dev.off()
 }
