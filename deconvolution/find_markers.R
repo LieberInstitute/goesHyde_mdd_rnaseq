@@ -8,6 +8,7 @@ library(reshape2)
 library(stringr)
 library(purrr)
 library(tidyverse)
+library(patchwork)
 
 source(here("deconvolution","get_mean_ratio.R"))
 source(here("deconvolution","findMarkers_1vAll.R"))
@@ -30,13 +31,13 @@ map_int(markers.t.1vAll, nrow)
 
 #### join stats ####
 marker_stats <- map2(mean_ratio, markers.t.1vAll, ~left_join(.x, .y, by = c("gene", "cellType.target")) %>%
-                       filter(log.FDR < -6) %>% 
+                       # filter(log.FDR < -6) %>% 
                        mutate(Feature = paste0(str_pad(ratio_rank, 4, "left"),": ",Symbol),
                               anno = paste0(" ",anno,"\n std logFC = ", round(std.logFC,3)))
                      )
 map_int(marker_stats, nrow)
 # broad specific 
-# 12889    26554
+# 18581    44783 
 save(marker_stats, file = here("deconvolution","data","marker_stats_sacc.Rdata"))
 
 map(marker_stats, ~count(.x))
@@ -68,23 +69,25 @@ map(marker_stats, ~count(.x))
 # 10 OPC              1160
 
 #### Create Ratio plots #### 
+# load(here("deconvolution","data","marker_stats_sacc.Rdata"), verbose = TRUE)
 load("data/cell_colors.Rdata", verbose = TRUE)
 
-
 ratio_plots <- map2(marker_stats, names(marker_stats), 
-                   ~ggplot(.x, aes(x=ratio, y=std.logFC, color = cellType, shape = ratio_rank <= 10))+
-                     geom_point(size = .5) +
+                   ~ggplot(.x, aes(x=ratio, y=std.logFC, color = cellType, shape = ratio_rank <= 5))+
+                     geom_point() +
                      facet_wrap(~cellType.target, scales = "free_x") +
                      labs(x = "target + 0.01/highest non-target + 0.01",
                           title = paste(.y,"cell types"))+ 
-                     scale_color_manual(values = cell_colors)
+                     scale_color_manual(values = cell_colors) +
+                     theme_bw()
 )
+walk2(ratio_plots, names(ratio_plots), ~ggsave(.x, filename = paste0("plots/expr/ratio_vs_stdFC-",.y,".png"), width = 10))
 
 ggsave(ratio_plots[[1]] + theme(legend.position = "None") + ratio_plots[[2]], filename = "plots/expr/ratio_vs_stdFC.png", width = 15)
 
 ratio_plots_log10 <- map2(marker_stats, names(marker_stats), 
-                    ~ggplot(.x, aes(x=log10(ratio), y=std.logFC, color = cellType, shape = ratio_rank <= 10))+
-                      geom_point(size = .5) +
+                    ~ggplot(.x, aes(x=log10(ratio), y=std.logFC, color = cellType, shape = ratio_rank <= 5))+
+                      geom_point() +
                       facet_wrap(~cellType.target, scales = "free_x") +
                       labs(x = "target + 0.01/highest non-target + 0.01",
                            title = paste(.y,"cell types"))+ 
@@ -107,32 +110,33 @@ ggsave(mean_plots[[1]] + theme(legend.position = "None") + mean_plots[[2]], file
 
 
 #### Plot expression ####
-top_n <- 25
-walk2(marker_stats, names(marker_stats), function(x,y){
+top_n <- 5
+walk2(marker_stats, c("cellType.Broad","cellType"), function(x,y){
   cells <- unique(x$cellType.target)
+  # pdf(paste0("plots/expr/sACC-",y,"_top",top_n,"_expression.pdf"))
+  # par(mfrow = c(3, 1))
   for(i in cells){
     marker_stat_cell <- x %>% filter(cellType.target == i, ratio_rank <= top_n)
     temp_sce <- sce.sacc[marker_stat_cell$gene,]
     rownames(temp_sce) <- marker_stat_cell$Feature
-    png_name <- paste0("plots/expr/sACC-",y,"_",i,"_top",top_n,"_expression.png")
-    png(png_name, height=2850, width=1800)
-    print(
-      plotExpression(temp_sce, exprs_values = "logcounts", features = marker_stat_cell$Feature,
-                     x="cellType.Broad", colour_by="cellType.Broad", point_alpha=0.5, point_size=.7, ncol=5,
+    
+    pe <- plotExpression(temp_sce, exprs_values = "logcounts", features = marker_stat_cell$Feature,
+                     x=y, colour_by=y, point_alpha=0.5, point_size=.2, ncol=5,
                      add_legend=F) +
         scale_color_manual(values = cell_colors)+
         stat_summary(fun = mean, fun.min = mean, fun.max = mean,
                      geom = "crossbar", width = 0.3) +
         geom_text(data = marker_stat_cell, aes(x = -Inf, y = Inf, label = anno),
-                  vjust = "inward", hjust = "inward",
-                  size = 7)+
-        theme(axis.text.x = element_text(angle = 90, hjust = 1), plot.title = element_text(size = 25), text = element_text(size=20)) +
-        # ggtitle(label=paste(i, "top", top_n ,"markers, refined: single-nucleus-level p.w. t-tests, cluster-vs-all")
-        ggtitle(label=paste(i, "top", top_n ,"markers: Ranked by median ratios"))
-    )
-    dev.off()
+                  vjust = "inward", hjust = "inward",size = 2.5)+
+        theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+        ggtitle(label=paste(i, "top", top_n ,"markers: Ranked by mean ratios"))
+    
+    png_name <- paste0("plots/expr/sACC-",y,"_",i,"_top",top_n,"_expression.png")
+    ggsave(plot = pe, filename = png_name, width = 9, height = 3)
+    print(pe)
     message(png_name, " COMPLETE!")
   }
+  # dev.off()
 })
 
 
