@@ -111,10 +111,11 @@ ggsave(mean_plots[[1]] + theme(legend.position = "None") + mean_plots[[2]], file
 
 #### Plot expression ####
 top_n <- 5
-walk2(marker_stats, c("cellType.Broad","cellType"), function(x,y){
+marker_plots <- map2(marker_stats, c("cellType.Broad","cellType"), function(x,y){
   cells <- unique(x$cellType.target)
   # pdf(paste0("plots/expr/sACC-",y,"_top",top_n,"_expression.pdf"))
   # par(mfrow = c(3, 1))
+  plots <- list()
   for(i in cells){
     marker_stat_cell <- x %>% filter(cellType.target == i, ratio_rank <= top_n)
     temp_sce <- sce.sacc[marker_stat_cell$gene,]
@@ -131,14 +132,25 @@ walk2(marker_stats, c("cellType.Broad","cellType"), function(x,y){
         theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
         ggtitle(label=paste(i, "top", top_n ,"markers: Ranked by mean ratios"))
     
-    png_name <- paste0("plots/expr/sACC-",y,"_",i,"_top",top_n,"_expression.png")
-    ggsave(plot = pe, filename = png_name, width = 9, height = 3)
-    print(pe)
-    message(png_name, " COMPLETE!")
+    # png_name <- paste0("plots/expr/sACC-",y,"_",i,"_top",top_n,"_expression.png")
+    # ggsave(plot = pe, filename = png_name, width = 9, height = 3)
+    plots <- c(plots, pe)
+    # message(png_name, " COMPLETE!")
   }
+  names(plots) <- cells
+  return(plots)
   # dev.off()
 })
 
+
+top_marker_tables <- map2(marker_stats,names(marker_stats), ~filter(.x,ratio_rank <= 5) %>% 
+        select(cellType.target,ratio_rank, gene, Symbol, mean_logcount.target, cellType.nextHighest = cellType, mean_logcount.nextHighest = mean_logcount,ratio, std.logFC) %>%
+        arrange(cellType.target) %>%
+        mutate(genecards_url = paste0("https://www.genecards.org/cgi-bin/carddisp.pl?gene=", Symbol),
+               region = "sACC")
+      )
+    
+walk2(top_marker_tables,names(marker_stats), ~write_csv(.x, paste0("data/top5_markers_sACC-",.y,".csv")))  
 
 #### Check Overlaps with old data ####
 top40_old_sacc <- read.csv("/dcl01/lieber/ajaffe/Matt/MNT_thesis/snRNAseq/10x_pilot_FINAL/tables/top40genesLists_sACC-n2_cellType_SN-LEVEL-tests_May2020.csv")
