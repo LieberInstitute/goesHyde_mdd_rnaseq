@@ -94,6 +94,15 @@ rowData(sce.amy)$Symbol <- rd.amy$Symbol
 
 ## Save filtered sce object
 save(sce.sacc, file = here("deconvolution","data","sce.sacc_filtered.Rdata"))
-save(sce.amy, file = here("deconvolution","data","sce.amy_filtered.Rdata"))
+## rename amy to amyg to be consistent with rest of mdd scripts
+sce.amyg <- sce.amy
+save(sce.amyg, file = here("deconvolution","data","sce.amyg_filtered.Rdata"))
 
 
+# sgejobs::job_single('sce_data_prep', create_shell = TRUE, queue= 'bluejay', memory = '10G', command = "Rscript 1_sce_data_prep.R")
+## Reproducibility information
+print("Reproducibility information:")
+Sys.time()
+proc.time()
+options(width = 120)
+session_info()
