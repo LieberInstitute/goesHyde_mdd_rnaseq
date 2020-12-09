@@ -14,66 +14,49 @@ source(here("deconvolution","get_mean_ratio.R"))
 source(here("deconvolution","findMarkers_1vAll.R"))
 #### Load sce data ####
 load(here("deconvolution","data","sce.sacc_filtered.Rdata"), verbose = TRUE)
-
+load(here("deconvolution","data","sce.amyg_filtered.Rdata"), verbose = TRUE)
 #### Find mean ratio for all genes ####
 ct <- list(broad = "cellType.Broad", specific = "cellType")
+sce <- list(sacc = sce.sacc, amyg = sce.amyg)
 
-mean_ratio <- map(ct, ~get_mean_ratio(sce = sce.sacc, cellType_col = .x))
+sceXct <- cross2(sce,ct)
+names(sceXct) <- map(cross2(names(sce),names(ct)), ~paste0(.x[[1]],"_",.x[[2]]))
+# test <- get_mean_ratio(sce.sacc[1:100,], "cellType.Broad")
+mean_ratio <- map(sceXct, ~get_mean_ratio(sce = .x[[1]], cellType_col = .x[[2]]))
 map_int(mean_ratio, nrow)
-# broad specific 
-# 18581    44783 
+# sacc_broad    amyg_broad sacc_specific amyg_specific 
+# 18581         20330         44783         52444 
 
 #### Run findMarkers ####
-markers.t.1vAll <- map(ct, ~findMarkers_1vAll(sce = sce.sacc, cellType_col = .x))
+markers.t.1vAll <- map(sceXct, ~findMarkers_1vAll(sce = .x[[1]], cellType_col = .x[[2]]))
 map_int(markers.t.1vAll, nrow)
-# broad specific 
-# 106710   177850
+# sacc_broad    amyg_broad sacc_specific amyg_specific 
+# 106710        106752        177850        213504 
 
 #### join stats ####
-marker_stats <- map2(mean_ratio, markers.t.1vAll, ~left_join(.x, .y, by = c("gene", "cellType.target")) %>%
-                       # filter(log.FDR < -6) %>% 
-                       mutate(Feature = paste0(str_pad(ratio_rank, 4, "left"),": ",Symbol),
-                              anno = paste0(" ",anno,"\n std logFC = ", round(std.logFC,3)))
+marker_stats <- map2(mean_ratio, markers.t.1vAll, ~left_join(.x, .y, by = c("gene", "cellType.target","Symbol")) %>%
+                       mutate(anno = paste0(" ",anno_ratio,"\n",anno_logFC))
                      )
-map_int(marker_stats, nrow)
-# broad specific 
-# 18581    44783 
-save(marker_stats, file = here("deconvolution","data","marker_stats_sacc.Rdata"))
 
-map(marker_stats, ~count(.x))
-# A tibble: 6 x 2
-# Groups:   cellType.target [6]
-# cellType.target     n
-# <chr>           <int>
-#   1 Astro             832
-# 2 Excit            5162
-# 3 Inhib            4186
-# 4 Micro             708
-# 5 Oligo             841
-# 6 OPC              1160
-# 
-# $specific
-# # A tibble: 10 x 2
-# # Groups:   cellType.target [10]
-# cellType.target     n
-# <chr>           <int>
-#   1 Astro             832
-# 2 Excit.1          4698
-# 3 Excit.2          4603
-# 4 Excit.3          3355
-# 5 Excit.4          2883
-# 6 Inhib.1          3887
-# 7 Inhib.2          3587
-# 8 Micro             708
-# 9 Oligo             841
-# 10 OPC              1160
+#### Save tables ####
+save(marker_stats, file = here("deconvolution","data","marker_stats.Rdata"))
+
+top_marker_tables <- map2(marker_stats,names(marker_stats), ~filter(.x,rank_ratio<= 5) %>% 
+                            select(cellType.target,rank_ratio, gene, Symbol, mean_logcount.target, cellType.nextHighest = cellType, mean_logcount.nextHighest = mean_logcount,ratio, std.logFC) %>%
+                            arrange(cellType.target) %>%
+                            mutate(genecards_url = paste0("https://www.genecards.org/cgi-bin/carddisp.pl?gene=", Symbol),
+                                   region = ss(.y,"_"))
+)
+
+walk2(top_marker_tables,names(marker_stats), ~write_csv(.x, paste0("data/top5_markers_sACC-",.y,".csv")))  
+
 
 #### Create Ratio plots #### 
 # load(here("deconvolution","data","marker_stats_sacc.Rdata"), verbose = TRUE)
 load("data/cell_colors.Rdata", verbose = TRUE)
 
 ratio_plots <- map2(marker_stats, names(marker_stats), 
-                   ~ggplot(.x, aes(x=ratio, y=std.logFC, color = cellType, shape = ratio_rank <= 5))+
+                   ~ggplot(.x, aes(x=ratio, y=std.logFC, color = cellType, shape = rank_ratio <= 5))+
                      geom_point() +
                      facet_wrap(~cellType.target, scales = "free_x") +
                      labs(x = "target + 0.01/highest non-target + 0.01",
@@ -83,46 +66,22 @@ ratio_plots <- map2(marker_stats, names(marker_stats),
 )
 walk2(ratio_plots, names(ratio_plots), ~ggsave(.x, filename = paste0("plots/expr/ratio_vs_stdFC-",.y,".png"), width = 10))
 
-ggsave(ratio_plots[[1]] + theme(legend.position = "None") + ratio_plots[[2]], filename = "plots/expr/ratio_vs_stdFC.png", width = 15)
-
-ratio_plots_log10 <- map2(marker_stats, names(marker_stats), 
-                    ~ggplot(.x, aes(x=log10(ratio), y=std.logFC, color = cellType, shape = ratio_rank <= 5))+
-                      geom_point() +
-                      facet_wrap(~cellType.target, scales = "free_x") +
-                      labs(x = "target + 0.01/highest non-target + 0.01",
-                           title = paste(.y,"cell types"))+ 
-                      scale_color_manual(values = cell_colors)
-)
-
-ggsave(ratio_plots_log10[[1]] + theme(legend.position = "None") + ratio_plots_log10[[2]], filename = "plots/expr/ratio_vs_stdFC_log10.png", width = 15)
-
-
-mean_plots <- map2(marker_stats, names(marker_stats), 
-                   ~ggplot(.x, aes(x=ratio, y=mean_logcount.target, color = cellType, shape = ratio_rank <= 10))+
-                     geom_point(size = .5) +
-                     facet_wrap(~cellType.target, scales = "free_x") +
-                     labs(title = paste(.y,"cell types"))+ 
-                     scale_color_manual(values = cell_colors)
-)
-
-ggsave(mean_plots[[1]] + theme(legend.position = "None") + mean_plots[[2]], filename = "plots/expr/ratio_vs_mean.png", width = 15)
-
-
 
 #### Plot expression ####
+## rank
 top_n <- 5
-marker_plots <- map2(marker_stats, c("cellType.Broad","cellType"), function(x,y){
+plots_ratio <- map2(marker_stats[c(1,3)], names(marker_stats)[c(1,3)], function(x,y){
   cells <- unique(x$cellType.target)
-  # pdf(paste0("plots/expr/sACC-",y,"_top",top_n,"_expression.pdf"))
-  # par(mfrow = c(3, 1))
-  plots <- list()
+  cellType_col <- ct[[ss(y,"_",2)]]
+  plots_ratio <- list()
   for(i in cells){
-    marker_stat_cell <- x %>% filter(cellType.target == i, ratio_rank <= top_n)
+    marker_stat_cell <- x %>% filter(cellType.target == i, rank_ratio <= top_n) %>%
+      mutate(Feature = feature_ratio)
     temp_sce <- sce.sacc[marker_stat_cell$gene,]
-    rownames(temp_sce) <- marker_stat_cell$Feature
+    rownames(temp_sce) <- marker_stat_cell$feature_ratio
     
     pe <- plotExpression(temp_sce, exprs_values = "logcounts", features = marker_stat_cell$Feature,
-                     x=y, colour_by=y, point_alpha=0.5, point_size=.2, ncol=5,
+                     x=cellType_col, colour_by=cellType_col, point_alpha=0.5, point_size=.2, ncol=5,
                      add_legend=F) +
         scale_color_manual(values = cell_colors)+
         stat_summary(fun = mean, fun.min = mean, fun.max = mean,
@@ -130,27 +89,47 @@ marker_plots <- map2(marker_stats, c("cellType.Broad","cellType"), function(x,y)
         geom_text(data = marker_stat_cell, aes(x = -Inf, y = Inf, label = anno),
                   vjust = "inward", hjust = "inward",size = 2.5)+
         theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
-        ggtitle(label=paste(i, "top", top_n ,"markers: Ranked by mean ratios"))
+        ggtitle(label=paste(y,i, "top", top_n ,"markers: Ranked by mean ratios"))
     
-    # png_name <- paste0("plots/expr/sACC-",y,"_",i,"_top",top_n,"_expression.png")
-    # ggsave(plot = pe, filename = png_name, width = 9, height = 3)
+    png_name <- paste0("plots/expr/",y,"_",i,"_top",top_n,"_expression_ratio.png")
+    ggsave(plot = pe, filename = png_name, width = 9, height = 3)
     plots <- c(plots, pe)
+  }
+})
+
+walk2(marker_stats[c(1,3)], names(marker_stats)[c(1,3)], function(x,y){
+  cells <- unique(x$cellType.target)
+  cellType_col <- ct[[ss(y,"_",2)]]
+  # pdf(paste0("plots/expr/sACC-",y,"_top",top_n,"_expression.pdf"))
+  # par(mfrow = c(3, 1))
+  # plots_ratio <- list()
+  for(i in cells){
+    marker_stat_cell <- x %>% filter(cellType.target == i, rank_marker <= top_n) %>%
+      mutate(Feature = feature_marker)
+    temp_sce <- sce.sacc[marker_stat_cell$gene,]
+    rownames(temp_sce) <- marker_stat_cell$Feature
+    
+    pe <- plotExpression(temp_sce, exprs_values = "logcounts", features = marker_stat_cell$Feature,
+                         x=cellType_col, colour_by=cellType_col, point_alpha=0.5, point_size=.2, ncol=5,
+                         add_legend=F) +
+      scale_color_manual(values = cell_colors)+
+      stat_summary(fun = mean, fun.min = mean, fun.max = mean,
+                   geom = "crossbar", width = 0.3) +
+      geom_text(data = marker_stat_cell, aes(x = -Inf, y = Inf, label = anno),
+                vjust = "inward", hjust = "inward",size = 2.5)+
+      theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+      ggtitle(label=paste(y,i, "top", top_n ,"markers: Ranked by std.logFC"))
+    
+    png_name <- paste0("plots/expr/",y,"_",i,"_top",top_n,"_expression_marker.png")
+    ggsave(plot = pe, filename = png_name, width = 9, height = 3)
+    # plots <- c(plots, pe)
     # message(png_name, " COMPLETE!")
   }
-  names(plots) <- cells
-  return(plots)
+  # names(plots) <- cells
+  # return(plots)
   # dev.off()
 })
 
-
-top_marker_tables <- map2(marker_stats,names(marker_stats), ~filter(.x,ratio_rank <= 5) %>% 
-        select(cellType.target,ratio_rank, gene, Symbol, mean_logcount.target, cellType.nextHighest = cellType, mean_logcount.nextHighest = mean_logcount,ratio, std.logFC) %>%
-        arrange(cellType.target) %>%
-        mutate(genecards_url = paste0("https://www.genecards.org/cgi-bin/carddisp.pl?gene=", Symbol),
-               region = "sACC")
-      )
-    
-walk2(top_marker_tables,names(marker_stats), ~write_csv(.x, paste0("data/top5_markers_sACC-",.y,".csv")))  
 
 #### Check Overlaps with old data ####
 top40_old_sacc <- read.csv("/dcl01/lieber/ajaffe/Matt/MNT_thesis/snRNAseq/10x_pilot_FINAL/tables/top40genesLists_sACC-n2_cellType_SN-LEVEL-tests_May2020.csv")
