@@ -37,7 +37,8 @@ dim(sce.sacc)
 load("/dcl01/lieber/ajaffe/Matt/MNT_thesis/snRNAseq/10x_pilot_FINAL/rdas/regionSpecific_Amyg-n2_cleaned-combined_SCE_MNTFeb2020.rda", verbose = TRUE)
 sce.amy$uniqueID <- paste0(sce.amy$donor, "_", sce.amy$Barcode)
 colnames(sce.amy) <- sce.amy$uniqueID
-
+## make cellType cols the same
+sce.amy$cellType = sce.amy$cellType.split
 sce.amy <- sce.amy[,sce.amy$cellType != "Ambig.lowNtrxts",]
 sce.amy$cellType <- droplevels(sce.amy$cellType)
 ## Add cellType.broad
