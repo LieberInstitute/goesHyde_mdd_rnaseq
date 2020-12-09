@@ -32,10 +32,14 @@ get_mean_ratio <- function(sce, cellType_col =  "cellType"){
      slice(1) %>%
      group_by(cellType.target) %>%
      arrange(-ratio) %>%
-     mutate(ratio_rank = row_number(),
-            anno = paste0(cellType.target,"/",cellType," = ",round(ratio, 3)))
+     mutate(rank_ratio = row_number(),
+            anno_ratio = paste0(cellType.target,"/",cellType," = ",round(ratio, 3)))
    
    mean_ratio$Symbol <- rowData(sce)[mean_ratio$gene,]$Symbol
    
-   return(mean_ratio %>% select(-median_logcount))
+   mean_ratio <- mean_ratio %>% 
+      select(-median_logcount) %>%
+      mutate(feature_ratio = paste0(str_pad(rank_ratio, 4, "left"),": ",Symbol))
+
+   return(mean_ratio)
 }

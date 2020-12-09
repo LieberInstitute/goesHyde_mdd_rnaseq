@@ -26,7 +26,15 @@ findMarkers_1vAll <- function(sce, assay = "logcounts", cellType_col = "cellType
     rownames_to_column("gene")%>% 
     mutate(gene = gsub("\\.\\d+","",gene)) %>%
     as_tibble %>%
-    add_column(cellType.target = rep(ct, each = nrow(sce)))
+    add_column(cellType.target = rep(ct, each = nrow(sce))) %>%
+    group_by(cellType.target) %>%
+    mutate(rank_marker = row_number(),
+           anno_logFC = paste0(" std logFC = ", round(std.logFC,3)))
+  
+  markers.t.1vAll.table$Symbol <- rowData(sce)[markers.t.1vAll.table$gene,]$Symbol
+  
+  markers.t.1vAll.table <- markers.t.1vAll.table %>% 
+  mutate(feature_marker = paste0(str_pad(rank_marker, 4, "left"),": ",Symbol))
   
   return(markers.t.1vAll.table)
 }
