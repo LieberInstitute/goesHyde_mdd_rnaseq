@@ -6,208 +6,99 @@ library(here)
 library(MuSiC)
 library(Biobase)
 library(xbioc)
+library(purrr)
+library(tidyverse)
+library(reshape2)
 
+#### Load Data ####
 ## Load rse_gene data
 load(here("exprs_cutoff", "rse_gene.Rdata"), verbose = TRUE)
 rownames(rse_gene) <- rowData(rse_gene)$ensemblID
 
-#### sacc Data ####
-load("/dcl01/lieber/ajaffe/Matt/MNT_thesis/snRNAseq/10x_pilot_FINAL/rdas/regionSpecific_sACC-n2_cleaned-combined_SCE_MNTFeb2020.rda", verbose = TRUE)
-dim(sce.sacc)
-# [1] 33538  7047
-## Exclude Ambig.lowNtrxts
-sce.sacc <- sce.sacc[,sce.sacc$cellType != "Ambig.lowNtrxts",]
+## sce Data
+load(here("deconvolution","data","sce.sacc_filtered.Rdata"), verbose = TRUE)
+load(here("deconvolution","data","sce.amyg_filtered.Rdata"), verbose = TRUE)
 
-## Add cellType.broad
-sce.sacc$cellType.Broad <- ss(as.character(sce.sacc$cellType), "\\.", 1)
-table(sce.sacc$cellType.Broad)
-# Ambig Astro Excit Inhib Micro Oligo   OPC 
-# 43   623  1266   830   502  3252   531 
+## marker data
+load(here("deconvolution","data","marker_stats.Rdata"), verbose = TRUE)
+top_n <- 5
 
-## Match rownames
-rownames(sce.sacc) <- rowData(sce.sacc)$ID
-message("Matching genes:")
-table(rownames(sce.sacc) %in% rownames(rse_gene))
-# FALSE  TRUE 
-# 15021 18517 
+marker_genes <- map(marker_stats, ~.x %>%
+                      arrange(-ratio) %>%
+                      filter(rank_ratio <= top_n) %>%
+                      arrange(cellType.target, rank_ratio) %>% 
+                      pull(gene))
 
-## Create input Expression sets for MuSiC
-rse_gene_sacc <- rse_gene[,rse_gene$BrainRegion == "sACC"]
-es_gene_sacc <- ExpressionSet(assayData = assays(rse_gene_sacc)$counts)
-
-#create unique colnames
-sce.sacc$uniqueID <- paste0(sce.sacc$donor, "_", sce.sacc$Barcode)
-colnames(sce.sacc) <- sce.sacc$uniqueID
-
-# create pheno Data
-pd_sce_sacc <- as.data.frame(colData(sce.sacc)[c("cellType","cellType.Broad", "uniqueID","donor")])
-# create 
-es_sc_sacc <- ExpressionSet(assayData = as.matrix(assays(sce.sacc)$counts),
-                            phenoData=AnnotatedDataFrame(pd_sce_sacc))
+map_int(marker_genes, length)
+map_int(marker_genes, ~sum(.x %in% rownames(rse_gene)))
 
 
-#### Amyg Data ####
-load("/dcl01/lieber/ajaffe/Matt/MNT_thesis/snRNAseq/10x_pilot_FINAL/rdas/regionSpecific_Amyg-n2_cleaned-combined_SCE_MNTFeb2020.rda", verbose = TRUE)
-dim(sce.amy)
-# [1] 33538  6632
-table(sce.amy$cellType.split)
-
-## Exclude Ambig.lowNtrxts
-sce.amy <- sce.amy[,sce.amy$cellType.split != "Ambig.lowNtrxts",]
-
-## Add cellType.broad
-sce.amy$cellType.Broad <- ss(as.character(sce.amy$cellType.split), "\\.", 1)
-table(sce.amy$cellType.Broad)
-# Astro Excit Inhib Micro Oligo   OPC 
-# 852   429   437   764  3473   627 
-
-## Match rownames
-rownames(sce.amy) <- rowData(sce.amy)$ID
-message("Matching genes:")
-table(rownames(sce.amy) %in% rownames(rse_gene))
-# FALSE  TRUE 
-# 15021 18517 
-
-## Create input Expression sets for MuSiC
-rse_gene_amyg <- rse_gene[,rse_gene$BrainRegion == "Amygdala"]
-es_gene_amyg <- ExpressionSet(assayData = assays(rse_gene_amyg)$counts)
-
-#create unique colnames
-sce.amy$uniqueID <- paste0(sce.amy$donor, "_", sce.amy$Barcode)
-colnames(sce.amy) <- sce.amy$uniqueID
-
-# create pheno Data
-pd_sce_amyg <- as.data.frame(colData(sce.amy)[c("cellType.split","cellType.Broad", "uniqueID","donor")])
-# create 
-es_sc_amyg <- ExpressionSet(assayData = as.matrix(assays(sce.amy)$counts),
-                            phenoData=AnnotatedDataFrame(pd_sce_amyg))
-
+exp <- list(sacc = list(bulk = rse_gene[,rse_gene$BrainRegion == "sACC"],
+                        sce = sce.sacc), 
+            amyg = list(bulk = rse_gene[,rse_gene$BrainRegion == "Amygdala"],
+                        sce = sce.amyg)
+)
+map(exp, ~map_int(.x, ncol))
+# $sacc
+# bulk  sce 
+# 551 7004 
+# 
+# $amyg
+# bulk  sce 
+# 540 6582 
+exp_set <- map(exp, ~list(bulk = ExpressionSet(assayData = assays(.x$bulk)$counts),
+                          sce = ExpressionSet(assayData = as.matrix(assays(.x$sce)$counts),
+                                              phenoData=AnnotatedDataFrame(
+                                                as.data.frame(colData(.x$sce))[c("cellType","cellType.Broad", "uniqueID","donor")])
+                                              )
+                          )
+               )
+      
 
 #### estimate cell type props ####
+ct <- list(broad = "cellType.Broad", specific = "cellType")
 
-message("**** MUSIC for sACC ****")
-est_prop_sacc = music_prop(bulk.eset = es_gene_sacc, 
-                           sc.eset = es_sc_sacc, 
-                           clusters = 'cellType',
-                           samples = 'donor')
-save(est_prop_sacc, file = "data/prop_sacc.Rdata")
+est_prop <- map2(marker_genes, names(marker_genes), function(mg, n){
+    est_prop <- music_prop(bulk.eset = exp_set[[ss(n, "_")]]$bulk,
+             sc.eset = exp_set[[ss(n, "_")]]$sce,
+             clusters = ct[[ss(n, "_",2)]],
+             samples = 'donor',
+             markers = mg)
+    return(est_prop)
+} 
+)
 
-est_prop_broad_sacc = music_prop(bulk.eset = es_gene_sacc, 
-                                 sc.eset = es_sc_sacc, 
-                                 clusters = 'cellType.Broad',
-                                 samples = 'donor')
-save(est_prop_broad_sacc, file = "data/prop_broad_sacc.Rdata")
-
-message("**** MUSIC for Amyg ****")
-est_prop_amyg = music_prop(bulk.eset = es_gene_amyg, 
-                           sc.eset = es_sc_amyg, 
-                           clusters = 'cellType.split',
-                           samples = 'donor')
-save(est_prop_amyg, file = "data/prop_amyg.Rdata")
-
-est_prop_broad_amyg = music_prop(bulk.eset = es_gene_amyg, 
-                                 sc.eset = es_sc_amyg, 
-                                 clusters = 'cellType.Broad',
-                                 samples = 'donor')
-save(est_prop_broad_amyg, file = "data/prop_broad_amyg.Rdata")
-
-
-
-
-#### Top 40 data ####
-top40_old_amyg <- read.csv("/dcl01/lieber/ajaffe/Matt/MNT_thesis/snRNAseq/10x_pilot_FINAL/tables/top40genesLists_Amyg-n2_cellType.split_SN-LEVEL-tests_May2020.csv")
-top40_old_sacc <- read.csv("/dcl01/lieber/ajaffe/Matt/MNT_thesis/snRNAseq/10x_pilot_FINAL/tables/top40genesLists_sACC-n2_cellType_SN-LEVEL-tests_May2020.csv")
-top40_new_amyg <- read.csv("/dcl01/lieber/ajaffe/Matt/MNT_thesis/snRNAseq/10x_pilot_FINAL/tables/top40genesLists-REFINED_Amyg-n2_cellType.split_Nov2020.csv")
-top40_new_sacc <- read.csv("/dcl01/lieber/ajaffe/Matt/MNT_thesis/snRNAseq/10x_pilot_FINAL/tables/top40genesLists-REFINED_sACC-n2_cellType.split_Nov2020.csv")
-
-## sacc
-top40all_sacc <- unique(unlist(top40_old_sacc[,grepl("1vAll", colnames(top40_old_sacc))]))
-length(top40all_sacc)
-# [1] 388
-top40all_ensm_sacc <-  rowData(rse_gene)$ensemblID[rowData(rse_gene)$Symbol %in% top40all_sacc]
-top40all_ensm_sacc <- top40all_ensm_sacc[top40all_ensm_sacc %in% rownames(es_sc_sacc)]
-length(top40all_ensm_sacc)
-# [1] 332
-
-
-top40all_new_sacc <- unique(unlist(top40_new_sacc[,grepl("1vAll", colnames(top40_new_sacc))]))
-length(top40all_new_sacc)
-# [1] 388
-table(top40all_new_sacc %in% top40all_sacc)
-# FALSE  TRUE 
-# 21   367
-top40all_ensm_new_sacc <-  rowData(rse_gene)$ensemblID[rowData(rse_gene)$Symbol %in% top40all_new_sacc]
-top40all_ensm_new_sacc <- top40all_ensm_new_sacc[top40all_ensm_new_sacc %in% rownames(es_sc_sacc)]
-length(top40all_ensm_new_sacc)
-# [1] 342
-
-##Amyg
-top40all_amyg <- unique(unlist(top40_old_amyg[,grepl("1vAll", colnames(top40_old_amyg))]))
-length(top40all_amyg)
-# [1] 441
-top40all_ensm_amyg <-  rowData(rse_gene)$ensemblID[rowData(rse_gene)$Symbol %in% top40all_amyg]
-top40all_ensm_amyg <- top40all_ensm_amyg[top40all_ensm_amyg %in% rownames(es_sc_amyg)]
-length(top40all_ensm_amyg)
-# [1] 376      
-
-top40all_new_amyg <- unique(unlist(top40_new_amyg[,grepl("1vAll", colnames(top40_new_amyg))]))
-length(top40all_new_amyg)
-# [1] 441
-table(top40all_new_amyg %in% top40all_amyg)
-# FALSE  TRUE 
-# 18   408
-top40all_ensm_new_amyg <-  rowData(rse_gene)$ensemblID[rowData(rse_gene)$Symbol %in% top40all_new_amyg]
-top40all_ensm_new_amyg <- top40all_ensm_new_amyg[top40all_ensm_new_amyg %in% rownames(es_sc_amyg)]
-length(top40all_ensm_new_amyg)
-# [1] 378
-
-## estimate cell type props
-est_prop_top40_amyg = music_prop(bulk.eset = es_gene_amyg, 
-                                 sc.eset = es_sc_amyg, 
-                                 clusters = 'cellType.split',
-                                 samples = 'donor',
-                                 markers = top40all_ensm_amyg)
-save(est_prop_top40_amyg, file = "data/prop_top40_amyg.Rdata")
-## 
-est_prop_top40_sacc = music_prop(bulk.eset = es_gene_sacc, 
-                                 sc.eset = es_sc_sacc, 
-                                 clusters = 'cellType',
-                                 samples = 'donor',
-                                 markers = top40all_ensm_sacc)
-save(est_prop_top40_sacc, file = "data/prop_top40_sacc.Rdata")
-
-
-## estimate cell type props
-est_prop_top40_amyg = music_prop(bulk.eset = es_gene_amyg, 
-                                 sc.eset = es_sc_amyg, 
-                                 clusters = 'cellType.split',
-                                 samples = 'donor',
-                                 markers = top40all_ensm_new_amyg)
-save(est_prop_top40_amyg, file = "data/prop_top40_new_amyg.Rdata")
-## 
-est_prop_top40_sacc = music_prop(bulk.eset = es_gene_sacc, 
-                                 sc.eset = es_sc_sacc, 
-                                 clusters = 'cellType',
-                                 samples = 'donor',
-                                 markers = top40all_ensm_new_sacc)
-save(est_prop_top40_sacc, file = "data/prop_top40_new_sacc.Rdata")
-
-
-
-
-# ## estimate cell type props for broad cell types
-# est_prop_top40_broad_sacc = music_prop(bulk.eset = es_gene_sacc[top40all_ensm_sacc,], 
-#                                        sc.eset = es_sc_sacc[top40all_ensm_sacc,], 
-#                                        clusters = 'cellType.Broad',
-#                                        samples = 'uniqueID')
-# save(est_prop_top40_broad_sacc, file = "prop_top40_broad_sacc.Rdata")
+map(est_prop, ~round(colMeans(.x$Est.prop.weighted),3))
+# $sacc_broad
+# Oligo Micro Astro Inhib   OPC Excit 
+# 0.156 0.052 0.552 0.211 0.000 0.028 
 # 
-# ##Amyg
-# est_prop_top40_broad_amyg = music_prop(bulk.eset = es_gene_amyg[top40all_ensm_amyg,], 
-#                                        sc.eset = es_sc_amyg[top40all_ensm_amyg,], 
-#                                        clusters = 'cellType.Broad',
-#                                        samples = 'uniqueID')
-# save(est_prop_top40_broad_amyg, file = "prop_top40_broad_amyg.Rdata")
+# $amyg_broad
+# Inhib Oligo Astro Excit Micro   OPC 
+# 0.192 0.169 0.474 0.085 0.072 0.008 
+# 
+# $sacc_specific
+# Oligo   Micro   Astro Inhib.2 Inhib.1     OPC Excit.3 Excit.1 Excit.2 Excit.4 
+# 0.220   0.080   0.595   0.011   0.035   0.003   0.017   0.038   0.001   0.000 
+# 
+# $amyg_specific
+# Inhib.2   Oligo   Astro Excit.1   Micro     OPC Inhib.3 Inhib.5 Inhib.1 
+# 0.023   0.296   0.348   0.051   0.189   0.003   0.001   0.053   0.035
+
+save(est_prop, file= here("deconvolution","data",paste0("est_prop_top", top_n,".Rdata")))
+
+pd <- as.data.frame(colData(rse_gene))
+
+pd2 <- pd %>%
+  select(PrimaryDx, ERCCsumLogErr, grep("snpPC",colnames(pd))) %>%
+  rownames_to_column("sample")
+
+est_prop_long <- map(est_prop, ~melt(.x$Est.prop.weighted) %>%
+                       rename(sample = Var1, cell_type = Var2, prop = value) %>% 
+                       arrange(cell_type) %>%
+                       left_join(pd2, by = "sample"))
+
+save(est_prop_long, file = here("deconvolution","data",paste0("est_prop_top", top_n,"_long.Rdata")))
 
 # sgejobs::job_single('music_deconvo', create_shell = TRUE, queue= 'bluejay', memory = '50G', command = "Rscript music_deconvo.R")
 ## Reproducibility information
