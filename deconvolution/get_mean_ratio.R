@@ -26,7 +26,7 @@ get_mean_ratio <- function(sce, cellType_col =  "cellType"){
    
    mean_ratio <- target_stat %>% right_join(gene_stat, by = "gene") %>%
      filter(cellType.target != cellType) %>%
-     mutate(ratio = (mean_logcount.target + 0.01)/(mean_logcount + 0.01)) %>%
+     mutate(ratio = mean_logcount.target/mean_logcount) %>%
      arrange(gene, cellType.target,ratio) %>%
      group_by(gene, cellType.target) %>%
      slice(1) %>%
