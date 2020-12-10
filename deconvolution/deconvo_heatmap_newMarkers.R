@@ -10,6 +10,8 @@ library(tidyverse)
 library(reshape2)
 library(here)
 library(purrr)
+library(RColorBrewer)
+library(rlang)
 
 # Load colors
 source(here("main_colors.R"))
@@ -22,49 +24,73 @@ rse_gene_amyg <- rse_gene[,rse_gene$BrainRegion == "Amygdala"]
 rse_gene_sacc <- rse_gene[,rse_gene$BrainRegion == "sACC"]
 
 #### Marker genes ####
-load(here("deconvolution","data","marker_stats_sacc.Rdata"), verbose = TRUE)
+load(here("deconvolution","data","marker_stats.Rdata"), verbose = TRUE)
 
-top_n <- 10
+top_n <- 5
 marker_genes <- map(marker_stats, ~.x %>%
                       arrange(-ratio) %>%
-                      slice(1:top_n) %>%
-                      arrange(cellType.target, ratio_rank) %>% 
+                      filter(rank_ratio <= top_n) %>%
+                      arrange(cellType.target, rank_ratio) %>% 
                       pull(gene))
 
-#### sACC data ####
+map_int(marker_genes, length)
+# sacc_broad    amyg_broad sacc_specific amyg_specific 
+# 30            30            50            60 
+
+#### sce data ####
 load(here("deconvolution","data","sce.sacc_filtered.Rdata"), verbose = TRUE)
+load(here("deconvolution","data","sce.amyg_filtered.Rdata"), verbose = TRUE)
+
+ct <- list(broad = "cellType.Broad", specific = "cellType")
+sce <- list(sacc = sce.sacc, amyg = sce.amyg)
+
+sceXct <- cross2(sce,ct)
+names(sceXct) <- map(cross2(names(sce),names(ct)), ~paste0(.x[[1]],"_",.x[[2]]))
+
+## subset genes 
+sce_filter <- map2(sceXct, marker_genes, ~.x[[1]][.y,])
 
 ##pseudobulk single cell data
+pb <- map2(sce_filter,rep(ct,each = 2),function(sce, c){
+    sce$pb <- paste0(sce$donor,"_",sce[[c]])
+    clusIndex = splitit(sce$pb)
+    pbcounts <- sapply(clusIndex, function(ii){
+      rowSums(assays(sce)$counts[ ,ii])
+    }
+    )
+    # Compute LSFs at this level
+    sizeFactors.PB.all  <- librarySizeFactors(pbcounts)
+    # Normalize with these LSFs
+    geneExprs.temp <- t(apply(pbcounts, 1, function(x) {log2(x/sizeFactors.PB.all + 1)}))
+    rownames(geneExprs.temp) <- rowData(sce)$Symbol
+    return(geneExprs.temp)
+  }
+)
 
-pb_sacc <- map2(marker_genes, c("cellType.Broad", "cellType"), ~aggregateAcrossCells(sce.sacc[.x], 
-                                                                                     id = colData(sce.sacc)[,c("donor",.y)]))
-map(pb_sacc, dim)
-## fix this
-colnames(pb_sacc[[1]]) <- paste0(pb_sacc[[1]]$cellType.Broad, "_", pb_sacc[[1]]$donor)
-colnames(pb_sacc[[2]]) <- paste0(pb_sacc[[2]]$cellType.Broad, "_", pb_sacc[[2]]$donor)
+# ## Compute RPKM
+# pb_rpkm_sacc <- map(pb_sacc, ~log(getRPKM(.x, "bp_length") +1 )) 
+# ## Use symbol as rownames
+# rownames(pb_rpkm_sacc[[1]]) <- rowData(sce.sacc)[rownames(pb_rpkm_sacc[[1]]),]$Symbol
+# rownames(pb_rpkm_sacc[[2]]) <- rowData(sce.sacc)[rownames(pb_rpkm_sacc[[2]]),]$Symbol
 
-## Compute RPKM
-pb_rpkm_sacc <- map(pb_sacc, ~log(getRPKM(.x, "bp_length") +1 )) 
-## Use symbol as rownames
-rownames(pb_rpkm_sacc[[1]]) <- rowData(sce.sacc)[rownames(pb_rpkm_sacc[[1]]),]$Symbol
-rownames(pb_rpkm_sacc[[2]]) <- rowData(sce.sacc)[rownames(pb_rpkm_sacc[[2]]),]$Symbol
 #### Prep for heatmaps ####
 ## define annotation tables
-anno_sc_sacc <- (map2(pb_sacc,c("cellType.Broad","cellType"), ~colData(.x) %>% 
-                        as.data.frame() %>% 
-                        select(donor, .y)))
 
+pb_anno <- map2(sce_filter,rep(ct,each = 2), ~colData(.x) %>% 
+                        as_tibble() %>% 
+                        select(donor, !!sym(.y)) %>%
+                        mutate(pb = paste0(donor, "_",!!sym(.y))) %>%
+                        unique() %>%
+                        column_to_rownames(var = "pb")
+                   )
 ## create gene anno obj
-marker_anno <- marker_genes_table %>% 
-  filter(ratio_rank <= top_n | marker_rank <= top_n) %>%
-  select(-ratio_rank, -marker_rank) %>%
-  column_to_rownames(var = "gene")
 
 marker_anno <- map(marker_stats, ~.x %>%
                      arrange(-ratio) %>%
-                     slice(1:top_n) %>%
+                     filter(rank_ratio <= top_n) %>%
+                     mutate(rank_ratio = as.character(rank_ratio)) %>%
                      column_to_rownames(var = "Symbol") %>%
-                     select(cellType.target,  ratio) 
+                     select(cellType.target, rank_ratio) 
 )
 
 
@@ -72,25 +98,26 @@ marker_anno <- map(marker_stats, ~.x %>%
 donor_colors <- c(Br5161 = "black",
                   Br5212 = "lightgrey")
 
-cell_colors = cell_colors[unique(c(marker_anno[[1]]$cellType.target,marker_anno[[2]]$cellType.target))]
-my_anno_colors <- list(cellType.target = cell_colors,
-                       cellType.Broad = cell_colors,
-                       cellType = cell_colors,
-                       PrimaryDx = mdd_Dx_colors, 
-                       Experiment = mdd_dataset_colors, 
-                       donor = donor_colors)
+rank_colors <- brewer.pal(n= top_n, name = "Greens")
+names(rank_colors) <- as.character(1:top_n)
+
+my_anno_colors <- map(pb_anno, ~list(cellType.target = cell_colors[levels(.x[,2])],
+                                         cellType.Broad = cell_colors[levels(.x[,2])],
+                                         cellType = cell_colors[levels(.x[,2])],
+                                         donor = donor_colors,
+                                         rank_ratio = rank_colors))
 
 #### Create Heat maps - sACC RPKM ####
 
-for(r in names(pb_rpkm_sacc)){
-  png(paste0("plots/heatmap_sacc_",r,"_clustered_sc.png"), height = 800, width = 580)
-  pheatmap(pb_rpkm_sacc[[r]],
+for(n in names(pb)){
+  png(paste0("plots/heatmap_",n,"_top",top_n,".png"), height = 1000, width = 580)
+  pheatmap(pb[[n]],
            show_colnames = FALSE,
-           annotation_row = marker_anno[[r]],
-           annotation_col = anno_sc_sacc[[r]], 
-           annotation_colors = my_anno_colors,
+           annotation_row = marker_anno[[n]],
+           annotation_col = pb_anno[[n]], 
+           annotation_colors = my_anno_colors[[n]],
            cluster_rows = TRUE,
-           main = paste("sACC single cell- log(RPKM + 1) ratio rank - ",r)
+           main = paste(n,"single cell- log2(pseudobulk counts/size factor) - top",top_n, "ratio rank")
   )
   dev.off()
 }
