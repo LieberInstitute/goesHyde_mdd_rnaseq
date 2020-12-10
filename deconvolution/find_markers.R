@@ -49,7 +49,7 @@ top_marker_tables <- map2(marker_stats,names(marker_stats), ~filter(.x,rank_rati
                                    region = ss(.y,"_"))
 )
 ## save these as 
-walk2(top_marker_tables,names(marker_stats), ~write_csv(.x, paste0("data/top",top_n,"_markers_sACC-",.y,".csv")))  
+walk2(top_marker_tables,names(marker_stats), ~write_csv(.x, paste0("data/top",top_n,"_markers_",.y,".csv")))  
 
 
 #### Create Ratio plots #### 
@@ -60,7 +60,7 @@ ratio_plots <- map2(marker_stats, names(marker_stats),
                    ~ggplot(.x, aes(x=ratio, y=std.logFC, color = cellType, shape = rank_ratio <= 5))+
                      geom_point() +
                      facet_wrap(~cellType.target, scales = "free_x") +
-                     labs(x = "target + 0.01/highest non-target + 0.01",
+                     labs(x = "mean(target logcount)/mean(highest non-target logcount)",
                           title = paste(.y,"cell types"))+ 
                      scale_color_manual(values = cell_colors) +
                      theme_bw()
@@ -96,7 +96,7 @@ exp_plots_ratio <- map2(marker_stats, names(marker_stats), function(x,y){
                   vjust = "inward", hjust = "inward",size = 2.5)+
         theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
         ggtitle(label=title)
-
+      ggsave(plot = pe, filename = paste0("plots/expr/",y,"_",cell,"_top",top_n, "_expression_ratio.png"), width = 9, height = 3.25)
       return(pe)
     })
     return(plots)
@@ -128,7 +128,7 @@ exp_plots_marker <- map2(marker_stats, names(marker_stats), function(x,y){
                 vjust = "inward", hjust = "inward",size = 2.5)+
       theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
       ggtitle(label=title)
-    
+    ggsave(plot = pe, filename = paste0("plots/expr/",y,"_",cell,"_top",top_n, "expression_marker.png"), width = 9, height = 3.25)
     return(pe)
   })
   return(plots)
