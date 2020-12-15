@@ -10,10 +10,34 @@ library(broom)
 library(sessioninfo)
 
 source(here("main_colors.R"))
-source("big_little_boxplot.R")
+source(here("deconvolution","big_little_boxplot.R"))
 ## extract cell_types establish color pallet
 load(here("deconvolution","data","cell_colors.Rdata"), verbose = TRUE)
-load(here("deconvolution","data","prop_long.Rdata"), verbose = TRUE)
+# load(here("deconvolution","data","prop_long.Rdata"), verbose = TRUE)
+load(here("deconvolution","data","est_prop_top5_long.Rdata"), verbose = TRUE)
+
+
+walk2(est_prop_long, names(est_prop_long), function(x,y){
+  blb <- big_little_boxplot(data = x,
+                     xvar = "cell_type", 
+                     yvar = "prop",
+                     fillvar =  "PrimaryDx",
+                     colorvar = "ignore",
+                     title = "MuSiC Proptions: Top5 markers",
+                     subtitle = y)
+  ggsave(plot = blb, filename = paste0("plots/cellType_boxplots_",y,".png"), width = 15)
+} )
+
+walk2(est_prop_long, names(est_prop_long), function(x,y){
+  blb <- big_little_boxplot(data = x,
+                            xvar = "cell_type", 
+                            yvar = "prop",
+                            fillvar =  "PrimaryDx",
+                            colorvar = "Sex",
+                            title = "MuSiC Proptions: Top5 markers",
+                            subtitle = y)
+  ggsave(plot = blb, filename = paste0("plots/cellType_sex_boxplots_",y,".png"), width = 15)
+} )
 
 cells_broad <- c("Inhib", "Excit","Astro","Micro","Oligo","OPC")
 ## Plot
