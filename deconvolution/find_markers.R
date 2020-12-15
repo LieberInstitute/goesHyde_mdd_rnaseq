@@ -40,7 +40,9 @@ marker_stats <- map2(mean_ratio, markers.t.1vAll, ~left_join(.x, .y, by = c("gen
 
 #### Save tables ####
 save(marker_stats, file = here("deconvolution","data","marker_stats.Rdata"))
+# load(here("deconvolution","data","marker_stats.Rdata"), verbose = TRUE)
 
+## save top 5 tables
 top_n <- 5
 top_marker_tables <- map2(marker_stats,names(marker_stats), ~filter(.x,rank_ratio<= top_n) %>% 
                             select(cellType.target,rank_ratio, gene, Symbol, mean_logcount.target, cellType.nextHighest = cellType, mean_logcount.nextHighest = mean_logcount,ratio, std.logFC) %>%
@@ -48,12 +50,33 @@ top_marker_tables <- map2(marker_stats,names(marker_stats), ~filter(.x,rank_rati
                             mutate(genecards_url = paste0("https://www.genecards.org/cgi-bin/carddisp.pl?gene=", Symbol),
                                    region = ss(.y,"_"))
 )
-## save these as 
+## save 
 walk2(top_marker_tables,names(marker_stats), ~write_csv(.x, paste0("data/top",top_n,"_markers_",.y,".csv")))  
+
+#### MAD analysis ####
+map(marker_stats, ~filter(.x, log.p.value < log(0.05)) %>% summarize(n = n(), min_fc =min(std.logFC)))
+
+map(marker_stats, ~summarize(.x, genes = n(), 
+                             n_sig1vAll = sum(log.p.value < log(0.05)),
+                             mean_ratio = mean(ratio),
+                             ratio_over1 = sum(ratio > 1)))
+
+
+map(marker_stats, ~summarize(.x,
+                             mean_ratio = mean(ratio),
+                             mad_ratio = mad(ratio),
+                             mad3_cutoff = mean_ratio + (3*mad_ratio),
+                             n_markers = sum(ratio > mad3_cutoff)))
+
+map(marker_stats, ~filter(.x, log.p.value < log(0.05)) %>%
+      summarize(mean_ratio = mean(ratio),
+                mad_ratio = mad(ratio),
+                mad3_cutoff = mean_ratio + (3*mad_ratio),
+                n_markers = sum(ratio > mad3_cutoff)))
 
 
 #### Create Ratio plots #### 
-# load(here("deconvolution","data","marker_stats.Rdata"), verbose = TRUE)
+
 load("data/cell_colors.Rdata", verbose = TRUE)
 
 ratio_plots <- map2(marker_stats, names(marker_stats), 
