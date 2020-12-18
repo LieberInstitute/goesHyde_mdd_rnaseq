@@ -12,7 +12,7 @@ library(here)
 library(purrr)
 library(RColorBrewer)
 library(rlang)
-
+library(pheatmap)
 # Load colors
 source(here("main_colors.R"))
 load(here("deconvolution","data","cell_colors.Rdata"), verbose = TRUE)
@@ -87,13 +87,6 @@ pb_mark <- map2(sce_filter_mark,rep(ct,each = 2),function(sce, c){
 }
 )
 
-
-# ## Compute RPKM
-# pb_rpkm_sacc <- map(pb_sacc, ~log(getRPKM(.x, "bp_length") +1 )) 
-# ## Use symbol as rownames
-# rownames(pb_rpkm_sacc[[1]]) <- rowData(sce.sacc)[rownames(pb_rpkm_sacc[[1]]),]$Symbol
-# rownames(pb_rpkm_sacc[[2]]) <- rowData(sce.sacc)[rownames(pb_rpkm_sacc[[2]]),]$Symbol
-
 #### Prep for heatmaps ####
 ## define annotation tables
 
@@ -138,7 +131,11 @@ my_anno_colors <- map(pb_anno, ~list(cellType.target = cell_colors[levels(.x[,2]
                                          cellType = cell_colors[levels(.x[,2])],
                                          donor = donor_colors,
                                          rank_ratio = rank_colors,
-                                         rank_marker = rank_colors)
+                                         rank_marker = rank_colors,
+                                     PrimaryDx = mdd_Dx_colors,
+                                     Experiment = mdd_dataset_colors,
+                                     Sex = c(M = "steelblue4", `F` = "mediumvioletred")
+                                     )
                       )
 
 #### Create Heat maps - sACC RPKM ####
@@ -176,23 +173,93 @@ load("/dcl01/ajaffe/data/lab/singleCell/velmeshev2019/analysis_MNT/SCE_asd-velme
 map_int(marker_genes_ratio, ~sum(!.x %in% rownames(sce.asd)))
 sce.asd <- sce.asd[,sce.asd$region == "ACC"]
 
+cell_type_guess <- data.frame(cluster = levels(sce.asd$cluster),
+                              cellType = c(rep("Astro",2),"Micro",rep("Inhib.1",2),
+                                           rep("Inhib.2",2),"Excit.1","Excit.2",
+                                           "Excit.3","Excit.3","Micro",rep("Other",3),
+                                           "Oligo","OPC"))
+
+
 pb_asd <- map(marker_genes_ratio[c("sacc_broad","sacc_specific")],function(m){
-  sce <- sce.asd[m[m %in% rownames(sce.asd)]]
+  common_genes <- m[m %in% rownames(sce.asd)]
+  sce <- sce.asd[common_genes]
   message(nrow(sce))
   sce$pb <- paste0(sce$individual,"_",sce$cluster)
   clusIndex = splitit(sce$pb)
   pbcounts <- sapply(clusIndex, function(ii){
-    rowSums(assays(sce)$logcounts[ ,ii])
+    rowSums(exp(assays(sce)$logcounts)[ ,ii])
   }
   )
   # Compute LSFs at this level
   sizeFactors.PB.all  <- librarySizeFactors(pbcounts)
   # Normalize with these LSFs
   geneExprs.temp <- t(apply(pbcounts, 1, function(x) {log2(x/sizeFactors.PB.all + 1)}))
-  rownames(geneExprs.temp) <- rowData(sce)$Symbol
+  rownames(geneExprs.temp) <- rowData(sce.sacc)[common_genes,]$Symbol
   return(geneExprs.temp)
 }
 )
+
+
+marker_anno_vel <- map(marker_stats[c("sacc_broad","sacc_specific")], ~.x %>%
+                           filter(rank_ratio <= top_n) %>%
+                           mutate(rank_ratio = as.character(rank_ratio)) %>%
+                           column_to_rownames(var = "Symbol") %>%
+                           select(cellType.target, rank_ratio) 
+)
+
+pb_anno_vel <- map(pb_asd, function(x){
+  anno <- tibble(id = colnames(x), a = colnames(x)) %>%
+    separate(a, "_", into = c("indi","cluster"))%>%
+    left_join(cell_type_guess)%>%
+    select(-indi) %>%
+    column_to_rownames(var = "id")
+  return(anno)
+})
+
+my_anno_colors_vl <- map2(marker_anno_vel,pb_anno_vel,
+                          ~list(cellType.target = c(cell_colors,Other = "grey")[unique(.x[,1])],
+                                cellType = c(cell_colors,Other = "grey")[unique(.y[,2])],
+                                rank_ratio = rank_colors)
+                          
+)
+
+breaksList = seq(3, 12, by = 0.08)
+for(n in names(pb_asd)){
+  png(paste0("plots/heatmap-velmeshev_",n,"_top",top_n,"_ratio.png"), height = 750, width = 550)
+  pheatmap(pb_asd[[n]],
+           show_colnames = FALSE,
+           annotation_row = marker_anno_vel[[n]],
+           annotation_col = pb_anno_vel[[n]], 
+           annotation_colors = my_anno_colors_vl[[n]],
+           cluster_rows = TRUE,
+           breaks = breaksList,
+           main = paste(n," sn data:log2(norm pseudobulk counts) - top",top_n,"Velmeshev")
+  )
+  dev.off()
+}
+
+#### Bulk Heatmaps ####
+bulk_counts <- map2(marker_genes_ratio, rep(list(rse_gene_sacc, rse_gene_amyg),2), function(markers,rse){
+  rse_temp <- rse[markers,]
+  # rownames(rse_temp) <- ss(rowData(rse_temp)$Symbol,"\\.")
+  rownames(rse_temp) <- rowData(sce.sacc)[markers,]$Symbol
+  return(assays(rse_temp)$counts)
+})
+
+bulk_logcounts <- 
+
+bulk_anno <- as.data.frame(colData(rse_gene)[,c("PrimaryDx",'Experiment','Sex')])
+
+for(n in names(bulk_counts)){
+  png(paste0("plots/heatmap-Bulk_",n,"_top",top_n,"_ratio.png"), height = 750, width = 550)
+  pheatmap(bulk_counts[[n]],
+           show_colnames = FALSE,
+           annotation_row = marker_anno_ratio[[n]],
+           annotation_col = bulk_anno,
+           annotation_colors = my_anno_colors[[n]],
+           main = paste(n, "Bulk logcounts"))
+  dev.off()
+}
 
 # sgejobs::job_single('deconvo_heatmap_newMarkers.R', create_shell = TRUE, queue= 'bluejay', memory = '10G', command = "Rscript deconvo_heatmap_newMarkers.R")
 ## Reproducibility information
