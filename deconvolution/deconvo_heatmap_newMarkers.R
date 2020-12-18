@@ -38,9 +38,20 @@ marker_genes_mark <- map(marker_stats, ~.x %>%
                             filter(rank_marker <= top_n) %>%
                             arrange(cellType.target, rank_ratio) %>% 
                             pull(gene))
+
 map2_int(marker_genes_ratio, marker_genes_mark, ~sum(.x %in% .y))
 # sacc_broad    amyg_broad sacc_specific amyg_specific 
 # 3             4             8            11 
+
+marker_genes_mad <- map(marker_stats,~summarize(.x,
+                                      mean_ratio = mean(ratio),
+                                      mad_ratio = mad(ratio),
+                                      mad_cutoff = mean_ratio + (5*mad_ratio))%>%
+                           right_join(.x, by = "cellType.target") %>%
+                           filter(ratio > mad_cutoff) %>%
+                           pull(gene))
+map_int(marker_genes_mad, length)
+
 #### sce data ####
 load(here("deconvolution","data","sce.sacc_filtered.Rdata"), verbose = TRUE)
 load(here("deconvolution","data","sce.amyg_filtered.Rdata"), verbose = TRUE)
@@ -54,6 +65,7 @@ names(sceXct) <- map(cross2(names(sce),names(ct)), ~paste0(.x[[1]],"_",.x[[2]]))
 ## subset genes 
 sce_filter_ratio <- map2(sceXct, marker_genes_ratio, ~.x[[1]][.y,])
 sce_filter_mark  <- map2(sceXct, marker_genes_mark, ~.x[[1]][.y,])
+sce_filter_mad <- map2(sceXct, marker_genes_mad, ~.x[[1]][.y,])
 ##pseudobulk single cell data
 pb_ratio <- map2(sce_filter_ratio,rep(ct,each = 2),function(sce, c){
     sce$pb <- paste0(sce$donor,"_",sce[[c]])
@@ -87,6 +99,24 @@ pb_mark <- map2(sce_filter_mark,rep(ct,each = 2),function(sce, c){
 }
 )
 
+pb_mad <- map2(sce_filter_mad,rep(ct,each = 2),function(sce, c){
+  sce$pb <- paste0(sce$donor,"_",sce[[c]])
+  clusIndex = splitit(sce$pb)
+  pbcounts <- sapply(clusIndex, function(ii){
+    rowSums(assays(sce)$counts[ ,ii])
+  }
+  )
+  # Compute LSFs at this level
+  sizeFactors.PB.all  <- librarySizeFactors(pbcounts)
+  # Normalize with these LSFs
+  geneExprs.temp <- t(apply(pbcounts, 1, function(x) {log2(x/sizeFactors.PB.all + 1)}))
+  rownames(geneExprs.temp) <- rowData(sce)$gene_id
+  return(geneExprs.temp)
+}
+)
+
+map(pb_mad, dim)
+
 #### Prep for heatmaps ####
 ## define annotation tables
 
@@ -112,6 +142,17 @@ marker_anno_mark <- map(marker_stats[1:3], ~.x %>%
                            select(cellType.target, rank_marker, Symbol) %>% 
                            column_to_rownames(var = "Symbol")
 )
+
+marker_anno_mad <- map(marker_stats,~summarize(.x,
+                                               mean_ratio = mean(ratio),
+                                               mad_ratio = mad(ratio),
+                                               mad_cutoff = mean_ratio + (5*mad_ratio))%>%
+                         right_join(.x, by = "cellType.target") %>%
+                         filter(ratio > mad_cutoff) %>% 
+                         select(gene, cellType.target)%>% 
+                         column_to_rownames(var = "gene"))
+
+
 ## Duplicate?!
 map(marker_stats, ~.x %>%
       filter(rank_marker <= top_n) %>%
@@ -166,6 +207,19 @@ for(n in names(pb_mark[1:3])){
   dev.off()
 }
 
+for(n in names(pb_mad)){
+  png(paste0("plots/heatmap_",n,"_ratioMAD.png"), height = 750, width = 550)
+  pheatmap(pb_mad[[n]],
+           show_colnames = FALSE,
+           show_rownames = FALSE,
+           annotation_row = marker_anno_mad[[n]],
+           annotation_col = pb_anno[[n]], 
+           annotation_colors = my_anno_colors[[n]],
+           cluster_rows = TRUE,
+           main = paste(n,"sn data:log2(norm pseudobulk counts) - MAD5")
+  )
+  dev.off()
+}
 
 #### Velmeshev data ####
 
