@@ -6,12 +6,14 @@ library(here)
 library(pheatmap)
 library(scuttle)
 library(recount)
-library(GenomicFeatures)
 library(tidyverse)
 library(reshape2)
 library(here)
-library(ggbeeswarm)
-
+library(purrr)
+library(RColorBrewer)
+library(rlang)
+library(pheatmap)
+# Load colors
 source(here("main_colors.R"))
 load(here("deconvolution","data","cell_colors.Rdata"), verbose = TRUE)
 
@@ -21,617 +23,302 @@ rownames(rse_gene) <- rowData(rse_gene)$ensemblID
 rse_gene_amyg <- rse_gene[,rse_gene$BrainRegion == "Amygdala"]
 rse_gene_sacc <- rse_gene[,rse_gene$BrainRegion == "sACC"]
 
-## Add estimates to bulk data
-load(here("deconvolution","data","prop_top40_sacc.Rdata"), verbose = TRUE)
-load(here("deconvolution","data","prop_top40_amyg.Rdata"), verbose = TRUE)
-colData(rse_gene_sacc) <- cbind(colData(rse_gene_sacc), est_prop_top40_sacc$Est.prop.weighted)
-colData(rse_gene_amyg) <- cbind(colData(rse_gene_amyg), est_prop_top40_amyg$Est.prop.weighted)
+#### Marker genes ####
+load(here("deconvolution","data","marker_stats.Rdata"), verbose = TRUE)
 
-#### Top 40 data ####
-# top40_sacc <- read.csv("/dcl01/lieber/ajaffe/Matt/MNT_thesis/snRNAseq/10x_pilot_FINAL/tables/top40genesLists_sACC-n2_cellType_SN-LEVEL-tests_May2020.csv")
-top40_sacc <- read.csv("/dcl01/lieber/ajaffe/Matt/MNT_thesis/snRNAseq/10x_pilot_FINAL/tables/top40genesLists-REFINED_sACC-n2_cellType.split_Nov2020.csv")
+top_n <- 5
+marker_genes_ratio <- map(marker_stats, ~.x %>%
+                      arrange(-ratio) %>%
+                      filter(rank_ratio <= top_n) %>%
+                      arrange(cellType.target, rank_ratio) %>% 
+                      pull(gene))
 
-top40_amyg <- read.csv("/dcl01/lieber/ajaffe/Matt/MNT_thesis/snRNAseq/10x_pilot_FINAL/tables/top40genesLists_Amyg-n2_cellType.split_SN-LEVEL-tests_May2020.csv")
+marker_genes_mark <- map(marker_stats, ~.x %>%
+                            arrange(-ratio) %>%
+                            filter(rank_marker <= top_n) %>%
+                            arrange(cellType.target, rank_ratio) %>% 
+                            pull(gene))
 
-#### sACC data ####
-load("/dcl01/lieber/ajaffe/Matt/MNT_thesis/snRNAseq/10x_pilot_FINAL/rdas/regionSpecific_sACC-n2_cleaned-combined_SCE_MNTFeb2020.rda", verbose = TRUE)
-sce.sacc$uniqueID <- paste0(sce.sacc$donor, "_", sce.sacc$Barcode)
-colnames(sce.sacc) <- sce.sacc$uniqueID
-## Exclude Ambig.lowNtrxts
-sce.sacc <- sce.sacc[,sce.sacc$cellType != "Ambig.lowNtrxts",]
-sce.sacc$cellType <- factor(sce.sacc$cellType)
-## Add cellType.broad
-sce.sacc$cellType.Broad <- ss(as.character(sce.sacc$cellType), "\\.", 1)
-## Match rownames
-rownames(sce.sacc) <- rowData(sce.sacc)$ID
+map2_int(marker_genes_ratio, marker_genes_mark, ~sum(.x %in% .y))
+# sacc_broad    amyg_broad sacc_specific amyg_specific 
+# 3             4             8            11 
 
-round(table(sce.sacc$cellType)/ncol(sce.sacc),3)
-# Astro Excit.1 Excit.2 Excit.3 Excit.4 Inhib.1 Inhib.2   Micro   Oligo     OPC 
-# 0.089   0.084   0.059   0.026   0.012   0.074   0.045   0.072   0.464   0.076 
+marker_genes_mad <- map(marker_stats,~summarize(.x,
+                                      mean_ratio = mean(ratio),
+                                      mad_ratio = mad(ratio),
+                                      mad_cutoff = mean_ratio + (5*mad_ratio))%>%
+                           right_join(.x, by = "cellType.target") %>%
+                           filter(ratio > mad_cutoff) %>%
+                           pull(gene))
+map_int(marker_genes_mad, length)
 
-round(table(sce.sacc$cellType.Broad)/ncol(sce.sacc),3)
-# Astro Excit Inhib Micro Oligo   OPC 
-# 0.089 0.181 0.119 0.072 0.464 0.076
+#### sce data ####
+load(here("deconvolution","data","sce.sacc_filtered.Rdata"), verbose = TRUE)
+load(here("deconvolution","data","sce.amyg_filtered.Rdata"), verbose = TRUE)
 
-table(sce.sacc$cellType.Broad, sce.sacc$donor)
-#       Br5161 Br5212
-# Astro    188    435
-# Excit    444    822
-# Inhib    224    606
-# Micro    235    267
-# Oligo   1852   1400
-# OPC      227    304
+ct <- list(broad = "cellType.Broad", specific = "cellType")
+sce <- list(sacc = sce.sacc, amyg = sce.amyg)
 
-## Build gene annotation table
-top40_anno_sacc <- top40_sacc %>%
-  dplyr::select(grep("1vAll", colnames(top40_sacc))) %>%
-  rownames_to_column("n") %>%
-  melt(id.vars = "n") %>%
-  separate(variable,"_",into = c("cellType",NA)) %>%
-  group_by(value) %>% 
-  arrange(cellType)%>%
-  summarize(n = length(unique(cellType)),
-            cell_top40 = ifelse(n > 1, 
-                                paste(c("Multi",unique(gsub(".[0-9]", "", cellType))), collapse = "-"),
-                                cellType)) %>%
-  ungroup() %>%
-  dplyr::rename(Symbol = value) %>%
-  filter(Symbol %in% rowData(rse_gene)$Symbol,
-         Symbol %in% rowData(sce.sacc)$Symbol) %>%
-  arrange(cell_top40)
+sceXct <- cross2(sce,ct)
+names(sceXct) <- map(cross2(names(sce),names(ct)), ~paste0(.x[[1]],"_",.x[[2]]))
 
-dim(top40_anno_sacc)
-# [1] 333   3
+## subset genes 
+sce_filter_ratio <- map2(sceXct, marker_genes_ratio, ~.x[[1]][.y,])
+sce_filter_mark  <- map2(sceXct, marker_genes_mark, ~.x[[1]][.y,])
+sce_filter_mad <- map2(sceXct, marker_genes_mad, ~.x[[1]][.y,])
+##pseudobulk single cell data
+pb_ratio <- map2(sce_filter_ratio,rep(ct,each = 2),function(sce, c){
+    sce$pb <- paste0(sce$donor,"_",sce[[c]])
+    clusIndex = splitit(sce$pb)
+    pbcounts <- sapply(clusIndex, function(ii){
+      rowSums(assays(sce)$counts[ ,ii])
+    }
+    )
+    # Compute LSFs at this level
+    sizeFactors.PB.all  <- librarySizeFactors(pbcounts)
+    # Normalize with these LSFs
+    geneExprs.temp <- t(apply(pbcounts, 1, function(x) {log2(x/sizeFactors.PB.all + 1)}))
+    rownames(geneExprs.temp) <- rowData(sce)$Symbol
+    return(geneExprs.temp)
+  }
+)
 
-top40_anno_sacc$ensemblID <- rowData(rse_gene)$ensemblID[match(top40_anno_sacc$Symbol, rowData(rse_gene)$Symbol)]
-top40_anno_sacc %>% filter(n>1) %>% count(cell_top40)
-# cell_top40          n
-# # A tibble: 3 x 2
-# cell_top40            n
-# <chr>             <int>
-# 1 Multi-Excit           7
-# 2 Multi-Excit-Inhib     1
-# 3 Multi-Inhib           4
-
-## sacc
-top40_anno_sacc <- top40_anno_sacc %>% 
-  filter(ensemblID %in% rownames(sce.sacc),
-         ensemblID %in% rownames(rse_gene_sacc))
-
-top40all_ensm_sacc <- top40_anno_sacc$ensemblID
-length(top40all_ensm_sacc)
-# [1] 332
-
-# filter expression data
-rse_gene_sacc <- rse_gene_sacc[top40all_ensm_sacc,]
-sce.sacc <- sce.sacc[top40all_ensm_sacc,]
-
-#### Import gnomic features ####
-txdb <- makeTxDbFromGFF("/dcl01/ajaffe/data/lab/singleCell/10x_pilot/premRNA/GRCh38-3.0.0_premrna/genes/genes.gtf")
-g <- genes(txdb)
-e <- exonsBy(txdb, by = "gene")
-
-if (!all(names(e) %in% names(g))) {
-  warning("Dropping exons with gene ids not present in the gene list")
-  e <- e[names(e) %in% names(g)]
+pb_mark <- map2(sce_filter_mark,rep(ct,each = 2),function(sce, c){
+  sce$pb <- paste0(sce$donor,"_",sce[[c]])
+  clusIndex = splitit(sce$pb)
+  pbcounts <- sapply(clusIndex, function(ii){
+    rowSums(assays(sce)$counts[ ,ii])
+  }
+  )
+  # Compute LSFs at this level
+  sizeFactors.PB.all  <- librarySizeFactors(pbcounts)
+  # Normalize with these LSFs
+  geneExprs.temp <- t(apply(pbcounts, 1, function(x) {log2(x/sizeFactors.PB.all + 1)}))
+  rownames(geneExprs.temp) <- rowData(sce)$Symbol
+  return(geneExprs.temp)
 }
-e2 <- disjoin(e)
-g$bp_length <- sum(width(e2))
-summary(g$bp_length)
+)
 
-g_sacc <- g[top40all_ensm_sacc,]
-summary(g_sacc$bp_length)
-table(g_sacc$bp_length > 205012)
+pb_mad <- map2(sce_filter_mad,rep(ct,each = 2),function(sce, c){
+  sce$pb <- paste0(sce$donor,"_",sce[[c]])
+  clusIndex = splitit(sce$pb)
+  pbcounts <- sapply(clusIndex, function(ii){
+    rowSums(assays(sce)$counts[ ,ii])
+  }
+  )
+  # Compute LSFs at this level
+  sizeFactors.PB.all  <- librarySizeFactors(pbcounts)
+  # Normalize with these LSFs
+  geneExprs.temp <- t(apply(pbcounts, 1, function(x) {log2(x/sizeFactors.PB.all + 1)}))
+  rownames(geneExprs.temp) <- rowData(sce)$gene_id
+  return(geneExprs.temp)
+}
+)
 
-rowRanges(sce.sacc) <- g_sacc
+map(pb_mad, dim)
 
-#### pseudobulk single cell data ####
-
-pb_sacc <- aggregateAcrossCells(sce.sacc, 
-                                id = colData(sce.sacc)[,c("donor","cellType")])
-colnames(colData(pb_sacc))[[20]] <- "cellType_num"
-colnames(pb_sacc) <- paste0(pb_sacc$cellType, "_", pb_sacc$donor)
-
-dim(pb_sacc)
-# [1] 332  20
-
-#rearrange pb_sacc to match top40 anno 
-pb_sacc <- pb_sacc[top40_anno_sacc$ensemblID,]
-rse_gene_sacc <- rse_gene_sacc[top40_anno_sacc$ensemblID,]
-
-## Compute RPKM
-assays(sce.sacc)$counts <- as.array(assays(sce.sacc)$counts)
-sce_rpkm_sacc <- getRPKM(sce.sacc, "bp_length")
-pb_rpkm_sacc <- getRPKM(pb_sacc, "bp_length")
-bulk_rpkm_sacc <- getRPKM(rse_gene_sacc, "Length")
-
-#### Plot Mean RPKM ####
-cell_types_sacc <- as.tibble(colData(sce.sacc)) %>% 
-  select(sample = uniqueID , cellType) %>%
-  mutate(cellType = as.character(cellType))
-
-rpkm_long_sacc <- cbind(pb_rpkm_sacc, bulk_rpkm_sacc) %>% 
-  melt() %>%
-  rename(Gene = Var1, sample = Var2, RPKM = value) 
-# %>%
-# left_join(cell_types_sacc, by = "sample") %>%
-# replace_na(list(cellType = "bulk"))
-
-rpkm_long_sacc$cellType <- factor(rpkm_long_sacc$cellType)
-rpkm_long_sacc$cellType <- relevel(rpkm_long_sacc$cellType, "bulk")
-
-mean_rpkm_sacc <- rpkm_long_sacc %>% group_by(sample) %>%
-  summarise(mean_rpkm = mean(RPKM),
-            sum_rpkm = sum(RPKM)) %>%
-  ungroup() %>%
-  mutate(id = row_number()) %>%
-  separate(sample, "_", into = c("cellType", "donor",NA))  %>%
-  mutate(cellType = ifelse(grepl('^R', cellType), "bulk",cellType))
-
-scatter_mean_rpkm <- mean_rpkm_sacc%>%
-  ggplot(aes(id, mean_rpkm, color= cellType))+
-  geom_point()
-
-ggsave(plot = scatter_mean_rpkm, filename = "plots/meanRPKM_scatter_sacc.png")
-
-boxplot_mean_rpkm <- mean_rpkm_sacc%>%
-  ggplot(aes(cellType, mean_rpkm, fill= cellType))+
-  geom_boxplot() +
-  labs( x= "Data type", y = "Sample Mean RPKM", title = "Mean RPKM Distribution",
-        subtitle = "sACC") + 
-  scale_fill_manual(values = c(cell_colors, bulk = "grey"))
-
-ggsave(plot = boxplot_mean_rpkm, filename = "plots/meanRPKM_boxplot_sacc.png")
-
-
-boxplot_sum_rpkm <- mean_rpkm_sacc%>%
-  ggplot(aes(cellType, sum_rpkm, fill= cellType))+
-  geom_boxplot() +
-  labs( x= "Data type", y = "Sum of Sample RPKM", title = "Top40 marker genes per cell type",
-        subtitle = "sACC") + 
-  scale_fill_manual(values = c(cell_colors, bulk = "grey"))
-
-ggsave(plot = boxplot_sum_rpkm, filename = "plots/sumRPKM_boxplot_sacc.png")
-
-
-beeswarm_mean_rpkm <- mean_rpkm_sacc%>%
-  ggplot(aes(cellType, mean_rpkm, color= cellType))+
-  geom_beeswarm() +
-  labs( x= "Data type", y = "Sample Mean RPKM", title = "Mean RPKM Distribution",
-        subtitle = "sACC") + 
-  scale_color_manual(values = c(cell_colors, bulk = "grey"))
-
-ggsave(plot = beeswarm_mean_rpkm, filename = "plots/meanRPKM_beeswarm_sacc.png")
-
-rpkm_by_gene <- rpkm_long_sacc %>%
-  group_by(Gene, bulk = cellType == "bulk") %>%
-  summarise(sd = sd(RPKM), mean = mean(RPKM)) %>% dim()
-left_join(top40_anno_sacc %>% select(cell_top40, Gene = ensemblID)) %>%
-  mutate(Data = ifelse(bulk, "Bulk","SC"))
-
-
-rpkm_gene_scatter <- rpkm_by_gene %>% 
-  ggplot(aes(mean, sd, color = cell_top40)) +
-  geom_point() +
-  scale_color_manual(values = cell_colors)+
-  facet_wrap(~Data, scales = "free" ) +
-  labs(x = 'Mean RPKM', y = 'SD RPKM')
-
-ggsave(plot = rpkm_gene_scatter, filename = "plots/rpkm_gene_scatter_sacc.png", width = 15)
-
-## Transform counts and rpkm by log
-pb_counts_log_sacc <- log(as.matrix(assays(pb_sacc)$counts) + 1)
-pb_rpkm_log_sacc <- log(pb_rpkm_sacc + 1)
-bulk_counts_log_sacc <- log(as.matrix(assays(rse_gene_sacc)$counts) + 1)
-bulk_rpkm_log_sacc <- log(bulk_rpkm_sacc +1)
-
-## define color scale
-breaks_count <- seq(0, max(c(pb_counts_log_sacc, bulk_counts_log_sacc)), length = 100)
-breaks_rpkm <- seq(0, max(c(pb_rpkm_log_sacc, bulk_rpkm_log_sacc)), length = 100)
-
+#### Prep for heatmaps ####
 ## define annotation tables
-anno_sc_sacc <- as.data.frame(colData(pb_sacc)[,c("donor","cellType","cellType.Broad")])
-anno_bulk_sacc <- as.data.frame(colData(rse_gene_sacc)[,c("PrimaryDx","Experiment")])
 
+pb_anno <- map2(sce_filter_ratio,rep(ct,each = 2), ~colData(.x) %>% 
+                        as_tibble() %>% 
+                        select(donor, !!sym(.y)) %>%
+                        mutate(pb = paste0(donor, "_",!!sym(.y))) %>%
+                        unique() %>%
+                        column_to_rownames(var = "pb")
+                   )
 ## create gene anno obj
-gene_anno <- top40_anno_sacc %>% select(cell_top40) %>% as.data.frame()
-rownames(gene_anno) <- top40_anno_sacc$ensemblID
+
+marker_anno_ratio <- map(marker_stats, ~.x %>%
+                     filter(rank_ratio <= top_n) %>%
+                     mutate(rank_ratio = as.character(rank_ratio)) %>%
+                     column_to_rownames(var = "Symbol") %>%
+                     select(cellType.target, rank_ratio) 
+)
+
+marker_anno_mark <- map(marker_stats[1:3], ~.x %>%
+                           filter(rank_marker <= top_n) %>%
+                           mutate(rank_marker = as.character(rank_marker)) %>%
+                           select(cellType.target, rank_marker, Symbol) %>% 
+                           column_to_rownames(var = "Symbol")
+)
+
+marker_anno_mad <- map(marker_stats,~summarize(.x,
+                                               mean_ratio = mean(ratio),
+                                               mad_ratio = mad(ratio),
+                                               mad_cutoff = mean_ratio + (5*mad_ratio))%>%
+                         right_join(.x, by = "cellType.target") %>%
+                         filter(ratio > mad_cutoff) %>% 
+                         select(gene, cellType.target)%>% 
+                         column_to_rownames(var = "gene"))
+
+
+## Duplicate?!
+map(marker_stats, ~.x %>%
+      filter(rank_marker <= top_n) %>%
+      mutate(rank_marker = as.character(rank_marker)) %>%
+      select(cellType.target, rank_ratio, Symbol) %>%
+      ungroup() %>% count(Symbol) %>% filter(n>1))
 
 ## define donor colrs
 donor_colors <- c(Br5161 = "black",
                   Br5212 = "lightgrey")
 
-## create annotation color schemes
-my_anno_colors <- list(cellType = cell_colors[names(cell_colors) %in% anno_sc_sacc$cellType],
-                       cellType.Broad = cell_colors[names(cell_colors) %in% anno_sc_sacc$cellType.Broad],
-                       PrimaryDx = mdd_Dx_colors, 
-                       Experiment = mdd_dataset_colors, 
-                       cell_top40 = cell_colors[names(cell_colors) %in% gene_anno$cell_top40],
-                       donor = donor_colors)
-#### Create Heat maps - sacc counts ####
-## Unsorted genes
-png("plots/heatmap_counts_sacc_sc_unclustered_nov.png", height = 800, width = 580)
-pheatmap(pb_counts_log_sacc,
-         show_rownames = FALSE,
-         show_colnames = FALSE,
-         breaks = breaks_count,
-         annotation_row = gene_anno,
-         annotation_col = anno_sc_sacc, 
-         annotation_colors = my_anno_colors,
-         cluster_rows = FALSE,
-         main = "sACC single cell ref - log(counts + 1)")
-dev.off()
+rank_colors <- brewer.pal(n= top_n, name = "Greens")
+names(rank_colors) <- as.character(1:top_n)
 
-png("plots/heatmap_counts_sacc_bulk_unclustered.png", height = 800, width = 580)
-pheatmap(bulk_counts_log_sacc,
-         show_rownames = FALSE,
-         show_colnames = FALSE,
-         breaks = breaks_count,
-         annotation_row = gene_anno,
-         annotation_col = anno_bulk_sacc,
-         annotation_colors = my_anno_colors,
-         cluster_rows = FALSE,
-         main = "sACC bulk - log(counts + 1)")
-dev.off()
-
-## Sort by 
-png("plots/heatmap_counts_sacc_bulk_explore.png", height = 800, width = 580)
-bulk_explore_sacc <- pheatmap(bulk_counts_log_sacc,
-                              show_rownames = FALSE,
-                              show_colnames = FALSE,
-                              breaks = breaks_count,
-                              annotation_row = gene_anno,
-                              annotation_col = anno_bulk_sacc,
-                              annotation_colors = my_anno_colors,
-                              cutree_cols = 4,
-                              main = "sACC bulk - log(counts + 1)")
-dev.off()
-
-## Sort genes by sc clustering
-png("plots/heatmap_counts_sacc_sc_nov.png", height = 800, width = 580)
-sc_log_heatmap <- pheatmap(pb_counts_log_sacc,
-                           show_rownames = FALSE,
-                           show_colnames = FALSE,
-                           breaks = breaks_count,
-                           annotation_row = gene_anno,
-                           annotation_col = anno_sc_sacc, 
-                           annotation_colors = my_anno_colors,
-                           main = "sACC single cell ref - log(counts + 1)")
-dev.off()
-
-bulk_counts_log_sacc <- bulk_counts_log_sacc[sc_log_heatmap$tree_row$order,]
-
-png("plots/heatmap_counts_sacc_bulk.png", height = 800, width = 580)
-pheatmap(bulk_counts_log_sacc,
-         show_rownames = FALSE,
-         show_colnames = FALSE,
-         breaks = breaks_count,
-         annotation_col = anno_bulk_sacc, 
-         annotation_row = gene_anno,
-         annotation_colors = my_anno_colors,
-         cluster_rows = FALSE,
-         main = "sACC bulk- log(counts + 1)")
-dev.off()
+my_anno_colors <- map(pb_anno, ~list(cellType.target = cell_colors[levels(.x[,2])],
+                                         cellType.Broad = cell_colors[levels(.x[,2])],
+                                         cellType = cell_colors[levels(.x[,2])],
+                                         donor = donor_colors,
+                                         rank_ratio = rank_colors,
+                                         rank_marker = rank_colors,
+                                     PrimaryDx = mdd_Dx_colors,
+                                     Experiment = mdd_dataset_colors,
+                                     Sex = c(M = "steelblue4", `F` = "mediumvioletred")
+                                     )
+                      )
 
 #### Create Heat maps - sACC RPKM ####
-## Unsorted genes
-png("plots/heatmap_rpkm_sacc_sc_unclustered.png", height = 800, width = 580)
-pheatmap(pb_rpkm_log_sacc,
-         show_rownames = FALSE,
-         show_colnames = FALSE,
-         # #breaks = breaks_rpkm,
-         annotation_row = gene_anno,
-         annotation_col = anno_sc_sacc, 
-         annotation_colors = my_anno_colors,
-         cluster_rows = FALSE,
-         main = "sACC single cell ref - log(RPKM + 1)")
-dev.off()
 
-png("plots/heatmap_rpkm_sacc_bulk_unclustered.png", height = 800, width = 580)
-pheatmap(bulk_rpkm_log_sacc,
-         show_rownames = FALSE,
-         show_colnames = FALSE,
-         #breaks = breaks_rpkm,
-         annotation_row = gene_anno,
-         annotation_col = anno_bulk_sacc,
-         annotation_colors = my_anno_colors,
-         cluster_rows = FALSE,
-         main = "sACC bulk - log(RPKM + 1)")
-dev.off()
+for(n in names(pb_ratio)){
+  png(paste0("plots/heatmap_",n,"_top",top_n,"_ratio.png"), height = 750, width = 550)
+  pheatmap(pb_ratio[[n]],
+           show_colnames = FALSE,
+           annotation_row = marker_anno_ratio[[n]],
+           annotation_col = pb_anno[[n]], 
+           annotation_colors = my_anno_colors[[n]],
+           cluster_rows = TRUE,
+           main = paste(n," sn data:log2(norm pseudobulk counts) - top",top_n, "ratio rank")
+  )
+  dev.off()
+}
 
-## Sort by genes by bulk data
-png("plots/heatmap_rpkm_sacc_bulk_explore.png", height = 800, width = 580)
-bulk_explore_sacc <- pheatmap(bulk_rpkm_log_sacc,
-                              show_rownames = FALSE,
-                              show_colnames = FALSE,
-                              #breaks = breaks_rpkm,
-                              annotation_row = gene_anno,
-                              annotation_col = anno_bulk_sacc,
-                              annotation_colors = my_anno_colors,
-                              cutree_cols = 4,
-                              main = "sACC bulk - log(rpkm + 1)")
-dev.off()
+for(n in names(pb_mark[1:3])){
+  png(paste0("plots/heatmap_",n,"_top",top_n,"_mark.png"), height = 750, width = 550)
+  pheatmap(pb_mark[[n]],
+           show_colnames = FALSE,
+           annotation_row = marker_anno_mark[[n]],
+           annotation_col = pb_anno[[n]], 
+           annotation_colors = my_anno_colors[[n]],
+           cluster_rows = TRUE,
+           main = paste(n,"sn data:log2(norm pseudobulk counts) - top",top_n, "1vAll rank")
+  )
+  dev.off()
+}
 
-## Sort genes by sc clustering
-png("plots/heatmap_rpkm_sacc_sc.png", height = 800, width = 580)
-sc_log_heatmap <- pheatmap(pb_rpkm_log_sacc,
-                           show_rownames = FALSE,
-                           show_colnames = FALSE,
-                           #breaks = breaks_rpkm,
-                           annotation_row = gene_anno,
-                           annotation_col = anno_sc_sacc, 
-                           annotation_colors = my_anno_colors,
-                           main = "sACC single cell ref - log(rpkm + 1)")
-dev.off()
+for(n in names(pb_mad)){
+  png(paste0("plots/heatmap_",n,"_ratioMAD.png"), height = 750, width = 550)
+  pheatmap(pb_mad[[n]],
+           show_colnames = FALSE,
+           show_rownames = FALSE,
+           annotation_row = marker_anno_mad[[n]],
+           annotation_col = pb_anno[[n]], 
+           annotation_colors = my_anno_colors[[n]],
+           cluster_rows = TRUE,
+           main = paste(n,"sn data:log2(norm pseudobulk counts) - MAD5")
+  )
+  dev.off()
+}
 
-bulk_rpkm_log_sacc <- bulk_rpkm_log_sacc[sc_log_heatmap$tree_row$order,]
+#### Velmeshev data ####
 
-png("plots/heatmap_rpkm_sacc_bulk.png", height = 800, width = 580)
-pheatmap(bulk_rpkm_log_sacc,
-         show_rownames = FALSE,
-         show_colnames = FALSE,
-         #breaks = breaks_rpkm,
-         annotation_col = anno_bulk_sacc, 
-         annotation_row = gene_anno,
-         annotation_colors = my_anno_colors,
-         cluster_rows = FALSE,
-         main = "sACC bulk- log(rpkm + 1)")
-dev.off()
+load("/dcl01/ajaffe/data/lab/singleCell/velmeshev2019/analysis_MNT/SCE_asd-velmeshev-etal_MNT.rda", verbose = TRUE)
+map_int(marker_genes_ratio, ~sum(!.x %in% rownames(sce.asd)))
+sce.asd <- sce.asd[,sce.asd$region == "ACC"]
 
-#### Amyg Data ####
-load("/dcl01/lieber/ajaffe/Matt/MNT_thesis/snRNAseq/10x_pilot_FINAL/rdas/regionSpecific_Amyg-n2_cleaned-combined_SCE_MNTFeb2020.rda", verbose = TRUE)
-## Exclude Ambig.lowNtrxts
-sce.amy <- sce.amy[,sce.amy$cellType.split != "Ambig.lowNtrxts",]
-sce.amy$cellType.split <- factor(sce.amy$cellType.split)
-## Add cellType.broad
-sce.amy$cellType.Broad <- ss(as.character(sce.amy$cellType.split), "\\.", 1)
-## Match rownames
-rownames(sce.amy) <- rowData(sce.amy)$ID
+cell_type_guess <- data.frame(cluster = levels(sce.asd$cluster),
+                              cellType = c(rep("Astro",2),"Micro",rep("Inhib.1",2),
+                                           rep("Inhib.2",2),"Excit.1","Excit.2",
+                                           "Excit.3","Excit.3","Micro",rep("Other",3),
+                                           "Oligo","OPC"))
 
-round(table(sce.amy$cellType.split)/ncol(sce.amy),3)
-# Astro Excit.1 Excit.2 Excit.3 Inhib.1 Inhib.2 Inhib.3 Inhib.4 Inhib.5   Micro   Oligo     OPC 
-# 0.129   0.051   0.006   0.008   0.026   0.017   0.005   0.004   0.015   0.116   0.528   0.095 
-round(table(sce.amy$cellType.Broad)/ncol(sce.amy),3)
-# Astro Excit Inhib Micro Oligo   OPC 
-# 0.129 0.065 0.066 0.116 0.528 0.095 
-table(sce.amy$cellType.Broad, sce.amy$donor)
 
-#       Br5161 Br5212
-# Astro    489    363
-# Excit    141    288
-# Inhib    169    268
-# Micro    425    339
-# Oligo   1697   1776
-# OPC      335    292
+pb_asd <- map(marker_genes_ratio[c("sacc_broad","sacc_specific")],function(m){
+  common_genes <- m[m %in% rownames(sce.asd)]
+  sce <- sce.asd[common_genes]
+  message(nrow(sce))
+  sce$pb <- paste0(sce$individual,"_",sce$cluster)
+  clusIndex = splitit(sce$pb)
+  pbcounts <- sapply(clusIndex, function(ii){
+    rowSums(exp(assays(sce)$logcounts)[ ,ii])
+  }
+  )
+  # Compute LSFs at this level
+  sizeFactors.PB.all  <- librarySizeFactors(pbcounts)
+  # Normalize with these LSFs
+  geneExprs.temp <- t(apply(pbcounts, 1, function(x) {log2(x/sizeFactors.PB.all + 1)}))
+  rownames(geneExprs.temp) <- rowData(sce.sacc)[common_genes,]$Symbol
+  return(geneExprs.temp)
+}
+)
 
-## Build gene annotation table
-top40_anno_amyg <- top40_amyg %>%
-  dplyr::select(grep("1vAll", colnames(top40_amyg))) %>%
-  rownames_to_column("n") %>%
-  melt(id.vars = "n") %>%
-  separate(variable,"_",into = c("cellType",NA)) %>%
-  group_by(value) %>% 
-  arrange(cellType)%>%
-  summarize(n = length(unique(cellType)),
-            cell_top40 = ifelse(n > 1, 
-                                paste(c("Multi",unique(gsub(".[0-9]", "", cellType))), collapse = "-"),
-                                cellType)) %>%
-  ungroup() %>%
-  dplyr::rename(Symbol = value) %>%
-  filter(Symbol %in% rowData(rse_gene)$Symbol,
-         Symbol %in% rowData(sce.amy)$Symbol) %>%
-  arrange(cell_top40)
 
-dim(top40_anno_amyg)
-# [1] 377   3
+marker_anno_vel <- map(marker_stats[c("sacc_broad","sacc_specific")], ~.x %>%
+                           filter(rank_ratio <= top_n) %>%
+                           mutate(rank_ratio = as.character(rank_ratio)) %>%
+                           column_to_rownames(var = "Symbol") %>%
+                           select(cellType.target, rank_ratio) 
+)
 
-top40_anno_amyg$ensemblID <- rowData(rse_gene)$ensemblID[match(top40_anno_amyg$Symbol, rowData(rse_gene)$Symbol)]
-top40_anno_amyg %>% filter(n>1) %>% count(cell_top40)
-# # A tibble: 12 x 2
-# A tibble: 3 x 2
-# cell_top40            n
-# <chr>             <int>
-# 1 Multi-Excit           4
-# 2 Multi-Excit-Inhib     1
-# 3 Multi-Inhib          28
+pb_anno_vel <- map(pb_asd, function(x){
+  anno <- tibble(id = colnames(x), a = colnames(x)) %>%
+    separate(a, "_", into = c("indi","cluster"))%>%
+    left_join(cell_type_guess)%>%
+    select(-indi) %>%
+    column_to_rownames(var = "id")
+  return(anno)
+})
 
-## amyg
-top40_anno_amyg <- top40_anno_amyg %>% 
-  filter(ensemblID %in% rownames(sce.amy),
-         ensemblID %in% rownames(rse_gene_amyg))
+my_anno_colors_vl <- map2(marker_anno_vel,pb_anno_vel,
+                          ~list(cellType.target = c(cell_colors,Other = "grey")[unique(.x[,1])],
+                                cellType = c(cell_colors,Other = "grey")[unique(.y[,2])],
+                                rank_ratio = rank_colors)
+                          
+)
 
-top40all_ensm_amyg <- top40_anno_amyg$ensemblID
-length(top40all_ensm_amyg)
-# [1] 376
+breaksList = seq(3, 12, by = 0.08)
+for(n in names(pb_asd)){
+  png(paste0("plots/heatmap-velmeshev_",n,"_top",top_n,"_ratio.png"), height = 750, width = 550)
+  pheatmap(pb_asd[[n]],
+           show_colnames = FALSE,
+           annotation_row = marker_anno_vel[[n]],
+           annotation_col = pb_anno_vel[[n]], 
+           annotation_colors = my_anno_colors_vl[[n]],
+           cluster_rows = TRUE,
+           breaks = breaksList,
+           main = paste(n," sn data:log2(norm pseudobulk counts) - top",top_n,"Velmeshev")
+  )
+  dev.off()
+}
 
-# filter expression data
-rse_gene_amyg <- rse_gene_amyg[top40all_ensm_amyg,]
-sce.amy <- sce.amy[top40all_ensm_amyg,]
+#### Bulk Heatmaps ####
+bulk_counts <- map2(marker_genes_ratio, rep(list(rse_gene_sacc, rse_gene_amyg),2), function(markers,rse){
+  rse_temp <- rse[markers,]
+  # rownames(rse_temp) <- ss(rowData(rse_temp)$Symbol,"\\.")
+  rownames(rse_temp) <- rowData(sce.sacc)[markers,]$Symbol
+  return(assays(rse_temp)$counts)
+})
 
-## Add rowRanges
-g_amyg <- g[top40all_ensm_amyg,]
-summary(g_amyg$bp_length)
-table(g_amyg$bp_length > 205012)
+bulk_logcounts <- 
 
-rowRanges(sce.amy) <- g_amyg
+bulk_anno <- as.data.frame(colData(rse_gene)[,c("PrimaryDx",'Experiment','Sex')])
 
-#### pseudobulk single cell data ####
+for(n in names(bulk_counts)){
+  png(paste0("plots/heatmap-Bulk_",n,"_top",top_n,"_ratio.png"), height = 750, width = 550)
+  pheatmap(bulk_counts[[n]],
+           show_colnames = FALSE,
+           annotation_row = marker_anno_ratio[[n]],
+           annotation_col = bulk_anno,
+           annotation_colors = my_anno_colors[[n]],
+           main = paste(n, "Bulk logcounts"))
+  dev.off()
+}
 
-pb_amyg <- aggregateAcrossCells(sce.amy, 
-                                id = colData(sce.amy)[,c("donor","cellType.split")])
-colnames(colData(pb_amyg))[[21]] <- "cellType.split_num"
-colnames(pb_amyg) <- paste0(pb_amyg$cellType.split, "_", pb_amyg$donor)
-
-dim(pb_amyg)
-# [1] 376  21
-
-## Compute RPKM
-pb_rpkm_amyg <- getRPKM(pb_amyg, "bp_length")
-bulk_rpkm_amyg <- getRPKM(rse_gene_amyg, "Length")
-
-## Transform counts by log and scale
-pb_counts_log_amyg <- log(as.matrix(assays(pb_amyg)$counts) + 1)
-pb_rpkm_log_amyg <- log(pb_rpkm_amyg + 1)
-bulk_counts_log_amyg <- log(as.matrix(assays(rse_gene_amyg)$counts) + 1)
-bulk_rpkm_log_amyg <- log(bulk_rpkm_amyg + 1)
-
-## define annotation tables
-anno_sc_amyg <- as.data.frame(colData(pb_amyg)[,c("donor","cellType.split","cellType.Broad")])
-anno_bulk_amyg <- as.data.frame(colData(rse_gene_amyg)[,c("PrimaryDx","Experiment")])
-## create gene anno obj
-gene_anno <- top40_anno_amyg %>% select(cell_top40) %>% as.data.frame()
-rownames(gene_anno) <- top40_anno_amyg$ensemblID
-
-## define color scale
-breaks_count <- seq(0, max(c(pb_counts_log_amyg, bulk_counts_log_amyg)), length = 100)
-breaks_rpkm <- seq(0, max(c(pb_rpkm_log_amyg, bulk_rpkm_log_amyg)), length = 100)
-
-## create annotation color schemes
-
-my_anno_colors <- list(cellType.split = cell_colors[names(cell_colors) %in% anno_sc_amyg$cellType.split],
-                       cellType.Broad = cell_colors[names(cell_colors) %in% anno_sc_amyg$cellType.Broad],
-                       PrimaryDx = mdd_Dx_colors, 
-                       Experiment = mdd_dataset_colors, 
-                       cell_top40 = cell_colors[names(cell_colors) %in% gene_anno$cell_top40],
-                       donor = donor_colors)
-
-#### Create Heat maps - amyg counts ####
-## log plots
-## Unsorted genes
-
-png("plots/heatmap_counts_amyg_sc_unclustered.png", height = 800, width = 580)
-pheatmap(pb_counts_log_amyg,
-         show_rownames = FALSE,
-         show_colnames = FALSE,
-         breaks = breaks_count,
-         annotation_row = gene_anno,
-         annotation_col = anno_sc_amyg, 
-         annotation_colors = my_anno_colors,
-         cluster_rows = FALSE,
-         main = "Amyg single cell ref - log(counts + 1)")
-dev.off()
-
-png("plots/heatmap_counts_amyg_bulk_unclustered.png", height = 800, width = 580)
-pheatmap(bulk_counts_log_amyg,
-         show_rownames = FALSE,
-         show_colnames = FALSE,
-         breaks = breaks_count,
-         annotation_row = gene_anno,
-         annotation_col = anno_bulk_amyg,
-         annotation_colors = my_anno_colors,
-         cluster_rows = FALSE,
-         main = "Amyg bulk - log(counts + 1)")
-dev.off()
-
-png("plots/heatmap_counts_amyg_bulk_explore.png", height = 800, width = 580)
-bulk_explore <- pheatmap(bulk_counts_log_amyg,
-                         show_rownames = FALSE,
-                         show_colnames = FALSE,
-                         breaks = breaks_count,
-                         annotation_row = gene_anno,
-                         annotation_col = anno_bulk_amyg,
-                         annotation_colors = my_anno_colors,
-                         cutree_cols = 4,
-                         main = "Amyg bulk - log(counts + 1)")
-dev.off()
-
-## Sort genes by sc clustering
-png("plots/heatmap_counts_amyg_sc.png", height = 800, width = 580)
-sc_log_heatmap <- pheatmap(pb_counts_log_amyg,
-                           show_rownames = FALSE,
-                           show_colnames = FALSE,
-                           breaks = breaks_count,
-                           annotation_row = gene_anno,
-                           annotation_col = anno_sc_amyg, 
-                           annotation_colors = my_anno_colors,
-                           main = "Amyg single cell ref - log(counts + 1)")
-dev.off()
-
-bulk_counts_log_amyg <- bulk_counts_log_amyg[sc_log_heatmap$tree_row$order,]
-
-png("plots/heatmap_counts_amyg_bulk.png", height = 800, width = 580)
-pheatmap(bulk_counts_log_amyg,
-         show_rownames = FALSE,
-         show_colnames = FALSE,
-         breaks = breaks_count,
-         annotation_col = anno_bulk_amyg, 
-         annotation_row = gene_anno,
-         annotation_colors = my_anno_colors,
-         cluster_rows = FALSE,
-         main = "amyg bulk- log(counts + 1)")
-dev.off()
-
-#### Create Heat maps - amyg rpkm ####
-## log plots
-## Unsorted genes
-
-png("plots/heatmap_rpkm_amyg_sc_unclustered.png", height = 800, width = 580)
-pheatmap(pb_rpkm_log_amyg,
-         show_rownames = FALSE,
-         show_colnames = FALSE,
-         #breaks = breaks_rpkm,
-         annotation_row = gene_anno,
-         annotation_col = anno_sc_amyg, 
-         annotation_colors = my_anno_colors,
-         cluster_rows = FALSE,
-         main = "Amyg single cell ref - log(RPKM + 1)")
-dev.off()
-
-png("plots/heatmap_rpkm_amyg_bulk_unclustered.png", height = 800, width = 580)
-pheatmap(bulk_rpkm_log_amyg,
-         show_rownames = FALSE,
-         show_colnames = FALSE,
-         #breaks = breaks_rpkm,
-         annotation_row = gene_anno,
-         annotation_col = anno_bulk_amyg,
-         annotation_colors = my_anno_colors,
-         cluster_rows = FALSE,
-         main = "Amyg bulk - log(RPKM + 1)")
-dev.off()
-
-png("plots/heatmap_rpkm_amyg_bulk_explore.png", height = 800, width = 580)
-bulk_explore <- pheatmap(bulk_rpkm_log_amyg,
-                         show_rownames = FALSE,
-                         show_colnames = FALSE,
-                         #breaks = breaks_rpkm,
-                         annotation_row = gene_anno,
-                         annotation_col = anno_bulk_amyg,
-                         annotation_colors = my_anno_colors,
-                         cutree_cols = 4,
-                         main = "Amyg bulk - log(RPKM + 1)")
-dev.off()
-
-## Sort genes by sc clustering
-png("plots/heatmap_rpkm_amyg_sc.png", height = 800, width = 580)
-sc_log_heatmap <- pheatmap(pb_rpkm_log_amyg,
-                           show_rownames = FALSE,
-                           show_colnames = FALSE,
-                           #breaks = breaks_rpkm,
-                           annotation_row = gene_anno,
-                           annotation_col = anno_sc_amyg, 
-                           annotation_colors = my_anno_colors,
-                           main = "Amyg single cell ref - log(RPKM + 1)")
-dev.off()
-
-bulk_rpkm_log_amyg <- bulk_rpkm_log_amyg[sc_log_heatmap$tree_row$order,]
-
-png("plots/heatmap_rpkm_amyg_bulk.png", height = 800, width = 580)
-pheatmap(bulk_rpkm_log_amyg,
-         show_rownames = FALSE,
-         show_colnames = FALSE,
-         #breaks = breaks_rpkm,
-         annotation_col = anno_bulk_amyg, 
-         annotation_row = gene_anno,
-         annotation_colors = my_anno_colors,
-         cluster_rows = FALSE,
-         main = "amyg bulk- log(rpkm + 1)")
-dev.off()
-
-# sgejobs::job_single('deconvo_heatmap', create_shell = TRUE, queue= 'bluejay', memory = '10G', command = "Rscript deconvo_heatmap.R")
+# sgejobs::job_single('deconvo_heatmap_newMarkers.R', create_shell = TRUE, queue= 'bluejay', memory = '10G', command = "Rscript deconvo_heatmap_newMarkers.R")
 ## Reproducibility information
 print("Reproducibility information:")
 Sys.time()
 proc.time()
 options(width = 120)
 sessionsession_info()
-
