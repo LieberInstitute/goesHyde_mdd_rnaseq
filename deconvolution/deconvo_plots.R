@@ -43,6 +43,17 @@ walk2(est_prop_long, names(est_prop_long), function(x,y){
   ggsave(plot = blb, filename = paste0("plots/cellType_sex_boxplots_",y,".png"), width = 15)
 } )
 
+walk2(est_prop_long, names(est_prop_long), function(x,y){
+  blb <- big_little_boxplot(data = x,
+                            xvar = "cell_type", 
+                            yvar = "prop",
+                            fillvar =  "PrimaryDx",
+                            colorvar = "Sex",
+                            title = "MuSiC Proptions: Top5 markers",
+                            subtitle = y)
+  ggsave(plot = blb, filename = paste0("plots/cellType_sex_boxplots_",y,".png"), width = 15)
+} )
+
 #### Experimental plots ####
 bar <-est_prop_long[[1]]%>%
   left_join(est_prop_long[[1]] %>%
@@ -75,31 +86,6 @@ walk2(est_prop, names(est_prop), function(est, n){
   dev.off()
 })
 
-
-
-
-## plot top 40 
-sum_scatter_sacc <- prop_sum_sacc %>%
-  ggplot(aes(prop_top40, sum_prop_top40, color = cell_type)) +
-  geom_point()  +  
-  geom_abline()+
-  scale_color_manual(values = cell_colors)+
-  facet_wrap(~cell_type, scales = "free")+
-  theme(legend.position = "None") +
-  labs(title = "Specific prop summed vs. Broad prop",
-       subtitle = "top 40 - sACC")
-
-sum_scatter_amyg <- prop_sum_amyg %>%
-  ggplot(aes(prop_top40, sum_prop_top40, color = cell_type)) +
-  geom_point()  +  
-  geom_abline()+
-  scale_color_manual(values = cell_colors)+
-  facet_wrap(~cell_type, scales = "free")+
-  theme(legend.position = "None") +
-  labs(subtitle = "Amygdala")
-
-ggsave(filename = "plots/sum_scatter_top40.png",
-       plot = sum_scatter_sacc + sum_scatter_amyg, width = 14)
 
 
 # sgejobs::job_single('deconvo_plots', create_shell = TRUE, queue= 'bluejay', memory = '10G', command = "Rscript deconvo_plots.R")
