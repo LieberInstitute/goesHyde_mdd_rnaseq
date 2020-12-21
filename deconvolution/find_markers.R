@@ -68,6 +68,13 @@ map(marker_stats, ~summarize(.x,
                              mad3_cutoff = mean_ratio + (3*mad_ratio),
                              n_markers = sum(ratio > mad3_cutoff)))
 
+## 5 MADs are is the hightest cuttoff to keep some markers for 
+map(marker_stats, ~summarize(.x,
+                             mean_ratio = mean(ratio),
+                             mad_ratio = mad(ratio),
+                             mad_cutoff = mean_ratio + (5*mad_ratio),
+                             n_markers = sum(ratio > mad_cutoff)))
+
 map(marker_stats, ~filter(.x, log.p.value < log(0.05)) %>%
       summarize(mean_ratio = mean(ratio),
                 mad_ratio = mad(ratio),
