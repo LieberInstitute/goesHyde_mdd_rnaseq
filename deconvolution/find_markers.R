@@ -166,13 +166,13 @@ exp_plots_marker <- map2(marker_stats, names(marker_stats), function(x,y){
 })
 
 
-# sgejobs::job_single('find_markers.R', create_shell = TRUE, queue= 'bluejay', memory = '10G', command = "Rscript find_markers.R")
+# sgejobs::job_single('find_markers', create_shell = TRUE, queue= 'bluejay', memory = '10G', command = "Rscript find_markers.R")
 ## Reproducibility information
 print("Reproducibility information:")
 Sys.time()
 proc.time()
 options(width = 120)
-sessionsession_info()
+session_info()
 
 
 
