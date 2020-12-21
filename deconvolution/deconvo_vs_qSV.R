@@ -5,179 +5,82 @@ library(reshape2)
 library(purrr)
 library(tidyverse)
 library(broom)
+library(viridis)
 library(sessioninfo)
 
 #### Load Data ####
-load(here("exprs_cutoff", "rse_gene.Rdata"), verbose = TRUE)
-pd <- as.data.frame(colData(rse_gene))
+load(here("deconvolution","data","est_prop_top5_long.Rdata"), verbose = TRUE)
+load(here("differential_expression" ,"qSV_mat.Rdata"), verbose = TRUE)
+
+qSV_long <- melt(qSV_mat) %>% rename(sample = Var1, qSV = Var2, qSV_value = value)
 
 ## Bind with qSV table
-load(here("differential_expression" ,"qSV_mat.Rdata"), verbose = TRUE)
-all(rownames(pd)==rownames(qSV_mat))
-pd <- cbind(pd, qSV_mat)
-
-## split by region
-pd_sacc <- pd[pd$BrainRegion == "sACC",]
-pd_amyg <- pd[pd$BrainRegion == "Amygdala",]
-
-
-#### check against qSV ####
-qsv_names <- colnames(qSV_mat)
-
-qsv_long_sacc <- pd_sacc %>% 
-  rownames_to_column("sample") %>%
-  select(all_of(c("sample", qsv_names))) %>%
-  melt(id.vars= c("sample")) %>%
-  rename(qSV_name = variable, qSV = value) 
-
-qsv_long_amyg <- pd_amyg %>% 
-  rownames_to_column("sample") %>%
-  select(all_of(c("sample", qsv_names))) %>%
-  melt(id.vars= c("sample")) %>%
-  rename(qSV_name = variable, qSV = value) 
-
-prop_qsv_sacc <- prop_sacc %>%
-  left_join(qsv_long_sacc, by = "sample")
-
-prop_qsv_amyg <- prop_amyg %>%
-  left_join(qsv_long_amyg, by = "sample")
+map_int(est_prop_long, nrow)
+# sacc_broad    amyg_broad sacc_specific amyg_specific 
+# 3306          3240          5510          4860
+est_prop_qsv <- map(est_prop_long, ~.x %>% 
+                      select(sample, cell_type, prop) %>%
+                      left_join(qSV_long, by = "sample"))
 
 #### Calculate p-values ####
-##sACC
-cross_sacc <- cross2(cells_sacc, qsv_names)
 
-cross_df_sacc <- as.data.frame(do.call("rbind", cross_sacc))
-colnames(cross_df_sacc) <- c("cell_type","qSV_name")
-cross_df_sacc$cell_type <- factor(cross_df_sacc$cell_type, levels = unique(cross_df_sacc$cell_type))
-cross_df_sacc$qSV_name <- factor(cross_df_sacc$qSV_name, levels = unique(cross_df_sacc$qSV_name))
+prop_qSV_fit <- map(est_prop_qsv,~.x %>% group_by(cell_type, qSV) %>%
+  do(fitQSV = tidy(lm(prop ~ qSV_value-1, data = .))) %>% 
+  unnest(fitQSV) %>%
+    mutate(p.bonf = p.adjust(p.value, "bonf"),
+           p.bonf.sig = p.bonf < 0.05,
+           p.fdr = p.adjust(p.value, "fdr")))
 
-## All genes
-qsv_lm_sacc <- bind_rows(map(cross_sacc, function(x){
-  cell = x[[1]]
-  qsv = x[[2]]
-  prop_qsv <- prop_qsv_sacc %>%
-    filter(cell_type == cell & qSV_name == qsv) 
-  
-  tidy(lm(prop~qSV-1, data = prop_qsv))
-}))
+map_int(prop_qSV_fit, nrow)
+# sacc_broad    amyg_broad sacc_specific amyg_specific 
+# 156           156           260           234 
+map_int(prop_qSV_fit, ~sum(.x$p.value < 0.05))
+# sacc_broad    amyg_broad sacc_specific amyg_specific 
+# 67            81           119           114 
+map_int(prop_qSV_fit, ~sum(.x$p.bonf.sig))
+# sacc_broad    amyg_broad sacc_specific amyg_specific 
+# 44            44            68            62 
+map_int(prop_qSV_fit, ~sum(.x$p.fdr < 0.05))
+# sacc_broad    amyg_broad sacc_specific amyg_specific 
+# 60            70           105           102 
 
-qsv_lm_sacc_df <- cbind(cross_df_sacc,qsv_lm_sacc) 
-
-qsv_lm_sacc_df$p.bonf <- p.adjust(qsv_lm_sacc_df$p.value, 'bonf')
-qsv_lm_sacc_df$p.bonf.sig <- qsv_lm_sacc_df$p.bonf < 0.05
-qsv_lm_sacc_df$p.fdr<- p.adjust(qsv_lm_sacc_df$p.value, 'fdr')
-
-sum(qsv_lm_sacc_df$p.bonf < 0.05)
-# [1] 74
-head(qsv_lm_sacc_df)
-
-## top40 
-qsv_lm_top40_sacc <- bind_rows(map(cross_sacc, function(x){
-  cell = x[[1]]
-  qsv = x[[2]]
-  prop_qsv <- prop_qsv_sacc %>%
-    filter(cell_type == cell & qSV_name == qsv) 
-  
-  tidy(lm(prop_top40~qSV-1, data = prop_qsv))
-}))
-
-qsv_lm_top40_sacc_df <- cbind(cross_df_sacc,qsv_lm_top40_sacc) 
-
-qsv_lm_top40_sacc_df$p.bonf <- p.adjust(qsv_lm_top40_sacc_df$p.value, 'bonf')
-qsv_lm_top40_sacc_df$p.bonf.sig <- qsv_lm_top40_sacc_df$p.bonf < 0.05
-qsv_lm_top40_sacc_df$p.fdr<- p.adjust(qsv_lm_top40_sacc_df$p.value, 'fdr')
-
-sum(qsv_lm_top40_sacc_df$p.bonf < 0.05)
-# [1] 83
-head(qsv_lm_top40_sacc_df)
-
-## Amyg
-cross_amyg <- cross2(cells_amyg, qsv_names)
-
-cross_df_amyg <- as.data.frame(do.call("rbind", cross_amyg))
-colnames(cross_df_amyg) <- c("cell_type","qSV_name")
-cross_df_amyg$cell_type <- factor(cross_df_amyg$cell_type, levels = unique(cross_df_amyg$cell_type))
-cross_df_amyg$qSV_name <- factor(cross_df_amyg$qSV_name, levels = unique(cross_df_amyg$qSV_name))
-
-## All genes
-qsv_lm_amyg <- bind_rows(map(cross_amyg, function(x){
-  cell = x[[1]]
-  qsv = x[[2]]
-  prop_qsv <- prop_qsv_amyg %>%
-    filter(cell_type == cell & qSV_name == qsv) 
-  
-  tidy(lm(prop~qSV-1, data = prop_qsv))
-}))
-
-qsv_lm_amyg_df <- cbind(cross_df_amyg, qsv_lm_amyg) 
-
-qsv_lm_amyg_df$p.bonf <- p.adjust(qsv_lm_amyg_df$p.value, 'bonf')
-qsv_lm_amyg_df$p.bonf.sig <- qsv_lm_amyg_df$p.bonf < 0.05
-qsv_lm_amyg_df$p.fdr<- p.adjust(qsv_lm_amyg_df$p.value, 'fdr')
-
-sum(is.na(qsv_lm_amyg_df$p.value))
-# [1] 26
-## Replace NA with FALSE 
-qsv_lm_amyg_df$p.bonf.sig[is.na(qsv_lm_amyg_df$p.bonf.sig)] <- FALSE
-sum(qsv_lm_amyg_df$p.bonf.sig)
-# [1] 69
-
-## top40
-qsv_lm_top40_amyg <- bind_rows(map(cross_amyg, function(x){
-  cell = x[[1]]
-  qsv = x[[2]]
-  prop_qsv <- prop_qsv_amyg %>%
-    filter(cell_type == cell & qSV_name == qsv) 
-  
-  tidy(lm(prop_top40~qSV-1, data = prop_qsv))
-}))
-
-qsv_lm_top40_amyg_df <- cbind(cross_df_amyg, qsv_lm_top40_amyg) 
-
-qsv_lm_top40_amyg_df$p.bonf <- p.adjust(qsv_lm_top40_amyg_df$p.value, 'bonf')
-qsv_lm_top40_amyg_df$p.bonf.sig <- qsv_lm_top40_amyg_df$p.bonf < 0.05
-qsv_lm_top40_amyg_df$p.fdr<- p.adjust(qsv_lm_top40_amyg_df$p.value, 'fdr')
-
-sum(qsv_lm_top40_amyg_df$p.bonf.sig)
-# [1] 85
 
 #### Create scatter plots ####
-scatter_qsv_sacc <- prop_qsv_sacc %>% 
-  left_join(qsv_lm_sacc_df %>% select(cell_type, qSV_name, p.bonf.sig)) %>% 
-  ggplot(aes(qSV, prop, color= p.bonf.sig)) +
-  geom_point(size = .4, alpha = .25) +
-  facet_grid(cell_type~qSV_name, scales = "free")+
-  theme_bw(base_size = 10)+
-  scale_color_manual(values = c('FALSE' = 'black', 'TRUE' = 'red'))
+walk2(est_prop_qsv, names(est_prop_qsv),function(values, n){
+  prop_qsv_temp <-  values %>%
+    left_join(prop_qSV_fit[[n]] %>% select(cell_type, qSV, p.bonf, p.bonf.sig),
+              by = c("cell_type", "qSV"))
+  
+  scatter_plot <- ggplot(prop_qsv_temp, aes(x = qSV_value, y = prop, color = p.bonf.sig))+
+    geom_point(size = .4, alpha = .25) +
+    facet_grid(cell_type~qSV, scales = "free")+
+    theme_bw(base_size = 10)+
+    scale_color_manual(values = c('FALSE' = 'black', 'TRUE' = 'red'))
+  
+  ggsave(filename = paste0("plots/qSV_cellType_scatter-",n,".png"), plot = scatter_plot, width = 26, height = length(unique(prop_qsv_temp$cell_type)))
+  
+})
 
-ggsave(filename = "plots/cellType_qSV_sACC.png", plot = scatter_qsv_sacc, width = 26, height = 10)
+my_breaks <- c(0.05, 0.01, 0.005, 0)
 
-scatter_qsv_top40_sacc <- prop_qsv_sacc %>% 
-  left_join(qsv_lm_top40_sacc_df %>% select(cell_type, qSV_name, p.bonf.sig)) %>% 
-  ggplot(aes(qSV, prop_top40, color= p.bonf.sig)) +
-  geom_point(size = .4, alpha = .25) +
-  facet_grid(cell_type~qSV_name, scales = "free")+
-  theme_bw(base_size = 10)+
-  scale_color_manual(values = c('FALSE' = 'black', 'TRUE' = 'red'))
+walk2(prop_qSV_fit, names(prop_qSV_fit),function(values, n){
+  tile_plot <- filter(values, p.bonf.sig) %>%
+    ggplot(aes(x = cell_type, y = qSV, fill = p.bonf)) +
+    geom_tile() +
+    labs(title = n)+ 
+    scale_fill_viridis()
+    # scale_fill_gradient(name = "count", trans = "log10",
+    #                                      breaks = my_breaks, labels = my_breaks)
+  
+  ggsave(filename = paste0("plots/qSV_prop_fit_tile-",n,".png"), plot = tile_plot)
+})
 
-ggsave(filename = "plots/cellType_qSV_top40_sACC.png", plot = scatter_qsv_top40_sacc, width = 26, height = 10)
 
-scatter_qsv_amyg <- prop_qsv_amyg %>% 
-  left_join(qsv_lm_amyg_df %>% select(cell_type, qSV_name, p.bonf.sig)) %>% 
-  ggplot(aes(qSV, prop, color= p.bonf.sig)) +
-  geom_point(size = .5, alpha = .25) +
-  facet_grid(cell_type~qSV_name, scales = "free")+
-  theme_bw(base_size = 10)+
-  scale_color_manual(values = c('FALSE' = 'black', 'TRUE' = 'red'))
 
-ggsave(filename = "plots/cellType_qSV_amyg.png", plot = scatter_qsv_amyg, width = 26, height = 10)
-
-scatter_qsv_top40_amyg <- prop_qsv_amyg %>% 
-  left_join(qsv_lm_top40_amyg_df %>% select(cell_type, qSV_name, p.bonf.sig)) %>% 
-  ggplot(aes(qSV, prop_top40, color= p.bonf.sig)) +
-  geom_point(size = .5, alpha = .25) +
-  facet_grid(cell_type~qSV_name, scales = "free")+
-  theme_bw(base_size = 10)+
-  scale_color_manual(values = c('FALSE' = 'black', 'TRUE' = 'red'))
-
-ggsave(filename = "plots/cellType_qSV_top40_amyg.png", plot = scatter_qsv_top40_amyg, width = 26, height = 10)
+# sgejobs::job_single('deconvo_vs_qSV', create_shell = TRUE, queue= 'bluejay', memory = '5G', command = "Rscript deconvo_vs_qSV.R")
+## Reproducibility information
+print("Reproducibility information:")
+Sys.time()
+proc.time()
+options(width = 120)
+session_info()
