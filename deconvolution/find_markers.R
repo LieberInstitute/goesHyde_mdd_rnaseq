@@ -9,6 +9,7 @@ library(stringr)
 library(purrr)
 library(tidyverse)
 library(patchwork)
+library(sessioninfo)
 
 source(here("deconvolution","get_mean_ratio.R"))
 source(here("deconvolution","findMarkers_1vAll.R"))
@@ -165,8 +166,13 @@ exp_plots_marker <- map2(marker_stats, names(marker_stats), function(x,y){
 })
 
 
-
-
+# sgejobs::job_single('find_markers.R', create_shell = TRUE, queue= 'bluejay', memory = '10G', command = "Rscript find_markers.R")
+## Reproducibility information
+print("Reproducibility information:")
+Sys.time()
+proc.time()
+options(width = 120)
+sessionsession_info()
 
 
 
