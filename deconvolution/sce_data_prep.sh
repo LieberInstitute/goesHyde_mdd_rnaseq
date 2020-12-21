@@ -2,8 +2,8 @@
 #$ -cwd
 #$ -l bluejay,mem_free=10G,h_vmem=10G,h_fsize=100G
 #$ -N sce_data_prep
-#$ -o logs/1_sce_data_prep.txt
-#$ -e logs/1_sce_data_prep.txt
+#$ -o logs/sce_data_prep.txt
+#$ -e logs/sce_data_prep.txt
 #$ -m e
 
 echo "**** Job starts ****"
@@ -23,7 +23,7 @@ module load conda_R
 module list
 
 ## Edit with your job command
-Rscript 1_sce_data_prep.R
+Rscript sce_data_prep.R
 
 echo "**** Job ends ****"
 date

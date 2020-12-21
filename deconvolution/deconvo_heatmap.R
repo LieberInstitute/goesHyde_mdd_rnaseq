@@ -13,6 +13,7 @@ library(purrr)
 library(RColorBrewer)
 library(rlang)
 library(pheatmap)
+library(sessioninfo)
 # Load colors
 source(here("main_colors.R"))
 load(here("deconvolution","data","cell_colors.Rdata"), verbose = TRUE)
@@ -315,10 +316,10 @@ for(n in names(bulk_counts)){
   dev.off()
 }
 
-# sgejobs::job_single('deconvo_heatmap_newMarkers.R', create_shell = TRUE, queue= 'bluejay', memory = '10G', command = "Rscript deconvo_heatmap_newMarkers.R")
+# sgejobs::job_single('deconvo_heatmap.R', create_shell = TRUE, queue= 'bluejay', memory = '10G', command = "Rscript deconvo_heatmap.R")
 ## Reproducibility information
 print("Reproducibility information:")
 Sys.time()
 proc.time()
 options(width = 120)
-sessionsession_info()
+session_info()
