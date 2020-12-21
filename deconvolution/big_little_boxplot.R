@@ -2,7 +2,7 @@ library(ggplot2)
 library(patchwork)
 library("rlang")
 
-big_little_boxplot <- function(data, xvar, yvar, fillvar, colorvar , pallet = mdd_Dx_colors,  cutoff = 0.1, title, subtitle){
+big_little_boxplot <- function(data, xvar, yvar, fillvar, colorvar , pallet = mdd_all_colors,  cutoff = 0.1, title, subtitle){
   ignore <- NULL
   
   data <- data %>% group_by(cell_type) %>% mutate(big = mean(prop) > 0.1)
@@ -11,6 +11,7 @@ big_little_boxplot <- function(data, xvar, yvar, fillvar, colorvar , pallet = md
     ggplot(aes(x = !!sym(xvar), y = !!sym(yvar), fill = !!sym(fillvar), color = !!sym(colorvar))) +
     geom_boxplot()+
     scale_fill_manual(values = pallet)+
+    scale_color_manual(values = pallet)+
     labs(title = title,
          subtitle = subtitle)+
     theme(legend.position = "None")
@@ -18,7 +19,8 @@ big_little_boxplot <- function(data, xvar, yvar, fillvar, colorvar , pallet = md
   bp_little <- data %>% filter(!big) %>%
     ggplot(aes(x = !!sym(xvar), y = !!sym(yvar), fill = !!sym(fillvar), color = !!sym(colorvar))) +
     geom_boxplot()+
-    scale_fill_manual(values = pallet)
+    scale_fill_manual(values = pallet) +
+   scale_color_manual(values = pallet)
   
   return(bp_big + bp_little)
 }
