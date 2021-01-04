@@ -25,11 +25,15 @@ est_prop_qsv <- map(est_prop_long, ~.x %>%
 #### Calculate p-values ####
 
 prop_qSV_fit <- map(est_prop_qsv,~.x %>% group_by(cell_type, qSV) %>%
-  do(fitQSV = tidy(lm(prop ~ qSV_value-1, data = .))) %>% 
-  unnest(fitQSV) %>%
-    mutate(p.bonf = p.adjust(p.value, "bonf"),
-           p.bonf.sig = p.bonf < 0.05,
-           p.fdr = p.adjust(p.value, "fdr")))
+                      do(fitQSV = tidy(lm(prop ~ qSV_value-1, data = .))) %>% 
+                      unnest(fitQSV) %>%
+                      mutate(p.bonf = p.adjust(p.value, "bonf"),
+                             p.bonf.sig = p.bonf < 0.05,
+                             p.bonf.cat = cut(p.bonf, 
+                                              breaks = c(1,0.05, 0.01, 0.005, 0),
+                                              labels = c("< 0.005","< 0.01", "< 0.05", "> 0.05")),
+                             p.fdr = p.adjust(p.value, "fdr"))
+)
 
 map_int(prop_qSV_fit, nrow)
 # sacc_broad    amyg_broad sacc_specific amyg_specific 
@@ -44,6 +48,58 @@ map_int(prop_qSV_fit, ~sum(.x$p.fdr < 0.05))
 # sacc_broad    amyg_broad sacc_specific amyg_specific 
 # 60            70           105           102 
 
+
+#### Save results ###
+save(prop_qSV_fit, file = "data/prop_qSV_fit.Rdata")
+# load("data/prop_qSV_fit.Rdata", verbose = TRUE)
+
+
+#### Tile plots ####
+my_breaks <- c(0.05, 0.01, 0.005, 0)
+
+sig_colors <- c(rev(viridis_pal(option = "magma")(3)),NA)
+names(sig_colors) <- c("< 0.005","< 0.01", "< 0.05", "> 0.05")
+
+walk2(prop_qSV_fit, names(prop_qSV_fit),function(values, n){
+  tile_plot <- values %>%
+    ggplot(aes(x = cell_type, y = qSV, fill = p.bonf)) +
+    geom_tile(color = "grey") +
+    labs(title ="p-values cell-type prop~qSV",
+         subtitle = n) +
+    geom_text(aes(label = p.bonf.cat, color = p.bonf.cat))+
+    scale_color_manual(values = sig_colors) +
+    scale_fill_viridis(name = "p-value bonf", trans = "log10", option = "magma")
+  
+  ggsave(filename = paste0("plots/qSV_prop_fit_tile-",n,".png"), plot = tile_plot)
+})
+
+walk2(prop_qSV_fit, names(prop_qSV_fit),function(values, n){
+  tile_plot <- values %>%
+    ggplot(aes(x = cell_type, y = qSV, fill = p.bonf)) +
+    geom_tile(color = "grey") +
+    labs(title ="p-values cell-type prop~qSV",
+         subtitle = n) +
+    geom_text(aes(label = round(log10(p.bonf),3), color = p.bonf.cat))+
+    scale_color_manual(values = sig_colors) +
+    scale_fill_viridis(name = "p-value bonf", trans = "log10", option = "magma")
+  
+  ggsave(filename = paste0("plots/qSV_prop_fit_tile2-",n,".png"), plot = tile_plot)
+})
+
+# Significance 
+walk2(prop_qSV_fit, names(prop_qSV_fit),function(values, n){
+  tile_plot <- values %>%
+    ggplot(aes(x = cell_type, y = qSV, fill = p.bonf.cat)) +
+    geom_tile(color = "grey") +
+    labs(title ="Significance cell-type prop~qSV",
+         subtitle = n) +
+    scale_fill_manual(values = sig_colors) +
+    theme_classic()
+  # scale_fill_gradient(name = "count", trans = "log10",
+  #                                      breaks = my_breaks, labels = my_breaks)
+  
+  ggsave(filename = paste0("plots/qSV_prop_fit_tileCat-",n,".png"), plot = tile_plot)
+})
 
 #### Create scatter plots ####
 walk2(est_prop_qsv, names(est_prop_qsv),function(values, n){
@@ -61,19 +117,7 @@ walk2(est_prop_qsv, names(est_prop_qsv),function(values, n){
   
 })
 
-my_breaks <- c(0.05, 0.01, 0.005, 0)
 
-walk2(prop_qSV_fit, names(prop_qSV_fit),function(values, n){
-  tile_plot <- filter(values, p.bonf.sig) %>%
-    ggplot(aes(x = cell_type, y = qSV, fill = p.bonf)) +
-    geom_tile() +
-    labs(title = n)+ 
-    scale_fill_viridis()
-    # scale_fill_gradient(name = "count", trans = "log10",
-    #                                      breaks = my_breaks, labels = my_breaks)
-  
-  ggsave(filename = paste0("plots/qSV_prop_fit_tile-",n,".png"), plot = tile_plot)
-})
 
 
 
