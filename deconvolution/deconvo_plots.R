@@ -32,27 +32,25 @@ walk2(est_prop_long, names(est_prop_long), function(x,y){
   ggsave(plot = blb, filename = paste0("plots/cellType_boxplots_",y,".png"), width = 15)
 } )
 
+
+dx_sex_colors <- mdd_Dx_colors_LD
+names(dx_sex_colors) <- gsub("dark","F",gsub("light","M",names(mdd_Dx_colors_LD)))
+
 walk2(est_prop_long, names(est_prop_long), function(x,y){
+  
+  x <- x %>% mutate(Dx_Sex = paste0(PrimaryDx, "_",Sex))
+  
   blb <- big_little_boxplot(data = x,
                             xvar = "cell_type", 
                             yvar = "prop",
-                            fillvar =  "PrimaryDx",
-                            colorvar = "Sex",
+                            fillvar =  "Dx_Sex",
+                            colorvar = "ignore",
+                            pallet = dx_sex_colors,
                             title = "MuSiC Proptions: Top5 markers",
                             subtitle = y)
   ggsave(plot = blb, filename = paste0("plots/cellType_sex_boxplots_",y,".png"), width = 15)
 } )
 
-walk2(est_prop_long, names(est_prop_long), function(x,y){
-  blb <- big_little_boxplot(data = x,
-                            xvar = "cell_type", 
-                            yvar = "prop",
-                            fillvar =  "PrimaryDx",
-                            colorvar = "Sex",
-                            title = "MuSiC Proptions: Top5 markers",
-                            subtitle = y)
-  ggsave(plot = blb, filename = paste0("plots/cellType_sex_boxplots_",y,".png"), width = 15)
-} )
 
 #### Experimental plots ####
 bar <-est_prop_long[[1]]%>%
