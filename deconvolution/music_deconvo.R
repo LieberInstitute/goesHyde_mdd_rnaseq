@@ -91,7 +91,7 @@ save(est_prop, file= here("deconvolution","data",paste0("est_prop_top", top_n,".
 pd <- as.data.frame(colData(rse_gene))
 
 pd2 <- pd  %>%
-  select(Sex, PrimaryDx, ERCCsumLogErr, grep("snpPC",colnames(pd)))%>%
+  select(BrNum, RNum, Sex, PrimaryDx, ERCCsumLogErr, grep("snpPC",colnames(pd)))%>%
   rownames_to_column("sample")
   
 
