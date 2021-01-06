@@ -14,6 +14,7 @@ library(RColorBrewer)
 library(rlang)
 library(pheatmap)
 library(sessioninfo)
+
 # Load colors
 source(here("main_colors.R"))
 load(here("deconvolution","data","cell_colors.Rdata"), verbose = TRUE)
@@ -180,8 +181,9 @@ my_anno_colors <- map(pb_anno, ~list(cellType.target = cell_colors[levels(.x[,2]
                                      )
                       )
 
-#### Create Heat maps - sACC RPKM ####
+#### Create Heat maps SCE ####
 
+## top 5 by ratio
 for(n in names(pb_ratio)){
   png(paste0("plots/heatmap_",n,"_top",top_n,"_ratio.png"), height = 750, width = 550)
   pheatmap(pb_ratio[[n]],
@@ -195,6 +197,7 @@ for(n in names(pb_ratio)){
   dev.off()
 }
 
+## top 5 by findMarkers
 for(n in names(pb_mark[1:3])){
   png(paste0("plots/heatmap_",n,"_top",top_n,"_mark.png"), height = 750, width = 550)
   pheatmap(pb_mark[[n]],
@@ -208,6 +211,7 @@ for(n in names(pb_mark[1:3])){
   dev.off()
 }
 
+## ratio with MAD*5 cutoff
 for(n in names(pb_mad)){
   png(paste0("plots/heatmap_",n,"_ratioMAD.png"), height = 750, width = 550)
   pheatmap(pb_mad[[n]],
@@ -294,25 +298,31 @@ for(n in names(pb_asd)){
 }
 
 #### Bulk Heatmaps ####
-bulk_counts <- map2(marker_genes_ratio, rep(list(rse_gene_sacc, rse_gene_amyg),2), function(markers,rse){
+bulk_filtered <- map2(marker_genes_ratio, rep(list(rse_gene_sacc, rse_gene_amyg),2), function(markers,rse){
   rse_temp <- rse[markers,]
   # rownames(rse_temp) <- ss(rowData(rse_temp)$Symbol,"\\.")
   rownames(rse_temp) <- rowData(sce.sacc)[markers,]$Symbol
-  return(assays(rse_temp)$counts)
+  return(rse_temp)
 })
 
-bulk_logcounts <- 
+# symbols <- map2(marker_genes_ratio, rep(list(rse_gene_sacc, rse_gene_amyg),2), function(markers,rse){
+#   rse_temp <- rse[markers,]
+#   tibble(ensemblID = rownames(rse_temp), bulk = rowData(rse_temp)$Symbol, sce = rowData(sce.sacc)[markers,]$Symbol) %>%
+#     filter(bulk != sce)
+# })
 
-bulk_anno <- as.data.frame(colData(rse_gene)[,c("PrimaryDx",'Experiment','Sex')])
+bulk_RPKM <- map(bulk_filtered, ~log(recount::getRPKM(.x, "Length")+1))
 
-for(n in names(bulk_counts)){
+bulk_anno <- as.data.frame(colData(rse_gene)[,c("PrimaryDx",'Experiment')])
+
+for(n in names(bulk_RPKM)){
   png(paste0("plots/heatmap-Bulk_",n,"_top",top_n,"_ratio.png"), height = 750, width = 550)
-  pheatmap(bulk_counts[[n]],
+  pheatmap(bulk_RPKM[[n]],
            show_colnames = FALSE,
            annotation_row = marker_anno_ratio[[n]],
            annotation_col = bulk_anno,
            annotation_colors = my_anno_colors[[n]],
-           main = paste(n, "Bulk logcounts"))
+           main = paste(n, "Bulk log(RPKM +1)"))
   dev.off()
 }
 
