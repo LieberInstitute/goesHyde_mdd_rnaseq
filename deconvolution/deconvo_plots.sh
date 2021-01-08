@@ -4,6 +4,7 @@
 #$ -N deconvo_plots
 #$ -o logs/deconvo_plots.txt
 #$ -e logs/deconvo_plots.txt
+#$ -hold_jid music_deconvo
 #$ -m e
 
 echo "**** Job starts ****"

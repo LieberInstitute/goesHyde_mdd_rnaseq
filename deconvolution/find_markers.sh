@@ -4,6 +4,7 @@
 #$ -N find_markers
 #$ -o logs/find_markers.txt
 #$ -e logs/find_markers.txt
+#$ -hold_jid sce_data_prep
 #$ -m e
 
 echo "**** Job starts ****"

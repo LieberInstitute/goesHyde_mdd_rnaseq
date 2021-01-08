@@ -1,9 +1,9 @@
 #!/bin/bash
 #$ -cwd
-#$ -l bluejay,mem_free=10G,h_vmem=10G,h_fsize=100G
-#$ -N deconvo_heatmap
-#$ -o logs/deconvo_heatmap.txt
-#$ -e logs/deconvo_heatmap.txt
+#$ -l bluejay,mem_free=50G,h_vmem=50G,h_fsize=100G
+#$ -N music_deconvo
+#$ -o logs/music_deconvo.txt
+#$ -e logs/music_deconvo.txt
 #$ -hold_jid find_markers
 #$ -m e
 
@@ -24,7 +24,7 @@ module load conda_R
 module list
 
 ## Edit with your job command
-Rscript deconvo_heatmap.R
+Rscript music_deconvo.R
 
 echo "**** Job ends ****"
 date

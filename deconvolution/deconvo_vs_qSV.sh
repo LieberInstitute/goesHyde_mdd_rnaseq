@@ -1,10 +1,10 @@
 #!/bin/bash
 #$ -cwd
-#$ -l bluejay,mem_free=10G,h_vmem=10G,h_fsize=100G
-#$ -N deconvo_heatmap
-#$ -o logs/deconvo_heatmap.txt
-#$ -e logs/deconvo_heatmap.txt
-#$ -hold_jid find_markers
+#$ -l bluejay,mem_free=5G,h_vmem=5G,h_fsize=100G
+#$ -N deconvo_vs_qSV
+#$ -o logs/deconvo_vs_qSV.txt
+#$ -e logs/deconvo_vs_qSV.txt
+#$ -hold_jid music_deconvo
 #$ -m e
 
 echo "**** Job starts ****"
@@ -24,7 +24,7 @@ module load conda_R
 module list
 
 ## Edit with your job command
-Rscript deconvo_heatmap.R
+Rscript deconvo_vs_qSV.R
 
 echo "**** Job ends ****"
 date
