@@ -13,7 +13,7 @@ rm logs/find_markers.txt
 qsub find_markers.sh
 
 ## Create heatmaps of selected markers
-rm logs/deconvo_heatmaps.txt
+rm logs/deconvo_heatmap.txt
 qsub deconvo_heatmap.sh
 
 ## Run MuSiC
@@ -21,11 +21,11 @@ rm logs/music_deconvo.txt
 qsub music_deconvo.sh
 
 ## Create plot of deconvolution results
-rm logs.deconvo_plots.txt
-deconvo_plots.sh
+rm logs/deconvo_plots.txt
+qsub deconvo_plots.sh
 
 ## Compare deconvolution results and qSVs 
 rm logs/deconvo_vs_qSV.txt
-deconvo_vs_qSV.sh
+qsub deconvo_vs_qSV.sh
 
 
