@@ -100,6 +100,17 @@ est_prop_long <- map(est_prop, ~melt(.x$Est.prop.weighted) %>%
                        arrange(cell_type) %>%
                        left_join(pd2, by = "sample"))
 
+## order celltypes
+est_prop_long <- map(est_prop_long, function(x){
+  #alphabetize
+  l_alpha <- levels(x$cell_type)[order(levels(x$cell_type))]
+  i_inhib <- grep("Inhib",l_alpha)
+  i_excit <- grep("Excit",l_alpha)
+  l_order <- c(l_alpha[!1:length(l_alpha) %in% c(i_inhib, i_excit)],l_alpha[c(i_excit, i_inhib)])
+  levels(x$cell_type) <- l_order
+  return(x)
+})
+
 save(est_prop_long, file = here("deconvolution","data",paste0("est_prop_top", top_n,"_long.Rdata")))
 
 # sgejobs::job_single('music_deconvo', create_shell = TRUE, queue= 'bluejay', memory = '50G', command = "Rscript music_deconvo.R")
