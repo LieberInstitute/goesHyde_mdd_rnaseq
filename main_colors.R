@@ -9,12 +9,12 @@ mdd_Dx_colors
 # Control   Bipolar       MDD 
 # "#1B9E77" "#D95F02" "#7570B3" 
 
-mdd_Dx_colors_LD <- c("Control_light" = "2EDCA7",
-                      "Control_dark" = "188C69",
-                      "Bipolar_light" = "FD9749",
-                      "Bipolar_dark" = "B65002",
-                      "MDD_light" = "9794C7",
-                      "MDD_dark" = "5A54A0")
+mdd_Dx_colors_LD <- c("Control_light" = "#2EDCA7",
+                      "Control_dark" = "#188C69",
+                      "Bipolar_light" = "#FD9749",
+                      "Bipolar_dark" = "#B65002",
+                      "MDD_light" = "#9794C7",
+                      "MDD_dark" = "#5A54A0")
 
 
 mdd_BrainRegion_colors <- brewer.pal(3,"YlGnBu")
