@@ -1,6 +1,6 @@
 #!/bin/bash
 #$ -cwd
-#$ -l bluejay,mem_free=10G,h_vmem=10G,h_fsize=100G
+#$ -l bluejay,mem_free=50G,h_vmem=50G,h_fsize=100G
 #$ -N deconvo_heatmap
 #$ -o logs/deconvo_heatmap.txt
 #$ -e logs/deconvo_heatmap.txt
