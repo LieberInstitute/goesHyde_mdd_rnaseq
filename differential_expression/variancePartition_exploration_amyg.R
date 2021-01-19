@@ -32,13 +32,13 @@ mod_amyg <- model.matrix(~PrimaryDx, pd_amyg)
 gExpr_amyg <- calcNormFactors(rse_gene_amyg)
 vobjGenes_amyg <- voom(gExpr_amyg, mod_amyg)
 
-mod_amyg = ~(1|PrimaryDx) + AgeDeath + (1|Sex) + 
+form_amyg = ~PrimaryDx + AgeDeath + Sex + 
   snpPC1 + snpPC2 + snpPC3 + snpPC4 + snpPC5 +
   mitoRate + rRNA_rate + totalAssignedGene + RIN + ERCCsumLogErr +
   ilr_1 + ilr_2 + ilr_3 + ilr_4 + ilr_5 + ilr_6 + ilr_7 + ilr_8
 
 message("VarPart Amyg")
-varPart_amyg <- fitExtractVarPartModel(exprObj = vobjGenes_amyg, formula = mod_amyg, data = pd_amyg)
+varPart_amyg <- fitExtractVarPartModel(exprObj = vobjGenes_amyg, formula = form_amyg, data = pd_amyg)
 vp_amyg <- sortCols(varPart_amyg)
 vp_violin <- plotVarPart(vp_amyg) + labs(title = "mod_amyg")
 

@@ -30,13 +30,13 @@ mod_sacc <- model.matrix(~PrimaryDx, pd_sacc)
 gExpr_sacc <- calcNormFactors(rse_gene_sacc)
 vobjGenes_sacc <- voom(gExpr_sacc, mod_sacc)
 
-mod_sacc = ~(1|PrimaryDx) + AgeDeath + (1|Sex) + 
+form_sacc = ~PrimaryDx + AgeDeath + Sex + 
   snpPC1 + snpPC2 + snpPC3 + snpPC4 + snpPC5 +
   mitoRate + rRNA_rate + totalAssignedGene + RIN + ERCCsumLogErr +
   ilr_1 + ilr_2 + ilr_3 + ilr_4 + ilr_5 + ilr_6 + ilr_7 + ilr_8 +ilr_9 
 
 message("VarPart sACC")
-varPart_sacc <- fitExtractVarPartModel(exprObj = vobjGenes_sacc, formula = mod_sacc, data = pd_sacc)
+varPart_sacc <- fitExtractVarPartModel(exprObj = vobjGenes_sacc, formula = form_sacc, data = pd_sacc)
 vp_sacc <- sortCols(varPart_sacc)
 vp_violin <- plotVarPart(vp_sacc)+ labs(title = "mod_sacc")
 
