@@ -16,13 +16,12 @@ load(here('exprs_cutoff','rse_gene.Rdata'), verbose=TRUE)
 pd <- as.data.frame(colData(rse_gene))
 
 mod = model.matrix(~PrimaryDx*BrainRegion, pd)
-
 gExpr <- calcNormFactors(rse_gene)
 vobjGenes <- voom(gExpr, mod)
 
-formJoint = ~(1|PrimaryDx) + (1|BrainRegion) + (1|PrimaryDx:BrainRegion) + AgeDeath + (1|Sex) + (1|BrNum) +
-                          snpPC1 + snpPC2 + snpPC3 + snpPC4 + snpPC5 +
-                          mitoRate + rRNA_rate + totalAssignedGene + RIN + ERCCsumLogErr
+formJoint = ~PrimaryDx*BrainRegion + AgeDeath + Sex + (1|BrNum) +
+  snpPC1 + snpPC2 + snpPC3 + snpPC4 + snpPC5 +
+  mitoRate + rRNA_rate + totalAssignedGene + RIN + ERCCsumLogErr
 
 #### Var Partion with Model terms ####
 # form <- ~AgeDeath + (1|BrainRegion) + (1|Sex) + snpPC1 + snpPC2 + snpPC3 + snpPC4 + snpPC5+ 
