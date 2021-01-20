@@ -51,52 +51,18 @@ summary(pd$AgeDeath)
 # Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
 # 17.37   34.62   47.21   46.58   55.86   95.27 
 
-## load degradation data
-load(here("data","degradation_rse_MDDseq_BiPSeq_BothRegions.Rdata"), verbose = TRUE)
-
-##### get qSVs ####
-modJoint = model.matrix(~PrimaryDx*BrainRegion + AgeDeath + Sex + snpPC1 + snpPC2 + snpPC3 +
-	mitoRate + rRNA_rate + totalAssignedGene + RIN + ERCCsumLogErr,
-	data=colData(rse_gene))
-
-colnames(modJoint)
-
-#  [1] "(Intercept)"                      "PrimaryDxControl"
-#  [3] "PrimaryDxBipolar"                 "BrainRegionsACC"
-#  [5] "AgeDeath"                         "SexM"
-#  [7] "snpPC1"                           "snpPC2"
-#  [9] "snpPC3"                           "mitoRate"
-# [11] "rRNA_rate"                        "totalAssignedGene"
-# [13] "RIN"                              "PrimaryDxControl:BrainRegionsACC"
-# [15] "PrimaryDxBipolar:BrainRegionsACC"
-
-degExprs = log2(assays(cov_rse)$count+1)
-k = num.sv(degExprs, modJoint)
-message("k=", k)
-# k=26
-qSV_mat = prcomp(t(degExprs))$x[,1:k]
-save(qSV_mat, file = "qSV_mat.Rdata")
-varExplQsva = jaffelab::getPcaVars(prcomp(t(degExprs)))
-varExplQsva[1:k]
-
-# [1] 67.700  4.860  3.010  1.990  1.430  1.210  1.120  0.803  0.778  0.677
-# [11]  0.574  0.521  0.487  0.444  0.347  0.342  0.329  0.300  0.246  0.237
-# [21]  0.230  0.223  0.205  0.196  0.190  0.174
-
-
-sum(varExplQsva[1:k]) # 88.623%
-# [1] 88.125
+load("qSV_mat.Rdata", verbose = TRUE)
 
 # model w/o interaction to subset by region
-modSep = model.matrix(~PrimaryDx + AgeDeath + Sex  + snpPC1 + snpPC2 + snpPC3 + mitoRate + rRNA_rate +
-				totalAssignedGene + RIN + ERCCsumLogErr, data=colData(rse_gene))
+modSep = model.matrix(~PrimaryDx + AgeDeath + Sex  + 
+                        snpPC1 + snpPC2 + snpPC3 + snpPC4 + snpPC5 +
+                        mitoRate + rRNA_rate +totalAssignedGene + RIN + ERCCsumLogErr, 
+                      data=colData(rse_gene))
 
 colnames(modSep)
-
-# [1] "(Intercept)"       "PrimaryDxControl"  "PrimaryDxBipolar" 
-# [4] "AgeDeath"          "SexM"              "snpPC1"           
-# [7] "snpPC2"            "snpPC3"            "mitoRate"         
-# [10] "rRNA_rate"         "totalAssignedGene" "RIN"
+# [1] "(Intercept)"       "PrimaryDxControl"  "PrimaryDxBipolar"  "AgeDeath"          "SexM"             
+# [6] "snpPC1"            "snpPC2"            "snpPC3"            "snpPC4"            "snpPC5"           
+# [11] "mitoRate"          "rRNA_rate"         "totalAssignedGene" "RIN"               "ERCCsumLogErr" 
 
 #### split back by region ####
 ## both
@@ -106,7 +72,7 @@ Amyg_Index = which(colData(rse_gene)$BrainRegion == "Amygdala")
 mod_Amyg = cbind(modSep[Amyg_Index,], qSV_mat[Amyg_Index, ])
 
 ## Save Models
-save(modJoint, modSep, mod_Amyg, mod_sACC, file = "differental_models.Rdata")
+save(modSep, mod_Amyg, mod_sACC, file = "differental_models.Rdata")
 
 #### Gene ####
 
