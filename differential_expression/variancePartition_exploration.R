@@ -9,7 +9,6 @@ library(edgeR)
 library(sessioninfo)
 library(here)
 
-# load("varPart.Rdata", verbose = TRUE)
 
 #load objects
 load(here('exprs_cutoff','rse_gene.Rdata'), verbose=TRUE)
@@ -19,17 +18,13 @@ mod = model.matrix(~PrimaryDx*BrainRegion, pd)
 gExpr <- calcNormFactors(rse_gene)
 vobjGenes <- voom(gExpr, mod)
 
-#### Var Partition with cell type props ####
-load(here("deconvolution","data","est_prop_top5.Rdata"), verbose = TRUE)
-
-## compute ilr for broad cell types
-est_prop_broad <- rbind(est_prop$sacc_broad$Est.prop.weighted, est_prop$amyg_broad$Est.prop.weighted)
+## load ilr data
+load(here("deconvolution","data","est_prop_ilr.Rdata"), verbose = TRUE)
+est_prop_broad <- rbind(est_prop_ilr$sacc_broad, est_prop_ilr$amyg_broad)
 dim(est_prop_broad)
-est_prop_ilr <- ilr(est_prop_broad)
-colnames(est_prop_ilr) <-paste0("ilr_",1:ncol(est_prop_ilr))
+pd <- cbind(pd, est_prop_broad)
 
-pd <- cbind(pd, est_prop_ilr)
-## Linear 
+#### Var Partition with cell type props ####
 formJoint <- list( linear = ~PrimaryDx*BrainRegion + AgeDeath + Sex +
                      snpPC1 + snpPC2 + snpPC3 + snpPC4 + snpPC5 +
                      mitoRate + rRNA_rate + totalAssignedGene + RIN + ERCCsumLogErr,
@@ -51,13 +46,17 @@ formJoint <- list( linear = ~PrimaryDx*BrainRegion + AgeDeath + Sex +
 
 #### Var Partion with linear Model ####
 varPart <- map(formJoint, ~fitExtractVarPartModel(exprObj =vobjGenes, formula = .x, data = pd))
+save(varPart, formJoint, file = "varPart.Rdata")
+message("SAVED")
+# load("varPart.Rdata", verbose = TRUE)
+
 vp <- map(varPart, sortCols)
 
 vp_violin <- map2(vp, names(vp), ~plotVarPart(.x) + labs(title = paste("modJoint -",.y)))
 
-walk2(vp_violin, names(vp_violin), ggsave(plot = vp_violin, filename = paste0("plots/vp_violin_",.y,".png")))
-save(varPart, formJoint, file = "varPart.Rdata")
-
+pdf("plots/variancePartition.pdf")
+walk(vp_violin, print)
+dev.off()
 
 # sgejobs::job_single('variancePartition_exploration', create_shell = TRUE, queue= 'bluejay', memory = '150G', command = "Rscript variancePartition_exploration.R")
 
