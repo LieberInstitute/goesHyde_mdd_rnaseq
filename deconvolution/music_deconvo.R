@@ -9,6 +9,7 @@ library(xbioc)
 library(purrr)
 library(tidyverse)
 library(reshape2)
+library(compositions)
 library(sessioninfo)
 
 #### Load Data ####
@@ -112,6 +113,16 @@ est_prop_long <- map(est_prop_long, function(x){
 })
 
 save(est_prop_long, file = here("deconvolution","data",paste0("est_prop_top", top_n,"_long.Rdata")))
+
+#### calculate ilr ####
+
+est_prop_ilr <- map(est_prop, ~ilr(.x$Est.prop.weighted))
+est_prop_ilr <- map(est_prop_ilr, function(x){
+  colnames(x) <- paste0("ilr_",1:ncol(x))
+  return(x)
+})
+
+save(est_prop_ilr, file = here("deconvolution","data","est_prop_ilr.Rdata"))
 
 # sgejobs::job_single('music_deconvo', create_shell = TRUE, queue= 'bluejay', memory = '50G', command = "Rscript music_deconvo.R")
 ## Reproducibility information
