@@ -7,11 +7,13 @@ get_mean_ratio <- function(sce, cellType_col =  "cellType"){
   
   sce_celltypes <- as.data.frame(colData(sce)) %>%
     select(cellType = !!sym(cellType_col)) %>%
-    rownames_to_column(var = "id") 
+    rownames_to_column(var = "id") %>%
+    mutate(id = as.character(id))
   
    gene_stat <- as.matrix(assays(sce)$logcounts) %>%
      melt() %>%
      rename(gene = Var1, id = Var2, logcounts = value) %>%
+   mutate(id = as.character(id)) %>%
      left_join(sce_celltypes, by = "id")  %>%
      group_by(gene, cellType) %>%
      summarise(median_logcount = median(logcounts),
