@@ -2,7 +2,9 @@
 #$ -cwd
 #$ -l mem_free=10G,h_vmem=10G,h_fsize=100G
 #$ -pe local 4
-#$ -N "build_bims_MDD_genes_amygdala"
+#$ -N "filter_snps_MDD_genes_amygdala"
+#$ -j y
+#$ -o logs/filter_snp_amygdala_gene_$JOB_ID.txt
 
 echo "**** Job starts ****"
 date
@@ -23,5 +25,3 @@ module list
 mkdir logs
 
 Rscript filter_snps.R -r "Amygdala"
-
-mv *${JOB_ID}* logs/

@@ -20,7 +20,7 @@ opt <- getopt(spec)
 if (tolower(opt$region) == "sacc") {
     opt$region = "sACC"
 } else if (tolower(opt$region) == "amygdala" || tolower(opt$region) == "amyg") {
-    opt$region = "Amygdala"
+    opt$region = "Amygdala" 
 } else {
     cat(getopt(spec, usage = TRUE))
     q(status = 1)
@@ -30,7 +30,7 @@ if (tolower(opt$region) == "sacc") {
 message(paste(Sys.time(), "options used"))
 print(opt)
 
-dir.create(paste0(opt$regions,"_rda"), showWarnings = FALSE)
+dir.create(paste0(opt$region,"_rda"), showWarnings = FALSE)
 
 ## To avoid issues with running this code on qsub
 data.table::setDTthreads(threads = 1)
@@ -77,8 +77,8 @@ setkey(libd_fam, "brnumerical")
 
 ## Filter the LIBD data to the one specific to this project
 # region <- "NAc_Nicotine"
-message(paste(Sys.time(), "processing", opt$regions))
-samp_file <- paste0("samples_to_extract_", opt$regions, ".txt")
+message(paste(Sys.time(), "processing", opt$region))
+samp_file <- paste0("samples_to_extract_", opt$region, ".txt")
 
 ## Which NAc samples have genotype data and MDS data?
 samples_in_all <- intersect(
@@ -105,14 +105,14 @@ assays(rse_gene)$RPKM <- getRPKM(rse_gene, "Length")
 ## Compute gene PCs
 message(Sys.time(), " computing gene PCs on log2(RPKM + 1)")
 pcaGene <- prcomp(t(log2(assays(rse_gene)$RPKM + 1)))
-save(pcaGene, file = paste0(opt$regions, "_rda/pcaGene.Rdata"))
+save(pcaGene, file = paste0(opt$region, "_rda/pcaGene.Rdata"))
 
 message(Sys.time(), " determine how many gene PCs to adjust for")
 mod <- model.matrix(~ Sex + snpPC1 + snpPC2 + snpPC3 + snpPC4 + snpPC5, data = colData(rse_gene))
 kGene <- num.sv(log2(assays(rse_gene)$RPKM + 1), mod)
 stopifnot(kGene > 0)
 genePCs <- pcaGene$x[, seq_len(kGene)]
-save(genePCs, file = paste0(opt$regions, "_rda/genePCs.Rdata"))
+save(genePCs, file = paste0(opt$region, "_rda/genePCs.Rdata"))
 
 ## Add gene PCs to rse_gene
 colData(rse_gene) <- cbind(colData(rse_gene), genePCs)
@@ -130,8 +130,8 @@ fwrite(
 )
 newbfile_root <- paste0("LIBD_merged_h650_1M_Omni5M_Onmi2pt5_Macrogen_QuadsPlus_dropBrains_maf01_hwe6_geno10_hg38_filtered_", opt$region, "_MDD")
 
-dir.create("duplicate_snps_bim", showWarnings = FALSE)
-newbfile <- here::here("twas", "filter_data", "duplicate_snps_bim", paste0(
+dir.create(paste0(opt$region, "_duplicate_snps_bim"), showWarnings = FALSE)
+newbfile <- here::here("twas", "filter_data", paste0(opt$region, "_duplicate_snps_bim"), paste0(
     newbfile_root,
     "_duplicateSNPs"
 ))
@@ -187,7 +187,7 @@ stopifnot(all(!is.na(check_m)))
 
 ## Re-run but now make the SNV names unique
 dir.create(paste0(opt$region, "_unique_snps_bim"), showWarnings = FALSE)
-newbfile_unique <- here::here("twas", "filter_data", "unique_snps_bim", paste0(
+newbfile_unique <- here::here("twas", "filter_data", paste0(opt$region, "_unique_snps_bim"), paste0(
     newbfile_root,
     "_uniqueSNPs"
 ))
