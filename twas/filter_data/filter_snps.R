@@ -10,6 +10,25 @@ library("recount")
 library("sva")
 library("sessioninfo")
 library("tidyverse")
+library("getopt")
+
+spec <- matrix(c(
+    'region', 'r', 1, 'character', 'Either Amygdala or SACC'
+), byrow=TRUE, ncol=5)
+opt <- getopt(spec)
+
+if (tolower(opt$region) == "sacc") {
+    opt$region = "sACC"
+} else if (tolower(opt$region) == "amygdala" || tolower(opt$region) == "amyg") {
+    opt$region = "Amygdala"
+} else {
+    cat(getopt(spec, usage = TRUE))
+    q(status = 1)
+}
+
+## Show the options used
+message(paste(Sys.time(), "options used"))
+print(opt)
 
 dir.create("rda", showWarnings = FALSE)
 
@@ -32,16 +51,10 @@ experiments <- subset(colData(rse_gene), select = SAMPLE_ID)
 
 rse_gene <- rse_gene[, grepl("MDD", rownames(experiments))]
 
-## duplicates are present because some brains were sample from both brain regions
+# subset rse_gene to either Amygdala or sACC, whichever the user selected 
+rse_gene <- rse_gene[, colData(rse_gene)$BrainRegion == opt$region]
 
-sacc_rse <- rse_gene[, colData(rse_gene)$BrainRegion == "sACC"]
-amyg_rse <- rse_gene[, colData(rse_gene)$BrainRegion == "Amygdala"]
-
-stopifnot(length(unique(sacc_check$BrNum)) == ncol(sacc_check))
-stopifnot(length(unique(sacc_check$BrNum)) == ncol(sacc_check))
-
-## delete objects to free up memory
-rm(sacc_check, amyg_check)
+stopifnot(length(unique(rse_gene$BrNum)) == ncol(rse_gene))
 
 ## Note that some rse_gene$BrNums have 0s that the rownames(mds)
 ## don't have
@@ -105,7 +118,7 @@ save(genePCs, file = "rda/genePCs.Rdata")
 colData(rse_gene) <- cbind(colData(rse_gene), genePCs)
 
 ## Save for later
-save(rse_gene, file = paste0("rda/NAc_Nicotine_hg38_rseGene_rawCounts_allSamples_n", ncol(rse_gene), ".Rdata"))
+save(rse_gene, file = paste0("rda/MDD_", opt$region, "_hg38_rseGene_rawCounts_allSamples_n", ncol(rse_gene), ".Rdata"))
 
 ## Now extract the genotype data too
 filter_m <- match(brnumerical(rse_gene$BrNum), libd_fam$brnumerical)
@@ -115,7 +128,7 @@ fwrite(
     file = samp_file,
     sep = "\t", col.names = FALSE
 )
-newbfile_root <- "LIBD_merged_h650_1M_Omni5M_Onmi2pt5_Macrogen_QuadsPlus_dropBrains_maf01_hwe6_geno10_hg38_filtered_NAc_Nicotine"
+newbfile_root <- paste0("LIBD_merged_h650_1M_Omni5M_Onmi2pt5_Macrogen_QuadsPlus_dropBrains_maf01_hwe6_geno10_hg38_filtered_", opt$region, "_MDD")
 
 dir.create("duplicate_snps_bim", showWarnings = FALSE)
 newbfile <- here::here("twas", "filter_data", "duplicate_snps_bim", paste0(
