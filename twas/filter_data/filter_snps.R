@@ -118,7 +118,7 @@ save(genePCs, file = paste0(opt$regions, "_rda/genePCs.Rdata"))
 colData(rse_gene) <- cbind(colData(rse_gene), genePCs)
 
 ## Save for later
-save(rse_gene, file = paste0("rda/MDD_", opt$region, "_hg38_rseGene_rawCounts_allSamples_n", ncol(rse_gene), ".Rdata"))
+save(rse_gene, file = paste0(opt$region, "_rda/MDD_", opt$region, "_hg38_rseGene_rawCounts_allSamples_n", ncol(rse_gene), ".Rdata"))
 
 ## Now extract the genotype data too
 filter_m <- match(brnumerical(rse_gene$BrNum), libd_fam$brnumerical)
