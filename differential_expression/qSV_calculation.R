@@ -34,7 +34,7 @@ colnames(modJoint)
 # [15] "PrimaryDxBipolar:BrainRegionsACC"
 
 ## Save Models
-save(modJoint, file = "differental_modJoint.Rdata")
+save(modJoint, file = here("differential_expression","data","differental_modJoint.Rdata"))
 
 degExprs = log2(assays(cov_rse)$count+1)
 k = num.sv(degExprs, modJoint)
@@ -43,7 +43,7 @@ message("k=", k)
 qSV_mat = prcomp(t(degExprs))$x[,1:k]
 
 ## Save qSVmat
-save(qSV_mat, file = "qSV_mat.Rdata")
+save(qSV_mat, file = here("differential_expression","data","qSV_mat.Rdata"))
 
 ## Explore variance explained
 varExplQsva = jaffelab::getPcaVars(prcomp(t(degExprs)))

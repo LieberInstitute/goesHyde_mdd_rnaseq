@@ -1,6 +1,6 @@
 #!/bin/bash
 #$ -cwd
-#$ -l mem_free=80G,h_vmem=80G,h_fsize=100G
+#$ -l mem_free=10G,h_vmem=10G,h_fsize=100G
 #$ -N qSV_calculation
 #$ -o logs/qSV_calculation.txt
 #$ -e logs/qSV_calculation.txt
