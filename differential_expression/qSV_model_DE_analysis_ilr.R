@@ -18,7 +18,6 @@ source("run_DE.R")
 
 ## load rse
 load(here('exprs_cutoff','rse_gene.Rdata'), verbose=TRUE)
-
 pd = colData(rse_gene)
 
 ## qSV data
@@ -30,15 +29,37 @@ load(here("deconvolution","data","est_prop_ilr.Rdata"), verbose = TRUE)
 #### Define models ####
 regions <- list(sacc = "sACC", amyg = "Amygdala")
 
-modSep <- map(regions, ~cbind(model.matrix(~PrimaryDx + AgeDeath + Sex  +
-                                      snpPC1 + snpPC2 + snpPC3 + snpPC4 + snpPC5 +
-                                      mitoRate + rRNA_rate +totalAssignedGene + RIN + ERCCsumLogErr,
-                                    data= pd[pd$BrainRegion == .x,]),
+modSep <- map(regions, ~cbind(model.matrix(~PrimaryDx + AgeDeath + Sex  + mitoRate + 
+                                           rRNA_rate +totalAssignedGene + RIN + ERCCsumLogErr +
+                                           snpPC1 + snpPC2 + snpPC3 + snpPC4 + snpPC5,
+                                           data= pd[pd$BrainRegion == .x,]),
                               qSV_mat[pd$BrainRegion == .x,]))
+
+map(modSep, colnames)
+# $sacc
+# [1] "(Intercept)"       "PrimaryDxControl"  "PrimaryDxBipolar"  "AgeDeath"          "SexM"             
+# [6] "mitoRate"          "rRNA_rate"         "totalAssignedGene" "RIN"               "ERCCsumLogErr"    
+# [11] "snpPC1"            "snpPC2"            "snpPC3"            "snpPC4"            "snpPC5"           
+# [16] "PC1"               "PC2"               "PC3"               "PC4"               "PC5"              
+# [21] "PC6"               "PC7"               "PC8"               "PC9"               "PC10"             
+# [26] "PC11"              "PC12"              "PC13"              "PC14"              "PC15"             
+# [31] "PC16"              "PC17"              "PC18"              "PC19"              "PC20"             
+# [36] "PC21"              "PC22"              "PC23"              "PC24"              "PC25"             
+# [41] "PC26"             
+# 
+# $amyg
+# [1] "(Intercept)"       "PrimaryDxControl"  "PrimaryDxBipolar"  "AgeDeath"          "SexM"             
+# [6] "mitoRate"          "rRNA_rate"         "totalAssignedGene" "RIN"               "ERCCsumLogErr"    
+# [11] "snpPC1"            "snpPC2"            "snpPC3"            "snpPC4"            "snpPC5"           
+# [16] "PC1"               "PC2"               "PC3"               "PC4"               "PC5"              
+# [21] "PC6"               "PC7"               "PC8"               "PC9"               "PC10"             
+# [26] "PC11"              "PC12"              "PC13"              "PC14"              "PC15"             
+# [31] "PC16"              "PC17"              "PC18"              "PC19"              "PC20"             
+# [36] "PC21"              "PC22"              "PC23"              "PC24"              "PC25"             
+# [41] "PC26"  
 
 ## Add ilr terms
 modSep_ilr <- map2(modSep, est_prop_ilr[c("sacc_specific","amyg_specific")], ~cbind(.x, .y))
-
 map(modSep_ilr, colnames)
 
 ## save
@@ -48,12 +69,35 @@ save(modSep, modSep_ilr, file = "differential_models_ilr.Rdata")
 message("\nGENE")
 rse_gene_sep <- map(regions, ~rse_gene[,rse_gene$BrainRegion == .x])
 map(rse_gene_sep, dim)
+# $sacc
+# [1] 25212   551
+# 
+# $amyg
+# [1] 25212   540
 
-outGene <- map2(rse_gene_sep, modSep, run_DE)
-outGene_ilr <- map2(rse_gene_sep, modSep_ilr, run_DE)
+outGene <- map2(rse_gene_sep, modSep, ~run_DE(rse = .x, model = .y, save_eBayes = TRUE))
+outGene_ilr <- map2(rse_gene_sep, modSep_ilr, ~run_DE(rse = .x, model = .y, save_eBayes = TRUE))
 
-save(outGene, outGene_ilr, file = here("differential_expression","data", "qSVA_MDD_gene_DEresults_ilr.rda"))
+## Extract vals
+ebGene <- map(outGene, "eBayes")
+ebGene_ilr <- map(outGene, "eBayes")
+names(ebGene_ilr) <- paste0(names(ebGene_ilr), "_ilr")
+ebGene <- c(ebGene, ebGene_ilr)
+names(ebGene)
 
+## Extract and save outGene
+outGene <- map(outGene, "topTable")
+outGene_ilr <- map(outGene, "topTable")
+
+## get topTable stats for 1 coef at a time
+dx_coef <- list(ctrl = "PrimaryDxControl", bp = "PrimaryDxBipolar")
+
+outGene_single_coef <- map(ebGene, function(ebg){
+  tt  = map(dx_coef, ~topTable(ebg, coef= .x, p.value = 1, number=nrow(rse_gene)))
+}
+)
+
+save(outGene, outGene_ilr, outGene_single_coef,file = here("differential_expression","data", "qSVA_MDD_gene_DEresults_ilr.rda"))
 
 #### Exon ####
 message("\nEXON")
