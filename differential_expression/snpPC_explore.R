@@ -10,13 +10,14 @@ library(here)
 source(here("main_colors.R"))
 
 ## load rse
+load(here("genotype_data","goesHyde_bipolarMdd_Genotypes_mds.rda"), verbose = TRUE)
+
 load(here('exprs_cutoff','rse_gene.Rdata'), verbose=TRUE)
 pd <- as.data.frame(colData(rse_gene))
-
 snpPC <- pd[,grepl( "snpPC", colnames(pd))]
 
 ## Just PCs
-pair_plot <- ggpairs(snpPC, aes(alpha = 0.4))
+pair_plot <- ggpairs(mds, aes(alpha = 0.4))
 ggsave(pair_plot, filename = "plots/snpPC_explore.png")
 
 ## with Dx
