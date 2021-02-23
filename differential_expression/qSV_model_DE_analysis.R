@@ -19,7 +19,6 @@ load(here('exprs_cutoff','rse_exon.Rdata'), verbose=TRUE)
 load(here('exprs_cutoff','rse_jxn.Rdata'), verbose=TRUE)
 load(here('exprs_cutoff','rse_tx.Rdata'), verbose=TRUE)
 
-
 pd = colData(rse_gene)
 
 table(pd$Experiment)
@@ -51,7 +50,7 @@ summary(pd$AgeDeath)
 # Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
 # 17.37   34.62   47.21   46.58   55.86   95.27 
 
-load("qSV_mat.Rdata", verbose = TRUE)
+load(here("differential_expression","data","qSV_mat.Rdata"), verbose = TRUE)
 
 # model w/o interaction to subset by region
 modSep = model.matrix(~PrimaryDx + AgeDeath + Sex  + 
@@ -72,11 +71,10 @@ Amyg_Index = which(colData(rse_gene)$BrainRegion == "Amygdala")
 mod_Amyg = cbind(modSep[Amyg_Index,], qSV_mat[Amyg_Index, ])
 
 ## Save Models
-save(modSep, mod_Amyg, mod_sACC, file = "differental_models.Rdata")
+save(modSep, mod_Amyg, mod_sACC, file = here("differential_expression","data","differental_models.Rdata"))
 
 #### Gene ####
-
-##### sACC ######
+## sACC
 dge_sACC = DGEList(counts = assays(rse_gene[,sACC_Index])$counts,
 	genes = rowData(rse_gene))
 dge_sACC = calcNormFactors(dge_sACC)
@@ -89,7 +87,7 @@ eBGene_sACC = eBayes(fitGene_sACC)
 #### need to know  what went into model (modssep) -- case-control and  BP control
 #### because of more than 1 component, computing F statistics instead of t=-statistics
 outGene_sACC = topTable(eBGene_sACC,coef=2:3,
-	p.value = 1,number=nrow(rse_gene))
+	p.value = 1,number=nrow(rse))
 #### reorderoing based on genes in rse_gene
 outGene_sACC = outGene_sACC[rownames(rse_gene),]
 
@@ -156,15 +154,12 @@ sum(outGene_Amyg$q_PrimaryDxBipolar < 0.05)
 sum(outGene_Amyg$q_PrimaryDxBipolar < 0.01)
 # [1] 53
 
-save(outGene_Amyg, outGene_sACC, file="qSVA_MDD_gene_DEresults.rda")
+save(outGene_Amyg, outGene_sACC, file= here("differential_expression","data","qSVA_MDD_gene_DEresults.rda"))
 
 
 
-#################
-### Exon ########
-#################
-
-##### sACC ######
+#### Exon ####
+## sACC 
 dge_sACC = DGEList(counts = assays(rse_exon[,sACC_Index])$counts,
 	genes = rowData(rse_exon))
 dge_sACC = calcNormFactors(dge_sACC)
@@ -203,7 +198,7 @@ length(unique(outExon_sACC[which(outExon_sACC$q_PrimaryDxBipolar < 0.05),]$ensem
 # [1] 844
 
 
-##### Amygdala ######
+## Amygdala
 dge_Amyg = DGEList(counts = assays(rse_exon[,Amyg_Index])$counts,
 	genes = rowData(rse_exon))
 dge_Amyg = calcNormFactors(dge_Amyg)
@@ -241,16 +236,10 @@ sum(outExon_Amyg$q_PrimaryDxBipolar < 0.01)
 length(unique(outExon_Amyg[which(outExon_Amyg$q_PrimaryDxBipolar < 0.05),]$ensemblID))
 # [1] 837
 
-save(outExon_Amyg, outExon_sACC, file="qSVA_MDD_exon_DEresults.rda")
+save(outExon_Amyg, outExon_sACC, file=here("differential_expression","data","qSVA_MDD_exon_DEresults.rda"))
 
-
-
-
-#################
-### Jxn ########
-#################
-
-##### sACC ######
+#### Jxn ####
+## sAC
 dge_sACC = DGEList(counts = assays(rse_jxn[,sACC_Index])$counts,
 	genes = rowData(rse_jxn))
 dge_sACC = calcNormFactors(dge_sACC)
@@ -273,8 +262,7 @@ outJxn_sACC = cbind(outJxn_sACC,cbind(pvalMat, qvalMat))
 sum(outJxn_sACC$q_PrimaryDxControl < 0.05)
 # 1331
 
-
-##### Amygdala ######
+## Amygdala
 dge_Amyg = DGEList(counts = assays(rse_jxn[,Amyg_Index])$counts,
 	genes = rowData(rse_jxn))
 dge_Amyg = calcNormFactors(dge_Amyg)
@@ -338,19 +326,14 @@ length(unique(outJxn_Amyg_anno[which(outJxn_Amyg_anno$q_PrimaryDxBipolar < 0.05)
 # [1] 468
 
 
-save(outJxn_Amyg,outJxn_Amyg_anno, outJxn_sACC,outJxn_sACC_anno, file="qSVA_MDD_jxn_DEresults.rda")
+save(outJxn_Amyg,outJxn_Amyg_anno, outJxn_sACC,outJxn_sACC_anno, file=here("differential_expression","data","qSVA_MDD_jxn_DEresults.rda"))
 
-
-
-
-#################
-### Tx ########
+#### Tx ####
 ## we do not use voom  which  required count data
-#################
 
 txExprs = log2(assays(rse_tx)$tpm + 1)
 
-##### sACC ######
+## sACC
 fitGene_sACC = lmFit(txExprs[,sACC_Index], mod_sACC)
 eBGene_sACC = eBayes(fitGene_sACC)
 outTx_sACC = topTable(eBGene_sACC,coef=2:3,
@@ -370,7 +353,6 @@ sum(outTx_sACC$q_PrimaryDxControl < 0.05)
 
 print("Tx_sACC")
 
-
 sum(outTx_sACC$q_PrimaryDxControl < 0.05)
 # [1] 1457
 sum(outTx_sACC$q_PrimaryDxControl < 0.01)
@@ -385,7 +367,7 @@ sum(outTx_sACC$q_PrimaryDxBipolar < 0.01)
 length(unique(outTx_sACC[which(outTx_sACC$q_PrimaryDxBipolar < 0.05),]$gene_id))
 # [1] 761
 
-##### Amygdala ######
+## Amygdala
 fitGene_Amyg = lmFit(txExprs[,Amyg_Index], mod_Amyg)
 eBGene_Amyg = eBayes(fitGene_Amyg)
 outTx_Amyg = topTable(eBGene_Amyg,coef=2:3,
@@ -421,7 +403,6 @@ length(unique(outTx_Amyg[which(outTx_Amyg$q_PrimaryDxBipolar < 0.05),]$gene_id))
 # [1] 2135
 
 save(outTx_Amyg, outTx_sACC, file="qSVA_MDD_tx_DEresults.rda")
-
 
 
 #sgejobs::job_single('qSV_model_DE_analysis', create_shell = TRUE, memory = '80G', command = "Rscript qSV_model_DE_analysis.R")
