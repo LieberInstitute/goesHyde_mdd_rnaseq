@@ -21,27 +21,16 @@ load(here('exprs_cutoff','rse_tx.Rdata'), verbose=TRUE)
 ## load degradation data
 load(here("data","degradation_rse_MDDseq_BiPSeq_BothRegions.Rdata"), verbose = TRUE)
 
+## load models
+load("differental_models.Rdata", verbose = TRUE)
+
 ##### get qSVs ####
-
-modJoint = model.matrix(~PrimaryDx + AgeDeath + Sex + mitoRate + rRNA_rate + 
-                          totalAssignedGene + RIN + ERCCsumLogErr, data = colData(rse_gene))
-
 degExprs = log2(assays(cov_rse)$count+1)
-k = num.sv(degExprs, modJoint) # 23
+k = num.sv(degExprs, modJoint) # 26
 qSV_mat = prcomp(t(degExprs))$x[,1:k]
 varExplQsva = getPcaVars(prcomp(t(degExprs)))
 varExplQsva[1:k]
-sum(varExplQsva[1:k]) # 87.888%
-
-## model w/o interaction to subset by region 
-modSep = model.matrix(~PrimaryDx + AgeDeath + Sex + mitoRate + rRNA_rate +
-                        totalAssignedGene + RIN, data=colData(rse_gene))
-
-## split back by region
-sACC_Index = which(colData(rse_gene)$BrainRegion == "sACC")
-mod_sACC = cbind(modSep[sACC_Index,], qSV_mat[sACC_Index, ])
-Amyg_Index = which(colData(rse_gene)$BrainRegion == "Amygdala")
-mod_Amyg = cbind(modSep[Amyg_Index,], qSV_mat[Amyg_Index, ])
+sum(varExplQsva[1:k]) # 88.623%
 
 ## load DE results
 load("qSVA_MDD_gene_DEresults.rda", verbose=TRUE)
@@ -49,6 +38,7 @@ load("qSVA_MDD_exon_DEresults.rda", verbose=TRUE)
 load("qSVA_MDD_jxn_DEresults.rda", verbose=TRUE)
 load("qSVA_MDD_tx_DEresults.rda", verbose=TRUE)
 
+load("outGene_overlap.rda", verbose = TRUE)
 
 #### expression ####
 rse_gene$Dx = as.factor(rse_gene$PrimaryDx)
@@ -94,7 +84,6 @@ topGenes_residExp_beeswarm(outGene_Amyg, gAmygExprs, pdAmyg, "plots/top_genes_MD
 topGenes_residExp_beeswarm(outExon_Amyg, eAmygExprs, pdAmyg, "plots/top_exons_MDD_vs_cnt_Amyg_beeSwarm.pdf")
 topGenes_residExp_beeswarm(outJxn_Amyg, jAmygExprs, pdAmyg, "plots/top_jxns_MDD_vs_cnt_Amyg_beeSwarm.pdf")
 topGenes_residExp_beeswarm(outTx_Amyg, tAmygExprs, pdAmyg, "plots/top_tx_MDD_vs_cnt_Amyg_beeSwarm.pdf")
-
 
 #sgejobs::job_single('qSV_model_DE_plot', create_shell = TRUE, memory = '80G', command = "Rscript qSV_model_DE_plot.R")
 
