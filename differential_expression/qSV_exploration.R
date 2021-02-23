@@ -13,16 +13,14 @@ load(here('exprs_cutoff','rse_gene.Rdata'), verbose=TRUE)
 pd = as.data.frame(colData(rse_gene))
 
 #### Var Partition with cell type props ####
-load(here("deconvolution","data","est_prop_top5.Rdata"), verbose = TRUE)
+## load ilr data
+load(here("deconvolution","data","est_prop_ilr.Rdata"), verbose = TRUE)
+est_prop_broad <- rbind(est_prop_ilr$sacc_broad, est_prop_ilr$amyg_broad)
+dim(est_prop_broad)
+pd <- cbind(pd, est_prop_ilr)
 
 ## load degradation data
 load(here("data","degradation_rse_MDDseq_BiPSeq_BothRegions.Rdata"), verbose = TRUE)
-
-## compute ilr for broad cell types
-est_prop_broad <- rbind(est_prop$sacc_broad$Est.prop.weighted, est_prop$amyg_broad$Est.prop.weighted)
-dim(est_prop_broad)
-est_prop_ilr <- ilr(est_prop_broad)
-colnames(est_prop_ilr) <-paste0("ilr_",1:ncol(est_prop_ilr))
 
 pd <- cbind(pd,est_prop_ilr)
 ##### get qSVs ####
