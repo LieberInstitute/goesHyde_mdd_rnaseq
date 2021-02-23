@@ -1,6 +1,6 @@
 #!/bin/bash
 #$ -cwd
-#$ -l bluejay,mem_free=70G,h_vmem=70G,h_fsize=100G
+#$ -l bluejay,mem_free=100G,h_vmem=100G,h_fsize=100G
 #$ -N variancePartition_exploration
 #$ -o logs/variancePartition_exploration.txt
 #$ -e logs/variancePartition_exploration.txt
