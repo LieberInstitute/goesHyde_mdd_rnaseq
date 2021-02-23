@@ -13,32 +13,79 @@ library(clusterProfiler)
 library(org.Hs.eg.db)
 library(sessioninfo)
 library(purrr)
+library(tidyverse)
+library(viridis)
+library(here)
 
-########
+#### Load Data ####
+data_type <- c("gene","exon","jxn","tx")
+names(data_type) <- data_type
 
-load("qSVA_MDD_gene_DEresults.rda", verbose=TRUE)
-load("qSVA_MDD_exon_DEresults.rda", verbose=TRUE)
-load("qSVA_MDD_jxn_DEresults.rda", verbose=TRUE)
-load("qSVA_MDD_tx_DEresults.rda", verbose=TRUE)
+paths <- map(data_type, ~here("differential_expression","data",paste0("qSVA_MDD_", .x, "_DEresults.rda")))
+load(paths$gene, verbose = TRUE)
+# outGene <- list(amyg = outGene_Amyg, sacc = outGene_sACC)
 
-# ### save as CSV
-# write.csv(outGene_Amyg, file="tables/de_gene_amyg_n541.csv")
-# write.csv(outGene_sACC, file="tables/de_gene_sacc_n552.csv")
-# write.csv(outExon_Amyg, file="tables/de_exon_amyg_n541.csv")
-# write.csv(outExon_sACC, file="tables/de_exon_sacc_n552.csv")
-# write.csv(outJxn_Amyg, file="tables/de_jxn_amyg_n541.csv")
-# write.csv(outJxn_sACC, file="tables/de_jxn_sacc_n552.csv")
-# write.csv(outTx_Amyg, file="tables/de_tx_amyg_n541.csv")
-# write.csv(outTx_sACC, file="tables/de_tx_sacc_n552.csv")
+load(here("differential_expression","data","qSVA_MDD_gene_DEresults_ilr.rda"), verbose = TRUE)
 
+## Compare F stats from model with & w/o ILR terms
+f_table <- map2(outGene, outGene_ilr, function(g, g_ilr){
+  ft <- cbind(g[,c("F", "adj.P.Val")], g_ilr[,c("F", "adj.P.Val")])
+  colnames(ft)[3:4] <- paste0(colnames(ft)[3:4],"_ilr")
+  ft <- as_tibble(ft) %>% mutate(Signif = as.factor(as.integer(adj.P.Val < 0.05) + as.integer(adj.P.Val_ilr < 0.05)))
+  return(ft)
+})
 
+f_plot <- map(f_table, ~ggplot(.x, aes(`F`, F_ilr, color= Signif)) + geom_point() +
+                scale_color_viridis(discrete=TRUE))
 
+walk2(f_plot, names(f_plot), ~ggsave(.x + labs(title = paste("F values:",.y)), 
+                                     filename = here("differential_expression","plots",paste0("F_plot-",.y,".png"))))
 
-## significant rows
-sigGene_Amyg_Cnt = outGene_Amyg$gencodeID[outGene_Amyg$q_PrimaryDxControl < 0.05]
-sigGene_Amyg_BP = outGene_Amyg$gencodeID[outGene_Amyg$q_PrimaryDxBipolar < 0.05]
-sigGene_sACC_Cnt = outGene_sACC$gencodeID[outGene_sACC$q_PrimaryDxControl < 0.05]
-sigGene_sACC_BP = outGene_sACC$gencodeID[outGene_sACC$q_PrimaryDxBipolar < 0.05]
+## compare t stats for each dx coefficent from model with & w/o ILR terms
+stat_cols <- c("t","adj.P.Val")
+outGene_t_stats <- map(outGene_single_coef, function(region){
+  dx_stats <- map(region, function(dx){
+    stats <- do.call("cbind",dx)
+    stats <- stats[,grepl("\\.t$|adj.P.Val$", colnames(stats))]
+    return(stats)
+  })
+  return(dx_stats)
+})
+
+head(outGene_t_stats$sacc$ctrl)
+
+outGene_t_stats2 <- map(outGene_t_stats, ~do.call("rbind",.x))
+outGene_t_stats3 <- do.call("rbind", outGene_t_stats2)
+
+t_stats <- outGene_t_stats3 %>%
+  rownames_to_column("data") %>%
+  as_tibble() %>%
+  separate(data, into = c("Region","coef","Gene"), extra = "merge") %>% 
+  mutate(Signif = as.factor(as.integer(no_ilr.adj.P.Val < 0.05) + as.integer(ilr.adj.P.Val < 0.05)))
+
+t_stats %>% count(Region, coef, Signif)
+
+t_plot <- ggplot(t_stats, aes(x = no_ilr.t, y = ilr.t, color = Signif)) + 
+  geom_point(size = 0.5) +
+  facet_grid(Region ~ coef)+
+  scale_color_viridis(discrete=TRUE)
+  
+ggsave(t_plot, filename = here("differential_expression","plots","t_plot.png"), height = 10, width = 10)
+
+#### Find Significant rows ####
+dx_test <- c(ctrl = "q_PrimaryDxControl", bp = "q_PrimaryDxBipolar")
+
+get_sig <- function(outdf, cols = dx_test , cutoff = 0.05){
+  sig <- map(cols, ~outdf$gencodeID[outdf[[.x]] < cutoff])
+  return(sig)
+}
+
+sigGene <- map(outGene, get_sig)
+map(sigGene, ~map_int(.x,length))
+
+sigGene_ilr <- map(outGene_ilr, get_sig)
+map(sigGene_ilr, ~map(.x,length))
+
 
 sigExon_Amyg_Cnt = outExon_Amyg$gencodeID[outExon_Amyg$q_PrimaryDxControl < 0.05]
 sigExon_Amyg_BP = outExon_Amyg$gencodeID[outExon_Amyg$q_PrimaryDxBipolar < 0.05]
@@ -61,11 +108,25 @@ sigTx_sACC_Cnt = outTx_sACC$gene_id[outTx_sACC$q_PrimaryDxControl < 0.05]
 sigTx_sACC_BP = outTx_sACC$gene_id[outTx_sACC$q_PrimaryDxBipolar < 0.05]
 
 
+#### venn diagrams ####
+
+de_venn <- function(in_list, fn){
+  full_fn = here("differential_expression","venns",paste0(fn,".png"))
+  
+
+  venn.diagram(in_list, 
+               fill = c("slateblue", "skyblue3"), main="", main.pos = c(.5, .05), cat.cex = 1.9, cex=3,
+               margin = .1, imagetype="png",  filename = full_fn)
+} 
+
+de_venn(map(sigGene, ~pluck(.x, "ctrl")), fn = "venn_fdr05_gene_mddVSctrl")
+de_venn(map(sigGene, ~pluck(.x, "bp")), fn = "venn_fdr05_gene_mddVSbip")
 
 ## gene
 venn.diagram(list(Amygdala = sigGene_Amyg_Cnt, sACC = sigGene_sACC_Cnt ), 
              fill = c("slateblue", "skyblue3"), main="", main.pos = c(.5, .05), cat.cex = 1.9, cex=3,
              margin = .1, imagetype="png",  filename = "venns/venn_fdr05_gene_mddVScnt.png")
+
 venn.diagram(list(Amygdala = sigGene_Amyg_BP, sACC = sigGene_sACC_BP ), 
              fill = c("slateblue", "skyblue3"), main="", main.pos = c(.5, .05), cat.cex = 1.9, cex=3,
              margin = .1, imagetype="png",  filename = "venns/venn_fdr05_gene_mddVSbip.png")
