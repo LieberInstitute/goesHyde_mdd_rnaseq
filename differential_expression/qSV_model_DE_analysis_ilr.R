@@ -80,20 +80,23 @@ outGene_ilr <- map2(rse_gene_sep, modSep_ilr, ~run_DE(rse = .x, model = .y, save
 
 ## Extract vals
 ebGene <- map(outGene, "eBayes")
-ebGene_ilr <- map(outGene, "eBayes")
-names(ebGene_ilr) <- paste0(names(ebGene_ilr), "_ilr")
-ebGene <- c(ebGene, ebGene_ilr)
+ebGene_ilr <- map(outGene_ilr, "eBayes")
+ebGene <- map2(ebGene, ebGene_ilr, ~list(no_ilr = .x, ilr = .y))
 names(ebGene)
 
-## Extract and save outGene
+## Extract  outGene
 outGene <- map(outGene, "topTable")
-outGene_ilr <- map(outGene, "topTable")
+outGene_ilr <- map(outGene_ilr, "topTable")
 
 ## get topTable stats for 1 coef at a time
 dx_coef <- list(ctrl = "PrimaryDxControl", bp = "PrimaryDxBipolar")
 
-outGene_single_coef <- map(ebGene, function(ebg){
-  tt  = map(dx_coef, ~topTable(ebg, coef= .x, p.value = 1, number=nrow(rse_gene)))
+outGene_single_coef <- map(ebGene, function(region){
+  tt_region <- map(dx_coef, function(dx){
+        tt_model <- map(region, ~topTable(.x, coef= dx, p.value = 1, number=nrow(rse_gene)))
+    return(tt_model)
+    })
+  return(tt_region)
 }
 )
 
