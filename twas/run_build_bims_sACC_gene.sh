@@ -9,13 +9,13 @@ date
 ## Could be fancier and use the date or something
 mkdir -p trash
 mv logs/build_bims_*.txt trash/
-rm -r trash/amygdala_gene
-mv amygdala_gene trash/
+rm -r trash/sACC_gene
+mv sACC_gene trash/
 
 ## Create logs dir if needed
 mkdir -p logs
 ## Submit new job
-qsub build_bims_amygdala_gene.sh
+qsub build_bims_sACC_gene.sh
 
 echo "**** Job ends ****"
 date

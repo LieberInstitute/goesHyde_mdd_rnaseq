@@ -1,9 +1,9 @@
 #!/bin/bash
 #$ -cwd
 #$ -l bluejay,mem_free=4G,h_vmem=4G,h_fsize=100G
-#$ -N compute_weights_indv_amygdala_full_gene
+#$ -N compute_weights_indv_sACC_full_gene
 #$ -j y
-#$ -o logs/amygdala_gene/compute_weights_indv_amygdala_full_gene.$TASK_ID.txt
+#$ -o logs/sACC_gene/compute_weights_indv_sACC_full_gene.$TASK_ID.txt
 #$ -t 1-24958
 #$ -tc 40
 #$ -m a
@@ -26,18 +26,18 @@ module load conda_R/4.0.x
 module list
 
 # relative path for FILELIST
-FILELIST=$(echo "/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/twas/amygdala_gene/input_ids.txt")
+FILELIST=$(echo "/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/twas/sACC_gene/input_ids.txt")
 
 ## File id and feature name
 FEATURENUM=$(awk 'BEGIN {FS="\t"} {print $1}' ${FILELIST} | awk "NR==${SGE_TASK_ID}")
 FEATUREID=$(awk 'BEGIN {FS="\t"} {print $2}' ${FILELIST} | awk "NR==${SGE_TASK_ID}")
 
 ## Define files
-FILTBIM="/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/twas/amygdala_gene/bim_files/amygdala_gene_${FEATURENUM}/filtered_snps_amygdala_gene_${FEATURENUM}"
+FILTBIM="/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/twas/sACC_gene/bim_files/sACC_gene_${FEATURENUM}/filtered_snps_sACC_gene_${FEATURENUM}"
 TMPFILES="tmp_files/gene_${FEATURENUM}"
 OUTFILES="out_files/gene_${FEATURENUM}"
 
-cd amygdala_gene/
+cd sACC_gene/
 
 Rscript /jhpce/shared/jhpce/libd/fusion_twas/github/fusion_twas/FUSION.compute_weights.R \
     --bfile ${FILTBIM} \

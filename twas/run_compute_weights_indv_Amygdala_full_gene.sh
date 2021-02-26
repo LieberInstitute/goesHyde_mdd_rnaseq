@@ -1,6 +1,6 @@
 #!/bin/bash
 
-## These mkdir steps + ln -s + "mkdir -p logs/amygdala_gene" were typically done
+## These mkdir steps + ln -s + "mkdir -p logs/Amygdala_gene" were typically done
 ## outside the loop at
 ## https://github.com/LieberInstitute/twas/blob/master/bsp2/compute_weights_indv.sh
 
@@ -12,14 +12,16 @@ umask u=rwx,g=rwx,o= ## equivalent to umask 007
 ## Required order for running this code:
 
 # For the logs
-mkdir -p logs/sACC_gene
+rm -r trash/Amygdala_gene
+mv logs/Amygdala_gene trash/
+mkdir -p logs/Amygdala_gene
 
 ## For output files
-mkdir -p sACC_gene/tmp_files
-mkdir -p sACC_gene/out_files
+mkdir -p Amygdala_gene/tmp_files
+mkdir -p Amygdala_gene/out_files
 
 # For GEMMA
-ln -s /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/twas/sACC_gene/ sACC_gene/output
+ln -s /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/twas/Amygdala_gene/ Amygdala_gene/output
 
 ## For running the main script
-qsub compute_weights_indv_sacc_full_gene.sh
+qsub compute_weights_indv_Amygdala_full_gene.sh
