@@ -25,6 +25,8 @@ load(here("differential_expression","data","qSV_mat.Rdata"), verbose = TRUE)
 
 ## load ilr data
 load(here("deconvolution","data","est_prop_ilr.Rdata"), verbose = TRUE)
+load(here("deconvolution","data","est_prop_top5.Rdata"), verbose = TRUE)
+est_prop <- map(est_prop, "Est.prop.weighted")
 
 #### Define models ####
 regions <- list(sacc = "sACC", amyg = "Amygdala")
@@ -62,6 +64,12 @@ map(modSep, colnames)
 modSep_ilr <- map2(modSep, est_prop_ilr[c("sacc_specific","amyg_specific")], ~cbind(.x, .y))
 map(modSep_ilr, colnames)
 
+## Add prop terms
+map(est_prop, colnames)
+
+modSep_prop <- map2(modSep, est_prop[c("sacc_specific","amyg_specific")], ~cbind(.x, .y[,1:(ncol(.y)-1)]))
+map(modSep_prop, colnames)
+
 ## save
 save(modSep, modSep_ilr, file = "differential_models_ilr.Rdata")
 
@@ -77,16 +85,20 @@ map(rse_gene_sep, dim)
 
 outGene <- map2(rse_gene_sep, modSep, ~run_DE(rse = .x, model = .y, save_eBayes = TRUE))
 outGene_ilr <- map2(rse_gene_sep, modSep_ilr, ~run_DE(rse = .x, model = .y, save_eBayes = TRUE))
+outGene_prop <- map2(rse_gene_sep, modSep_prop, ~run_DE(rse = .x, model = .y, save_eBayes = TRUE))
 
 ## Extract vals
-ebGene <- map(outGene, "eBayes")
-ebGene_ilr <- map(outGene_ilr, "eBayes")
-ebGene <- map2(ebGene, ebGene_ilr, ~list(no_ilr = .x, ilr = .y))
+ebGene <- list(outGene, outGene_ilr, outGene_prop)
+ebGene <- map(ebGene, ~map(.x, "eBayes"))
+names(ebGene) <- list("no_deconvo","ilr","prop")
+
+ebGene <- transpose(ebGene)
 names(ebGene)
 
 ## Extract  outGene
 outGene <- map(outGene, "topTable")
 outGene_ilr <- map(outGene_ilr, "topTable")
+outGene_prop <- map(outGene_prop, "topTable")
 
 ## get topTable stats for 1 coef at a time
 dx_coef <- list(ctrl = "PrimaryDxControl", bp = "PrimaryDxBipolar")

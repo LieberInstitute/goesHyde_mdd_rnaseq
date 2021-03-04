@@ -12,7 +12,6 @@ library(VennDiagram)
 library(clusterProfiler)
 library(org.Hs.eg.db)
 library(sessioninfo)
-library(purrr)
 library(tidyverse)
 library(viridis)
 library(here)
@@ -60,17 +59,31 @@ outGene_t_stats3 <- do.call("rbind", outGene_t_stats2)
 t_stats <- outGene_t_stats3 %>%
   rownames_to_column("data") %>%
   as_tibble() %>%
-  separate(data, into = c("Region","coef","Gene"), extra = "merge") %>% 
-  mutate(Signif = as.factor(as.integer(no_ilr.adj.P.Val < 0.05) + as.integer(ilr.adj.P.Val < 0.05)))
+  separate(data, into = c("Region","coef","Gene"), extra = "merge") 
+# %>% 
+  # mutate(Signif = as.factor(as.integer(no_ilr.adj.P.Val < 0.05) + as.integer(ilr.adj.P.Val < 0.05))) %>%
+
 
 t_stats %>% count(Region, coef, Signif)
 
-t_plot <- ggplot(t_stats, aes(x = no_ilr.t, y = ilr.t, color = Signif)) + 
+t_plot <-  t_stats %>%
+  mutate(Signif = as.factor(as.integer(no_deconvo.adj.P.Val < 0.05) + as.integer(ilr.adj.P.Val < 0.05))) %>%
+  ggplot(aes(x = no_deconvo.t, y = ilr.t, color = Signif)) + 
   geom_point(size = 0.5) +
   facet_grid(Region ~ coef)+
   scale_color_viridis(discrete=TRUE)
   
-ggsave(t_plot, filename = here("differential_expression","plots","t_plot.png"), height = 10, width = 10)
+ggsave(t_plot, filename = here("differential_expression","plots","t_plot_ilr.png"), height = 10, width = 10)
+
+
+t_plot_prop <-  t_stats %>%
+  mutate(Signif = as.factor(as.integer(no_deconvo.adj.P.Val < 0.05) + as.integer(prop.adj.P.Val < 0.05))) %>%
+  ggplot(aes(x = no_deconvo.t, y = prop.t, color = Signif)) + 
+  geom_point(size = 0.5) +
+  facet_grid(Region ~ coef)+
+  scale_color_viridis(discrete=TRUE)
+
+ggsave(t_plot_prop, filename = here("differential_expression","plots","t_plot_prop.png"), height = 10, width = 10)
 
 #### Find Significant rows ####
 dx_test <- c(ctrl = "q_PrimaryDxControl", bp = "q_PrimaryDxBipolar")
