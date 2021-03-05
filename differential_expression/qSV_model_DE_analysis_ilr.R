@@ -68,7 +68,7 @@ map(modSep_ilr, colnames)
 map(est_prop, colnames)
 
 modSep_prop <- map2(modSep, est_prop[c("sacc_specific","amyg_specific")], ~cbind(.x, .y[,1:(ncol(.y)-1)]))
-map(modSep_prop, colnames)
+map(modSep_prop, head)
 
 ## save
 save(modSep, modSep_ilr, file = "differential_models_ilr.Rdata")
@@ -105,7 +105,7 @@ dx_coef <- list(ctrl = "PrimaryDxControl", bp = "PrimaryDxBipolar")
 
 outGene_single_coef <- map(ebGene, function(region){
   tt_region <- map(dx_coef, function(dx){
-        tt_model <- map(region, ~topTable(.x, coef= dx, p.value = 1, number=nrow(rse_gene)))
+        tt_model <- map(region, ~topTable(.x, coef= dx, p.value = 1, number=nrow(rse_gene), sort.by = "none"))
     return(tt_model)
     })
   return(tt_region)

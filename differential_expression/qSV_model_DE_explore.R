@@ -64,7 +64,7 @@ t_stats <- outGene_t_stats3 %>%
 
 t_stats %>% count(Region, coef)
 
-t_plot <-  t_stats %>%
+t_plot <- t_stats %>%
   mutate(Signif = case_when(no_deconvo.adj.P.Val < 0.05 & ilr.adj.P.Val < 0.05 ~"sig_Both",
                                     no_deconvo.adj.P.Val < 0.05 ~ "sig_no-deconvo",
                                     ilr.adj.P.Val < 0.05 ~ "sig_ilr",
