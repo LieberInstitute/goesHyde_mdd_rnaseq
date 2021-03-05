@@ -13,6 +13,7 @@ library(clusterProfiler)
 library(org.Hs.eg.db)
 library(sessioninfo)
 library(tidyverse)
+library(GGally)
 library(viridis)
 library(here)
 
@@ -60,30 +61,41 @@ t_stats <- outGene_t_stats3 %>%
   rownames_to_column("data") %>%
   as_tibble() %>%
   separate(data, into = c("Region","coef","Gene"), extra = "merge") 
-# %>% 
-  # mutate(Signif = as.factor(as.integer(no_ilr.adj.P.Val < 0.05) + as.integer(ilr.adj.P.Val < 0.05))) %>%
 
-
-t_stats %>% count(Region, coef, Signif)
+t_stats %>% count(Region, coef)
 
 t_plot <-  t_stats %>%
-  mutate(Signif = as.factor(as.integer(no_deconvo.adj.P.Val < 0.05) + as.integer(ilr.adj.P.Val < 0.05))) %>%
+  mutate(Signif = case_when(no_deconvo.adj.P.Val < 0.05 & ilr.adj.P.Val < 0.05 ~"sig_Both",
+                                    no_deconvo.adj.P.Val < 0.05 ~ "sig_no-deconvo",
+                                    ilr.adj.P.Val < 0.05 ~ "sig_ilr",
+                         TRUE ~ "None")) %>%
   ggplot(aes(x = no_deconvo.t, y = ilr.t, color = Signif)) + 
   geom_point(size = 0.5) +
   facet_grid(Region ~ coef)+
-  scale_color_viridis(discrete=TRUE)
+  # scale_color_viridis(discrete=TRUE)+
+  labs(title = "Add ilr terms to model")+
+  NULL
   
 ggsave(t_plot, filename = here("differential_expression","plots","t_plot_ilr.png"), height = 10, width = 10)
 
-
 t_plot_prop <-  t_stats %>%
-  mutate(Signif = as.factor(as.integer(no_deconvo.adj.P.Val < 0.05) + as.integer(prop.adj.P.Val < 0.05))) %>%
+  mutate(Signif = case_when(no_deconvo.adj.P.Val < 0.05 & prop.adj.P.Val < 0.05 ~"sig_Both",
+                            no_deconvo.adj.P.Val < 0.05 ~ "sig_no-deconvo",
+                            prop.adj.P.Val < 0.05 ~ "sig_prop",
+                            TRUE ~ "None")) %>%
   ggplot(aes(x = no_deconvo.t, y = prop.t, color = Signif)) + 
   geom_point(size = 0.5) +
   facet_grid(Region ~ coef)+
-  scale_color_viridis(discrete=TRUE)
+  # scale_color_viridis(discrete=TRUE)+
+  labs(title = "Add proportion terms to model")+
+  NULL
 
 ggsave(t_plot_prop, filename = here("differential_expression","plots","t_plot_prop.png"), height = 10, width = 10)
+
+gg_pairs <- t_stats %>% filter(Region == "sacc", coef == "ctrl") %>%
+  ggpairs(columns = c("no_deconvo.t","ilr.t","prop.t"), size = 0.5, alpha = 0.5)
+ggsave(gg_pairs, filename = here("differential_expression","plots","t_ggpairs.png"))
+
 
 #### Find Significant rows ####
 dx_test <- c(ctrl = "q_PrimaryDxControl", bp = "q_PrimaryDxBipolar")
