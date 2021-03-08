@@ -24,7 +24,7 @@ module load conda_R
 module list
 
 ## Edit with your job command
-Rscript music_deconvo.R
+Rscript deconvo_MuSiC.R
 
 echo "**** Job ends ****"
 date

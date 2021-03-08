@@ -2,14 +2,13 @@
 library(SummarizedExperiment)
 library(SingleCellExperiment)
 library(jaffelab)
-library(here)
 library(MuSiC)
 library(Biobase)
 library(xbioc)
-library(purrr)
 library(tidyverse)
 library(reshape2)
 library(compositions)
+library(here)
 library(sessioninfo)
 
 #### Load Data ####
@@ -18,27 +17,18 @@ load(here("exprs_cutoff", "rse_gene.Rdata"), verbose = TRUE)
 rownames(rse_gene) <- rowData(rse_gene)$ensemblID
 
 ## sce Data
-load(here("deconvolution","data","sce.sacc_filtered.Rdata"), verbose = TRUE)
-load(here("deconvolution","data","sce.amyg_filtered.Rdata"), verbose = TRUE)
+load(here("deconvolution","data","sce_filtered.Rdata"), verbose = TRUE)
 
 ## marker data
-load(here("deconvolution","data","marker_stats.Rdata"), verbose = TRUE)
-top_n <- 5
-
-marker_genes <- map(marker_stats, ~.x %>%
-                      arrange(-ratio) %>%
-                      filter(rank_ratio <= top_n) %>%
-                      arrange(cellType.target, rank_ratio) %>% 
-                      pull(gene))
+load(here("deconvolution","data","marker_genes.Rdata"), verbose = TRUE)
 
 map_int(marker_genes, length)
 map_int(marker_genes, ~sum(.x %in% rownames(rse_gene)))
 
-
 exp <- list(sacc = list(bulk = rse_gene[,rse_gene$BrainRegion == "sACC"],
-                        sce = sce.sacc), 
+                        sce = sce$sacc), 
             amyg = list(bulk = rse_gene[,rse_gene$BrainRegion == "Amygdala"],
-                        sce = sce.amyg)
+                        sce = sce$amyg)
 )
 map(exp, ~map_int(.x, ncol))
 # $sacc
@@ -56,7 +46,6 @@ exp_set <- map(exp, ~list(bulk = ExpressionSet(assayData = assays(.x$bulk)$count
                           )
                )
       
-
 #### estimate cell type props ####
 ct <- list(broad = "cellType.Broad", specific = "cellType")
 
@@ -87,19 +76,11 @@ map(est_prop, ~round(colMeans(.x$Est.prop.weighted),3))
 # Inhib.2   Oligo   Astro Excit.1   Micro     OPC Inhib.3 Inhib.5 Inhib.1 
 # 0.023   0.296   0.348   0.051   0.189   0.003   0.001   0.053   0.035
 
-save(est_prop, file= here("deconvolution","data",paste0("est_prop_top", top_n,".Rdata")))
-
-pd <- as.data.frame(colData(rse_gene))
-
-pd2 <- pd  %>%
-  select(BrNum, RNum, Sex, PrimaryDx, ERCCsumLogErr, grep("snpPC",colnames(pd)))%>%
-  rownames_to_column("sample")
-  
+save(est_prop, file= here("deconvolution","data","est_prop_MuSiC.Rdata"))
 
 est_prop_long <- map(est_prop, ~melt(.x$Est.prop.weighted) %>%
                        rename(sample = Var1, cell_type = Var2, prop = value) %>% 
-                       arrange(cell_type) %>%
-                       left_join(pd2, by = "sample"))
+                       arrange(cell_type) )
 
 ## order celltypes
 est_prop_long <- map(est_prop_long, function(x){
@@ -112,7 +93,7 @@ est_prop_long <- map(est_prop_long, function(x){
   return(x)
 })
 
-save(est_prop_long, file = here("deconvolution","data",paste0("est_prop_top", top_n,"_long.Rdata")))
+save(est_prop_long, file = here("deconvolution","data","est_prop_long_MuSiC.Rdata"))
 
 #### calculate ilr ####
 
@@ -122,7 +103,7 @@ est_prop_ilr <- map(est_prop_ilr, function(x){
   return(x)
 })
 
-save(est_prop_ilr, file = here("deconvolution","data","est_prop_ilr.Rdata"))
+save(est_prop_ilr, file = here("deconvolution","data","est_prop_ilr_MuSiC.Rdata"))
 
 # sgejobs::job_single('music_deconvo', create_shell = TRUE, queue= 'bluejay', memory = '50G', command = "Rscript music_deconvo.R")
 ## Reproducibility information
