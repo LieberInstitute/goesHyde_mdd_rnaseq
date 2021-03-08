@@ -18,7 +18,7 @@ echo "Task id: \${TASK_ID}"
 ## Load dependencies
 module load plink/1.90b6.6
 module load fusion_twas/github
-module load conda_R/4.0
+module load conda_R/4.0.x
 
 ## List current modules
 module list
