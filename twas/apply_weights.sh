@@ -69,8 +69,8 @@ do
 ## Create summarized analysis
 Rscript /jhpce/shared/jhpce/libd/fusion_twas/github/fusion_twas/FUSION.assoc_test.R \
     --sumstats \${summstatsfile} \
-    --weights /dcl01/lieber/ajaffe/lab/zandiHyde_bipolar_rnaseq/dev_twas/${region}_${feature}/${region}_${feature}.pos \
-    --weights_dir /dcl01/lieber/ajaffe/lab/zandiHyde_bipolar_rnaseq/dev_twas/${region}_${feature}/ \
+    --weights /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/twas/${region}_${feature}/${region}_${feature}.pos \
+    --weights_dir /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/twas/${region}_${feature}/ \
     --ref_ld_chr /dcl01/lieber/ajaffe/lab/brainseq_phase2/twas/reference_hg38/LDREF_hg38/1000G.EUR. \
     --chr \${chr} \
     --out ${region}_${feature}/${summstats}/${summstats}.\${chr}.dat
