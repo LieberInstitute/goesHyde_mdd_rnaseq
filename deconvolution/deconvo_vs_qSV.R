@@ -2,7 +2,6 @@ library(SummarizedExperiment)
 library(jaffelab)
 library(here)
 library(reshape2)
-library(purrr)
 library(tidyverse)
 library(broom)
 library(viridis)
@@ -10,23 +9,48 @@ library(sessioninfo)
 library(RColorBrewer)
 
 #### Load Data ####
-load(here("deconvolution","data","est_prop_top5_long.Rdata"), verbose = TRUE)
-load(here("differential_expression" ,"qSV_mat.Rdata"), verbose = TRUE)
+load(here("deconvolution","data","est_prop_MuSiC.Rdata"), verbose = TRUE)
+load(here("deconvolution","data","est_prop_Bisque.Rdata"),verbose = TRUE)
+load(here("differential_expression", "data","qSV_mat.Rdata"), verbose = TRUE)
+
+est_prop <- list(music = est_prop_music,
+                 bisque = est_prop_bisque)
+
+est_prop2 <- transpose(est_prop)
+
+long_prop <- map(est_prop2, function(ep){
+  
+  lp <- do.call("rbind", map(ep,"Est.prop.long")) %>%
+    rownames_to_column("method") %>%
+    # as_tibble() %>%
+    mutate(method = ss(method, "\\."))
+  
+  cellTypes <- levels(lp$cell_type)
+  excit_ct <- cellTypes[grep("Excit", cellTypes)]
+  inhib_ct <- cellTypes[grep("Inhib", cellTypes)]
+  other_ct <- cellTypes[!cellTypes %in% c(excit_ct, inhib_ct)]
+  
+  cell_order <- c(other_ct[order(other_ct)], excit_ct[order(excit_ct)], inhib_ct[order(inhib_ct)])
+  lp$cell_type <- factor(lp$cell_type, levels = cell_order)
+  
+  
+  return(lp)
+})
+
 
 qSV_long <- melt(qSV_mat) %>% rename(sample = Var1, qSV = Var2, qSV_value = value)
 
 ## Bind with qSV table
-map_int(est_prop_long, nrow)
+map_int(long_prop, nrow)
 # sacc_broad    amyg_broad sacc_specific amyg_specific 
-# 3306          3240          5510          4860
-est_prop_qsv <- map(est_prop_long, ~.x %>% 
-                      select(sample, cell_type, prop) %>%
+# 6612          6480         11020         11340 
+est_prop_qsv <- map(long_prop, ~.x %>% 
                       left_join(qSV_long, by = "sample"))
 
 
 #### Calculate p-values ####
 
-prop_qSV_fit <- map(est_prop_qsv,~.x %>% group_by(cell_type, qSV) %>%
+prop_qSV_fit <- map(est_prop_qsv,~.x %>% group_by(method, cell_type, qSV) %>%
                       do(fitQSV = tidy(lm(prop ~ qSV_value-1, data = .))) %>% 
                       unnest(fitQSV) %>%
                       mutate(p.bonf = p.adjust(p.value, "bonf"),
@@ -70,9 +94,13 @@ walk2(prop_qSV_fit, names(prop_qSV_fit),function(values, n){
          subtitle = n) +
     geom_text(aes(label = p.bonf.cat, color = p.bonf.cat),size = 3)+
     scale_color_manual(values = sig_colors) +
-    scale_fill_viridis(name = "p-value bonf", trans = "log10", option = "magma")
+    scale_fill_viridis(name = "p-value bonf", trans = "log10", option = "magma") +
+    facet_wrap(~method)+ 
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
   
-  ggsave(filename = paste0("plots/qSV_prop_fit_tileSig-",n,".png"), plot = tile_plot)
+  ggsave(plot = tile_plot,
+         filename = here("deconvolution","plots",paste0("qSV_prop_fit_tileSig-",n,".png")), 
+         width = 10)
 })
 
 walk2(prop_qSV_fit, names(prop_qSV_fit),function(values, n){
@@ -83,31 +111,40 @@ walk2(prop_qSV_fit, names(prop_qSV_fit),function(values, n){
          subtitle = n) +
     geom_text(aes(label = round(log10(p.bonf),3), color = p.bonf.cat),size = 3)+
     scale_color_manual(values = sig_colors) +
-    scale_fill_viridis(name = "p-value bonf", trans = "log10", option = "magma")
+    scale_fill_viridis(name = "p-value bonf", trans = "log10", option = "magma")+
+    facet_wrap(~method)+ 
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
   
-  ggsave(filename = paste0("plots/qSV_prop_fit_tileVal-",n,".png"), plot = tile_plot)
+  ggsave(plot = tile_plot,
+         filename = here("deconvolution","plots",paste0("qSV_prop_fit_tileVal-",n,".png")), 
+         width = 10)
 })
 
 
 #### Create scatter plots ####
 sig_colors <- c(brewer.pal(3, "Set1"),"black")
 
-walk2(est_prop_qsv, names(est_prop_qsv),function(values, n){
-  prop_qsv_temp <-  values %>%
-    left_join(prop_qSV_fit[[n]] %>% select(cell_type, qSV, p.bonf, p.bonf.cat),
-              by = c("cell_type", "qSV"))
-  
-  scatter_plot <- ggplot(prop_qsv_temp, aes(x = qSV_value, y = prop, color = p.bonf.cat))+
-    geom_point(size = .4, alpha = .25) +
-    facet_grid(cell_type~qSV, scales = "free")+
-    theme_bw(base_size = 10)+
-    scale_color_manual(values = sig_colors) +
-    theme(legend.text = element_text(size = 15)) + 
-    guides(color = guide_legend(override.aes = list(size=5)))
-  
-  ggsave(filename = paste0("plots/qSV_cellType_scatter-",n,".png"), plot = scatter_plot, width = 26, height = length(unique(prop_qsv_temp$cell_type)))
-  message(n)
-})
+walk(c("music","bisque"), 
+     ~pwalk(list(values = est_prop_qsv, n = names(est_prop_qsv), fit = prop_qSV_fit),
+            function(values, n, fit){
+              values <- values %>% filter(method == .x)
+              fit <- fit %>% filter(method == .x) %>% select(cell_type, qSV, p.bonf, p.bonf.cat)
+              prop_qsv_temp <-  values %>%
+                left_join(fit)
+              
+              scatter_plot <- ggplot(prop_qsv_temp, aes(x = qSV_value, y = prop, color = p.bonf.cat))+
+                geom_point(size = .4, alpha = .25) +
+                facet_grid(cell_type~qSV, scales = "free")+
+                theme_bw(base_size = 10)+
+                scale_color_manual(values = sig_colors) +
+                theme(legend.text = element_text(size = 15)) + 
+                guides(color = guide_legend(override.aes = list(size=5)))
+              
+              filename = paste0("qSV_cellType_scatter_",n,"-",.x,".png")
+              ggsave(filename = here("deconvolution","plots", filename), 
+                     plot = scatter_plot, width = 26, height = length(unique(prop_qsv_temp$cell_type)))
+              message(n)
+            }))
 
 
 # sgejobs::job_single('deconvo_vs_qSV', create_shell = TRUE, queue= 'bluejay', memory = '5G', command = "Rscript deconvo_vs_qSV.R")
