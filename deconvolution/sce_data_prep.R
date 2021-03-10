@@ -1,5 +1,6 @@
 library(SingleCellExperiment)
 library(jaffelab)
+library(purrr)
 library(here)
 library(GenomicFeatures)
 library(sessioninfo)
@@ -94,12 +95,33 @@ rowRanges(sce.amy) <- g_amy
 all(rownames(rd.amy) == rownames(sce.amy))
 rowData(sce.amy)$Symbol <- rd.amy$Symbol
 
-## Save filtered sce object
-save(sce.sacc, file = here("deconvolution","data","sce.sacc_filtered.Rdata"))
 ## rename amy to amyg to be consistent with rest of mdd scripts
 sce.amyg <- sce.amy
-save(sce.amyg, file = here("deconvolution","data","sce.amyg_filtered.Rdata"))
 
+## Save filtered sce object
+sce <- list(sacc = sce.sacc, amyg = sce.amyg)
+
+## Fix cellType factor order
+order_ct <- function(cellTypes){
+  excit_ct <- cellTypes[grep("Excit", cellTypes)]
+  inhib_ct <- cellTypes[grep("Inhib", cellTypes)]
+  other_ct <- cellTypes[!cellTypes %in% c(excit_ct, inhib_ct)]
+  
+  cell_order <- c(other_ct, excit_ct, inhib_ct)
+  return(cell_order)
+}
+
+sce <- map(sce, function(s){
+  co <- order_ct(levels(s$cellType))
+  co.Broad <- order_ct(levels(s$cellType.Broad))
+  
+  
+  s$cellType <- factor(s$cellType,levels = co)
+  s$cellType.Broad <- factor(s$cellType.Broad,levels = co.Broad)
+  return(s)
+})
+
+save(sce, file = here("deconvolution","data","sce_filtered.Rdata"))
 
 # sgejobs::job_single('sce_data_prep', create_shell = TRUE, queue= 'bluejay', memory = '10G', command = "Rscript 1_sce_data_prep.R")
 ## Reproducibility information
