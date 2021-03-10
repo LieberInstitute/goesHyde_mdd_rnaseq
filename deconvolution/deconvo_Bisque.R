@@ -2,11 +2,11 @@
 library(SummarizedExperiment)
 library(SingleCellExperiment)
 library(jaffelab)
-library(MuSiC)
-library(Biobase)
 library(xbioc)
+library(BisqueRNA)
 library(tidyverse)
 library(reshape2)
+library(purrr)
 library(compositions)
 library(here)
 library(sessioninfo)
@@ -40,49 +40,72 @@ exp_set <- map2(rse_gene, sce, function(rse, sc){
               sce = exp_set_sce))
 })
 
+map(exp_set, ~map_int(.x, ncol))
+# $sacc
+# bulk  sce 
+# 551 7004 
+# 
+# $amyg
+# bulk  sce 
+# 540 6582 
 
+exp_set2 <- map2(marker_genes, rep(exp_set, 2), function(genes, es){
+    bulk_subset <- es$bulk[genes,]
+    sc_subset <- es$sce[genes,]
+    
+    zero_cell_filter <- colSums(exprs(sc_subset)) != 0
+    message("Exclude ",sum(!zero_cell_filter), " cells")
+    sc_subset <- sc_subset[,zero_cell_filter]
+    
+    return(list(bulk = bulk_subset,
+                sce = sc_subset))
+    })
+
+      
 #### estimate cell type props ####
 ct <- list(broad = "cellType.Broad", specific = "cellType")
 
-est_prop <- pmap(list(genes = marker_genes, es = rep(exp_set, 2), ct = rep(ct,each = 2)),
-                 function(genes, es, ct){
-                   est_prop <- music_prop(bulk.eset = es$bulk,
-                                          sc.eset = es$sce,
-                                          clusters = ct,
-                                          samples = 'donor',
-                                          markers = genes)
-                   return(est_prop)
-                 } 
-)
+#### Run Bisque ####
+est_prop <- map2(exp_set2, rep(ct, each = 2), 
+                      ~ReferenceBasedDecomposition(bulk.eset = .x$bulk, 
+                                                   sc.eset = .x$sce,
+                                                   cell.types = .y, 
+                                                   subject.names = "donor",
+                                                   use.overlap = FALSE))
 
-map(est_prop, ~round(colMeans(.x$Est.prop.weighted),3))
-# $sacc_broad
-# Oligo Micro Astro Inhib   OPC Excit 
-# 0.156 0.052 0.552 0.211 0.000 0.028 
-# 
-# $amyg_broad
-# Inhib Oligo Astro Excit Micro   OPC 
-# 0.192 0.169 0.474 0.085 0.072 0.008 
-# 
-# $sacc_specific
-# Oligo   Micro   Astro Inhib.2 Inhib.1     OPC Excit.3 Excit.1 Excit.2 Excit.4 
-# 0.220   0.080   0.595   0.011   0.035   0.003   0.017   0.038   0.001   0.000 
-# 
-# $amyg_specific
-# Inhib.2   Oligo   Astro Excit.1   Micro     OPC Inhib.3 Inhib.5 Inhib.1 
-# 0.023   0.296   0.348   0.051   0.189   0.003   0.001   0.053   0.035
-
-est_prop_music <- map(est_prop, function(prop_ct){
-  prop_ct$Est.prop.long <- melt(prop_ct$Est.prop.weighted) %>%
+## Add long data and save
+est_prop_bisque <- map(est_prop, function(prop_ct){
+  prop_ct$bulk.props <- t(prop_ct$bulk.props)
+  prop_ct$Est.prop.long <- melt(prop_ct$bulk.props) %>%
     rename(sample = Var1, cell_type = Var2, prop = value)
-  prop_ct$ilr <- ilr(prop_ct$Est.prop.weighted)
+  prop_ct$ilr <- ilr(prop_ct$bulk.props)
   colnames(prop_ct$ilr) <- paste0("ilr_",1:ncol(prop_ct$ilr))
   return(prop_ct)
+  
 })
 
-save(est_prop_music, file= here("deconvolution","data","est_prop_MuSiC.Rdata"))
+map(est_prop_bisque, ~round(colMeans(.x$bulk.props),3))
+# $sacc_broad
+# Astro Excit Inhib Micro Oligo   OPC 
+# 0.085 0.176 0.115 0.072 0.476 0.076 
+# 
+# $amyg_broad
+# Astro Excit Inhib Micro Oligo   OPC 
+# 0.130 0.064 0.067 0.114 0.530 0.096 
+# 
+# $sacc_specific
+# Astro Excit.1 Excit.2 Excit.3 Excit.4 Inhib.1 Inhib.2   Micro   Oligo     OPC 
+# 0.084   0.081   0.058   0.026   0.012   0.071   0.044   0.071   0.476   0.075 
+# 
+# $amyg_specific
+# Astro Excit.1 Excit.2 Excit.3 Inhib.1 Inhib.2 Inhib.3 Inhib.4 Inhib.5   Micro   Oligo     OPC 
+# 0.130   0.050   0.006   0.009   0.024   0.017   0.005   0.005   0.015   0.114   0.529   0.096 
 
-# sgejobs::job_single('music_deconvo', create_shell = TRUE, queue= 'bluejay', memory = '50G', command = "Rscript music_deconvo.R")
+#### calculate ilr ####
+
+save(est_prop_bisque, file = here("deconvolution","data","est_prop_Bisque.Rdata"))
+
+# sgejobs::job_single('deconvo_Bisque', create_shell = TRUE, queue= 'bluejay', memory = '10G', command = "Rscript deconvo_Bisque.R")
 ## Reproducibility information
 print("Reproducibility information:")
 Sys.time()
