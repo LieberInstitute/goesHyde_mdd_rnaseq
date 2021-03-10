@@ -35,7 +35,8 @@ f_table <- map2(outGene, outGene_ilr, function(g, g_ilr){
   return(ft)
 })
 
-f_plot <- map(f_table, ~ggplot(.x, aes(`F`, F_ilr, color= Signif)) + geom_point() +
+f_plot <- map(f_table, ~ggplot(.x, aes(`F`, F_ilr, color= Signif)) +
+                geom_point(alpha = 0.5, size = 0.5) +
                 scale_color_viridis(discrete=TRUE))
 
 walk2(f_plot, names(f_plot), ~ggsave(.x + labs(title = paste("F values:",.y)), 
@@ -57,44 +58,58 @@ head(outGene_t_stats$sacc$ctrl)
 outGene_t_stats2 <- map(outGene_t_stats, ~do.call("rbind",.x))
 outGene_t_stats3 <- do.call("rbind", outGene_t_stats2)
 
+load(here("differential_expression","data","deconvo_coef_explore.Rdata"), verbose = TRUE)
+deconvo_coef <- do.call("rbind", combo_coef_explore) %>%
+  add_column(Region = rep(names(combo_coef_explore), each = nrow(outGene$sacc))) %>%
+  rename(Gene = gencodeID)
+
 t_stats <- outGene_t_stats3 %>%
   rownames_to_column("data") %>%
   as_tibble() %>%
-  separate(data, into = c("Region","coef","Gene"), extra = "merge") 
+  separate(data, into = c("Region","coef","Gene"), extra = "merge") %>%
+  mutate(Signif_ilr = case_when(no_deconvo.adj.P.Val < 0.05 & ilr.adj.P.Val < 0.05 ~"sig_Both",
+                            no_deconvo.adj.P.Val < 0.05 ~ "sig_no-deconvo",
+                            ilr.adj.P.Val < 0.05 ~ "sig_deconvo-ilr",
+                            TRUE ~ "None"),
+         Signif_prop = case_when(no_deconvo.adj.P.Val < 0.05 & prop.adj.P.Val < 0.05 ~"sig_Both",
+                            no_deconvo.adj.P.Val < 0.05 ~ "sig_no-deconvo",
+                            prop.adj.P.Val < 0.05 ~ "sig_deconvo-prop",
+                            TRUE ~ "None")
+         ) %>%
+  left_join(deconvo_coef, by = c("Region", "Gene"))
 
-t_stats %>% count(Region, coef)
-
-t_plot <- t_stats %>%
-  mutate(Signif = case_when(no_deconvo.adj.P.Val < 0.05 & ilr.adj.P.Val < 0.05 ~"sig_Both",
-                                    no_deconvo.adj.P.Val < 0.05 ~ "sig_no-deconvo",
-                                    ilr.adj.P.Val < 0.05 ~ "sig_ilr",
-                         TRUE ~ "None")) %>%
-  ggplot(aes(x = no_deconvo.t, y = ilr.t, color = Signif)) + 
-  geom_point(size = 0.5) +
+t_plot_ilr <-  t_stats %>%
+  ggplot(aes(x = no_deconvo.t, y = ilr.t)) + 
   facet_grid(Region ~ coef)+
-  # scale_color_viridis(discrete=TRUE)+
   labs(title = "Add ilr terms to model")+
   NULL
-  
-ggsave(t_plot, filename = here("differential_expression","plots","t_plot_ilr.png"), height = 10, width = 10)
+
+ggsave(t_plot_ilr + geom_point(aes(color = Signif_ilr), size = 0.5), 
+       filename = here("differential_expression","plots","t_plot_ilr_sig.png"), height = 10, width = 10)
+ggsave(t_plot_ilr+ geom_point(aes(color = coef_ilr), size = 0.5), 
+       filename = here("differential_expression","plots","t_plot_ilr_coef.png"), height = 10, width = 10)
 
 t_plot_prop <-  t_stats %>%
-  mutate(Signif = case_when(no_deconvo.adj.P.Val < 0.05 & prop.adj.P.Val < 0.05 ~"sig_Both",
-                            no_deconvo.adj.P.Val < 0.05 ~ "sig_no-deconvo",
-                            prop.adj.P.Val < 0.05 ~ "sig_prop",
-                            TRUE ~ "None")) %>%
-  ggplot(aes(x = no_deconvo.t, y = prop.t, color = Signif)) + 
-  geom_point(size = 0.5) +
+  ggplot(aes(x = no_deconvo.t, y = prop.t)) + 
   facet_grid(Region ~ coef)+
-  # scale_color_viridis(discrete=TRUE)+
   labs(title = "Add proportion terms to model")+
   NULL
 
-ggsave(t_plot_prop, filename = here("differential_expression","plots","t_plot_prop.png"), height = 10, width = 10)
+ggsave(t_plot_prop + geom_point(aes(color = Signif_prop), size = 0.5), 
+       filename = here("differential_expression","plots","t_plot_prop_sig.png"), height = 10, width = 10)
+ggsave(t_plot_prop+ geom_point(aes(color = coef_prop), size = 0.5), 
+       filename = here("differential_expression","plots","t_plot_prop_coef.png"), height = 10, width = 10)
 
-gg_pairs <- t_stats %>% filter(Region == "sacc", coef == "ctrl") %>%
-  ggpairs(columns = c("no_deconvo.t","ilr.t","prop.t"), size = 0.5, alpha = 0.5)
-ggsave(gg_pairs, filename = here("differential_expression","plots","t_ggpairs.png"))
+## compare ilr vs. prop
+t_ilr_prop <-  t_stats %>%
+  ggplot(aes(x = ilr.t, y = prop.t)) + 
+  geom_point(aes(color = coef_prop), size = 0.5)+
+  facet_grid(Region ~ coef)+
+  labs(title = "Prop terms vs. ilr terms")+
+  NULL
+
+ggsave(t_ilr_prop , 
+       filename = here("differential_expression","plots","t_plot_ilr-prop_coef.png"), height = 10, width = 10)
 
 
 #### Find Significant rows ####

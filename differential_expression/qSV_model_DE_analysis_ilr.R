@@ -8,7 +8,7 @@ library(sva)
 library(readxl)
 library(devtools)
 library(edgeR)
-library(purrr)
+library(tidyverse)
 library(sessioninfo)
 library(here)
 
@@ -24,8 +24,8 @@ pd = colData(rse_gene)
 load(here("differential_expression","data","qSV_mat.Rdata"), verbose = TRUE)
 
 ## load ilr data
-load(here("deconvolution","data","est_prop_ilr.Rdata"), verbose = TRUE)
-load(here("deconvolution","data","est_prop_top5.Rdata"), verbose = TRUE)
+load(here("deconvolution","data","est_prop_ilr_MuSiC.Rdata"), verbose = TRUE)
+load(here("deconvolution","data","est_prop_MuSiC.Rdata"), verbose = TRUE)
 est_prop <- map(est_prop, "Est.prop.weighted")
 
 #### Define models ####
@@ -87,6 +87,7 @@ outGene <- map2(rse_gene_sep, modSep, ~run_DE(rse = .x, model = .y, save_eBayes 
 outGene_ilr <- map2(rse_gene_sep, modSep_ilr, ~run_DE(rse = .x, model = .y, save_eBayes = TRUE))
 outGene_prop <- map2(rse_gene_sep, modSep_prop, ~run_DE(rse = .x, model = .y, save_eBayes = TRUE))
 
+save(outGene, outGene_ilr, outGene_prop, file = here("differential_expression","data","outGene.Rdata"))
 ## Extract vals
 ebGene <- list(outGene, outGene_ilr, outGene_prop)
 ebGene <- map(ebGene, ~map(.x, "eBayes"))
@@ -112,6 +113,45 @@ outGene_single_coef <- map(ebGene, function(region){
 }
 )
 
+prop_terms <- map(est_prop[c("sacc_specific","amyg_specific")], ~colnames(.x)[1:ncol(.x) - 1])
+prop_coef_explore <- map2(outGene_prop, prop_terms, function(og, terms){
+  eb <- og$eBayes
+  tt_terms <- map_dfr(terms, function(t) {
+    tt <- topTable(eb, coef= t, p.value = 1, number=nrow(rse_gene), sort.by = "none")
+    tt$coef_prop <- t
+    return(tt)
+    })
+  tt_terms_sig <- tt_terms %>% group_by(gencodeID) %>%
+    arrange(adj.P.Val) %>%
+    slice(1) %>%
+    ungroup()
+  return(tt_terms_sig)
+})
+map(prop_coef_explore, ~count(.x, coef_prop))
+
+ilr_terms <- map(est_prop_ilr[c("sacc_specific","amyg_specific")], colnames)
+ilr_coef_explore <- map2(outGene_ilr, ilr_terms, function(og, terms){
+  eb <- og$eBayes
+  tt_terms <- map_dfr(terms, function(t) {
+    tt <- topTable(eb, coef= t, p.value = 1, number=nrow(rse_gene), sort.by = "none")
+    tt$coef_ilr <- t
+    return(tt)
+  })
+  tt_terms_sig <- tt_terms %>% group_by(gencodeID) %>%
+    arrange(adj.P.Val) %>%
+    slice(1) %>%
+    ungroup()
+  return(tt_terms_sig)
+})
+map(ilr_coef_explore, ~count(.x, coef_ilr))
+
+combo_coef_explore <- map2(ilr_coef_explore, prop_coef_explore, ~.x %>% 
+       select("gencodeID", "coef_ilr") %>% 
+       left_join(.y %>% select("gencodeID", "coef_prop")))
+
+map(combo_coef_explore, ~count(.x, coef_ilr, coef_prop) %>% arrange(-n))
+
+save(prop_coef_explore, ilr_coef_explore, combo_coef_explore, file = here("differential_expression","data", "deconvo_coef_explore.Rdata"))
 save(outGene, outGene_ilr, outGene_single_coef,file = here("differential_expression","data", "qSVA_MDD_gene_DEresults_ilr.rda"))
 
 #### Exon ####
