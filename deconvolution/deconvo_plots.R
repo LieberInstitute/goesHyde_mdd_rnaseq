@@ -4,12 +4,8 @@ library(jaffelab)
 library(here)
 library(reshape2)
 library(patchwork)
-library(purrr)
 library(tidyverse)
-library(broom)
 library(sessioninfo)
-library(pheatmap)
-library(SingleCellExperiment)
 
 ## Load colors and plotting functions
 source(here("main_colors.R"))
@@ -17,19 +13,89 @@ source(here("deconvolution","big_little_boxplot.R"))
 load(here("deconvolution","data","cell_colors.Rdata"), verbose = TRUE)
 
 ## Load MuSiC results & res data
-load(here("deconvolution","data","est_prop_top5_long.Rdata"), verbose = TRUE)
-load(here("deconvolution","data","est_prop_top5.Rdata"),verbose = TRUE)
+load(here("deconvolution","data","est_prop_MuSiC.Rdata"), verbose = TRUE)
+load(here("deconvolution","data","est_prop_Bisque.Rdata"),verbose = TRUE)
 load(here("exprs_cutoff", "rse_gene.Rdata"), verbose = TRUE)
 
+est_prop <- list(music = est_prop_music,
+                 bisque = est_prop_bisque)
+
+est_prop2 <- transpose(est_prop)
+
+
+long_prop <- map(est_prop2, function(ep){
+  
+  lp <- do.call("rbind", map(ep,"Est.prop.long")) %>%
+    rownames_to_column("method") %>%
+    # as_tibble() %>%
+    mutate(method = ss(method, "\\."))
+  
+  return(lp)
+})
+
+long_prop_all <- do.call("rbind",long_prop)%>%
+  rownames_to_column("data_type") %>%
+  as_tibble() %>%
+  mutate(data_type = ss(data_type, "\\."),
+         cell_cat = case_when(grepl("Excit|Inhib",cell_type) ~ "Neuron",
+                              TRUE ~ "Glia"))
+
+cellTypes <- levels(long_prop_all$cell_type)
+excit_ct <- cellTypes[grep("Excit", cellTypes)]
+inhib_ct <- cellTypes[grep("Inhib", cellTypes)]
+other_ct <- cellTypes[!cellTypes %in% c(excit_ct, inhib_ct)]
+
+cell_order <- c(other_ct[order(other_ct)], excit_ct[order(excit_ct)], inhib_ct[order(inhib_ct)])
+long_prop_all$cell_type <- factor(long_prop_all$cell_type, levels = cell_order)
+
+wide_prop <- pivot_wider(long_prop_all, names_from = "method", values_from = "prop")
+levels(wide_prop$cell_type)
+
+long_prop_all %>% group_by(data_type, cell_cat) %>%
+  summarize(mean(prop))
+#### Compare bisque vs. Music ###
+method_scatter <- ggplot(wide_prop, aes(x = music, y = bisque, color = cell_type)) +
+  geom_point(size = 0.5) +
+  facet_wrap(~data_type) +
+  scale_color_manual(values = cell_colors)
+
+ggsave(method_scatter, filename = here("deconvolution","plots","method_scatter.png"))
+
+
 #### Boxplots ####
-walk2(est_prop_long, names(est_prop_long), function(x,y){
+pd <- as.data.frame(colData(rse_gene))
+pd2 <- pd[,c("Sex","PrimaryDx")]%>%
+  rownames_to_column("sample")
+
+long_prop_pd <- left_join(long_prop_all, pd2, by = "sample")
+
+dx_boxPlot_all <- long_prop_pd %>%
+  ggplot(aes(x = cell_type, y = prop, color = PrimaryDx)) +
+  geom_boxplot() +
+  facet_grid(method~data_type, scales = "free_x")+ 
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+
+  scale_color_manual(values = mdd_Dx_colors)
+
+ggsave(dx_boxPlot_all, filename = here("deconvolution","plots","cellType_boxplots.png"), width = 15)
+
+dx_boxPlot_method <- long_prop_pd %>%
+  ggplot(aes(x = cell_type, y = prop, color = method)) +
+  geom_boxplot() +
+  facet_wrap(~data_type, scales = "free_x")+ 
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+ggsave(dx_boxPlot_method, filename = here("deconvolution","plots","cellType_boxplots_method.png"))
+
+
+
+walk2(long_prop_pd, names(long_prop_pd), function(x,y){
   blb <- big_little_boxplot(data = x,
                             xvar = "cell_type", 
                             yvar = "prop",
                             fillvar =  "PrimaryDx",
                             colorvar = "ignore",
                             title = "MuSiC Proptions: Top5 markers",
-                            subtitle = y)
+                            subtitle = y) 
   ggsave(plot = blb, filename = paste0("plots/cellType_boxplots_",y,".png"), width = 15)
 } )
 
@@ -92,9 +158,9 @@ load(here("deconvolution","data","sce.amyg_filtered.Rdata"), verbose = TRUE)
 donors <- unique(sce.sacc$donor)
 
 input_cells <- list(sacc_broad = colData(sce.sacc)[,c("donor","cellType.Broad")],
-                   amyg_broad = colData(sce.amyg)[,c("donor","cellType.Broad")],
-                   sacc_specific = colData(sce.sacc)[,c("donor","cellType")],
-                   amyg_specific = colData(sce.amyg)[,c("donor","cellType")])
+                    amyg_broad = colData(sce.amyg)[,c("donor","cellType.Broad")],
+                    sacc_specific = colData(sce.sacc)[,c("donor","cellType")],
+                    amyg_specific = colData(sce.amyg)[,c("donor","cellType")])
 
 input_prop <- map(input_cells, function(x){
   colnames(x)[2] <- "cell_type"
