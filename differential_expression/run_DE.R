@@ -10,14 +10,9 @@ run_DE <- function(rse, model, run_voom = TRUE, save_eBayes = FALSE, coef = c("P
   
   topTable_out = topTable(eBayes_out, coef=coef,
                           p.value = 1, number=nrow(rse), sort.by = "none")
-  #### reorderoing based on genes in rse_gene
-  # topTable_out = topTable_out[rownames(rse),]
-  
+
   ## significance levels EXTRACT INDIVIDUAL COMPARISON P-VALUES THAT ARE NOT IN TOP TABLE
   pvalMat = as.matrix(eBayes_out$p.value)[,coef]
-  
-  ### check top p-values
-  head(pvalMat[order(pvalMat[,"PrimaryDxControl"]), ])
   
   qvalMat = pvalMat
   qvalMat[,1:2] = p.adjust(pvalMat[,1:2],method="fdr")
@@ -26,6 +21,7 @@ run_DE <- function(rse, model, run_voom = TRUE, save_eBayes = FALSE, coef = c("P
   
   topTable_out = cbind(topTable_out,cbind(pvalMat, qvalMat))
   
+  ## print summary
   n_pVal <- report_top_pVal(topTable_out = topTable_out, cols = paste0("q_", coef))
   print(n_pVal)
 
