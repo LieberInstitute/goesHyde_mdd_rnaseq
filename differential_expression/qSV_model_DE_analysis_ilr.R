@@ -111,10 +111,10 @@ ebGene <- list(outGene, outGene_ilr_music, outGene_ilr_bisque, outGene_prop_musi
 names(ebGene) <- list("no_deconvo","ilr_music", "ilr_bisque","prop_music","prop_bisque")
 
 gene_topTables <- map(ebGene, ~map(.x, "topTable"))
-ebGene <- map(ebGene, ~map(.x, "eBayes"))
+gene_topTables <- transpose(gene_topTables)
 
+ebGene <- map(ebGene, ~map(.x, "eBayes"))
 ebGene <- transpose(ebGene)
-names(ebGene)
 
 ## get topTable stats for 1 coef at a time
 dx_coef <- list(ctrl = "PrimaryDxControl", bp = "PrimaryDxBipolar")
@@ -128,6 +128,7 @@ outGene_single_coef <- map(ebGene, function(region){
 }
 )
 
+save(gene_topTables, outGene_single_coef, file = here("differential_expression","data","qSVA_MDD_gene_DEresults.rda"))
 #### get most significant deconvo terms ####
 get_top_terms <- function(eBayes, terms){
   
