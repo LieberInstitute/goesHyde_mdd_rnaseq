@@ -9,9 +9,9 @@ run_DE <- function(rse, model, run_voom = TRUE, save_eBayes = FALSE, coef = c("P
   message("coef in eBayes: ", all(coef %in% colnames(eBayes_out$coefficients)))
   
   topTable_out = topTable(eBayes_out, coef=coef,
-                          p.value = 1, number=nrow(rse))
+                          p.value = 1, number=nrow(rse), sort.by = "none")
   #### reorderoing based on genes in rse_gene
-  topTable_out = topTable_out[rownames(rse),]
+  # topTable_out = topTable_out[rownames(rse),]
   
   ## significance levels EXTRACT INDIVIDUAL COMPARISON P-VALUES THAT ARE NOT IN TOP TABLE
   pvalMat = as.matrix(eBayes_out$p.value)[,coef]
