@@ -25,19 +25,18 @@ paths <- map(data_type, ~here("differential_expression","data",paste0("qSVA_MDD_
 load(paths$gene, verbose = TRUE)
 # outGene <- list(amyg = outGene_Amyg, sacc = outGene_sACC)
 
-load(here("differential_expression","data","qSVA_MDD_gene_DEresults_ilr.rda"), verbose = TRUE)
+load(here("deconvolution","data","cell_colors.Rdata"), verbose= TRUE)
+load(here("differential_expression","data","qSVA_MDD_gene_DEresults.rda"), verbose = TRUE)
 
-## Compare F stats from model with & w/o ILR terms
-f_table <- map2(outGene, outGene_ilr, function(g, g_ilr){
-  ft <- cbind(g[,c("F", "adj.P.Val")], g_ilr[,c("F", "adj.P.Val")])
-  colnames(ft)[3:4] <- paste0(colnames(ft)[3:4],"_ilr")
-  ft <- as_tibble(ft) %>% mutate(Signif = as.factor(as.integer(adj.P.Val < 0.05) + as.integer(adj.P.Val_ilr < 0.05)))
-  return(ft)
-})
+n_gene <- nrow(gene_topTables$sacc$no_deconvo)
 
-f_plot <- map(f_table, ~ggplot(.x, aes(`F`, F_ilr, color= Signif)) +
-                geom_point(alpha = 0.5, size = 0.5) +
-                scale_color_viridis(discrete=TRUE))
+f_table <- map(gene_topTables, function(tt){
+  tt_all_col <- do.call("cbind",tt)
+  tt_F <- tt_all_col[,grepl(".F",colnames(tt_all_col))]
+  return(tt_F)
+  })
+
+f_plot <- map(f_table, ~ggpairs(.x))
 
 walk2(f_plot, names(f_plot), ~ggsave(.x + labs(title = paste("F values:",.y)), 
                                      filename = here("differential_expression","plots",paste0("F_plot-",.y,".png"))))
@@ -60,56 +59,105 @@ outGene_t_stats3 <- do.call("rbind", outGene_t_stats2)
 
 load(here("differential_expression","data","deconvo_coef_explore.Rdata"), verbose = TRUE)
 deconvo_coef <- do.call("rbind", combo_coef_explore) %>%
-  add_column(Region = rep(names(combo_coef_explore), each = nrow(outGene$sacc))) %>%
+  add_column(Region = rep(names(combo_coef_explore), each = nrow(combo_coef_explore[[1]]))) %>%
   rename(Gene = gencodeID)
+
+deconvo_coef %>% count(Region, method)
 
 t_stats <- outGene_t_stats3 %>%
   rownames_to_column("data") %>%
   as_tibble() %>%
-  separate(data, into = c("Region","coef","Gene"), extra = "merge") %>%
-  mutate(Signif_ilr = case_when(no_deconvo.adj.P.Val < 0.05 & ilr.adj.P.Val < 0.05 ~"sig_Both",
+  separate(data, into = c("Region","coef","Gene"), extra = "merge") 
+
+# %>%
+#   # mutate(Signif_ilr = case_when(no_deconvo.adj.P.Val < 0.05 & ilr.adj.P.Val < 0.05 ~"sig_Both",
+#   #                           no_deconvo.adj.P.Val < 0.05 ~ "sig_no-deconvo",
+#   #                           ilr.adj.P.Val < 0.05 ~ "sig_deconvo-ilr",
+#   #                           TRUE ~ "None"),
+#   #        Signif_prop = case_when(no_deconvo.adj.P.Val < 0.05 & prop.adj.P.Val < 0.05 ~"sig_Both",
+#   #                           no_deconvo.adj.P.Val < 0.05 ~ "sig_no-deconvo",
+#   #                           prop.adj.P.Val < 0.05 ~ "sig_deconvo-prop",
+#   #                           TRUE ~ "None")
+#   #        ) %>%
+#   left_join(deconvo_coef)
+
+## ggpairs for t-stats
+t_stats_grouped_ggpairs <- t_stats %>% 
+  group_by(Region, coef) %>%
+  group_map(~ggpairs(.x, c("no_deconvo.t", "ilr_music.t","ilr_bisque.t", "prop_music.t","prop_bisque.t"),
+                     lower = list(continuous = wrap("smooth", alpha = 0.1, size=0.1, color = "blue"))))
+
+names(t_stats_grouped_ggpairs) <- t_stats %>% 
+  group_by(Region, coef) %>%
+  count() %>%
+  mutate(label = paste0(Region,"_",coef)) %>%
+  pull(label)
+
+walk2(t_stats_grouped_ggpairs, names(t_stats_grouped_ggpairs), function(ggp, name){
+  message(name)
+  filename = paste0("ggpair_t-stats_", name,".png")
+  ggsave(ggp + labs(title = name), filename = here("differential_expression","plots",filename))
+})
+
+
+## no_deconvo vs. deconvo terms
+
+t_stats_ilr <-  t_stats %>% 
+  select(!contains("prop"))
+
+t_stats_ilr2 <-  t_stats_ilr %>% select(!contains("adj.P")) %>%
+  pivot_longer(cols = contains("ilr"), names_to = "term", values_to = "deconvo.t") %>%
+  separate(term, into = c("term","method"), extra = "drop") %>%
+  left_join(t_stats_ilr %>% select(!contains(".t")) %>%
+              pivot_longer(cols = contains("ilr"), names_to = "term", values_to = "deconvo.adj.P.Val") %>%
+              separate(term, into = c("term","method"), extra = "drop"))
+
+t_stats_ilr3 <- t_stats_ilr2 %>% 
+    mutate(Signif = case_when(no_deconvo.adj.P.Val < 0.05 & deconvo.adj.P.Val < 0.05 ~"sig_Both",
+                              no_deconvo.adj.P.Val < 0.05 ~ "sig_no-deconvo",
+                              deconvo.adj.P.Val < 0.05 ~ "sig_deconvo-ilr",
+                              TRUE ~ "None")) %>%
+  left_join(deconvo_coef %>% select(- coef_prop))
+
+t_stats_ilr3 %>% group_by(Region, coef, method) %>% count(Signif) %>% filter(Signif != "None")
+
+
+ilr_plot <- t_stats_ilr3 %>% 
+  ggplot(aes(x = no_deconvo.t, y = deconvo.t)) +
+  facet_grid(Region + coef ~ method)
+
+ggsave(ilr_plot + geom_point(aes(color = Signif), alpha = 0.5, size = 0.5) +
+         ilr_plot + geom_point(aes(color = coef_ilr), alpha = 0.5, size = 0.5), 
+       filename = here("differential_expression","plots","ilr_plots.png"), width = 15)
+
+## prop
+t_stats_prop <- t_stats %>% 
+  select(!contains("ilr"))
+
+t_stats_prop2 <-  t_stats_prop %>% 
+  select(!contains("ilr")) %>% 
+  select(!contains("adj.P")) %>%
+  pivot_longer(cols = contains("prop"), names_to = "term", values_to = "deconvo.t") %>%
+  separate(term, into = c("term","method"), extra = "drop") %>%
+  left_join(t_stats_prop %>% select(!contains(".t")) %>%
+              pivot_longer(cols = contains("prop"), names_to = "term", values_to = "deconvo.adj.P.Val") %>%
+              separate(term, into = c("term","method"), extra = "drop"))
+
+t_stats_prop3 <- t_stats_prop2 %>% 
+  mutate(Signif = case_when(no_deconvo.adj.P.Val < 0.05 & deconvo.adj.P.Val < 0.05 ~"sig_Both",
                             no_deconvo.adj.P.Val < 0.05 ~ "sig_no-deconvo",
-                            ilr.adj.P.Val < 0.05 ~ "sig_deconvo-ilr",
-                            TRUE ~ "None"),
-         Signif_prop = case_when(no_deconvo.adj.P.Val < 0.05 & prop.adj.P.Val < 0.05 ~"sig_Both",
-                            no_deconvo.adj.P.Val < 0.05 ~ "sig_no-deconvo",
-                            prop.adj.P.Val < 0.05 ~ "sig_deconvo-prop",
-                            TRUE ~ "None")
-         ) %>%
-  left_join(deconvo_coef, by = c("Region", "Gene"))
+                            deconvo.adj.P.Val < 0.05 ~ "sig_deconvo-prop",
+                            TRUE ~ "None")) %>%
+  left_join(deconvo_coef %>% select(- coef_ilr))
 
-t_plot_ilr <-  t_stats %>%
-  ggplot(aes(x = no_deconvo.t, y = ilr.t)) + 
-  facet_grid(Region ~ coef)+
-  labs(title = "Add ilr terms to model")+
-  NULL
 
-ggsave(t_plot_ilr + geom_point(aes(color = Signif_ilr), size = 0.5), 
-       filename = here("differential_expression","plots","t_plot_ilr_sig.png"), height = 10, width = 10)
-ggsave(t_plot_ilr+ geom_point(aes(color = coef_ilr), size = 0.5), 
-       filename = here("differential_expression","plots","t_plot_ilr_coef.png"), height = 10, width = 10)
+prop_plot <- t_stats_prop3 %>% 
+  ggplot(aes(x = no_deconvo.t, y = deconvo.t)) +
+  facet_grid(Region + coef ~ method)
 
-t_plot_prop <-  t_stats %>%
-  ggplot(aes(x = no_deconvo.t, y = prop.t)) + 
-  facet_grid(Region ~ coef)+
-  labs(title = "Add proportion terms to model")+
-  NULL
-
-ggsave(t_plot_prop + geom_point(aes(color = Signif_prop), size = 0.5), 
-       filename = here("differential_expression","plots","t_plot_prop_sig.png"), height = 10, width = 10)
-ggsave(t_plot_prop+ geom_point(aes(color = coef_prop), size = 0.5), 
-       filename = here("differential_expression","plots","t_plot_prop_coef.png"), height = 10, width = 10)
-
-## compare ilr vs. prop
-t_ilr_prop <-  t_stats %>%
-  ggplot(aes(x = ilr.t, y = prop.t)) + 
-  geom_point(aes(color = coef_prop), size = 0.5)+
-  facet_grid(Region ~ coef)+
-  labs(title = "Prop terms vs. ilr terms")+
-  NULL
-
-ggsave(t_ilr_prop , 
-       filename = here("differential_expression","plots","t_plot_ilr-prop_coef.png"), height = 10, width = 10)
+ggsave(prop_plot + geom_point(aes(color = Signif), alpha = 0.5, size = 0.5) +
+         prop_plot + geom_point(aes(color = coef_prop), alpha = 0.5, size = 0.5) +scale_color_manual(values = cell_colors), 
+       filename = here("differential_expression","plots","prop_plots.png"), width = 15)
 
 
 #### Find Significant rows ####
