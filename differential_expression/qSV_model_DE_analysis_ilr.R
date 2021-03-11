@@ -23,10 +23,14 @@ pd = colData(rse_gene)
 ## qSV data
 load(here("differential_expression","data","qSV_mat.Rdata"), verbose = TRUE)
 
-## load ilr data
-load(here("deconvolution","data","est_prop_ilr_MuSiC.Rdata"), verbose = TRUE)
+## load deconvolution data
 load(here("deconvolution","data","est_prop_MuSiC.Rdata"), verbose = TRUE)
-est_prop <- map(est_prop, "Est.prop.weighted")
+load(here("deconvolution","data","est_prop_Bisque.Rdata"), verbose = TRUE)
+est_prop <- list(music =  map(est_prop_music[c("sacc_specific","amyg_specific")], "Est.prop.weighted"),
+                 bisque = map(est_prop_bisque[c("sacc_specific","amyg_specific")], "bulk.props"))
+
+ilr <- list(music =  map(est_prop_music[c("sacc_specific","amyg_specific")], "ilr"),
+                 bisque = map(est_prop_bisque[c("sacc_specific","amyg_specific")], "ilr"))
 
 #### Define models ####
 regions <- list(sacc = "sACC", amyg = "Amygdala")
@@ -61,17 +65,21 @@ map(modSep, colnames)
 # [41] "PC26"  
 
 ## Add ilr terms
-modSep_ilr <- map2(modSep, est_prop_ilr[c("sacc_specific","amyg_specific")], ~cbind(.x, .y))
-map(modSep_ilr, colnames)
+modSep_ilr <- map(ilr, function(ilr_method){
+  map2(modSep, ilr_method, ~cbind(.x, .y))
+})
+map(modSep_ilr, ~map(.x,colnames))
 
 ## Add prop terms
 map(est_prop, colnames)
 
-modSep_prop <- map2(modSep, est_prop[c("sacc_specific","amyg_specific")], ~cbind(.x, .y[,1:(ncol(.y)-1)]))
-map(modSep_prop, head)
+modSep_prop <- map(est_prop, function(prop_method){
+  map2(modSep, prop_method, ~cbind(.x, .y[,1:ncol(.y)-1]))
+})
+map(modSep_prop, ~map(.x,colnames))
 
 ## save
-save(modSep, modSep_ilr, file = "differential_models_ilr.Rdata")
+save(modSep, modSep_ilr, modSep_prop, file = "differential_models_ilr.Rdata")
 
 #### Gene ####
 message("\nGENE")
@@ -83,23 +91,30 @@ map(rse_gene_sep, dim)
 # $amyg
 # [1] 25212   540
 
+## no deconvlution model
 outGene <- map2(rse_gene_sep, modSep, ~run_DE(rse = .x, model = .y, save_eBayes = TRUE))
-outGene_ilr <- map2(rse_gene_sep, modSep_ilr, ~run_DE(rse = .x, model = .y, save_eBayes = TRUE))
-outGene_prop <- map2(rse_gene_sep, modSep_prop, ~run_DE(rse = .x, model = .y, save_eBayes = TRUE))
+## ilr models
+outGene_ilr_music <- map2(rse_gene_sep, modSep_ilr$music, ~run_DE(rse = .x, model = .y, save_eBayes = TRUE))
+outGene_ilr_bisque <- map2(rse_gene_sep, modSep_ilr$bisque, ~run_DE(rse = .x, model = .y, save_eBayes = TRUE))
 
-save(outGene, outGene_ilr, outGene_prop, file = here("differential_expression","data","outGene.Rdata"))
+## prop models
+outGene_prop_music <- map2(rse_gene_sep, modSep_prop$music, ~run_DE(rse = .x, model = .y, save_eBayes = TRUE))
+outGene_prop_bisque <- map2(rse_gene_sep, modSep_prop$bisque, ~run_DE(rse = .x, model = .y, save_eBayes = TRUE))
+
+save(outGene, outGene_ilr_music, outGene_ilr_bisque, outGene_prop_music, outGene_prop_bisque, 
+     file = here("differential_expression","data","outGene.Rdata"))
+
+# load(here("differential_expression","data","outGene.Rdata"), verbose = TRUE)
+
 ## Extract vals
-ebGene <- list(outGene, outGene_ilr, outGene_prop)
+ebGene <- list(outGene, outGene_ilr_music, outGene_ilr_bisque, outGene_prop_music, outGene_prop_bisque)
+names(ebGene) <- list("no_deconvo","ilr_music", "ilr_bisque","prop_music","prop_bisque")
+
+gene_topTables <- map(ebGene, ~map(.x, "topTable"))
 ebGene <- map(ebGene, ~map(.x, "eBayes"))
-names(ebGene) <- list("no_deconvo","ilr","prop")
 
 ebGene <- transpose(ebGene)
 names(ebGene)
-
-## Extract  outGene
-outGene <- map(outGene, "topTable")
-outGene_ilr <- map(outGene_ilr, "topTable")
-outGene_prop <- map(outGene_prop, "topTable")
 
 ## get topTable stats for 1 coef at a time
 dx_coef <- list(ctrl = "PrimaryDxControl", bp = "PrimaryDxBipolar")
@@ -113,46 +128,54 @@ outGene_single_coef <- map(ebGene, function(region){
 }
 )
 
-prop_terms <- map(est_prop[c("sacc_specific","amyg_specific")], ~colnames(.x)[1:ncol(.x) - 1])
-prop_coef_explore <- map2(outGene_prop, prop_terms, function(og, terms){
-  eb <- og$eBayes
+#### get most significant deconvo terms ####
+get_top_terms <- function(eBayes, terms){
+  
   tt_terms <- map_dfr(terms, function(t) {
-    tt <- topTable(eb, coef= t, p.value = 1, number=nrow(rse_gene), sort.by = "none")
-    tt$coef_prop <- t
-    return(tt)
-    })
-  tt_terms_sig <- tt_terms %>% group_by(gencodeID) %>%
-    arrange(adj.P.Val) %>%
-    slice(1) %>%
-    ungroup()
-  return(tt_terms_sig)
-})
-map(prop_coef_explore, ~count(.x, coef_prop))
-
-ilr_terms <- map(est_prop_ilr[c("sacc_specific","amyg_specific")], colnames)
-ilr_coef_explore <- map2(outGene_ilr, ilr_terms, function(og, terms){
-  eb <- og$eBayes
-  tt_terms <- map_dfr(terms, function(t) {
-    tt <- topTable(eb, coef= t, p.value = 1, number=nrow(rse_gene), sort.by = "none")
-    tt$coef_ilr <- t
+    tt <- topTable(eBayes, coef= t, p.value = 1, number=nrow(rse_gene), sort.by = "none")
+    tt$coef <- t
     return(tt)
   })
+  
   tt_terms_sig <- tt_terms %>% group_by(gencodeID) %>%
     arrange(adj.P.Val) %>%
     slice(1) %>%
     ungroup()
+  
   return(tt_terms_sig)
+}
+
+## define terms
+prop_terms <- map(est_prop, function(ep){map(ep, ~colnames(.x)[1:ncol(.x) - 1])})
+prop_terms <- transpose(prop_terms)
+
+prop_coef_explore <- map2(ebGene, prop_terms, function(eb_region, terms_region){
+  eb_region <- eb_region[grepl("prop", names(eb_region))]
+  map2(eb_region, terms_region, ~get_top_terms(.x, .y)%>%
+         rename(coef_prop = coef))
 })
-map(ilr_coef_explore, ~count(.x, coef_ilr))
 
-combo_coef_explore <- map2(ilr_coef_explore, prop_coef_explore, ~.x %>% 
-       select("gencodeID", "coef_ilr") %>% 
-       left_join(.y %>% select("gencodeID", "coef_prop")))
+ilr_terms <- map(ilr, ~map(.x, colnames))
+ilr_terms <- transpose(ilr_terms)
 
-map(combo_coef_explore, ~count(.x, coef_ilr, coef_prop) %>% arrange(-n))
+ilr_coef_explore <- map2(ebGene, ilr_terms, function(eb_region, terms_region){
+  eb_region <- eb_region[grepl("ilr", names(eb_region))]
+  map2(eb_region, terms_region, ~get_top_terms(.x, .y) %>%
+         rename(coef_ilr = coef))
+})
 
+combo_coef_explore <- map2(ilr_coef_explore, prop_coef_explore, function(ilr_region, prop_region){
+   combo_method <- map2(ilr_region, prop_region, ~.x %>% 
+    select("gencodeID", "coef_ilr") %>% 
+    left_join(.y %>% select("gencodeID", "coef_prop")))
+  # message(names(combo_method))
+  combo_method2 <- map2(combo_method, names(combo_method), ~add_column(.x, "method" = ss(.y,"_",2)))
+  combo_region <- do.call("rbind", combo_method2)
+  return(combo_region)
+} )
+
+map(combo_coef_explore, ~count(.x, method, coef_ilr, coef_prop) %>% arrange(-n))
 save(prop_coef_explore, ilr_coef_explore, combo_coef_explore, file = here("differential_expression","data", "deconvo_coef_explore.Rdata"))
-save(outGene, outGene_ilr, outGene_single_coef,file = here("differential_expression","data", "qSVA_MDD_gene_DEresults_ilr.rda"))
 
 #### Exon ####
 message("\nEXON")
