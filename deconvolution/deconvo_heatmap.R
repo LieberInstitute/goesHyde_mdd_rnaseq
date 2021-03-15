@@ -2,17 +2,13 @@
 library(SummarizedExperiment)
 library(SingleCellExperiment)
 library(jaffelab)
-library(here)
 library(pheatmap)
-library(scuttle)
-library(recount)
+library(DeconvoBuddies)
 library(tidyverse)
 library(reshape2)
-library(here)
-library(purrr)
 library(RColorBrewer)
 library(rlang)
-library(pheatmap)
+library(here)
 library(sessioninfo)
 
 # Load colors
@@ -22,309 +18,181 @@ load(here("deconvolution","data","cell_colors.Rdata"), verbose = TRUE)
 ## Load rse_gene data
 load(here("exprs_cutoff", "rse_gene.Rdata"), verbose = TRUE)
 rownames(rse_gene) <- rowData(rse_gene)$ensemblID
-rse_gene_amyg <- rse_gene[,rse_gene$BrainRegion == "Amygdala"]
-rse_gene_sacc <- rse_gene[,rse_gene$BrainRegion == "sACC"]
 
 #### Marker genes ####
+load(here("deconvolution","data","marker_genes.Rdata"), verbose = TRUE)
 load(here("deconvolution","data","marker_stats.Rdata"), verbose = TRUE)
 
-top_n <- 5
-marker_genes_ratio <- map(marker_stats, ~.x %>%
-                      filter(rank_ratio <= top_n) %>%
-                      arrange(cellType.target, rank_ratio) %>% 
-                      pull(gene))
-
-marker_genes_mark <- map(marker_stats, ~.x %>%
-                            filter(rank_marker <= top_n) %>%
-                            arrange(cellType.target, rank_ratio) %>% 
-                            pull(gene))
-
-map2_int(marker_genes_ratio, marker_genes_mark, ~sum(.x %in% .y))
-# sacc_broad    amyg_broad sacc_specific amyg_specific 
-# 3             4             8            11 
-
-marker_genes_mad <- map(marker_stats,~summarize(.x,
-                                      mean_ratio = mean(ratio),
-                                      mad_ratio = mad(ratio),
-                                      mad_cutoff = mean_ratio + (5*mad_ratio))%>%
-                           right_join(.x, by = "cellType.target") %>%
-                           filter(ratio > mad_cutoff) %>%
-                           pull(gene))
-map_int(marker_genes_mad, length)
-# sacc_broad    amyg_broad sacc_specific amyg_specific 
-# 533           563           479           569 
-
 #### sce data ####
-load(here("deconvolution","data","sce.sacc_filtered.Rdata"), verbose = TRUE)
-load(here("deconvolution","data","sce.amyg_filtered.Rdata"), verbose = TRUE)
+load(here("deconvolution","data","sce_filtered.Rdata"), verbose = TRUE)
+sce_filter <- sce_pan[marker_genes,]
+dim(sce_filter)
+# [1]   150 34005
 
-ct <- list(broad = "cellType.Broad", specific = "cellType")
-sce <- list(sacc = sce.sacc, amyg = sce.amyg)
-
-sceXct <- cross2(sce,ct)
-names(sceXct) <- map(cross2(names(sce),names(ct)), ~paste0(.x[[1]],"_",.x[[2]]))
-
-## subset genes 
-sce_filter_ratio <- map2(sceXct, marker_genes_ratio, ~.x[[1]][.y,])
-sce_filter_mark  <- map2(sceXct, marker_genes_mark, ~.x[[1]][.y,])
-sce_filter_mad <- map2(sceXct, marker_genes_mad, ~.x[[1]][.y,])
-##pseudobulk single cell data
-pb_ratio <- map2(sce_filter_ratio,rep(ct,each = 2),function(sce, c){
-    sce$pb <- paste0(sce$donor,"_",sce[[c]])
-    clusIndex = splitit(sce$pb)
-    pbcounts <- sapply(clusIndex, function(ii){
-      rowSums(assays(sce)$counts[ ,ii])
-    }
-    )
-    # Compute LSFs at this level
-    sizeFactors.PB.all  <- librarySizeFactors(pbcounts)
-    # Normalize with these LSFs
-    geneExprs.temp <- t(apply(pbcounts, 1, function(x) {log2(x/sizeFactors.PB.all + 1)}))
-    rownames(geneExprs.temp) <- rowData(sce)$Symbol
-    return(geneExprs.temp)
-  }
-)
-
-pb_mark <- map2(sce_filter_mark,rep(ct,each = 2),function(sce, c){
-  sce$pb <- paste0(sce$donor,"_",sce[[c]])
-  clusIndex = splitit(sce$pb)
-  pbcounts <- sapply(clusIndex, function(ii){
-    rowSums(assays(sce)$counts[ ,ii])
-  }
-  )
-  # Compute LSFs at this level
-  sizeFactors.PB.all  <- librarySizeFactors(pbcounts)
-  # Normalize with these LSFs
-  geneExprs.temp <- t(apply(pbcounts, 1, function(x) {log2(x/sizeFactors.PB.all + 1)}))
-  rownames(geneExprs.temp) <- rowData(sce)$Symbol
-  return(geneExprs.temp)
-}
-)
-
-pb_mad <- map2(sce_filter_mad,rep(ct,each = 2),function(sce, c){
-  sce$pb <- paste0(sce$donor,"_",sce[[c]])
-  clusIndex = splitit(sce$pb)
-  pbcounts <- sapply(clusIndex, function(ii){
-    rowSums(assays(sce)$counts[ ,ii])
-  }
-  )
-  # Compute LSFs at this level
-  sizeFactors.PB.all  <- librarySizeFactors(pbcounts)
-  # Normalize with these LSFs
-  geneExprs.temp <- t(apply(pbcounts, 1, function(x) {log2(x/sizeFactors.PB.all + 1)}))
-  rownames(geneExprs.temp) <- rowData(sce)$gene_id
-  return(geneExprs.temp)
-}
-)
-
-map(pb_mad, dim)
+pb <- pseudobulk(sce_filter, cellType_col = "cellType.Broad", add_symbol = TRUE)
+dim(pb)
+# [1] 150  18
 
 #### Prep for heatmaps ####
 ## define annotation tables
 
-pb_anno <- map2(sce_filter_ratio,rep(ct,each = 2), ~colData(.x) %>% 
-                        as_tibble() %>% 
-                        select(donor, !!sym(.y)) %>%
-                        mutate(pb = paste0(donor, "_",!!sym(.y))) %>%
-                        unique() %>%
-                        column_to_rownames(var = "pb")
-                   )
+pb_anno <- sce_filter %>% 
+                  colData() %>% 
+                  as_tibble() %>% 
+                  select(donor, cellType.Broad) %>%
+                  mutate(pb = paste0(donor, "_",cellType.Broad)) %>%
+                  unique() %>%
+                  column_to_rownames(var = "pb")
+
 ## create gene anno obj
 
-marker_anno_ratio <- map(marker_stats, ~.x %>%
-                     filter(rank_ratio <= top_n) %>%
+marker_anno_gene <- marker_stats %>%
+                     filter(rank_ratio <= 25) %>%
                      mutate(rank_ratio = as.character(rank_ratio)) %>%
-                     column_to_rownames(var = "Symbol") %>%
-                     select(cellType.target, rank_ratio) 
-)
-
-marker_anno_mark <- map(marker_stats[1:3], ~.x %>%
-                           filter(rank_marker <= top_n) %>%
-                           mutate(rank_marker = as.character(rank_marker)) %>%
-                           select(cellType.target, rank_marker, Symbol) %>% 
-                           column_to_rownames(var = "Symbol")
-)
-
-marker_anno_mad <- map(marker_stats,~summarize(.x,
-                                               mean_ratio = mean(ratio),
-                                               mad_ratio = mad(ratio),
-                                               mad_cutoff = mean_ratio + (5*mad_ratio))%>%
-                         right_join(.x, by = "cellType.target") %>%
-                         filter(ratio > mad_cutoff) %>% 
-                         select(gene, cellType.target)%>% 
-                         column_to_rownames(var = "gene"))
+                     column_to_rownames(var = "gene") %>%
+                     select(cellType.target) 
 
 
-## Duplicate?!
-map(marker_stats, ~.x %>%
-      filter(rank_marker <= top_n) %>%
-      mutate(rank_marker = as.character(rank_marker)) %>%
-      select(cellType.target, rank_ratio, Symbol) %>%
-      ungroup() %>% count(Symbol) %>% filter(n>1))
+marker_anno_symb <- marker_stats %>%
+  filter(rank_ratio <= 25) %>%
+  mutate(rank_ratio = as.character(rank_ratio)) %>%
+  column_to_rownames(var = "Symbol") %>%
+  select(cellType.target) 
 
 ## define donor colrs
-donor_colors <- c(Br5161 = "black",
-                  Br5212 = "lightgrey")
+donors <- unique(pb_anno$donor)
 
-rank_colors <- brewer.pal(n= top_n, name = "Greens")
-names(rank_colors) <- as.character(1:top_n)
-
-my_anno_colors <- map(pb_anno, ~list(cellType.target = cell_colors[levels(.x[,2])],
-                                         cellType.Broad = cell_colors[levels(.x[,2])],
-                                         cellType = cell_colors[levels(.x[,2])],
-                                         donor = donor_colors,
-                                         rank_ratio = rank_colors,
-                                         rank_marker = rank_colors,
-                                     PrimaryDx = mdd_Dx_colors,
-                                     Experiment = mdd_dataset_colors,
-                                     Sex = c(M = "steelblue4", `F` = "mediumvioletred")
-                                     )
-                      )
+donor_colors <- brewer.pal(n= length(donors), name = "Greys")
+names(donor_colors) <- donors
+cell_colors <- cell_colors[levels(sce_filter$cellType.Broad)]
+anno_colors <- list(cellType.target = cell_colors,
+                    cellType.Broad = cell_colors,
+                    donor = donor_colors,
+                    PrimaryDx = mdd_Dx_colors,
+                    Experiment = mdd_dataset_colors)
 
 #### Create Heat maps SCE ####
-
-## top 5 by ratio
-for(n in names(pb_ratio)){
-  png(paste0("plots/heatmap_",n,"_top",top_n,"_ratio.png"), height = 750, width = 550)
-  pheatmap(pb_ratio[[n]],
-           show_colnames = FALSE,
-           annotation_row = marker_anno_ratio[[n]],
-           annotation_col = pb_anno[[n]], 
-           annotation_colors = my_anno_colors[[n]],
-           cluster_rows = TRUE,
-           main = paste(n," sn data:log2(norm pseudobulk counts) - top",top_n, "ratio rank")
-  )
-  dev.off()
-}
-
-## top 5 by findMarkers
-for(n in names(pb_mark[1:3])){
-  png(paste0("plots/heatmap_",n,"_top",top_n,"_mark.png"), height = 750, width = 550)
-  pheatmap(pb_mark[[n]],
-           show_colnames = FALSE,
-           annotation_row = marker_anno_mark[[n]],
-           annotation_col = pb_anno[[n]], 
-           annotation_colors = my_anno_colors[[n]],
-           cluster_rows = TRUE,
-           main = paste(n,"sn data:log2(norm pseudobulk counts) - top",top_n, "1vAll rank")
-  )
-  dev.off()
-}
-
-## ratio with MAD*5 cutoff
-for(n in names(pb_mad)){
-  png(paste0("plots/heatmap_",n,"_ratioMAD.png"), height = 750, width = 550)
-  pheatmap(pb_mad[[n]],
-           show_colnames = FALSE,
-           show_rownames = FALSE,
-           annotation_row = marker_anno_mad[[n]],
-           annotation_col = pb_anno[[n]], 
-           annotation_colors = my_anno_colors[[n]],
-           cluster_rows = TRUE,
-           main = paste(n,"sn data:log2(norm pseudobulk counts) - MAD5")
-  )
-  dev.off()
-}
-
-#### Velmeshev data ####
-
-load("/dcl01/ajaffe/data/lab/singleCell/velmeshev2019/analysis_MNT/SCE_asd-velmeshev-etal_MNT.rda", verbose = TRUE)
-map_int(marker_genes_ratio, ~sum(!.x %in% rownames(sce.asd)))
-sce.asd <- sce.asd[,sce.asd$region == "ACC"]
-
-cell_type_guess <- data.frame(cluster = levels(sce.asd$cluster),
-                              cellType = c(rep("Astro",2),"Micro",rep("Inhib.1",2),
-                                           rep("Inhib.2",2),"Excit.1","Excit.2",
-                                           "Excit.3","Excit.3","Micro",rep("Other",3),
-                                           "Oligo","OPC"))
-
-
-pb_asd <- map(marker_genes_ratio[c("sacc_broad","sacc_specific")],function(m){
-  common_genes <- m[m %in% rownames(sce.asd)]
-  sce <- sce.asd[common_genes]
-  message(nrow(sce))
-  sce$pb <- paste0(sce$individual,"_",sce$cluster)
-  clusIndex = splitit(sce$pb)
-  pbcounts <- sapply(clusIndex, function(ii){
-    rowSums(exp(assays(sce)$logcounts)[ ,ii])
-  }
-  )
-  # Compute LSFs at this level
-  sizeFactors.PB.all  <- librarySizeFactors(pbcounts)
-  # Normalize with these LSFs
-  geneExprs.temp <- t(apply(pbcounts, 1, function(x) {log2(x/sizeFactors.PB.all + 1)}))
-  rownames(geneExprs.temp) <- rowData(sce.sacc)[common_genes,]$Symbol
-  return(geneExprs.temp)
-}
+png(here("deconvolution","plots","heatmap_markers_ratio.png"), height = 750, width = 550)
+pheatmap(pb,
+         show_colnames = FALSE,
+         show_rownames = FALSE,
+         annotation_row = marker_anno_symb,
+         annotation_col = pb_anno,
+         annotation_colors = anno_colors,
+         cluster_rows = TRUE,
+         main = "Pan-brain data:log2(pseudobulk counts) - Top 25 Mean Ratio"
 )
+dev.off()
 
 
-marker_anno_vel <- map(marker_stats[c("sacc_broad","sacc_specific")], ~.x %>%
-                           filter(rank_ratio <= top_n) %>%
-                           mutate(rank_ratio = as.character(rank_ratio)) %>%
-                           column_to_rownames(var = "Symbol") %>%
-                           select(cellType.target, rank_ratio) 
+png(here("deconvolution","plots","heatmap_markers_ratio-unsorted.png"), height = 750, width = 550)
+pheatmap(pb,
+         show_colnames = FALSE,
+         show_rownames = FALSE,
+         annotation_row = marker_anno_symb,
+         annotation_col = pb_anno,
+         annotation_colors = anno_colors,
+         cluster_rows = FALSE,
+         main = "Pan-brain data:log2(pseudobulk counts) - Top 25 Mean Ratio"
 )
-
-pb_anno_vel <- map(pb_asd, function(x){
-  anno <- tibble(id = colnames(x), a = colnames(x)) %>%
-    separate(a, "_", into = c("indi","cluster"))%>%
-    left_join(cell_type_guess)%>%
-    select(-indi) %>%
-    column_to_rownames(var = "id")
-  return(anno)
-})
-
-my_anno_colors_vl <- map2(marker_anno_vel,pb_anno_vel,
-                          ~list(cellType.target = c(cell_colors,Other = "grey")[unique(.x[,1])],
-                                cellType = c(cell_colors,Other = "grey")[unique(.y[,2])],
-                                rank_ratio = rank_colors)
-                          
-)
-
-breaksList = seq(3, 12, by = 0.08)
-for(n in names(pb_asd)){
-  png(paste0("plots/heatmap-velmeshev_",n,"_top",top_n,"_ratio.png"), height = 750, width = 550)
-  pheatmap(pb_asd[[n]],
-           show_colnames = FALSE,
-           annotation_row = marker_anno_vel[[n]],
-           annotation_col = pb_anno_vel[[n]], 
-           annotation_colors = my_anno_colors_vl[[n]],
-           cluster_rows = TRUE,
-           breaks = breaksList,
-           main = paste(n," sn data:log2(norm pseudobulk counts) - top",top_n,"Velmeshev")
-  )
-  dev.off()
-}
+dev.off()
 
 #### Bulk Heatmaps ####
-bulk_filtered <- map2(marker_genes_ratio, rep(list(rse_gene_sacc, rse_gene_amyg),2), function(markers,rse){
-  rse_temp <- rse[markers,]
-  # rownames(rse_temp) <- ss(rowData(rse_temp)$Symbol,"\\.")
-  rownames(rse_temp) <- rowData(sce.sacc)[markers,]$Symbol
-  return(rse_temp)
-})
-
-# symbols <- map2(marker_genes_ratio, rep(list(rse_gene_sacc, rse_gene_amyg),2), function(markers,rse){
-#   rse_temp <- rse[markers,]
-#   tibble(ensemblID = rownames(rse_temp), bulk = rowData(rse_temp)$Symbol, sce = rowData(sce.sacc)[markers,]$Symbol) %>%
-#     filter(bulk != sce)
-# })
+regions <- list(sacc = "sACC", amyg = "Amygdala")
+bulk_filtered <- map(regions, function(x){
+  rse <- rse_gene[marker_genes, rse_gene$BrainRegion == x]
+  # rownames(rse) <- rowData(rse)$Symbol
+  return(rse)
+  }
+)
+map(bulk_filtered, dim)
 
 bulk_RPKM <- map(bulk_filtered, ~log(recount::getRPKM(.x, "Length")+1))
-
 bulk_anno <- as.data.frame(colData(rse_gene)[,c("PrimaryDx",'Experiment')])
 
 for(n in names(bulk_RPKM)){
-  png(paste0("plots/heatmap-Bulk_",n,"_top",top_n,"_ratio.png"), height = 750, width = 550)
+  png(paste0("plots/heatmap-Bulk_",n,"_markers.png"), height = 750, width = 550)
   pheatmap(bulk_RPKM[[n]],
            show_colnames = FALSE,
-           annotation_row = marker_anno_ratio[[n]],
+           show_rownames = FALSE,
+           annotation_row = marker_anno_gene,
            annotation_col = bulk_anno,
-           annotation_colors = my_anno_colors[[n]],
+           annotation_colors = anno_colors,
            main = paste(n, "Bulk log(RPKM +1)"))
   dev.off()
 }
+
+# #### Velmeshev data ####
+# 
+# load("/dcl01/ajaffe/data/lab/singleCell/velmeshev2019/analysis_MNT/SCE_asd-velmeshev-etal_MNT.rda", verbose = TRUE)
+# map_int(marker_genes_ratio, ~sum(!.x %in% rownames(sce.asd)))
+# sce.asd <- sce.asd[,sce.asd$region == "ACC"]
+# 
+# cell_type_guess <- data.frame(cluster = levels(sce.asd$cluster),
+#                               cellType = c(rep("Astro",2),"Micro",rep("Inhib.1",2),
+#                                            rep("Inhib.2",2),"Excit.1","Excit.2",
+#                                            "Excit.3","Excit.3","Micro",rep("Other",3),
+#                                            "Oligo","OPC"))
+# 
+# 
+# pb_asd <- map(marker_genes_ratio[c("sacc_broad","sacc_specific")],function(m){
+#   common_genes <- m[m %in% rownames(sce.asd)]
+#   sce <- sce.asd[common_genes]
+#   message(nrow(sce))
+#   sce$pb <- paste0(sce$individual,"_",sce$cluster)
+#   clusIndex = splitit(sce$pb)
+#   pbcounts <- sapply(clusIndex, function(ii){
+#     rowSums(exp(assays(sce)$logcounts)[ ,ii])
+#   }
+#   )
+#   # Compute LSFs at this level
+#   sizeFactors.PB.all  <- librarySizeFactors(pbcounts)
+#   # Normalize with these LSFs
+#   geneExprs.temp <- t(apply(pbcounts, 1, function(x) {log2(x/sizeFactors.PB.all + 1)}))
+#   rownames(geneExprs.temp) <- rowData(sce.sacc)[common_genes,]$Symbol
+#   return(geneExprs.temp)
+# }
+# )
+# 
+# 
+# marker_anno_vel <- map(marker_stats[c("sacc_broad","sacc_specific")], ~.x %>%
+#                            filter(rank_ratio <= top_n) %>%
+#                            mutate(rank_ratio = as.character(rank_ratio)) %>%
+#                            column_to_rownames(var = "Symbol") %>%
+#                            select(cellType.target, rank_ratio) 
+# )
+# 
+# pb_anno_vel <- map(pb_asd, function(x){
+#   anno <- tibble(id = colnames(x), a = colnames(x)) %>%
+#     separate(a, "_", into = c("indi","cluster"))%>%
+#     left_join(cell_type_guess)%>%
+#     select(-indi) %>%
+#     column_to_rownames(var = "id")
+#   return(anno)
+# })
+# 
+# my_anno_colors_vl <- map2(marker_anno_vel,pb_anno_vel,
+#                           ~list(cellType.target = c(cell_colors,Other = "grey")[unique(.x[,1])],
+#                                 cellType = c(cell_colors,Other = "grey")[unique(.y[,2])],
+#                                 rank_ratio = rank_colors)
+#                           
+# )
+# 
+# breaksList = seq(3, 12, by = 0.08)
+# for(n in names(pb_asd)){
+#   png(paste0("plots/heatmap-velmeshev_",n,"_top",top_n,"_ratio.png"), height = 750, width = 550)
+#   pheatmap(pb_asd[[n]],
+#            show_colnames = FALSE,
+#            annotation_row = marker_anno_vel[[n]],
+#            annotation_col = pb_anno_vel[[n]], 
+#            annotation_colors = my_anno_colors_vl[[n]],
+#            cluster_rows = TRUE,
+#            breaks = breaksList,
+#            main = paste(n," sn data:log2(norm pseudobulk counts) - top",top_n,"Velmeshev")
+#   )
+#   dev.off()
+# }
+
 
 # sgejobs::job_single('deconvo_heatmap.R', create_shell = TRUE, queue= 'bluejay', memory = '10G', command = "Rscript deconvo_heatmap.R")
 ## Reproducibility information
