@@ -1,3 +1,4 @@
+
 library(SummarizedExperiment)
 library(RColorBrewer)
 library(jaffelab)
@@ -20,104 +21,88 @@ load(here("exprs_cutoff", "rse_gene.Rdata"), verbose = TRUE)
 est_prop <- list(music = est_prop_music,
                  bisque = est_prop_bisque)
 
-est_prop2 <- transpose(est_prop)
-
-
-long_prop <- map(est_prop2, function(ep){
-  
-  lp <- do.call("rbind", map(ep,"Est.prop.long")) %>%
+long_prop <- do.call("rbind", map(est_prop,"Est.prop.long")) %>%
     rownames_to_column("method") %>%
-    # as_tibble() %>%
-    mutate(method = ss(method, "\\."))
-  
-  return(lp)
-})
+    as_tibble() %>%
+    mutate(method = ss(method, "\\."),
+           cell_cat = case_when(grepl("Excit|Inhib",cell_type) ~ "Neuron",
+                                TRUE ~ "Glia"))
 
-long_prop_all <- do.call("rbind",long_prop)%>%
-  rownames_to_column("data_type") %>%
-  as_tibble() %>%
-  mutate(data_type = ss(data_type, "\\."),
-         cell_cat = case_when(grepl("Excit|Inhib",cell_type) ~ "Neuron",
-                              TRUE ~ "Glia"))
-
-cellTypes <- levels(long_prop_all$cell_type)
+## reorder level
+cellTypes <- levels(long_prop$cell_type)
 excit_ct <- cellTypes[grep("Excit", cellTypes)]
 inhib_ct <- cellTypes[grep("Inhib", cellTypes)]
 other_ct <- cellTypes[!cellTypes %in% c(excit_ct, inhib_ct)]
 
 cell_order <- c(other_ct[order(other_ct)], excit_ct[order(excit_ct)], inhib_ct[order(inhib_ct)])
-long_prop_all$cell_type <- factor(long_prop_all$cell_type, levels = cell_order)
+long_prop$cell_type <- factor(long_prop$cell_type, levels = cell_order)
+levels(long_prop$cell_type)
 
-wide_prop <- pivot_wider(long_prop_all, names_from = "method", values_from = "prop")
-levels(wide_prop$cell_type)
+pd <- as.data.frame(colData(rse_gene))
+pd2 <- pd[,c("Sex","PrimaryDx","BrainRegion")]%>%
+  rownames_to_column("sample")
 
-long_prop_all %>% group_by(data_type, cell_cat) %>%
-  summarize(mean(prop))
+long_prop_pd <- left_join(long_prop, pd2, by = "sample")
+
+wide_prop <- pivot_wider(long_prop_pd, names_from = "method", values_from = "prop")
+
 #### Compare bisque vs. Music ###
 method_scatter <- ggplot(wide_prop, aes(x = music, y = bisque, color = cell_type)) +
   geom_point(size = 0.5) +
-  facet_wrap(~data_type) +
-  scale_color_manual(values = cell_colors)
+  facet_wrap(~BrainRegion) +
+  scale_color_manual(values = cell_colors) +
+  labs(title = "Compare Methods")
 
-ggsave(method_scatter, filename = here("deconvolution","plots","method_scatter.png"))
-
+ggsave(method_scatter, filename = here("deconvolution","plots","method_scatter.png"),
+       width = 15)
 
 #### Boxplots ####
-pd <- as.data.frame(colData(rse_gene))
-pd2 <- pd[,c("Sex","PrimaryDx")]%>%
-  rownames_to_column("sample")
+method_boxplot <- long_prop_pd %>%
+  ggplot(aes(x = cell_type, y = prop, color = method)) +
+  geom_boxplot() +
+  facet_wrap(~BrainRegion)+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 
-long_prop_pd <- left_join(long_prop_all, pd2, by = "sample")
+ggsave(method_boxplot, filename = here("deconvolution","plots","cellType_boxplots_method.png"),
+       width = 15)
+
+method_boxplot <- long_prop_pd %>%
+  ggplot(aes(x = cell_type, y = prop, color = BrainRegion)) +
+  geom_boxplot() +
+  facet_wrap(~method)+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+ggsave(method_boxplot, filename = here("deconvolution","plots","cellType_boxplots_region.png"),
+       width = 15)
 
 dx_boxPlot_all <- long_prop_pd %>%
   ggplot(aes(x = cell_type, y = prop, color = PrimaryDx)) +
   geom_boxplot() +
-  facet_grid(method~data_type, scales = "free_x")+ 
+  facet_grid(BrainRegion~method)+ 
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+
   scale_color_manual(values = mdd_Dx_colors)
 
-ggsave(dx_boxPlot_all, filename = here("deconvolution","plots","cellType_boxplots.png"), width = 15)
+ggsave(dx_boxPlot_all, filename = here("deconvolution","plots","cellType_boxplots_dx.png"), width = 15)
 
-dx_boxPlot_method <- long_prop_pd %>%
-  ggplot(aes(x = cell_type, y = prop, color = method)) +
-  geom_boxplot() +
-  facet_wrap(~data_type, scales = "free_x")+ 
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+#### composition barplot ####
 
-ggsave(dx_boxPlot_method, filename = here("deconvolution","plots","cellType_boxplots_method.png"))
-
-
-
-walk2(long_prop_pd, names(long_prop_pd), function(x,y){
-  blb <- big_little_boxplot(data = x,
-                            xvar = "cell_type", 
-                            yvar = "prop",
-                            fillvar =  "PrimaryDx",
-                            colorvar = "ignore",
-                            title = "MuSiC Proptions: Top5 markers",
-                            subtitle = y) 
-  ggsave(plot = blb, filename = paste0("plots/cellType_boxplots_",y,".png"), width = 15)
-} )
-
-
-dx_sex_colors <- mdd_Dx_colors_LD
-names(dx_sex_colors) <- gsub("dark","F",gsub("light","M",names(mdd_Dx_colors_LD)))
-
-walk2(est_prop_long, names(est_prop_long), function(x,y){
+mean_prop <- long_prop_pd %>%
+  group_by(method, cell_type, BrainRegion) %>%
+  summarize(mean_prop = mean(prop)) %>%
+  arrange(cell_type) %>%
+  group_by(method, BrainRegion) %>%
+  mutate(anno_y = (1 - cumsum(mean_prop)) + mean_prop *.5)
   
-  x <- x %>% mutate(Dx_Sex = paste0(PrimaryDx, "_",Sex))
-  
-  blb <- big_little_boxplot(data = x,
-                            xvar = "cell_type", 
-                            yvar = "prop",
-                            fillvar =  "Dx_Sex",
-                            colorvar = "ignore",
-                            pallet = dx_sex_colors,
-                            title = "MuSiC Proptions: Top5 markers",
-                            subtitle = y)
-  ggsave(plot = blb, filename = paste0("plots/cellType_sex_boxplots_",y,".png"), width = 15)
-} )
+comp_barplot <- mean_prop %>% ggplot(aes(x = BrainRegion, y = mean_prop, fill = cell_type)) +
+  geom_bar(stat = "identity") +
+  facet_wrap(~method) +
+  scale_fill_manual(values = cell_colors)+
+  geom_text(aes(y = anno_y, label = round(mean_prop,3)))
 
+ggsave(comp_barplot, filename = here("deconvolution","plots","composition_barplot.png"))
+
+mean_prop %>% pivot_wider(names_from = "method", values_from = mean_prop) %>%
+  arrange(BrainRegion)
 
 # sgejobs::job_single('deconvo_plots', create_shell = TRUE, queue= 'bluejay', memory = '10G', command = "Rscript deconvo_plots.R")
 ## Reproducibility information
