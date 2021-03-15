@@ -22,86 +22,45 @@ load(here("deconvolution","data","sce_filtered.Rdata"), verbose = TRUE)
 ## marker data
 load(here("deconvolution","data","marker_genes.Rdata"), verbose = TRUE)
 
-map_int(marker_genes, length)
-map_int(marker_genes, ~sum(.x %in% rownames(rse_gene)))
+#### create expression set ####
+exp_set_bulk <- ExpressionSet(assayData = assays(rse_gene)$counts,
+                              phenoData=AnnotatedDataFrame(
+                                as.data.frame(colData(rse_gene))[c("BrNum")]))
 
-regions <- list(sacc = "sACC", amyg = "Amygdala")
-rse_gene <- map(regions, ~rse_gene[,rse_gene$BrainRegion == .x])
-map(rse_gene, dim)
+exp_set_sce <- ExpressionSet(assayData = as.matrix(assays(sce_pan)$counts),
+                             phenoData=AnnotatedDataFrame(
+                               as.data.frame(colData(sce_pan))[c("cellType.Broad", "cellType", "uniqueID","donor")]))
 
-exp_set <- map2(rse_gene, sce, function(rse, sc){
-  exp_set_bulk <- ExpressionSet(assayData = assays(rse)$counts,
-                                phenoData=AnnotatedDataFrame(
-                                  as.data.frame(colData(rse))[c("BrNum")]))
-  exp_set_sce <- ExpressionSet(assayData = as.matrix(assays(sc)$counts),
-                               phenoData=AnnotatedDataFrame(
-                                 as.data.frame(colData(sc))[c("cellType.Broad", "cellType", "uniqueID","donor")]))
-  return(list(bulk = exp_set_bulk,
-              sce = exp_set_sce))
-})
 
-map(exp_set, ~map_int(.x, ncol))
-# $sacc
-# bulk  sce 
-# 551 7004 
-# 
-# $amyg
-# bulk  sce 
-# 540 6582 
+## filter genes
+exp_set_bulk <- exp_set_bulk[marker_genes,]
 
-exp_set2 <- map2(marker_genes, rep(exp_set, 2), function(genes, es){
-    bulk_subset <- es$bulk[genes,]
-    sc_subset <- es$sce[genes,]
-    
-    zero_cell_filter <- colSums(exprs(sc_subset)) != 0
-    message("Exclude ",sum(!zero_cell_filter), " cells")
-    sc_subset <- sc_subset[,zero_cell_filter]
-    
-    return(list(bulk = bulk_subset,
-                sce = sc_subset))
-    })
-
-      
-#### estimate cell type props ####
-ct <- list(broad = "cellType.Broad", specific = "cellType")
+exp_set_sce <- exp_set_sce[marker_genes,]
+zero_cell_filter <- colSums(exprs(exp_set_sce)) != 0
+message("Exclude ",sum(!zero_cell_filter), " cells")
+exp_set_sce <- exp_set_sce[,zero_cell_filter]
 
 #### Run Bisque ####
-est_prop <- map2(exp_set2, rep(ct, each = 2), 
-                      ~ReferenceBasedDecomposition(bulk.eset = .x$bulk, 
-                                                   sc.eset = .x$sce,
-                                                   cell.types = .y, 
-                                                   subject.names = "donor",
-                                                   use.overlap = FALSE))
+est_prop <- ReferenceBasedDecomposition(bulk.eset = exp_set_bulk, 
+                                        sc.eset = exp_set_sce,
+                                        cell.types = "cellType.Broad", 
+                                        subject.names = "donor",
+                                        use.overlap = FALSE)
 
 ## Add long data and save
-est_prop_bisque <- map(est_prop, function(prop_ct){
-  prop_ct$bulk.props <- t(prop_ct$bulk.props)
-  prop_ct$Est.prop.long <- melt(prop_ct$bulk.props) %>%
+est_prop$bulk.props <- t(est_prop$bulk.props)
+
+est_prop$Est.prop.long <- melt(est_prop$bulk.props) %>%
     rename(sample = Var1, cell_type = Var2, prop = value)
-  prop_ct$ilr <- ilr(prop_ct$bulk.props)
-  colnames(prop_ct$ilr) <- paste0("ilr_",1:ncol(prop_ct$ilr))
-  return(prop_ct)
-  
-})
 
-map(est_prop_bisque, ~round(colMeans(.x$bulk.props),3))
-# $sacc_broad
-# Astro Excit Inhib Micro Oligo   OPC 
-# 0.085 0.176 0.115 0.072 0.476 0.076 
-# 
-# $amyg_broad
-# Astro Excit Inhib Micro Oligo   OPC 
-# 0.130 0.064 0.067 0.114 0.530 0.096 
-# 
-# $sacc_specific
-# Astro Excit.1 Excit.2 Excit.3 Excit.4 Inhib.1 Inhib.2   Micro   Oligo     OPC 
-# 0.084   0.081   0.058   0.026   0.012   0.071   0.044   0.071   0.476   0.075 
-# 
-# $amyg_specific
-# Astro Excit.1 Excit.2 Excit.3 Inhib.1 Inhib.2 Inhib.3 Inhib.4 Inhib.5   Micro   Oligo     OPC 
-# 0.130   0.050   0.006   0.009   0.024   0.017   0.005   0.005   0.015   0.114   0.529   0.096 
+est_prop$ilr <- ilr(est_prop$bulk.props)
+colnames(est_prop$ilr) <- paste0("ilr_",1:ncol(est_prop$ilr))
+ 
+est_prop_bisque <- est_prop
 
-#### calculate ilr ####
+round(colMeans(est_prop_bisque$bulk.props),3)
+# Astro Micro Oligo   OPC Excit Inhib 
+# 0.103 0.092 0.563 0.080 0.075 0.087 
 
 save(est_prop_bisque, file = here("deconvolution","data","est_prop_Bisque.Rdata"))
 

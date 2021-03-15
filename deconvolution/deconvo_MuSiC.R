@@ -22,64 +22,35 @@ load(here("deconvolution","data","sce_filtered.Rdata"), verbose = TRUE)
 ## marker data
 load(here("deconvolution","data","marker_genes.Rdata"), verbose = TRUE)
 
-map_int(marker_genes, length)
-map_int(marker_genes, ~sum(.x %in% rownames(rse_gene)))
+length(marker_genes) == sum(marker_genes %in% rownames(rse_gene))
 
-regions <- list(sacc = "sACC", amyg = "Amygdala")
-rse_gene <- map(regions, ~rse_gene[,rse_gene$BrainRegion == .x])
-map(rse_gene, dim)
+#### create expression set ####
+exp_set_bulk <- ExpressionSet(assayData = assays(rse_gene)$counts,
+                              phenoData=AnnotatedDataFrame(
+                                as.data.frame(colData(rse_gene))[c("BrNum")]))
 
-exp_set <- map2(rse_gene, sce, function(rse, sc){
-  exp_set_bulk <- ExpressionSet(assayData = assays(rse)$counts,
-                                phenoData=AnnotatedDataFrame(
-                                  as.data.frame(colData(rse))[c("BrNum")]))
-  exp_set_sce <- ExpressionSet(assayData = as.matrix(assays(sc)$counts),
-                               phenoData=AnnotatedDataFrame(
-                                 as.data.frame(colData(sc))[c("cellType.Broad", "cellType", "uniqueID","donor")]))
-  return(list(bulk = exp_set_bulk,
-              sce = exp_set_sce))
-})
-
+exp_set_sce <- ExpressionSet(assayData = as.matrix(assays(sce_pan)$counts),
+                             phenoData=AnnotatedDataFrame(
+                               as.data.frame(colData(sce_pan))[c("cellType.Broad", "cellType", "uniqueID","donor")]))
 
 #### estimate cell type props ####
-ct <- list(broad = "cellType.Broad", specific = "cellType")
+est_prop <- music_prop(bulk.eset = exp_set_bulk,
+                       sc.eset = exp_set_sce,
+                       clusters = "cellType.Broad",
+                       samples = "donor",
+                       markers = marker_genes)
 
-est_prop <- pmap(list(genes = marker_genes, es = rep(exp_set, 2), ct = rep(ct,each = 2)),
-                 function(genes, es, ct){
-                   est_prop <- music_prop(bulk.eset = es$bulk,
-                                          sc.eset = es$sce,
-                                          clusters = ct,
-                                          samples = 'donor',
-                                          markers = genes)
-                   return(est_prop)
-                 } 
-)
-
-map(est_prop, ~round(colMeans(.x$Est.prop.weighted),3))
-# $sacc_broad
-# Oligo Micro Astro Inhib   OPC Excit 
-# 0.156 0.052 0.552 0.211 0.000 0.028 
-# 
-# $amyg_broad
+round(colMeans(est_prop$Est.prop.weighted),3)
 # Inhib Oligo Astro Excit Micro   OPC 
-# 0.192 0.169 0.474 0.085 0.072 0.008 
-# 
-# $sacc_specific
-# Oligo   Micro   Astro Inhib.2 Inhib.1     OPC Excit.3 Excit.1 Excit.2 Excit.4 
-# 0.220   0.080   0.595   0.011   0.035   0.003   0.017   0.038   0.001   0.000 
-# 
-# $amyg_specific
-# Inhib.2   Oligo   Astro Excit.1   Micro     OPC Inhib.3 Inhib.5 Inhib.1 
-# 0.023   0.296   0.348   0.051   0.189   0.003   0.001   0.053   0.035
+# 0.009 0.260 0.451 0.124 0.105 0.050 
 
-est_prop_music <- map(est_prop, function(prop_ct){
-  prop_ct$Est.prop.long <- melt(prop_ct$Est.prop.weighted) %>%
-    rename(sample = Var1, cell_type = Var2, prop = value)
-  prop_ct$ilr <- ilr(prop_ct$Est.prop.weighted)
-  colnames(prop_ct$ilr) <- paste0("ilr_",1:ncol(prop_ct$ilr))
-  return(prop_ct)
-})
+est_prop$Est.prop.long <- melt(est_prop$Est.prop.weighted) %>%
+  rename(sample = Var1, cell_type = Var2, prop = value)
 
+est_prop$ilr <- ilr(est_prop$Est.prop.weighted)
+colnames(est_prop$ilr) <- paste0("ilr_",1:ncol(est_prop$ilr))
+
+est_prop_music <- est_prop
 save(est_prop_music, file= here("deconvolution","data","est_prop_MuSiC.Rdata"))
 
 # sgejobs::job_single('music_deconvo', create_shell = TRUE, queue= 'bluejay', memory = '50G', command = "Rscript music_deconvo.R")

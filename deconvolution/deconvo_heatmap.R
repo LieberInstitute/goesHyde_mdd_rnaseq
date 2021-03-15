@@ -110,17 +110,17 @@ map(bulk_filtered, dim)
 bulk_RPKM <- map(bulk_filtered, ~log(recount::getRPKM(.x, "Length")+1))
 bulk_anno <- as.data.frame(colData(rse_gene)[,c("PrimaryDx",'Experiment')])
 
-for(n in names(bulk_RPKM)){
-  png(paste0("plots/heatmap-Bulk_",n,"_markers.png"), height = 750, width = 550)
-  pheatmap(bulk_RPKM[[n]],
+walk2(bulk_RPKM, names(bulk_RPKM), function(rpkm, name){
+  png(paste0("plots/heatmap-Bulk_",name,"_markers.png"), height = 750, width = 550)
+  pheatmap(rpkm,
            show_colnames = FALSE,
            show_rownames = FALSE,
            annotation_row = marker_anno_gene,
            annotation_col = bulk_anno,
            annotation_colors = anno_colors,
-           main = paste(n, "Bulk log(RPKM +1)"))
+           main = paste(name, "Bulk log(RPKM +1)"))
   dev.off()
-}
+})
 
 # #### Velmeshev data ####
 # 
