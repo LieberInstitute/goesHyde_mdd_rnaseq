@@ -56,36 +56,20 @@ ratio_plot <- marker_stats %>% mutate(Marker = rank_ratio <= n_genes) %>%
 ggsave(ratio_plot, filename = paste0("plots/expr/ratio_vs_stdFC.png"), width = 10)
 
 #### Plot expression ####
-# pdf(here("deconvolution","plots","expr","expr_mean_ratio.pdf"))
-walk(levels(marker_stats$cellType.target)[1],
-     # ~message(.x)
-     ~print(DeconvoBuddies::plot_marker_express(sce = sce_pan,
-                                stats = marker_stats,
-                                cell_type = .x,
-                                n_genes = 25,
-                                rank_col = "rank_ratio",
-                                anno_col = "anno",
-                                cellType_col = "cellType.Broad"+
-              scale_color_manual(values = cell_colors)
-     )
-)
-)
-dev.off()
-
-pdf(here("deconvolution","plots","expr","expr_mean_ratio.pdf"))
-walk(levels(marker_stats$cellType.target[1]),
-     
+pdf(here("deconvolution","plots",paste0("expr_top10_mean_ratio.pdf")))
+walk(levels(marker_stats$cellType.target),
      ~print(plot_marker_express(sce_pan, 
                                 marker_stats, 
                                 cell_type = .x, 
-                                n_genes = 25, 
-                                rank_col = "rank_marker", 
-                                anno_col = "anno", 
-                                cellType_col = "cellType.Broad"+
-                                  scale_color_manual(values = cell_colors)
-     ))
+                                n_genes = 10, 
+                                rank_col = "rank_ratio", 
+                                anno_col = "anno_ratio", 
+                                cellType_col = "cellType.Broad")+
+              scale_color_manual(values = cell_colors)
+     )
 )
 dev.off()
+
 
 # sgejobs::job_single('find_markers', create_shell = TRUE, queue= 'bluejay', memory = '10G', command = "Rscript find_markers.R")
 ## Reproducibility information
@@ -94,6 +78,5 @@ Sys.time()
 proc.time()
 options(width = 120)
 session_info()
-
 
 
