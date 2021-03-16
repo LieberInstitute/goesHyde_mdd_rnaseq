@@ -5,9 +5,9 @@ library(jaffelab)
 library(pheatmap)
 library(DeconvoBuddies)
 library(tidyverse)
-library(reshape2)
 library(RColorBrewer)
 library(rlang)
+library(recount)
 library(here)
 library(sessioninfo)
 
@@ -29,35 +29,29 @@ sce_filter <- sce_pan[marker_genes,]
 dim(sce_filter)
 # [1]   150 34005
 
-pb <- pseudobulk(sce_filter, cellType_col = "cellType.Broad", add_symbol = TRUE)
+pb <- pseudobulk(sce_filter,  cell_group_cols = c("cellType.Broad","donor","region"), add_symbol = TRUE)
 dim(pb)
-# [1] 150  18
+# [1] 150  70
 
 #### Prep for heatmaps ####
 ## define annotation tables
 
-pb_anno <- sce_filter %>% 
-                  colData() %>% 
-                  as_tibble() %>% 
-                  select(donor, cellType.Broad) %>%
-                  mutate(pb = paste0(donor, "_",cellType.Broad)) %>%
-                  unique() %>%
-                  column_to_rownames(var = "pb")
+pb_anno <- data.frame(names = colnames(pb), names2 = colnames(pb)) %>%
+  column_to_rownames("names") %>%
+  separate(names2, into = c("cellType.Broad","donor","Region"))
 
 ## create gene anno obj
-
-marker_anno_gene <- marker_stats %>%
-                     filter(rank_ratio <= 25) %>%
-                     mutate(rank_ratio = as.character(rank_ratio)) %>%
-                     column_to_rownames(var = "gene") %>%
-                     select(cellType.target) 
-
-
-marker_anno_symb <- marker_stats %>%
+marker_anno <- marker_stats %>%
   filter(rank_ratio <= 25) %>%
-  mutate(rank_ratio = as.character(rank_ratio)) %>%
-  column_to_rownames(var = "Symbol") %>%
-  select(cellType.target) 
+  select(gene, Symbol, cellType.target, rank_ratio) 
+
+marker_anno_gene <- marker_anno %>%
+  select(-Symbol) %>%
+  column_to_rownames(var = "gene")
+                     
+marker_anno_symb <- marker_anno %>%
+  select(-gene) %>%
+  column_to_rownames(var = "Symbol")
 
 ## define donor colrs
 donors <- unique(pb_anno$donor)
@@ -69,7 +63,8 @@ anno_colors <- list(cellType.target = cell_colors,
                     cellType.Broad = cell_colors,
                     donor = donor_colors,
                     PrimaryDx = mdd_Dx_colors,
-                    Experiment = mdd_dataset_colors)
+                    Experiment = mdd_dataset_colors,
+                    BrainRegion = mdd_BrainRegion_colors[c("Amygdala","sACC")])
 
 #### Create Heat maps SCE ####
 png(here("deconvolution","plots","heatmap_markers_ratio.png"), height = 750, width = 550)
@@ -98,29 +93,80 @@ pheatmap(pb,
 dev.off()
 
 #### Bulk Heatmaps ####
-regions <- list(sacc = "sACC", amyg = "Amygdala")
-bulk_filtered <- map(regions, function(x){
-  rse <- rse_gene[marker_genes, rse_gene$BrainRegion == x]
-  # rownames(rse) <- rowData(rse)$Symbol
-  return(rse)
-  }
-)
-map(bulk_filtered, dim)
+# regions <- list(sacc = "sACC", amyg = "Amygdala")
+# bulk_filtered_region <- map(regions, function(x){
+#   rse <- rse_gene[marker_genes, rse_gene$BrainRegion == x]
+#   # rownames(rse) <- rowData(rse)$Symbol
+#   return(rse)
+#   }
+# )
+# map(bulk_filtered_region, dim)
+# 
+# bulk_RPKM_region <- map(bulk_filtered_region, ~log(recount::getRPKM(.x, "Length")+1))
+# bulk_anno <- as.data.frame(colData(rse_gene)[,c("PrimaryDx",'Experiment')])
+# 
+# walk2(bulk_RPKM_region, names(bulk_RPKM_region), function(rpkm, name){
+#   png(paste0("plots/heatmap-Bulk_",name,"_markers.png"), height = 750, width = 550)
+#   pheatmap(rpkm,
+#            show_colnames = FALSE,
+#            show_rownames = FALSE,
+#            annotation_row = marker_anno_gene,
+#            annotation_col = bulk_anno,
+#            annotation_colors = anno_colors,
+#            main = paste(name, "Bulk log(RPKM +1)"))
+#   dev.off()
+# })
 
-bulk_RPKM <- map(bulk_filtered, ~log(recount::getRPKM(.x, "Length")+1))
-bulk_anno <- as.data.frame(colData(rse_gene)[,c("PrimaryDx",'Experiment')])
 
-walk2(bulk_RPKM, names(bulk_RPKM), function(rpkm, name){
-  png(paste0("plots/heatmap-Bulk_",name,"_markers.png"), height = 750, width = 550)
-  pheatmap(rpkm,
-           show_colnames = FALSE,
-           show_rownames = FALSE,
-           annotation_row = marker_anno_gene,
-           annotation_col = bulk_anno,
-           annotation_colors = anno_colors,
-           main = paste(name, "Bulk log(RPKM +1)"))
-  dev.off()
-})
+bulk_filtered <- rse_gene[marker_genes, ]
+dim(bulk_filtered)
+bulk_RPKM <- log(recount::getRPKM(bulk_filtered, "Length")+1)
+bulk_anno <- as.data.frame(colData(rse_gene)[,c("PrimaryDx",'Experiment',"BrainRegion")])
+
+png(paste0("plots/heatmap-Bulk_markers.png"), height = 750, width = 800)
+pheatmap(bulk_RPKM,
+         show_colnames = FALSE,
+         show_rownames = FALSE,
+         annotation_row = marker_anno_gene,
+         annotation_col = bulk_anno,
+         annotation_colors = anno_colors,
+         main = "Bulk log(RPKM +1)")
+dev.off()
+
+#### Rank Plots ####
+sc_mean_expr <- rowMeans(assays(sce_pan)$logcounts)
+
+sce_rank <- tibble(sce_mean_expr = sc_mean_expr,
+                   gene = names(sc_mean_expr))
+
+rpkm <- getRPKM(rse_gene, "Length")
+bulk_mean_expr <- rowMeans(rpkm)
+
+bulk_rank <- tibble(bulk_mean_expr = bulk_mean_expr,
+                    gene = rowData(rse_gene)$ensemblID)
+
+all_rank <- left_join(sce_rank, bulk_rank, by = "gene") %>%
+  arrange(bulk_mean_expr) %>%
+  mutate(bulk_rank = row_number())%>%
+  arrange(sce_mean_expr) %>%
+  mutate(sce_rank = row_number()) %>%
+  left_join(marker_anno, by = "gene") %>%
+  mutate(marker = !is.na(rank_ratio))
+
+
+rank_plot <-  ggplot() +
+  geom_point(data = all_rank, aes(x = bulk_rank, y = sce_rank),
+             size = 0.5, alpha = 0.25, color = "grey") +
+  geom_point(data = all_rank %>% filter(marker),
+             aes(x = bulk_rank, y = sce_rank, color = cellType.target)) +
+  geom_text(data = all_rank %>% filter(marker),
+            aes(x = bulk_rank, y = sce_rank, label = Symbol),
+            vjust = 0, nudge_y = 1, size = 1.5)+
+  scale_color_manual(values = cell_colors) +
+    labs(title = paste("Markers Over Mean Expr Rank"),
+       x = "Rank of Mean RPKM in Bulk", y = "Rank of Mean logcounts in SC")
+
+ggsave(rank_plot, filename = here("deconvolution","plots","expr_rank.png"))
 
 # #### Velmeshev data ####
 # 
