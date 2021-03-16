@@ -56,12 +56,12 @@ ratio_plot <- marker_stats %>% mutate(Marker = rank_ratio <= n_genes) %>%
 ggsave(ratio_plot, filename = paste0("plots/expr/ratio_vs_stdFC.png"), width = 10)
 
 #### Plot expression ####
-pdf(here("deconvolution","plots",paste0("expr_top10_mean_ratio.pdf")))
+pdf(here("deconvolution","plots",paste0("expr_top25_mean_ratio.pdf")))
 walk(levels(marker_stats$cellType.target),
      ~print(plot_marker_express(sce_pan, 
                                 marker_stats, 
                                 cell_type = .x, 
-                                n_genes = 10, 
+                                n_genes = 25, 
                                 rank_col = "rank_ratio", 
                                 anno_col = "anno_ratio", 
                                 cellType_col = "cellType.Broad")+
