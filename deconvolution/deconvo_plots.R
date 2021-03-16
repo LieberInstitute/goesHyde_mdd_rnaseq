@@ -17,6 +17,7 @@ load(here("deconvolution","data","cell_colors.Rdata"), verbose = TRUE)
 load(here("deconvolution","data","est_prop_MuSiC.Rdata"), verbose = TRUE)
 load(here("deconvolution","data","est_prop_Bisque.Rdata"),verbose = TRUE)
 load(here("exprs_cutoff", "rse_gene.Rdata"), verbose = TRUE)
+load(here("deconvolution","data","sce_filtered.Rdata"), verbose = TRUE)
 
 est_prop <- list(music = est_prop_music,
                  bisque = est_prop_bisque)
@@ -85,17 +86,34 @@ dx_boxPlot_all <- long_prop_pd %>%
 ggsave(dx_boxPlot_all, filename = here("deconvolution","plots","cellType_boxplots_dx.png"), width = 15)
 
 #### composition barplot ####
+sce_pd <- as.data.frame(colData(sce_pan))
+mean_prop_sce <- sce_pd %>%
+  select(cell_type = cellType.Broad, BrainRegion = region) %>%
+  group_by(cell_type, BrainRegion) %>%
+  summarise(n_cells = n()) %>%
+  group_by(BrainRegion) %>%
+  mutate(region_n_cells = sum(n_cells),
+         mean_prop = n_cells/region_n_cells,
+         method = "sce_pan",
+         BrainRegion = case_when(BrainRegion == "sacc" ~"sACC",
+                                 BrainRegion == "amy"~ "Amygdala",
+                                 TRUE ~ BrainRegion)) %>%
+  filter(BrainRegion %in% c("sACC","Amygdala"))
 
-mean_prop <- long_prop_pd %>%
+mean_est_prop <- long_prop_pd %>%
   group_by(method, cell_type, BrainRegion) %>%
-  summarize(mean_prop = mean(prop)) %>%
+  summarize(mean_prop = mean(prop))
+  
+mean_prop <- rbind(mean_prop_sce, mean_est_prop) %>%
   arrange(cell_type) %>%
   group_by(method, BrainRegion) %>%
-  mutate(anno_y = (1 - cumsum(mean_prop)) + mean_prop *.5)
+  mutate(anno_y = (1 - cumsum(mean_prop)) + mean_prop *.5) 
+
+mean_prop 
   
 comp_barplot <- mean_prop %>% ggplot(aes(x = BrainRegion, y = mean_prop, fill = cell_type)) +
   geom_bar(stat = "identity") +
-  facet_wrap(~method) +
+  facet_wrap(~method, scales = "free_x") +
   scale_fill_manual(values = cell_colors)+
   geom_text(aes(y = anno_y, label = round(mean_prop,3)))
 
