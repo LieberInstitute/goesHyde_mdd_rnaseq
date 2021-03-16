@@ -25,23 +25,37 @@ sce.all.n12$uniqueID <- paste0(sce.all.n12$donor, "_", sce.all.n12$Barcode ,"_",
 length(unique(sce.all.n12$uniqueID))  == ncol(sce.all.n12)
 colnames(sce.all.n12) <- sce.all.n12$uniqueID
 
-sce.all.n12 <- sce.all.n12[ ,sce.all.n12$cellType != "Ambig.hiVCAN"] # 32 nuclei
-sce.all.n12 <- sce.all.n12[ ,sce.all.n12$cellType != "Excit.4"]  # 33 nuclei
-sce.all.n12$cellType <- droplevels(sce.all.n12$cellType)
+table(sce.all.n12$cellType.RS)
+# Ambig.lowNtrxts           Astro           Excit           Inhib           Micro          MSN.D1          MSN.D2 
+#             445            3864            2927            2019            2956             465             177 
+# Oligo             OPC           Tcell 
+# 18664            2527              26 
+
+sce.all.n12 <- sce.all.n12[ ,sce.all.n12$cellType.RS != "Ambig.lowNtrxts"] # 445 nuclei
+sce.all.n12 <- sce.all.n12[ ,sce.all.n12$cellType.RS != "Tcell"] # 26 nuclei
+sce.all.n12$cellType.RS <- droplevels(sce.all.n12$cellType.RS)
 
 ## reorder cell types 
-cellType_order <- order_ct(levels(sce.all.n12$cellType))
-sce.all.n12$cellType <- factor(sce.all.n12$cellType, cellType_order)
+cellType_order <- order_ct(levels(sce.all.n12$cellType.RS))
+sce.all.n12$cellType.RS <- factor(sce.all.n12$cellType.RS, cellType_order)
 
-table(sce.all.n12$cellType)
+table(sce.all.n12$cellType.RS)
 
 ## Add cellType.broad
-sce.all.n12$cellType.Broad <- ss(as.character(sce.all.n12$cellType), "\\.", 1)
+sce.all.n12$cellType.Broad <- ss(as.character(sce.all.n12$cellType.RS), "\\.", 1)
+## classify MSN as Inhib
+sce.all.n12$cellType.Broad[sce.all.n12$cellType.Broad == "MSN"] <- "Inhib"
 table(sce.all.n12$cellType.Broad)
 
 sce.all.n12$cellType.Broad <- factor(sce.all.n12$cellType.Broad, order_ct(unique(sce.all.n12$cellType.Broad)))
-table(sce.all.n12$cellType.Broad)
-
+table(sce.all.n12$cellType.Broad, sce.all.n12$region)
+#        amy dlpfc  hpc  nac sacc
+# Astro  852   501 1343  545  623
+# Micro  764   256 1253  181  502
+# Oligo 3473  3247 5885 2807 3252
+# OPC    627   266  864  239  531
+# Excit  487   575  599    0 1266
+# Inhib  379   386  373  693  830
 
 ## Match rownames
 rownames(sce.all.n12) <- rowData(sce.all.n12)$ID
@@ -56,7 +70,7 @@ sce.all.n12 <- sce.all.n12[common_genes, ]
 # Remove 0 genes across all nuclei
 sce.all.n12 <- sce.all.n12[!rowSums(assay(sce.all.n12, "counts"))==0, ] 
 dim(sce.all.n12)
-# [1] 17893 34005
+# [1] 17892 33599
 
 sce_pan <- sce.all.n12
 save(sce_pan, file = here("deconvolution","data","sce_filtered.Rdata"))
