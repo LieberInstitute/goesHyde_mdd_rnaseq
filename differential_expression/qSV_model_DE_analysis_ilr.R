@@ -26,14 +26,15 @@ load(here("differential_expression","data","qSV_mat.Rdata"), verbose = TRUE)
 ## load deconvolution data
 load(here("deconvolution","data","est_prop_MuSiC.Rdata"), verbose = TRUE)
 load(here("deconvolution","data","est_prop_Bisque.Rdata"), verbose = TRUE)
-est_prop <- list(music =  map(est_prop_music[c("sacc_specific","amyg_specific")], "Est.prop.weighted"),
-                 bisque = map(est_prop_bisque[c("sacc_specific","amyg_specific")], "bulk.props"))
+est_prop <- list(music =  est_prop_music$Est.prop.weighted,
+                 bisque = est_prop_bisque$bulk.props)
 
-ilr <- list(music =  map(est_prop_music[c("sacc_specific","amyg_specific")], "ilr"),
-                 bisque = map(est_prop_bisque[c("sacc_specific","amyg_specific")], "ilr"))
+ilr <- list(music = est_prop_music$ilr,
+                 bisque = est_prop_bisque$ilr)
 
 #### Define models ####
 regions <- list(sacc = "sACC", amyg = "Amygdala")
+region_samples <- map(regions, ~rownames(pd)[pd$BrainRegion == .x])
 
 modSep <- map(regions, ~cbind(model.matrix(~PrimaryDx + AgeDeath + Sex  + mitoRate + 
                                            rRNA_rate +totalAssignedGene + RIN + ERCCsumLogErr +
@@ -65,16 +66,20 @@ map(modSep, colnames)
 # [41] "PC26"  
 
 ## Add ilr terms
-modSep_ilr <- map(ilr, function(ilr_method){
+ilr_sep <- map(region_samples, function(sampels) map(ilr, ~.x[sampels,]))
+ilr_sep <- transpose(ilr_sep)
+
+modSep_ilr <- map(ilr_sep, function(ilr_method){
   map2(modSep, ilr_method, ~cbind(.x, .y))
 })
 map(modSep_ilr, ~map(.x,colnames))
 
 ## Add prop terms
-map(est_prop, colnames)
+est_prop_sep <- map(region_samples, function(sampels) map(est_prop, ~.x[sampels,]))
+est_prop_sep <- transpose(est_prop_sep)
 
-modSep_prop <- map(est_prop, function(prop_method){
-  map2(modSep, prop_method, ~cbind(.x, .y[,1:ncol(.y)-1]))
+modSep_prop <- map(est_prop_sep, function(prop_method){
+  map2(modSep, prop_method, ~cbind(.x, .y[,c("Astro","Micro","Oligo","OPC", "Excit")]))
 })
 map(modSep_prop, ~map(.x,colnames))
 
@@ -147,21 +152,18 @@ get_top_terms <- function(eBayes, terms){
 }
 
 ## define terms
-prop_terms <- map(est_prop, function(ep){map(ep, ~colnames(.x)[1:ncol(.x) - 1])})
-prop_terms <- transpose(prop_terms)
+prop_terms <- c("Astro","Micro","Oligo","OPC", "Excit")
 
-prop_coef_explore <- map2(ebGene, prop_terms, function(eb_region, terms_region){
+prop_coef_explore <- map(ebGene, function(eb_region){
   eb_region <- eb_region[grepl("prop", names(eb_region))]
-  map2(eb_region, terms_region, ~get_top_terms(.x, .y)%>%
+  map(eb_region, ~get_top_terms(.x, prop_terms)%>%
          rename(coef_prop = coef))
 })
 
-ilr_terms <- map(ilr, ~map(.x, colnames))
-ilr_terms <- transpose(ilr_terms)
-
-ilr_coef_explore <- map2(ebGene, ilr_terms, function(eb_region, terms_region){
+ilr_terms <-colnames(ilr[[1]])
+ilr_coef_explore <- map(ebGene, function(eb_region){
   eb_region <- eb_region[grepl("ilr", names(eb_region))]
-  map2(eb_region, terms_region, ~get_top_terms(.x, .y) %>%
+  map(eb_region, ~get_top_terms(.x, ilr_terms) %>%
          rename(coef_ilr = coef))
 })
 
