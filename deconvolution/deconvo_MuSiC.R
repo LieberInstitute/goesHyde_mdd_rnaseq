@@ -21,6 +21,9 @@ load(here("deconvolution","data","sce_filtered.Rdata"), verbose = TRUE)
 
 ## marker data
 load(here("deconvolution","data","marker_genes.Rdata"), verbose = TRUE)
+load(here("deconvolution","data","problem_genes.Rdata"), verbose = TRUE)
+
+marker_genes2 <- marker_genes[!marker_genes %in% problem_genes]
 
 length(marker_genes) == sum(marker_genes %in% rownames(rse_gene))
 
@@ -34,23 +37,43 @@ exp_set_sce <- ExpressionSet(assayData = as.matrix(assays(sce_pan)$counts),
                                as.data.frame(colData(sce_pan))[c("cellType.Broad", "cellType", "uniqueID","donor")]))
 
 #### estimate cell type props ####
-est_prop <- music_prop(bulk.eset = exp_set_bulk,
-                       sc.eset = exp_set_sce,
-                       clusters = "cellType.Broad",
-                       samples = "donor",
-                       markers = marker_genes)
+est_prop_music <- map(list(all = marker_genes, filter = marker_genes2), function(marker_genes){
+  est_prop <- music_prop(bulk.eset = exp_set_bulk,
+                         sc.eset = exp_set_sce,
+                         clusters = "cellType.Broad",
+                         samples = "donor",
+                         markers = marker_genes)
+  
+  est_prop$Est.prop.long <- melt(est_prop$Est.prop.weighted) %>%
+    rename(sample = Var1, cell_type = Var2, prop = value)
+  
+  est_prop$ilr <- ilr(est_prop$Est.prop.weighted)
+  colnames(est_prop$ilr) <- paste0("ilr_",1:ncol(est_prop$ilr))
+  
+  est_prop_music <- est_prop
+  return(est_prop_music)
+})
 
-round(colMeans(est_prop$Est.prop.weighted),3)
+map(est_prop_music, ~round(colMeans(.x$Est.prop.weighted),3))
+# $all
 # Inhib Oligo Astro Excit Micro   OPC 
-# 0.009 0.260 0.451 0.124 0.105 0.050 
+# 0.119 0.217 0.439 0.111 0.091 0.024 
+# 
+# $filter
+# Inhib Oligo Astro Excit Micro   OPC 
+# 0.156 0.282 0.262 0.142 0.117 0.040 
 
-est_prop$Est.prop.long <- melt(est_prop$Est.prop.weighted) %>%
-  rename(sample = Var1, cell_type = Var2, prop = value)
+est_prop_long <- do.call("cbind", map(est_prop_music, "Est.prop.long")) 
 
-est_prop$ilr <- ilr(est_prop$Est.prop.weighted)
-colnames(est_prop$ilr) <- paste0("ilr_",1:ncol(est_prop$ilr))
+load(here("deconvolution","data","cell_colors.Rdata"))
+marker_scatter <- ggplot(est_prop_long, aes(x = all.prop, y = filter.prop, color = all.cell_type)) +
+  geom_point() +
+  labs(title = "Compare Marker Sets - MuSiC") +
+  scale_color_manual(values = cell_colors)
 
-est_prop_music <- est_prop
+ggsave(marker_scatter, filename = here("deconvolution","plots","marker_scatter-music.png"))
+
+
 save(est_prop_music, file= here("deconvolution","data","est_prop_MuSiC.Rdata"))
 
 # sgejobs::job_single('music_deconvo', create_shell = TRUE, queue= 'bluejay', memory = '50G', command = "Rscript music_deconvo.R")

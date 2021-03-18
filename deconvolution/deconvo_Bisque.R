@@ -21,6 +21,9 @@ load(here("deconvolution","data","sce_filtered.Rdata"), verbose = TRUE)
 
 ## marker data
 load(here("deconvolution","data","marker_genes.Rdata"), verbose = TRUE)
+load(here("deconvolution","data","problem_genes.Rdata"), verbose = TRUE)
+
+marker_genes2 <- marker_genes[!marker_genes %in% problem_genes]
 
 #### create expression set ####
 exp_set_bulk <- ExpressionSet(assayData = assays(rse_gene)$counts,
@@ -31,36 +34,53 @@ exp_set_sce <- ExpressionSet(assayData = as.matrix(assays(sce_pan)$counts),
                              phenoData=AnnotatedDataFrame(
                                as.data.frame(colData(sce_pan))[c("cellType.Broad", "cellType", "uniqueID","donor")]))
 
-
-## filter genes
-exp_set_bulk <- exp_set_bulk[marker_genes,]
-
-exp_set_sce <- exp_set_sce[marker_genes,]
-zero_cell_filter <- colSums(exprs(exp_set_sce)) != 0
-message("Exclude ",sum(!zero_cell_filter), " cells")
-exp_set_sce <- exp_set_sce[,zero_cell_filter]
-
-#### Run Bisque ####
-est_prop <- ReferenceBasedDecomposition(bulk.eset = exp_set_bulk, 
-                                        sc.eset = exp_set_sce,
-                                        cell.types = "cellType.Broad", 
-                                        subject.names = "donor",
-                                        use.overlap = FALSE)
+est_prop_bisque <- map(list(all = marker_genes, filter = marker_genes2), function(marker_genes){
+  exp_set_bulk <- exp_set_bulk[marker_genes,]
+  
+  exp_set_sce <- exp_set_sce[marker_genes,]
+  zero_cell_filter <- colSums(exprs(exp_set_sce)) != 0
+  message("Exclude ",sum(!zero_cell_filter), " cells")
+  exp_set_sce <- exp_set_sce[,zero_cell_filter]
+  
+  #### Run Bisque ####
+  est_prop <- ReferenceBasedDecomposition(bulk.eset = exp_set_bulk, 
+                                          sc.eset = exp_set_sce,
+                                          cell.types = "cellType.Broad", 
+                                          subject.names = "donor",
+                                          use.overlap = FALSE)
+  
+  
+  est_prop$bulk.props <- t(est_prop$bulk.props)
+  
+  est_prop$Est.prop.long <- melt(est_prop$bulk.props) %>%
+    rename(sample = Var1, cell_type = Var2, prop = value)
+  
+  est_prop$ilr <- ilr(est_prop$bulk.props)
+  colnames(est_prop$ilr) <- paste0("ilr_",1:ncol(est_prop$ilr))
+  
+  est_prop_bisque <- est_prop
+  return(est_prop_bisque)
+})
 
 ## Add long data and save
-est_prop$bulk.props <- t(est_prop$bulk.props)
-
-est_prop$Est.prop.long <- melt(est_prop$bulk.props) %>%
-    rename(sample = Var1, cell_type = Var2, prop = value)
-
-est_prop$ilr <- ilr(est_prop$bulk.props)
-colnames(est_prop$ilr) <- paste0("ilr_",1:ncol(est_prop$ilr))
- 
-est_prop_bisque <- est_prop
-
-round(colMeans(est_prop_bisque$bulk.props),3)
+map(est_prop_bisque, ~round(colMeans(.x$bulk.props),3))
+# $all
 # Astro Micro Oligo   OPC Excit Inhib 
-# 0.103 0.092 0.563 0.080 0.075 0.087 
+# 0.105 0.089 0.570 0.081 0.077 0.078 
+# 
+# $filter
+# Astro Micro Oligo   OPC Excit Inhib 
+# 0.105 0.089 0.570 0.081 0.077 0.078 
+
+est_prop_long <- do.call("cbind", map(est_prop_bisque, "Est.prop.long")) 
+
+load(here("deconvolution","data","cell_colors.Rdata"))
+marker_scatter <- ggplot(est_prop_long, aes(x = all.prop, y = filter.prop, color = all.cell_type)) +
+  geom_point() +
+  labs(title = "Compare Marker Sets - Bisque") +
+  scale_color_manual(values = cell_colors)
+
+ggsave(marker_scatter, filename = here("deconvolution","plots","marker_scatter-Bisque.png"))
 
 save(est_prop_bisque, file = here("deconvolution","data","est_prop_Bisque.Rdata"))
 

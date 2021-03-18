@@ -66,8 +66,8 @@ anno_colors <- list(cellType.target = cell_colors,
                     Experiment = mdd_dataset_colors,
                     BrainRegion = mdd_BrainRegion_colors[c("Amygdala","sACC")])
 
-#### Create Heat maps SCE ####
-png(here("deconvolution","plots","heatmap_markers_ratio.png"), height = 750, width = 550)
+#### Create Heatmaps SCE ####
+png(here("deconvolution","plots","heatmap_markers-sce.png"), height = 750, width = 550)
 pheatmap(pb,
          show_colnames = FALSE,
          show_rownames = FALSE,
@@ -80,7 +80,19 @@ pheatmap(pb,
 dev.off()
 
 
-png(here("deconvolution","plots","heatmap_markers_ratio-unsorted.png"), height = 750, width = 550)
+png(here("deconvolution","plots","heatmap_markers-sce_long.png"), height = 2000, width = 550)
+pheatmap(pb,
+         show_colnames = FALSE,
+         show_rownames = TRUE,
+         annotation_row = marker_anno_symb,
+         annotation_col = pb_anno,
+         annotation_colors = anno_colors,
+         cluster_rows = TRUE,
+         main = "Pan-brain data:log2(pseudobulk counts) - Top 25 Mean Ratio"
+)
+dev.off()
+
+png(here("deconvolution","plots","heatmap_markers-sce_unsorted.png"), height = 750, width = 550)
 pheatmap(pb,
          show_colnames = FALSE,
          show_rownames = FALSE,
@@ -93,37 +105,12 @@ pheatmap(pb,
 dev.off()
 
 #### Bulk Heatmaps ####
-# regions <- list(sacc = "sACC", amyg = "Amygdala")
-# bulk_filtered_region <- map(regions, function(x){
-#   rse <- rse_gene[marker_genes, rse_gene$BrainRegion == x]
-#   # rownames(rse) <- rowData(rse)$Symbol
-#   return(rse)
-#   }
-# )
-# map(bulk_filtered_region, dim)
-# 
-# bulk_RPKM_region <- map(bulk_filtered_region, ~log(recount::getRPKM(.x, "Length")+1))
-# bulk_anno <- as.data.frame(colData(rse_gene)[,c("PrimaryDx",'Experiment')])
-# 
-# walk2(bulk_RPKM_region, names(bulk_RPKM_region), function(rpkm, name){
-#   png(paste0("plots/heatmap-Bulk_",name,"_markers.png"), height = 750, width = 550)
-#   pheatmap(rpkm,
-#            show_colnames = FALSE,
-#            show_rownames = FALSE,
-#            annotation_row = marker_anno_gene,
-#            annotation_col = bulk_anno,
-#            annotation_colors = anno_colors,
-#            main = paste(name, "Bulk log(RPKM +1)"))
-#   dev.off()
-# })
-
-
 bulk_filtered <- rse_gene[marker_genes, ]
 dim(bulk_filtered)
 bulk_RPKM <- log(recount::getRPKM(bulk_filtered, "Length")+1)
 bulk_anno <- as.data.frame(colData(rse_gene)[,c("PrimaryDx",'Experiment',"BrainRegion")])
 
-png(paste0("plots/heatmap-Bulk_markers.png"), height = 750, width = 800)
+png(paste0("plots/heatmap_markers-bulk.png"), height = 750, width = 800)
 pheatmap(bulk_RPKM,
          show_colnames = FALSE,
          show_rownames = FALSE,
@@ -132,6 +119,22 @@ pheatmap(bulk_RPKM,
          annotation_colors = anno_colors,
          main = "Bulk log(RPKM +1)")
 dev.off()
+
+png(paste0("plots/heatmap_markers-bulk_long.png"), height = 2000, width = 800)
+bulk_heatmap <- pheatmap(bulk_RPKM,
+         show_colnames = FALSE,
+         show_rownames = TRUE,
+         annotation_row = marker_anno_symb,
+         annotation_col = bulk_anno,
+         annotation_colors = anno_colors,
+         main = "Bulk log(RPKM +1)")
+dev.off()
+
+problem_genes <- bulk_heatmap$tree_row$labels[bulk_heatmap$tree_row$order[1:2]]
+save(problem_genes, file = here("deconvolution","data","problem_genes.Rdata"))
+marker_stats %>% filter(gene %in% problem_genes)
+
+names(bulk_heatmap)
 
 #### Rank Plots ####
 sc_mean_expr <- rowMeans(assays(sce_pan)$logcounts)
