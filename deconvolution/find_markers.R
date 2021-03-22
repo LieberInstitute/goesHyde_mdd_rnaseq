@@ -5,14 +5,20 @@ library(jaffelab)
 library(limma)
 library(reshape2)
 library(tidyverse)
+library(ggpubr)
 library(patchwork)
 library(DeconvoBuddies)
+library(recount)
 library(here)
 library(sessioninfo)
 
 #### Load and organize sce data ####
 load(here("deconvolution","data","sce_filtered.Rdata"), verbose = TRUE)
 load(here("deconvolution","data", "cell_colors.Rdata"), verbose = TRUE)
+
+## Load rse_gene data
+load(here("exprs_cutoff", "rse_gene.Rdata"), verbose = TRUE)
+rownames(rse_gene) <- rowData(rse_gene)$ensemblID
 
 #### get marker stats ####
 ## run get_mean_ratio
@@ -30,6 +36,7 @@ marker_stats <- left_join(mean_ratio, markers.t.1vAll, by = c("gene", "cellType.
 
 ## Save 
 save(marker_stats, file = here("deconvolution","data","marker_stats.Rdata"))
+# load(here("deconvolution","data","marker_stats.Rdata"), verbose = TRUE)
 
 ## save marker gene tables
 n_genes <- 25
@@ -56,17 +63,21 @@ bulk_mean_expr <- rowMeans(rpkm)
 bulk_rank <- tibble(bulk_mean_expr = bulk_mean_expr,
                     gene = rowData(rse_gene)$ensemblID)
 
+marker_anno <- marker_stats %>% 
+  mutate(marker = rank_ratio <= 25) %>% 
+  select(gene, marker, Symbol, cellType.target)
+  
 all_rank <- left_join(sce_rank, bulk_rank, by = "gene") %>%
   arrange(bulk_mean_expr) %>%
   mutate(bulk_rank = row_number())%>%
   arrange(sce_mean_expr) %>%
   mutate(sce_rank = row_number()) %>%
-  left_join(marker_anno, by = "gene") %>%
-  mutate(marker = !is.na(rank_ratio),
-         log_bulk_mean_rpkm = log(bulk_mean_expr + 1))
+  mutate(log_bulk_mean_rpkm = log(bulk_mean_expr + 1)) %>%
+  left_join(marker_anno)
 
-all_rank$Length <- rowData(rse_gene)[all_rank$gene,]$Length
-
+# all_rank2 <- all_rank %>% 
+#   mutate(abs_diff_rank = abs(sce_rank - bulk_rank),
+#          high_rank = sce_rank )
 
 rank_plot <-  ggplot() +
   geom_point(data = all_rank, aes(x = bulk_rank, y = sce_rank),
@@ -91,14 +102,26 @@ expr_plot <-  ggplot() +
   geom_text(data = all_rank %>% filter(marker),
             aes(x = log_bulk_mean_rpkm, y = sce_mean_expr, label = Symbol),
             vjust = 0,  size = 1.5)+
-  # geom_abline(intercept = c(5000, -5000))+
   scale_color_manual(values = cell_colors) +
   labs(title = paste("Markers Over Mean Expr"),
        x = "Log Mean RPKM in Bulk", y = "Mean logcounts in SC")
 
 ggsave(expr_plot, filename = here("deconvolution","plots","expr_mean.png"))
 
+png(here("deconvolution","plots","expr_scatter_hist.png"),width = 700, height = 700)
+all_rank %>% 
+  filter(marker) %>%
+  ggscatterhist( x = "log_bulk_mean_rpkm", y = "sce_mean_expr",
+    color = "cellType.target", 
+    palette = cell_colors,
+    margin.plot = "boxplot",
+    ggtheme = theme_bw()
+  )
+dev.off()
 
+problem_genes_t <- all_rank %>% filter( marker& (log_bulk_mean_rpkm > 4.5 | sce_mean_expr > 1.75))
+problem_genes <- problem_genes_t %>% pull(gene)
+save(problem_genes, file = here("deconvolution","data","problem_genes.Rdata"))
 
 #### Create Ratio plots #### 
 ratio_plot <- marker_stats %>% mutate(Marker = rank_ratio <= n_genes) %>%
@@ -110,6 +133,12 @@ ratio_plot <- marker_stats %>% mutate(Marker = rank_ratio <= n_genes) %>%
   theme_bw()
 
 ggsave(ratio_plot, filename = here("deconvolution","plots","ratio_vs_stdFC.png"), width = 10)
+
+problem_genes <- all_rank %>% 
+  filter(marker & (sce_mean_expr > 1.75 | log_bulk_mean_rpkm > 4.5)) %>%
+  pull(gene)
+
+save(problem_genes, file= here("deconvolution","plots","problem_genes.Rdata"))
 
 #### Plot expression ####
 pdf(here("deconvolution","plots",paste0("expr_top25_mean_ratio.pdf")))
