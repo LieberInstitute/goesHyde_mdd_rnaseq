@@ -15,6 +15,7 @@ library(sessioninfo)
 library(tidyverse)
 library(GGally)
 library(viridis)
+library(plotly)
 library(here)
 
 #### Load Data ####
@@ -24,141 +25,6 @@ names(data_type) <- data_type
 paths <- map(data_type, ~here("differential_expression","data",paste0("qSVA_MDD_", .x, "_DEresults.rda")))
 load(paths$gene, verbose = TRUE)
 # outGene <- list(amyg = outGene_Amyg, sacc = outGene_sACC)
-
-load(here("deconvolution","data","cell_colors.Rdata"), verbose= TRUE)
-load(here("differential_expression","data","qSVA_MDD_gene_DEresults.rda"), verbose = TRUE)
-
-n_gene <- nrow(gene_topTables$sacc$no_deconvo)
-
-f_table <- map(gene_topTables, function(tt){
-  tt_all_col <- do.call("cbind",tt)
-  tt_F <- tt_all_col[,grepl(".F",colnames(tt_all_col))]
-  return(tt_F)
-  })
-
-f_plot <- map(f_table, ~ggpairs(.x))
-
-walk2(f_plot, names(f_plot), ~ggsave(.x + labs(title = paste("F values:",.y)), 
-                                     filename = here("differential_expression","plots",paste0("F_plot-",.y,".png"))))
-
-## compare t stats for each dx coefficent from model with & w/o ILR terms
-stat_cols <- c("t","adj.P.Val")
-outGene_t_stats <- map(outGene_single_coef, function(region){
-  dx_stats <- map(region, function(dx){
-    stats <- do.call("cbind",dx)
-    stats <- stats[,grepl("\\.t$|adj.P.Val$", colnames(stats))]
-    return(stats)
-  })
-  return(dx_stats)
-})
-
-head(outGene_t_stats$sacc$ctrl)
-
-outGene_t_stats2 <- map(outGene_t_stats, ~do.call("rbind",.x))
-outGene_t_stats3 <- do.call("rbind", outGene_t_stats2)
-
-load(here("differential_expression","data","deconvo_coef_explore.Rdata"), verbose = TRUE)
-deconvo_coef <- do.call("rbind", combo_coef_explore) %>%
-  add_column(Region = rep(names(combo_coef_explore), each = nrow(combo_coef_explore[[1]]))) %>%
-  rename(Gene = gencodeID)
-
-deconvo_coef %>% count(Region, method)
-
-t_stats <- outGene_t_stats3 %>%
-  rownames_to_column("data") %>%
-  as_tibble() %>%
-  separate(data, into = c("Region","coef","Gene"), extra = "merge") 
-
-# %>%
-#   # mutate(Signif_ilr = case_when(no_deconvo.adj.P.Val < 0.05 & ilr.adj.P.Val < 0.05 ~"sig_Both",
-#   #                           no_deconvo.adj.P.Val < 0.05 ~ "sig_no-deconvo",
-#   #                           ilr.adj.P.Val < 0.05 ~ "sig_deconvo-ilr",
-#   #                           TRUE ~ "None"),
-#   #        Signif_prop = case_when(no_deconvo.adj.P.Val < 0.05 & prop.adj.P.Val < 0.05 ~"sig_Both",
-#   #                           no_deconvo.adj.P.Val < 0.05 ~ "sig_no-deconvo",
-#   #                           prop.adj.P.Val < 0.05 ~ "sig_deconvo-prop",
-#   #                           TRUE ~ "None")
-#   #        ) %>%
-#   left_join(deconvo_coef)
-
-## ggpairs for t-stats
-t_stats_grouped_ggpairs <- t_stats %>% 
-  group_by(Region, coef) %>%
-  group_map(~ggpairs(.x, c("no_deconvo.t", "ilr_music.t","ilr_bisque.t", "prop_music.t","prop_bisque.t"),
-                     lower = list(continuous = wrap("smooth", alpha = 0.1, size=0.1, color = "blue"))))
-
-names(t_stats_grouped_ggpairs) <- t_stats %>% 
-  group_by(Region, coef) %>%
-  count() %>%
-  mutate(label = paste0(Region,"_",coef)) %>%
-  pull(label)
-
-walk2(t_stats_grouped_ggpairs, names(t_stats_grouped_ggpairs), function(ggp, name){
-  message(name)
-  filename = paste0("ggpair_t-stats_", name,".png")
-  ggsave(ggp + labs(title = name), filename = here("differential_expression","plots",filename))
-})
-
-
-## no_deconvo vs. deconvo terms
-
-t_stats_ilr <-  t_stats %>% 
-  select(!contains("prop"))
-
-t_stats_ilr2 <-  t_stats_ilr %>% select(!contains("adj.P")) %>%
-  pivot_longer(cols = contains("ilr"), names_to = "term", values_to = "deconvo.t") %>%
-  separate(term, into = c("term","method"), extra = "drop") %>%
-  left_join(t_stats_ilr %>% select(!contains(".t")) %>%
-              pivot_longer(cols = contains("ilr"), names_to = "term", values_to = "deconvo.adj.P.Val") %>%
-              separate(term, into = c("term","method"), extra = "drop"))
-
-t_stats_ilr3 <- t_stats_ilr2 %>% 
-    mutate(Signif = case_when(no_deconvo.adj.P.Val < 0.05 & deconvo.adj.P.Val < 0.05 ~"sig_Both",
-                              no_deconvo.adj.P.Val < 0.05 ~ "sig_no-deconvo",
-                              deconvo.adj.P.Val < 0.05 ~ "sig_deconvo-ilr",
-                              TRUE ~ "None")) %>%
-  left_join(deconvo_coef %>% select(- coef_prop))
-
-t_stats_ilr3 %>% group_by(Region, coef, method) %>% count(Signif) %>% filter(Signif != "None")
-
-
-ilr_plot <- t_stats_ilr3 %>% 
-  ggplot(aes(x = no_deconvo.t, y = deconvo.t)) +
-  facet_grid(Region + coef ~ method)
-
-ggsave(ilr_plot + geom_point(aes(color = Signif), alpha = 0.5, size = 0.5) +
-         ilr_plot + geom_point(aes(color = coef_ilr), alpha = 0.5, size = 0.5), 
-       filename = here("differential_expression","plots","ilr_plots.png"), width = 15)
-
-## prop
-t_stats_prop <- t_stats %>% 
-  select(!contains("ilr"))
-
-t_stats_prop2 <-  t_stats_prop %>% 
-  select(!contains("ilr")) %>% 
-  select(!contains("adj.P")) %>%
-  pivot_longer(cols = contains("prop"), names_to = "term", values_to = "deconvo.t") %>%
-  separate(term, into = c("term","method"), extra = "drop") %>%
-  left_join(t_stats_prop %>% select(!contains(".t")) %>%
-              pivot_longer(cols = contains("prop"), names_to = "term", values_to = "deconvo.adj.P.Val") %>%
-              separate(term, into = c("term","method"), extra = "drop"))
-
-t_stats_prop3 <- t_stats_prop2 %>% 
-  mutate(Signif = case_when(no_deconvo.adj.P.Val < 0.05 & deconvo.adj.P.Val < 0.05 ~"sig_Both",
-                            no_deconvo.adj.P.Val < 0.05 ~ "sig_no-deconvo",
-                            deconvo.adj.P.Val < 0.05 ~ "sig_deconvo-prop",
-                            TRUE ~ "None")) %>%
-  left_join(deconvo_coef %>% select(- coef_ilr))
-
-
-prop_plot <- t_stats_prop3 %>% 
-  ggplot(aes(x = no_deconvo.t, y = deconvo.t)) +
-  facet_grid(Region + coef ~ method)
-
-ggsave(prop_plot + geom_point(aes(color = Signif), alpha = 0.5, size = 0.5) +
-         prop_plot + geom_point(aes(color = coef_prop), alpha = 0.5, size = 0.5) +scale_color_manual(values = cell_colors), 
-       filename = here("differential_expression","plots","prop_plots.png"), width = 15)
-
 
 #### Find Significant rows ####
 dx_test <- c(ctrl = "q_PrimaryDxControl", bp = "q_PrimaryDxBipolar")
@@ -200,46 +66,46 @@ sigTx_sACC_BP = outTx_sACC$gene_id[outTx_sACC$q_PrimaryDxBipolar < 0.05]
 
 de_venn <- function(in_list, fn){
   full_fn = here("differential_expression","venns",paste0(fn,".png"))
-  
 
-  venn.diagram(in_list, 
+
+  venn.diagram(in_list,
                fill = c("slateblue", "skyblue3"), main="", main.pos = c(.5, .05), cat.cex = 1.9, cex=3,
                margin = .1, imagetype="png",  filename = full_fn)
-} 
+}
 
 de_venn(map(sigGene, ~pluck(.x, "ctrl")), fn = "venn_fdr05_gene_mddVSctrl")
 de_venn(map(sigGene, ~pluck(.x, "bp")), fn = "venn_fdr05_gene_mddVSbip")
 
 ## gene
-venn.diagram(list(Amygdala = sigGene_Amyg_Cnt, sACC = sigGene_sACC_Cnt ), 
+venn.diagram(list(Amygdala = sigGene_Amyg_Cnt, sACC = sigGene_sACC_Cnt ),
              fill = c("slateblue", "skyblue3"), main="", main.pos = c(.5, .05), cat.cex = 1.9, cex=3,
              margin = .1, imagetype="png",  filename = "venns/venn_fdr05_gene_mddVScnt.png")
 
-venn.diagram(list(Amygdala = sigGene_Amyg_BP, sACC = sigGene_sACC_BP ), 
+venn.diagram(list(Amygdala = sigGene_Amyg_BP, sACC = sigGene_sACC_BP ),
              fill = c("slateblue", "skyblue3"), main="", main.pos = c(.5, .05), cat.cex = 1.9, cex=3,
              margin = .1, imagetype="png",  filename = "venns/venn_fdr05_gene_mddVSbip.png")
 
 ## exon
-venn.diagram(list(Amygdala = sigExon_Amyg_Cnt, sACC = sigExon_sACC_Cnt ), 
+venn.diagram(list(Amygdala = sigExon_Amyg_Cnt, sACC = sigExon_sACC_Cnt ),
              fill = c("slateblue", "skyblue3"), main="", main.pos = c(.5, .05), cat.cex = 1.9, cex=3,
              margin = .1, imagetype="png",  filename = "venns/venn_fdr05_exon_mddVScnt.png")
-venn.diagram(list(Amygdala = sigExon_Amyg_BP, sACC = sigExon_sACC_BP ), 
+venn.diagram(list(Amygdala = sigExon_Amyg_BP, sACC = sigExon_sACC_BP ),
              fill = c("slateblue", "skyblue3"), main="", main.pos = c(.5, .05), cat.cex = 1.9, cex=3,
              margin = .1, imagetype="png",  filename = "venns/venn_fdr05_exon_mddVSbip.png")
 
 ## jxn
-venn.diagram(list(Amygdala = sigJxn_Amyg_Cnt, sACC = sigJxn_sACC_Cnt ), 
+venn.diagram(list(Amygdala = sigJxn_Amyg_Cnt, sACC = sigJxn_sACC_Cnt ),
              fill = c("slateblue", "skyblue3"), main="", main.pos = c(.5, .05), cat.cex = 1.9, cex=3,
              margin = .1, imagetype="png",  filename = "venns/venn_fdr05_jxn_mddVScnt.png")
-venn.diagram(list(Amygdala = sigJxn_Amyg_BP, sACC = sigJxn_sACC_BP ), 
+venn.diagram(list(Amygdala = sigJxn_Amyg_BP, sACC = sigJxn_sACC_BP ),
              fill = c("slateblue", "skyblue3"), main="", main.pos = c(.5, .05), cat.cex = 1.9, cex=3,
              margin = .1, imagetype="png",  filename = "venns/venn_fdr05_jxn_mddVSbip.png")
 
 ## tx
-venn.diagram(list(Amygdala = sigTx_Amyg_Cnt, sACC = sigTx_sACC_Cnt ), 
+venn.diagram(list(Amygdala = sigTx_Amyg_Cnt, sACC = sigTx_sACC_Cnt ),
              fill = c("slateblue", "skyblue3"), main="", main.pos = c(.5, .05), cat.cex = 1.9, cex=3,
              margin = .1, imagetype="png",  filename = "venns/venn_fdr05_tx_mddVScnt.png")
-venn.diagram(list(Amygdala = sigTx_Amyg_BP, sACC = sigTx_sACC_BP ), 
+venn.diagram(list(Amygdala = sigTx_Amyg_BP, sACC = sigTx_sACC_BP ),
              fill = c("slateblue", "skyblue3"), main="", main.pos = c(.5, .05), cat.cex = 1.9, cex=3,
              margin = .1, imagetype="png",  filename = "venns/venn_fdr05_tx_mddVSbip.png")
 
@@ -254,7 +120,7 @@ sACC_Bp = c(sigGene_sACC_BP, sigExon_sACC_BP, sigJxn_sACC_BP, sigTx_sACC_BP)
 venn.diagram(list(Amygdala = Amyg_Cnt, sACC = sACC_Cnt ),
              fill = c("slateblue", "skyblue3"), main="", main.pos = c(.5, .05), cat.cex = 1.9, cex=3,
              margin = .1, imagetype="png",  filename = "venns/venn_fdr05_uniquegenes4feat_mddVScnt.png")
-venn.diagram(list(Amygdala = Amyg_Bp, sACC = sACC_Bp ), 
+venn.diagram(list(Amygdala = Amyg_Bp, sACC = sACC_Bp ),
              fill = c("slateblue", "skyblue3"), main="", main.pos = c(.5, .05), cat.cex = 1.9, cex=3,
              margin = .1, imagetype="png",  filename = "venns/venn_fdr05_uniquegenes4feat_mddVSbip.png")
 
@@ -306,7 +172,7 @@ moduleGeneList = lapply(moduleGeneList, function(x) x[!is.na(x)])
 names(moduleGeneList) = c("CNT>MDD","CNT<MDD")
 
 map_int(moduleGeneList, length)
-# CNT>MDD CNT<MDD 
+# CNT>MDD CNT<MDD
 # 494     497
 
 geneUniverse = as.character(outGene_sACC$EntrezID)
@@ -404,8 +270,8 @@ moduleGeneList = lapply(moduleGeneList, function(x) x[!is.na(x)])
 names(moduleGeneList) = c("CNT>MDD","CNT<MDD")
 
 map_int(moduleGeneList, length)
-# CNT>MDD CNT<MDD 
-# 121      71 
+# CNT>MDD CNT<MDD
+# 121      71
 
 geneUniverse = as.character(outGene_Amyg$EntrezID)
 geneUniverse = geneUniverse[!is.na(geneUniverse)]
