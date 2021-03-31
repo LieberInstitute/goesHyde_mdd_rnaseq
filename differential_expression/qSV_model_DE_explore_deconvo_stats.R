@@ -37,6 +37,10 @@ names(sig_colors) <- c("sig_Both", "sig_no-deconvo", "sig_deconvo", "None")
 
 n_gene <- nrow(gene_topTables$sacc$no_deconvo)
 
+## find critical values
+df <- table(rse_gene$BrainRegion) -1
+crit_t <- map_dfr(df, ~qt(1-0.05/2, .x))
+  
 compare_stats <- function(stat_data, term, other_term ,stat = ".F", p_col = ".adj.P"){
   stat_data <- stat_data %>% select(!contains(other_term))
   
@@ -69,6 +73,7 @@ outGene_F_stats <- map(gene_topTables, function(dx){
   })
 
 head(outGene_F_stats$sacc)
+dim(outGene_F_stats$sacc)
 ## GGpairs 
 f_plot <- map(outGene_F_stats, ~ggpairs(.x, columns = colnames(.x)[grepl(".F", colnames(.x))],
                                 lower = list(continuous = wrap("smooth", alpha = 0.1, size=0.1, color = "blue"))))
@@ -84,30 +89,49 @@ F_stats <- outGene_F_stats2 %>%
   as_tibble() %>%
   separate(data, into = c("Region","Gene"), extra = "merge") 
 
+F_stats_ilr <- compare_stats(F_stats, term = "ilr", other_term = "prop")
+F_stats_ilr %>% count(Region, method, Signif)
 
 F_stats_prop <- compare_stats(F_stats, term = "prop", other_term = "ilr")
 F_stats_prop %>% count(Region, method, Signif)
 
-F_stats_ilr <- compare_stats(F_stats, term = "ilr", other_term = "prop")
-F_stats_ilr %>% count(Region, method, Signif)
+F_stats_deconvo <- list(ilr = F_stats_ilr, prop = F_stats_prop)
 
+F_stats_limits <- map(F_stats_deconvo, ~ .x %>% 
+  mutate(signif = cut(deconvo.adj.P.Val, breaks = c(1, 0.05, 0.01, 0),
+                      labels = c("<= 0.01", "<= 0.05", "> 0.05"))) %>%
+  filter(signif != "> 0.05") %>%
+  group_by(signif, Region, method) %>%
+  summarize(min_F = min(deconvo.F))
+)
 
-F_stats_prop_scatter <- ggplot(F_stats_prop, aes(x= no_deconvo.F, deconvo.F, color = Signif)) +
-  geom_point(aes(color = Signif), alpha = 0.5, size = 0.5) +
-  facet_grid(method ~ Region) +
-  scale_color_manual(values = sig_colors)
+F_stats_limits_nd <- F_stats %>% 
+  select(Region, Gene, no_deconvo.F, no_deconvo.adj.P.Val)%>% 
+  mutate(signif = cut(no_deconvo.adj.P.Val, breaks = c(1, 0.05, 0.01, 0),
+                              labels = c("<= 0.01", "<= 0.05", "> 0.05"))) %>%
+  filter(signif != "> 0.05") %>%
+  group_by(signif, Region) %>%
+  summarize(min_F = min(no_deconvo.F))
 
-ggsave(F_stats_prop_scatter, filename = here("differential_expression","plots","F-stats_signif-prop.png"), width = 10)
+pwalk(list(f = F_stats_deconvo, l = F_stats_limits, n = names(F_stats_limits)),
+      function(f, l, n){
+        message(paste0("F-stats_signif-",n,".png"))
+        F_stats_prop_scatter <- ggplot(f, aes(x= no_deconvo.F, deconvo.F, color = Signif)) +
+          geom_hline(data = l, aes(yintercept = min_F, linetype = signif))+
+          geom_vline(data = F_stats_limits_nd, aes(xintercept = min_F, linetype = signif))+
+          geom_point(aes(color = Signif), alpha = 0.5, size = 0.5) +
+          facet_grid(method ~ Region) +
+          scale_color_manual(values = sig_colors)
+        
+        ggsave(F_stats_prop_scatter, 
+               filename = here("differential_expression","plots",paste0("F-stats_signif-",n,".png")),
+               width = 10)
+        
+      })
 
-F_stats_ilr_scatter <- ggplot(F_stats_ilr, aes(x= no_deconvo.F, deconvo.F, color = Signif)) +
-  geom_point(aes(color = Signif), alpha = 0.5, size = 0.5) +
-  facet_grid(method ~ Region) +
-  scale_color_manual(values = sig_colors)
-
-ggsave(F_stats_ilr_scatter, filename = here("differential_expression","plots","F-stats_signif-ilr.png"), width = 10)
-
+#### T-statas ####
 ## compare t stats for each dx coefficent from model with & w/o ILR terms
-stat_cols <- c("t","adj.P.Val")
+
 outGene_t_stats <- map(outGene_single_coef, function(region){
   dx_stats <- map(region, function(dx){
     stats <- do.call("cbind",dx)
@@ -165,13 +189,39 @@ t_stats_deconvo = list(ilr = t_stats_ilr %>% left_join(deconvo_coef %>% select(-
 
 # save(t_stats, t_stats_ilr, t_stats_prop, file = here("differential_expression","data","t_stats_tables.Rdata"))
 
+t_stats_limits <- map(t_stats_deconvo, ~ .x %>% 
+                        mutate(signif = cut(deconvo.adj.P.Val, breaks = c(1, 0.05, 0.01, 0),
+                                            labels = c("<= 0.01", "<= 0.05", "> 0.05"))) %>%
+                        filter(signif != "> 0.05") %>%
+                        group_by(signif,coef,method, Region) %>%
+                        summarize(min_t = min(abs(deconvo.t)))%>%
+                        mutate(min_t_n = -min_t) %>%
+                        pivot_longer(cols = c("min_t", "min_t_n"), values_to = "deconvo.t")
+)
+
+t_stats_limits_nd <- t_stats %>% 
+  select(Region, Gene, no_deconvo.t, no_deconvo.adj.P.Val)%>% 
+  mutate(signif = cut(no_deconvo.adj.P.Val, breaks = c(1, 0.05, 0.01, 0),
+                      labels = c("<= 0.01", "<= 0.05", "> 0.05"))) %>%
+  filter(signif != "> 0.05") %>%
+  group_by(signif,Region) %>%
+  summarize(min_t = min(abs(no_deconvo.t))) %>%
+  mutate(min_t_n = -min_t) %>%
+  pivot_longer(cols = c("min_t", "min_t_n"), values_to = "no_deconvo.t")
+
+
+
+
 #### t-stats Plots ####
 ## simple
-walk2(t_stats_deconvo, names(t_stats_deconvo), function(data, name){
+pwalk(list(t = t_stats_deconvo, l = t_stats_limits, name = names(t_stats_deconvo)), 
+           function(t, l, name){
   
-  simple_t_plot <- data %>%
+  simple_t_plot <- t %>%
     mutate(alpha = Signif != "None") %>%
     ggplot(aes(x = no_deconvo.t, y = deconvo.t)) +
+    geom_hline(data = l, aes(yintercept =  deconvo.t, linetype = signif))+
+    geom_vline(data = t_stats_limits_nd, aes(xintercept =  no_deconvo.t, linetype = signif))+
     geom_point(aes(color = Signif, alpha = alpha), size = 0.5) +
     facet_grid(method ~ Region + coef) +
     scale_color_manual(values = sig_colors)
