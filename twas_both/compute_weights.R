@@ -40,10 +40,8 @@ stopifnot(opt$feature %in% c("gene"))
 rse_file <- file.path(paste0(opt$region, "_", opt$feature), "subsetted_rse.RData") # can't make .Rdata
 stopifnot(file.exists(rse_file))
 
-
 ## Change to the wd
 setwd(file.path(paste0(opt$region, "_", opt$feature)))
-
 
 ## Create the bim files with half the cores used for the later stage
 ## to reduce memory blow up
