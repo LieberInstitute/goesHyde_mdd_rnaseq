@@ -1,0 +1,3 @@
+[submodule "predixcan_pipeline/MetaXcan"]
+	path = predixcan_pipeline/MetaXcan
+	url = https://github.com/hakyimlab/MetaXcan.git
