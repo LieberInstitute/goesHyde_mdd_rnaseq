@@ -80,6 +80,7 @@ stopifnot(length(rdat_files) == sum(output_status))
 
 wglist <- paste0(opt$region, "_", opt$feature, ".list")
 write.table(rdat_files, file = wglist, row.names = FALSE, col.names = FALSE, quote = FALSE)
+# Rscript /jhpce/shared/jhpce/libd/fusion_twas/github/fusion_twas/utils/FUSION.profile_wgt.R Amygdala_gene.list > Amygdala_gene.profile.err 2>&1
 system(paste0("Rscript /jhpce/shared/jhpce/libd/fusion_twas/github/fusion_twas/utils/FUSION.profile_wgt.R ", wglist, " > ", opt$region, "_", opt$feature, ".profile.err 2>&1"))
 ## Rename the wglist_summary.txt file to keep the naming convention consistent
 system(paste0("mv wglist_summary.txt ", opt$region, "_", opt$feature, ".profile"))

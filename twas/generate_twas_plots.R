@@ -8,6 +8,7 @@ library(sessioninfo)
 library(SummarizedExperiment)
 library(ggpubr)
 library(tools)
+library(xlsx)
 
 data.table::setDTthreads(threads = 1)
 
@@ -204,7 +205,9 @@ twas_z_wide$FDR.5perc[twas_z_wide$Amygdala.fdr.p < 0.05 &
                           twas_z_wide$sACC.fdr.p < 0.05] <- 'Both'
 
 # Remove NAs
-twas_z_wide[is.na(twas_z_wide)] <- 0
+# twas_z_wide[is.na(twas_z_wide)] <- 0
+twas_z_wide <- twas_z_wide[twas_z_wide$in_both,]
+
 
 twas_z_wide$FDR.5perc <-
     factor(twas_z_wide$FDR.5perc,
@@ -335,18 +338,17 @@ if (FALSE) {
         theme_bw(base_size = 20)
     
     dev.off()
-    
-    # XLSX Output ####
-    
-    # xlsx does not work with conda_R/4.0, needs 4.0.x
-    save(
-        twas_z_amyg_threshold,
-        twas_z_sACC_threshold,
-        twas_z_wide,
-        merged_t,
-        "rda/xlsx_output.RData"
-    )
 }
+
+# XLSX Output ####
+write.xlsx2(x = twas_z_amyg_threshold, file = "analysis/tables/MDD_Amyg_sACC_FinalOutputTable.xlsx", sheetName = "Significant TWAS Z Scores in Amygdala", col.names = TRUE, row.names = FALSE, append = FALSE)
+
+write.xlsx2(x = twas_z_sACC_threshold, file = "analysis/tables/MDD_Amyg_sACC_FinalOutputTable.xlsx", sheetName = "Significant TWAS Z Scores in sACC", col.names = TRUE, row.names = FALSE, append = TRUE)
+
+write.xlsx2(x = twas_z_wide, file = "analysis/tables/MDD_Amyg_sACC_FinalOutputTable.xlsx", sheetName = "TWAS Z Scatterplot with FDR and P-Values for Both Regions", col.names = TRUE, row.names = FALSE, append = TRUE)
+
+# write.xlsx2(x = merged_t, file = "analysis/tables/MDD_Amyg_sACC_FinalOutputTable.xlsx", sheetName = "TWAS vs MDD Differential Expression in Both Regions", col.names = TRUE, row.names = FALSE, append = TRUE)
+
 # for enrichment test
 save.image("rda/generate_plots_data.RData")
 
