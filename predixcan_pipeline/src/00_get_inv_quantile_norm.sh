@@ -25,6 +25,9 @@ module use /jhpce/shared/jhpce/modulefiles/libd
 Rscript 00_prepare_gene_expression.R
 
 vcf="../genotype_data/topmed_mdd_602sample_090120_maf005.vcf.gz"
+tpm_gct="../processed-data/tpm.gct"
+counts_gct="../processed-data/gene_counts.gct"
+annotation_gtf="dcl01/lieber/ajaffe/Emily/RNAseq-pipeline/Annotation/GENCODE/GRCh38_hg38/gencode.v25.annotationGRCh38.gtf"
 
 tabix --list-chroms ${vcf} > "../processed-data/vcf_chr_list.txt"
 
