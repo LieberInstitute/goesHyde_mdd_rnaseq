@@ -1,6 +1,6 @@
 # PredictDB-LIBD
 
-05/03/2021
+## 05/03/2021
 
 I'm going to be honest, it's a bit confusing, but I'm going to try to catalog my thoughts and basic understanding of this PredictDB pipeline in here.
 
@@ -12,7 +12,7 @@ There are a few relevant repos:
 
 There is also a write-up in a Google Groups page:
 
-https://groups.google.com/g/predixcanmetaxcan/c/TkBxYkUpNGw/m/Q_mMApRtCQAJ 
+https://groups.google.com/g/predixcanmetaxcan/c/TkBxYkUpNGw/m/Q_mMApRtCQAJ
 
 which is regarding this repo: https://github.com/hakyimlab/PredictDB_Pipeline_GTEx_v7
 
@@ -53,7 +53,7 @@ We used psychENCODE so we should definitely change it.
 Genotype data:
 ```
 varID           IND1 IND2  IND3 ...
-1_54421_A_G_b37 1    0     0    ... 
+1_54421_A_G_b37 1    0     0    ...
 ```
 
 > There must be companion variant annotation files. They are text files with the following format:
@@ -64,3 +64,6 @@ chromosome pos    varID            ref_vcf alt_vcf R2                 MAF     rs
 1          566875 1_566875_C_T_b37 C       T       0.9747600000000001 0.03085 rs2185539 rs2185539
 ```
 
+## 05/05/2021
+
+Again, for this pipeline, it looks like 
