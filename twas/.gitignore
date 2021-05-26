@@ -7,3 +7,7 @@ PGC_UKB_23andMe_depression_genome-wide_HIST.pdf
 .apply_weights_full_sACC_gene_pgc.sh
 filter_data/*
 Amygdala_gene/*
+logs/*
+rda/
+sACC_gene/
+trash/
