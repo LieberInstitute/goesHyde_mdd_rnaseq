@@ -1,1 +1,9 @@
 logs/*_gene/
+PGC_UKB_23andMe_depression_genome-wide_CLEAN_hg38.txt
+PGC_UKB_23andMe_depression_genome-wide_HIST.pdf
+.apply_weights_full_amygdala_gene_pgc.sh
+.apply_weights_full_Amygdala_gene_pgc.sh
+.apply_weights_full_sacc_gene_pgc.sh
+.apply_weights_full_sACC_gene_pgc.sh
+filter_data/*
+Amygdala_gene/*
