@@ -80,7 +80,7 @@ setkey(libd_fam, "brnumerical")
 message(paste(Sys.time(), "processing", opt$region))
 samp_file <- paste0("samples_to_extract_", opt$region, ".txt")
 
-## Which NAc samples have genotype data and MDS data?
+## Which samples have genotype data and MDS data?
 samples_in_all <- intersect(
     intersect(brnumerical(rse_gene$BrNum), libd_fam$brnumerical),
     brnumerical(rownames(mds))

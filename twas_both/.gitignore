@@ -1,0 +1,8 @@
+.apply_weights_full_*
+Amygdala_gene/*
+PGC_UKB_23andMe_depression_genome-wide_*
+rda/*
+sACC_gene/*
+trash/*
+filter_data/*
+logs/
