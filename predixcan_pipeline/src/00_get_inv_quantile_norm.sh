@@ -31,6 +31,9 @@ annotation_gtf="dcl01/lieber/ajaffe/Emily/RNAseq-pipeline/Annotation/GENCODE/GRC
 
 tabix --list-chroms ${vcf} > "../processed-data/vcf_chr_list.txt"
 
+# adding normalization script from gtex-pipeline: https://github.com/broadinstitute/gtex-pipeline/tree/master/qtl
+wget https://raw.githubusercontent.com/broadinstitute/gtex-pipeline/master/qtl/src/eqtl_prepare_expression.py
+
 eqtl_prepare_expression.py ${tpm_gct} ${counts_gct} ${annotation_gtf} \
     ${sample_participant_lookup} vcf_chr_list.txt ${prefix} \
     --tpm_threshold 0.1 \
