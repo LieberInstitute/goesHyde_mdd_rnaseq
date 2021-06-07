@@ -14,11 +14,20 @@ load(here::here("exprs_cutoff", "rse_gene.Rdata"))
 
 gene_es <- as(rse_gene, "ExpressionSet")
 
-assays(rse_gene)$counts <- getTPM(rse_gene, length_var = "Length", mapped_var = NULL)
+assays(rse_gene)$counts <-
+    getTPM(rse_gene, length_var = "Length", mapped_var = NULL)
 
 tpm <- as(rse_gene, "ExpressionSet")
 
-vcf_samp <- readLines(here::here("predixcan_pipeline", "processed-data", "01_get_inv_quantile_norm", "vcf_samples.txt"))
+vcf_samp <-
+    readLines(
+        here::here(
+            "predixcan_pipeline",
+            "processed-data",
+            "01_get_inv_quantile_norm",
+            "vcf_samples.txt"
+        )
+    )
 
 # all TRUE
 # colData(rse_gene)$genoSample[colData(rse_gene)$genoSample %in% vcf_samp]
@@ -47,36 +56,104 @@ vcf_samp <- readLines(here::here("predixcan_pipeline", "processed-data", "01_get
 # }
 
 samp_part_olap <- intersect(colData(rse_gene)$genoSample, vcf_samp)
-write.table(samp_part_olap, quote=FALSE, row.names = FALSE, file = here::here("predixcan_pipeline", "processed-data", "01_get_inv_quantile_norm","samp_sort.txt"))
+write.table(
+    samp_part_olap,
+    quote = FALSE,
+    row.names = FALSE,
+    file = here::here(
+        "predixcan_pipeline",
+        "processed-data",
+        "01_get_inv_quantile_norm",
+        "samp_sort.txt"
+    )
+)
 
-system(paste(
-        "plink --bfile", bim_file, "--extract", filt_snp,
-        "--make-bed --out", filt_bim, "--memory 5000 --threads 1 --silent"
-    ))
+# plink --bfile [original fileset] --indiv-sort f [file describing new order] --make-bed --out [new prefix]
+# Should I use PLINK to filter the VCF first? What did KJ say, Hardy-Weinberg? maf? I feel like I should do this
+# on the original VCF. Ask Josh.
+
+system(
+    paste(
+        "plink --bfile",
+        here::here(
+            "genotype_data",
+            "topmed_mdd_602sample_090120_maf005.vcf.gz"
+        ),
+        "--indiv-sort f",
+        here::here(
+            "predixcan_pipeline",
+            "processed-data",
+            "01_get_inv_quantile_norm",
+            "samp_sort.txt"
+        ),
+        "--make-bed --out",
+        here::here(
+            "predixcan_pipeline",
+            "processed-data",
+            "01_get_inv_quantile_norm",
+            "topmed_mdd_602sample_090120_maf005_sorted"
+        ),
+        "--memory 5000 --threads 1 --silent"
+    )
+)
 
 # lifted from https://rdrr.io/github/ctlab/phantasus/src/R/utils.R
-write.gct <- function(es, file, gzip=FALSE) {
-  if (gzip) {
-    con <- gzfile(file)
-  } else {
-    con <- file(file)
-  }
-  open(con, open="w")
-  writeLines("#1.3", con)
-  ann.col <- ncol(pData(es))
-  ann.row <- ncol(fData(es))
-  writeLines(sprintf("%s\t%s\t%s\t%s", nrow(es), ncol(es), ann.row, ann.col), con)
-  writeLines(paste0(c("ID", colnames(fData(es)), colnames(es)), collapse="\t"), con)
+write.gct <- function(es, file, gzip = FALSE) {
+    if (gzip) {
+        con <- gzfile(file)
+    } else {
+        con <- file(file)
+    }
+    open(con, open = "w")
+    writeLines("#1.3", con)
+    ann.col <- ncol(pData(es))
+    ann.row <- ncol(fData(es))
+    writeLines(sprintf("%s\t%s\t%s\t%s", nrow(es), ncol(es), ann.row, ann.col),
+               con)
+    writeLines(paste0(c("ID", colnames(fData(
+        es
+    )), colnames(es)), collapse = "\t"), con)
 
-  ann.col.table <- t(as.matrix(pData(es)))
-  ann.col.table <- cbind(matrix(rep(NA, ann.row*ann.col), nrow=ann.col), ann.col.table)
-  write.table(ann.col.table, file=con, quote=FALSE, sep="\t", row.names=TRUE, col.names=FALSE)
-  write.table(cbind(fData(es), exprs(es)), file=con, quote=FALSE, sep="\t", row.names=TRUE, col.names=FALSE)
-  close(con)
+    ann.col.table <- t(as.matrix(pData(es)))
+    ann.col.table <-
+        cbind(matrix(rep(NA, ann.row * ann.col), nrow = ann.col), ann.col.table)
+    write.table(
+        ann.col.table,
+        file = con,
+        quote = FALSE,
+        sep = "\t",
+        row.names = TRUE,
+        col.names = FALSE
+    )
+    write.table(
+        cbind(fData(es), exprs(es)),
+        file = con,
+        quote = FALSE,
+        sep = "\t",
+        row.names = TRUE,
+        col.names = FALSE
+    )
+    close(con)
 }
 
-write.gct(gene_es, here::here("predixcan_pipeline", "processed-data", "01_get_inv_quantile_norm", "gene_counts.gct"))
-write.gct(tpm, here::here("predixcan_pipeline", "processed-data", "01_get_inv_quantile_norm", "tpm.gct"))
+write.gct(
+    gene_es,
+    here::here(
+        "predixcan_pipeline",
+        "processed-data",
+        "01_get_inv_quantile_norm",
+        "gene_counts.gct"
+    )
+)
+write.gct(
+    tpm,
+    here::here(
+        "predixcan_pipeline",
+        "processed-data",
+        "01_get_inv_quantile_norm",
+        "tpm.gct"
+    )
+)
 
 ## Reproducibility information
 print('Reproducibility information:')
