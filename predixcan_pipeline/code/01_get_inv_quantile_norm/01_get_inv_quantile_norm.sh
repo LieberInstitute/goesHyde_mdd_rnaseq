@@ -31,6 +31,11 @@ ml conda_R/4.1
 module use /jhpce/shared/jhpce/modulefiles/libd
 # TODO vcf might not be filtered enough - Hardy-Weinberg, 0.1%, too many SNPs, may need to filter eventually
 # Make sure if they recommend using SNPs not in LD - may prune out SNPs in LD
+
+# PLINK flag that sorts vcfs
+# https://www.cog-genomics.org/plink/1.9/data#indiv_sort
+# https://www.biostars.org/p/103945/
+
 vcf="../genotype_data/topmed_mdd_602sample_090120_maf005.vcf.gz" # get more info about this - ask Josh?
 
 # Sample IDs in the VCF, GCTs and sample lookup MUST BE IN SAME ORDER
