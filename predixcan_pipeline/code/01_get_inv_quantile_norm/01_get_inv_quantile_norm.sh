@@ -29,13 +29,17 @@ ml bcftools
 ml conda_R/4.1
 
 module use /jhpce/shared/jhpce/modulefiles/libd
+# TODO vcf might not be filtered enough - Hardy-Weinberg, 0.1%, too many SNPs, may need to filter eventually
+# Make sure if they recommend using SNPs not in LD - may prune out SNPs in LD
+vcf="../genotype_data/topmed_mdd_602sample_090120_maf005.vcf.gz" # get more info about this - ask Josh?
 
-vcf="../genotype_data/topmed_mdd_602sample_090120_maf005.vcf.gz"
-tpm_gct="processed-data/tpm.gct"
-counts_gct="processed-data/gene_counts.gct"
+# Sample IDs in the VCF, GCTs and sample lookup MUST BE IN SAME ORDER
+tpm_gct="processed-data/01_get_inv_quantile_norm/tpm.gct"
+counts_gct="processed-data/01_get_inv_quantile_norm/gene_counts.gct"
 annotation_gtf="/dcl01/lieber/ajaffe/Emily/RNAseq-pipeline/Annotation/GENCODE/GRCh38_hg38/gencode.v25.annotationGRCh38.gtf"
 prefix="goesHyde_mdd_rnaseq_"
 vcf_chr_list="processed-data/01_get_inv_quantile_norm/vcf_chr_list.txt"
+sample_participant_lookup="processed-data/01_get_inv_quantile_norm/samp_part_lookup.txt"
 
 bcftools query -l ${vcf} > "processed-data/01_get_inv_quantile_norm/vcf_samples.txt"
 

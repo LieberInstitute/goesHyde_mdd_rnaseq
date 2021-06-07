@@ -23,6 +23,14 @@ vcf_samp <- readLines(here::here("predixcan_pipeline", "processed-data", "01_get
 # unique(data.table(colData(rse_gene)$genoSample, colData(rse_gene)$genoSample))
 # data.table(unique(colData(rse_gene)$genoSample[colData(rse_gene)$genoSample %in% vcf_samp]), vcf_samp[vcf_samp %in% colData(rse_gene)$genoSample])
 
+# new_df = df[vcf_samp, ]
+
+# make one list of samples that have sample IDs in both the VCF and the expression and then reorder from there
+# PLINK should be able to reorder okay
+# you might have to make the vcf into a PLINK file before reordering but not necessary to copy the file
+
+# might as well throw in the filtering at that point (maf) ask Leo about this
+
 if(all(colData(rse_gene)$genoSample %in% vcf_samp)) {
   samp_lookup <- unique(data.table(colData(rse_gene)$genoSample, colData(rse_gene)$genoSample))
   colnames(samp_lookup) <- c("sample_id", "participant_id")
