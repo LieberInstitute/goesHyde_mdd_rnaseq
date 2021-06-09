@@ -11,6 +11,8 @@ library(magrittr)
 # setwd("/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/predixcan_pipeline")
 # cd /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/predixcan_pipeline
 
+## Sorting VCF ####
+
 load(here::here("exprs_cutoff", "rse_gene.Rdata"))
 
 rse_ind_id <- unique(rse_gene$genoSample)
@@ -42,22 +44,6 @@ write.table(
         "samp_sort.txt"
     )
 )
-
-gene_es <- as(rse_gene, "ExpressionSet")
-
-assays(rse_gene)$counts <-
-    getTPM(rse_gene, length_var = "Length", mapped_var = NULL)
-
-tpm <- as(rse_gene, "ExpressionSet")
-
-
-# rse_gene$genoSample %in% vcf_samp
-# vcf_samp %in% rse_gene$genoSample
-
-# plink --bfile [original fileset] --indiv-sort f [file describing new order] --make-bed --out [new prefix]
-# Should I use PLINK to filter the VCF first? What did KJ say, Hardy-Weinberg? maf? I feel like I should do this
-# on the original VCF. Ask Josh.
-#
 
 # Reordering VCF samples
 system(
@@ -105,6 +91,33 @@ system(
     )
 )
 
+## Writing Sample-Participant Lookup ####
+
+samp_lookup <-
+    unique(data.table(intersect(rse_vcf_union, rse_gene$genoSample), intersect(rse_vcf_union, rse_gene$genoSample)))
+
+colnames(samp_lookup) <- c("sample_id", "participant_id")
+
+write.table(
+    samp_lookup,
+    quote = FALSE,
+    row.names = FALSE,
+    file = here::here(
+        "predixcan_pipeline",
+        "processed-data",
+        "01_get_inv_quantile_norm",
+        "samp_part_lookup.txt"
+    )
+)
+
+## Writing counts and normalized counts to GCT ####
+
+gene_es <- as(rse_gene, "ExpressionSet")
+
+assays(rse_gene)$counts <-
+    getTPM(rse_gene, length_var = "Length", mapped_var = NULL)
+
+tpm <- as(rse_gene, "ExpressionSet")
 
 # lifted from https://rdrr.io/github/ctlab/phantasus/src/R/utils.R
 write.gct <- function(es, file, gzip = FALSE) {
@@ -180,41 +193,41 @@ system("plink --version")
 # > Sys.time()
 # [1] "2021-06-09 16:03:38 EDT"
 # > proc.time()
-# user   system  elapsed 
-# 382.451  132.274 9304.897 
+# user   system  elapsed
+# 382.451  132.274 9304.897
 # > options(width = 120)
 # > sessioninfo::session_info()
 # ─ Session info ───────────────────────────────────────────────────────────────────────────────────────────────────────
-# setting  value                                      
+# setting  value
 # version  R version 4.1.0 Patched (2021-05-18 r80330)
-# os       CentOS Linux 7 (Core)                      
-# system   x86_64, linux-gnu                          
-# ui       X11                                        
-# language (EN)                                       
-# collate  en_US.UTF-8                                
-# ctype    en_US.UTF-8                                
-# tz       US/Eastern                                 
-# date     2021-06-09                                 
-# 
+# os       CentOS Linux 7 (Core)
+# system   x86_64, linux-gnu
+# ui       X11
+# language (EN)
+# collate  en_US.UTF-8
+# ctype    en_US.UTF-8
+# tz       US/Eastern
+# date     2021-06-09
+#
 # ─ Packages ───────────────────────────────────────────────────────────────────────────────────────────────────────────
-# package              * version  date       lib source        
-# AnnotationDbi          1.54.0   2021-05-19 [2] Bioconductor  
+# package              * version  date       lib source
+# AnnotationDbi          1.54.0   2021-05-19 [2] Bioconductor
 # assertthat             0.2.1    2019-03-21 [2] CRAN (R 4.1.0)
 # backports              1.2.1    2020-12-09 [2] CRAN (R 4.1.0)
 # base64enc              0.1-3    2015-07-28 [2] CRAN (R 4.1.0)
-# Biobase              * 2.52.0   2021-05-19 [2] Bioconductor  
-# BiocFileCache          2.0.0    2021-05-19 [2] Bioconductor  
-# BiocGenerics         * 0.38.0   2021-05-19 [2] Bioconductor  
-# BiocIO                 1.2.0    2021-05-19 [2] Bioconductor  
-# BiocParallel           1.26.0   2021-05-19 [2] Bioconductor  
-# biomaRt                2.48.0   2021-05-19 [2] Bioconductor  
-# Biostrings             2.60.1   2021-06-06 [2] Bioconductor  
+# Biobase              * 2.52.0   2021-05-19 [2] Bioconductor
+# BiocFileCache          2.0.0    2021-05-19 [2] Bioconductor
+# BiocGenerics         * 0.38.0   2021-05-19 [2] Bioconductor
+# BiocIO                 1.2.0    2021-05-19 [2] Bioconductor
+# BiocParallel           1.26.0   2021-05-19 [2] Bioconductor
+# biomaRt                2.48.0   2021-05-19 [2] Bioconductor
+# Biostrings             2.60.1   2021-06-06 [2] Bioconductor
 # bit                    4.0.4    2020-08-04 [2] CRAN (R 4.1.0)
 # bit64                  4.0.5    2020-08-30 [2] CRAN (R 4.1.0)
 # bitops                 1.0-7    2021-04-24 [2] CRAN (R 4.1.0)
 # blob                   1.2.1    2020-01-20 [2] CRAN (R 4.1.0)
-# BSgenome               1.60.0   2021-05-19 [2] Bioconductor  
-# bumphunter             1.34.0   2021-05-19 [2] Bioconductor  
+# BSgenome               1.60.0   2021-05-19 [2] Bioconductor
+# bumphunter             1.34.0   2021-05-19 [2] Bioconductor
 # cachem                 1.0.5    2021-05-15 [2] CRAN (R 4.1.0)
 # checkmate              2.0.0    2020-02-06 [2] CRAN (R 4.1.0)
 # cli                    2.5.0    2021-04-26 [2] CRAN (R 4.1.0)
@@ -226,14 +239,14 @@ system("plink --version")
 # data.table           * 1.14.0   2021-02-21 [2] CRAN (R 4.1.0)
 # DBI                    1.1.1    2021-01-15 [2] CRAN (R 4.1.0)
 # dbplyr                 2.1.1    2021-04-06 [2] CRAN (R 4.1.0)
-# DelayedArray           0.18.0   2021-05-19 [2] Bioconductor  
-# derfinder              1.26.0   2021-05-19 [2] Bioconductor  
-# derfinderHelper        1.26.0   2021-05-19 [2] Bioconductor  
+# DelayedArray           0.18.0   2021-05-19 [2] Bioconductor
+# derfinder              1.26.0   2021-05-19 [2] Bioconductor
+# derfinderHelper        1.26.0   2021-05-19 [2] Bioconductor
 # digest                 0.6.27   2020-10-24 [2] CRAN (R 4.1.0)
 # doRNG                  1.8.2    2020-01-27 [2] CRAN (R 4.1.0)
 # downloader             0.4      2015-07-09 [2] CRAN (R 4.1.0)
 # dplyr                  1.0.6    2021-05-05 [2] CRAN (R 4.1.0)
-# edgeR                * 3.34.0   2021-05-19 [2] Bioconductor  
+# edgeR                * 3.34.0   2021-05-19 [2] Bioconductor
 # ellipsis               0.3.2    2021-04-29 [2] CRAN (R 4.1.0)
 # fansi                  0.5.0    2021-05-25 [2] CRAN (R 4.1.0)
 # fastmap                1.1.0    2021-01-25 [2] CRAN (R 4.1.0)
@@ -242,13 +255,13 @@ system("plink --version")
 # foreign                0.8-81   2020-12-22 [3] CRAN (R 4.1.0)
 # Formula                1.2-4    2020-10-16 [2] CRAN (R 4.1.0)
 # generics               0.1.0    2020-10-31 [2] CRAN (R 4.1.0)
-# GenomeInfoDb         * 1.28.0   2021-05-19 [2] Bioconductor  
-# GenomeInfoDbData       1.2.6    2021-05-11 [2] Bioconductor  
-# GenomicAlignments      1.28.0   2021-05-19 [2] Bioconductor  
-# GenomicFeatures        1.44.0   2021-05-19 [2] Bioconductor  
-# GenomicFiles           1.28.0   2021-05-19 [2] Bioconductor  
-# GenomicRanges        * 1.44.0   2021-05-19 [2] Bioconductor  
-# GEOquery               2.60.0   2021-05-19 [2] Bioconductor  
+# GenomeInfoDb         * 1.28.0   2021-05-19 [2] Bioconductor
+# GenomeInfoDbData       1.2.6    2021-05-11 [2] Bioconductor
+# GenomicAlignments      1.28.0   2021-05-19 [2] Bioconductor
+# GenomicFeatures        1.44.0   2021-05-19 [2] Bioconductor
+# GenomicFiles           1.28.0   2021-05-19 [2] Bioconductor
+# GenomicRanges        * 1.44.0   2021-05-19 [2] Bioconductor
+# GEOquery               2.60.0   2021-05-19 [2] Bioconductor
 # ggplot2                3.3.3    2020-12-30 [2] CRAN (R 4.1.0)
 # glue                   1.4.2    2020-08-27 [2] CRAN (R 4.1.0)
 # gridExtra              2.3      2017-09-09 [2] CRAN (R 4.1.0)
@@ -260,20 +273,20 @@ system("plink --version")
 # htmltools              0.5.1.1  2021-01-22 [2] CRAN (R 4.1.0)
 # htmlwidgets            1.5.3    2020-12-10 [2] CRAN (R 4.1.0)
 # httr                   1.4.2    2020-07-20 [2] CRAN (R 4.1.0)
-# IRanges              * 2.26.0   2021-05-19 [2] Bioconductor  
+# IRanges              * 2.26.0   2021-05-19 [2] Bioconductor
 # iterators              1.0.13   2020-10-15 [2] CRAN (R 4.1.0)
 # jpeg                   0.1-8.1  2019-10-24 [2] CRAN (R 4.1.0)
 # jsonlite               1.7.2    2020-12-09 [2] CRAN (R 4.1.0)
-# KEGGREST               1.32.0   2021-05-19 [2] Bioconductor  
+# KEGGREST               1.32.0   2021-05-19 [2] Bioconductor
 # knitr                  1.33     2021-04-24 [2] CRAN (R 4.1.0)
 # lattice                0.20-44  2021-05-02 [3] CRAN (R 4.1.0)
 # latticeExtra           0.6-29   2019-12-19 [2] CRAN (R 4.1.0)
 # lifecycle              1.0.0    2021-02-15 [2] CRAN (R 4.1.0)
-# limma                * 3.48.0   2021-05-19 [2] Bioconductor  
+# limma                * 3.48.0   2021-05-19 [2] Bioconductor
 # locfit                 1.5-9.4  2020-03-25 [2] CRAN (R 4.1.0)
 # magrittr             * 2.0.1    2020-11-17 [2] CRAN (R 4.1.0)
 # Matrix                 1.3-4    2021-06-01 [3] CRAN (R 4.1.0)
-# MatrixGenerics       * 1.4.0    2021-05-19 [2] Bioconductor  
+# MatrixGenerics       * 1.4.0    2021-05-19 [2] Bioconductor
 # matrixStats          * 0.59.0   2021-06-01 [2] CRAN (R 4.1.0)
 # memoise                2.0.0    2021-01-26 [2] CRAN (R 4.1.0)
 # munsell                0.5.0    2018-06-12 [2] CRAN (R 4.1.0)
@@ -285,14 +298,14 @@ system("plink --version")
 # prettyunits            1.1.1    2020-01-24 [2] CRAN (R 4.1.0)
 # progress               1.2.2    2019-05-16 [2] CRAN (R 4.1.0)
 # purrr                  0.3.4    2020-04-17 [2] CRAN (R 4.1.0)
-# qvalue                 2.24.0   2021-05-19 [2] Bioconductor  
+# qvalue                 2.24.0   2021-05-19 [2] Bioconductor
 # R6                     2.5.0    2020-10-28 [2] CRAN (R 4.1.0)
 # rappdirs               0.3.3    2021-01-31 [2] CRAN (R 4.1.0)
 # RColorBrewer           1.1-2    2014-12-07 [2] CRAN (R 4.1.0)
 # Rcpp                   1.0.6    2021-01-15 [2] CRAN (R 4.1.0)
 # RCurl                  1.98-1.3 2021-03-16 [2] CRAN (R 4.1.0)
 # readr                  1.4.0    2020-10-05 [2] CRAN (R 4.1.0)
-# recount              * 1.18.0   2021-05-19 [2] Bioconductor  
+# recount              * 1.18.0   2021-05-19 [2] Bioconductor
 # rentrez                1.2.3    2020-11-10 [2] CRAN (R 4.1.0)
 # reshape2               1.4.4    2020-04-09 [2] CRAN (R 4.1.0)
 # restfulr               0.0.13   2017-08-06 [2] CRAN (R 4.1.0)
@@ -301,35 +314,35 @@ system("plink --version")
 # rngtools               1.5      2020-01-23 [2] CRAN (R 4.1.0)
 # rpart                  4.1-15   2019-04-12 [3] CRAN (R 4.1.0)
 # rprojroot              2.0.2    2020-11-15 [2] CRAN (R 4.1.0)
-# Rsamtools              2.8.0    2021-05-19 [2] Bioconductor  
+# Rsamtools              2.8.0    2021-05-19 [2] Bioconductor
 # RSQLite                2.2.7    2021-04-22 [2] CRAN (R 4.1.0)
 # rstudioapi             0.13     2020-11-12 [2] CRAN (R 4.1.0)
-# rtracklayer            1.52.0   2021-05-19 [2] Bioconductor  
-# S4Vectors            * 0.30.0   2021-05-19 [2] Bioconductor  
+# rtracklayer            1.52.0   2021-05-19 [2] Bioconductor
+# S4Vectors            * 0.30.0   2021-05-19 [2] Bioconductor
 # scales                 1.1.1    2020-05-11 [2] CRAN (R 4.1.0)
 # sessioninfo            1.1.1    2018-11-05 [2] CRAN (R 4.1.0)
 # stringi                1.6.2    2021-05-17 [2] CRAN (R 4.1.0)
 # stringr                1.4.0    2019-02-10 [2] CRAN (R 4.1.0)
-# SummarizedExperiment * 1.22.0   2021-05-19 [2] Bioconductor  
+# SummarizedExperiment * 1.22.0   2021-05-19 [2] Bioconductor
 # survival               3.2-11   2021-04-26 [3] CRAN (R 4.1.0)
 # tibble                 3.1.2    2021-05-16 [2] CRAN (R 4.1.0)
 # tidyr                  1.1.3    2021-03-03 [2] CRAN (R 4.1.0)
 # tidyselect             1.1.1    2021-04-30 [2] CRAN (R 4.1.0)
 # utf8                   1.2.1    2021-03-12 [2] CRAN (R 4.1.0)
-# VariantAnnotation      1.38.0   2021-05-19 [2] Bioconductor  
+# VariantAnnotation      1.38.0   2021-05-19 [2] Bioconductor
 # vctrs                  0.3.8    2021-04-29 [2] CRAN (R 4.1.0)
 # withr                  2.4.2    2021-04-18 [2] CRAN (R 4.1.0)
 # xfun                   0.23     2021-05-15 [2] CRAN (R 4.1.0)
 # XML                    3.99-0.6 2021-03-16 [2] CRAN (R 4.1.0)
 # xml2                   1.3.2    2020-04-23 [2] CRAN (R 4.1.0)
-# XVector                0.32.0   2021-05-19 [2] Bioconductor  
+# XVector                0.32.0   2021-05-19 [2] Bioconductor
 # yaml                   2.2.1    2020-02-01 [2] CRAN (R 4.1.0)
-# zlibbioc               1.38.0   2021-05-19 [2] Bioconductor  
-# 
+# zlibbioc               1.38.0   2021-05-19 [2] Bioconductor
+#
 # [1] /users/aseyedia/R/4.1
 # [2] /jhpce/shared/jhpce/core/conda/miniconda3-4.6.14/envs/svnR-4.1/R/4.1/lib64/R/site-library
 # [3] /jhpce/shared/jhpce/core/conda/miniconda3-4.6.14/envs/svnR-4.1/R/4.1/lib64/R/library
-# > 
+# >
 #     > message("-- plink version information --")
 # -- plink version information --
 #     > system("plink --version")
