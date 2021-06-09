@@ -1,1 +1,6 @@
 *txt
+*.bed
+*.bim
+*.fam
+*.nosex
+*.vcf
