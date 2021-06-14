@@ -36,12 +36,13 @@ prefix="goesHyde_mdd_rnaseq_"
 vcf_chr_list="processed-data/01_get_inv_quantile_norm/vcf_chr_list.txt"
 sample_participant_lookup="processed-data/01_get_inv_quantile_norm/samp_part_lookup.txt"
 
-bcftools query -l ${vcf} > "processed-data/01_get_inv_quantile_norm/vcf_samples.txt"
-
 Rscript code/01_get_inv_quantile_norm/01_prepare_gene_expression.R
 
-vcf="processed-data/01_get_inv_quantile_norm/topmed_mdd_602sample_090120_maf005_sorted.vcf" # get more info about this - ask Josh?
+vcf="processed-data/01_get_inv_quantile_norm/topmed_mdd_602sample_090120_maf005_MDD_sorted.vcf" # get more info about this - ask Josh?
 
+bgzip -c ${vcf} > "processed-data/01_get_inv_quantile_norm/topmed_mdd_602sample_090120_maf005_MDD_sorted.vcf.gz"
+vcf="processed-data/01_get_inv_quantile_norm/topmed_mdd_602sample_090120_maf005_MDD_sorted.vcf.gz"
+tabix -p vcf ${vcf}
 tabix --list-chroms ${vcf} > "processed-data/01_get_inv_quantile_norm/vcf_chr_list.txt"
 
 if [ ! -f "code/01_get_inv_quantile_norm/eqtl_prepare_expression.py" ]; then

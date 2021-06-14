@@ -30,7 +30,7 @@ rse_mdd <-
 get.RNum.ID <- function(rse) {
     # colData(rse)$ID <- seq.int(nrow(colData(rse)))
     colData(rse)$psychENCODE <- row.names(colData(rse))
-    
+    genoSample <- list()
     # Selecting by highest RIN
     genoSample[[1]] <- as.data.table(colData(rse)) %>%
         group_by(genoSample) %>%
