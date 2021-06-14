@@ -19,9 +19,8 @@ load(here::here("exprs_cutoff", "rse_gene.Rdata"))
 # Maybe this will help me with the duplicates?
 rse_mdd <- rse_gene[,colData(rse_gene)$Experiment == "psychENCODE_MDD"]
 
-IID <- sapply(strsplit(rse_mdd$genoSample, "_"), "[[", 2)
-FID <- sapply(strsplit(rse_mdd$genoSample, "_"), "[[", 1)
-
+# Function that takes an RSE, chooses the genoSample with the highest RIN
+# (RNA-seq integrity score), and returns a PLINK-ready vectory
 get.RNum <- function(rse, unique = TRUE){
     # Selecting by highest RIN
     if(unique == TRUE){
@@ -29,13 +28,16 @@ get.RNum <- function(rse, unique = TRUE){
             group_by(genoSample) %>% 
             filter(RIN == max(RIN))
     }
-    
     IID <- sapply(strsplit(rse$genoSample, "_"), "[[", 2)
     FID <- sapply(strsplit(rse$genoSample, "_"), "[[", 1)
+    
+    return(paste(FID, IID))
 }
 
+plink_mdd <- get.RNum(rse_mdd)
+
 # TODO write sample IDs of one dx (mdd) to file
-writeLines(paste(FID, IID), con = here::here(
+writeLines(plink_mdd, con = here::here(
     "predixcan_pipeline",
     "processed-data",
     "01_get_inv_quantile_norm", 
