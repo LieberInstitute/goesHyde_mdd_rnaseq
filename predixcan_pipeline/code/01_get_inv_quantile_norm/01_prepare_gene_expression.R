@@ -7,6 +7,7 @@ library(data.table)
 library(edgeR)
 library(recount)
 library(magrittr)
+library(dplyr)
 
 # setwd("/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/predixcan_pipeline")
 # cd /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/predixcan_pipeline
@@ -15,20 +16,144 @@ library(magrittr)
 
 load(here::here("exprs_cutoff", "rse_gene.Rdata"))
 
-rse_ind_id <- unique(rse_gene$genoSample)
+# Maybe this will help me with the duplicates?
+rse_mdd <- rse_gene[,colData(rse_gene)$Experiment == "psychENCODE_MDD"]
 
-vcf_samp <-
-    readLines(
+IID <- sapply(strsplit(rse_mdd$genoSample, "_"), "[[", 2)
+FID <- sapply(strsplit(rse_mdd$genoSample, "_"), "[[", 1)
+
+get.RNum <- function(rse, unique = TRUE){
+    # Selecting by highest RIN
+    if(unique == TRUE){
+        rse <- as.data.table(colData(rse)) %>% 
+            group_by(genoSample) %>% 
+            filter(RIN == max(RIN))
+    }
+    
+    IID <- sapply(strsplit(rse$genoSample, "_"), "[[", 2)
+    FID <- sapply(strsplit(rse$genoSample, "_"), "[[", 1)
+}
+
+# TODO write sample IDs of one dx (mdd) to file
+writeLines(paste(FID, IID), con = here::here(
+    "predixcan_pipeline",
+    "processed-data",
+    "01_get_inv_quantile_norm", 
+    "rse_mdd_sample_IDs.txt"))
+
+# TODO extract PLINK sample restricted to IDs which only correspond to one
+# diagnosis (try to sort while you're at it)
+# plink --bfile data --keep mylist.txt --make-bed --out data_keep
+
+system(
+    paste(
+        "plink --bfile",
+        here::here("genotype_data",
+                   "topmed_mdd_602sample_090120_maf005"),
+        "--keep",
         here::here(
             "predixcan_pipeline",
             "processed-data",
             "01_get_inv_quantile_norm",
-            "vcf_samples.txt"
-        )
+            "rse_mdd_sample_IDs.txt"
+        ),
+        "--make-bed --out",
+        here::here(
+            "predixcan_pipeline",
+            "processed-data",
+            "01_get_inv_quantile_norm",
+            "topmed_mdd_602sample_090120_maf005_MDD"
+        ),
+        "--memory 5000 --threads 1"
     )
+)
 
+# TODO write new PLINK file to VCF
 
-rse_vcf_union <- union(rse_ind_id, vcf_samp)
+# TODO use bcftools to extract sample IDs
+
+# TODO read in the sample IDs
+# vcf_samp <-
+#     readLines(
+#         here::here(
+#             "predixcan_pipeline",
+#             "processed-data",
+#             "01_get_inv_quantile_norm",
+#             "vcf_samples.txt"
+#         )
+#     )
+
+# Attempting to give rse_gene the same sample names as the VCF but it doesn't work
+colnames(rse_mdd) <- rse_mdd$genoSample
+
+## Writing counts and normalized counts to GCT ####
+
+gene_es <- as(rse_mdd, "ExpressionSet")
+
+assays(rse_mdd)$counts <-
+    getTPM(rse_mdd, length_var = "Length", mapped_var = NULL)
+
+tpm <- as(rse_mdd, "ExpressionSet")
+
+# lifted from https://rdrr.io/github/ctlab/phantasus/src/R/utils.R
+write.gct <- function(es, file, gzip = FALSE) {
+    if (gzip) {
+        con <- gzfile(file)
+    } else {
+        con <- file(file)
+    }
+    open(con, open = "w")
+    writeLines("#1.3", con)
+    ann.col <- ncol(pData(es))
+    ann.row <- ncol(fData(es))
+    writeLines(sprintf("%s\t%s\t%s\t%s", nrow(es), ncol(es), ann.row, ann.col),
+               con)
+    writeLines(paste0(c("ID", colnames(fData(
+        es
+    )), colnames(es)), collapse = "\t"), con)
+    
+    ann.col.table <- t(as.matrix(pData(es)))
+    ann.col.table <-
+        cbind(matrix(rep(NA, ann.row * ann.col), nrow = ann.col), ann.col.table)
+    write.table(
+        ann.col.table,
+        file = con,
+        quote = FALSE,
+        sep = "\t",
+        row.names = TRUE,
+        col.names = FALSE
+    )
+    write.table(
+        cbind(fData(es), exprs(es)),
+        file = con,
+        quote = FALSE,
+        sep = "\t",
+        row.names = TRUE,
+        col.names = FALSE
+    )
+    close(con)
+}
+
+write.gct(
+    gene_es,
+    here::here(
+        "predixcan_pipeline",
+        "processed-data",
+        "01_get_inv_quantile_norm",
+        "gene_counts.gct"
+    )
+)
+write.gct(
+    tpm,
+    here::here(
+        "predixcan_pipeline",
+        "processed-data",
+        "01_get_inv_quantile_norm",
+        "tpm.gct"
+    )
+)
+
+rse_vcf_union <- union(unique(rse_mdd$genoSample), vcf_samp)
 
 IID <- sapply(strsplit(rse_vcf_union, "_"), "[[", 2)
 FID <- sapply(strsplit(rse_vcf_union, "_"), "[[", 1)
@@ -94,7 +219,8 @@ system(
 ## Writing Sample-Participant Lookup ####
 
 samp_lookup <-
-    unique(data.table(intersect(rse_vcf_union, rse_gene$genoSample), intersect(rse_vcf_union, rse_gene$genoSample)))
+    unique(data.table(intersect(rse_vcf_union, rse_mdd$genoSample), 
+                      intersect(rse_vcf_union, rse_mdd$genoSample)))
 
 colnames(samp_lookup) <- c("sample_id", "participant_id")
 
@@ -107,73 +233,6 @@ write.table(
         "processed-data",
         "01_get_inv_quantile_norm",
         "samp_part_lookup.txt"
-    )
-)
-
-## Writing counts and normalized counts to GCT ####
-
-gene_es <- as(rse_gene, "ExpressionSet")
-
-assays(rse_gene)$counts <-
-    getTPM(rse_gene, length_var = "Length", mapped_var = NULL)
-
-tpm <- as(rse_gene, "ExpressionSet")
-
-# lifted from https://rdrr.io/github/ctlab/phantasus/src/R/utils.R
-write.gct <- function(es, file, gzip = FALSE) {
-    if (gzip) {
-        con <- gzfile(file)
-    } else {
-        con <- file(file)
-    }
-    open(con, open = "w")
-    writeLines("#1.3", con)
-    ann.col <- ncol(pData(es))
-    ann.row <- ncol(fData(es))
-    writeLines(sprintf("%s\t%s\t%s\t%s", nrow(es), ncol(es), ann.row, ann.col),
-               con)
-    writeLines(paste0(c("ID", colnames(fData(
-        es
-    )), colnames(es)), collapse = "\t"), con)
-    
-    ann.col.table <- t(as.matrix(pData(es)))
-    ann.col.table <-
-        cbind(matrix(rep(NA, ann.row * ann.col), nrow = ann.col), ann.col.table)
-    write.table(
-        ann.col.table,
-        file = con,
-        quote = FALSE,
-        sep = "\t",
-        row.names = TRUE,
-        col.names = FALSE
-    )
-    write.table(
-        cbind(fData(es), exprs(es)),
-        file = con,
-        quote = FALSE,
-        sep = "\t",
-        row.names = TRUE,
-        col.names = FALSE
-    )
-    close(con)
-}
-
-write.gct(
-    gene_es,
-    here::here(
-        "predixcan_pipeline",
-        "processed-data",
-        "01_get_inv_quantile_norm",
-        "gene_counts.gct"
-    )
-)
-write.gct(
-    tpm,
-    here::here(
-        "predixcan_pipeline",
-        "processed-data",
-        "01_get_inv_quantile_norm",
-        "tpm.gct"
     )
 )
 

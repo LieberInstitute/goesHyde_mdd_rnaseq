@@ -20,10 +20,6 @@ mkdir -p processed-data/01_get_inv_quantile_norm
 mkdir plots/
 mkdir -p code/01_get_inv_quantile_norm
 
-# conda create -n eqtl_prepare_expression python=3.5
-# pip install pandas numpy scipy argparse qtl --user
-conda activate eqtl_prepare_expression
-
 ml htslib
 ml bcftools
 ml conda_R/4.1
@@ -31,8 +27,6 @@ ml conda_R/4.1
 module use /jhpce/shared/jhpce/modulefiles/libd
 # TODO vcf might not be filtered enough - Hardy-Weinberg, 0.1%, too many SNPs, may need to filter eventually
 # Make sure if they recommend using SNPs not in LD - may prune out SNPs in LD
-
-vcf="../genotype_data/topmed_mdd_602sample_090120_maf005.vcf.gz" # get more info about this - ask Josh?
 
 # Sample IDs in the VCF, GCTs and sample lookup MUST BE IN SAME ORDER
 tpm_gct="processed-data/01_get_inv_quantile_norm/tpm.gct"
@@ -46,6 +40,8 @@ bcftools query -l ${vcf} > "processed-data/01_get_inv_quantile_norm/vcf_samples.
 
 Rscript code/01_get_inv_quantile_norm/01_prepare_gene_expression.R
 
+vcf="processed-data/01_get_inv_quantile_norm/topmed_mdd_602sample_090120_maf005_sorted.vcf" # get more info about this - ask Josh?
+
 tabix --list-chroms ${vcf} > "processed-data/01_get_inv_quantile_norm/vcf_chr_list.txt"
 
 if [ ! -f "code/01_get_inv_quantile_norm/eqtl_prepare_expression.py" ]; then
@@ -54,6 +50,10 @@ if [ ! -f "code/01_get_inv_quantile_norm/eqtl_prepare_expression.py" ]; then
 else
   echo "eqtl_prepare_expression.py already exists."
 fi
+
+# conda create -n eqtl_prepare_expression python=3.5
+# pip install pandas numpy scipy argparse qtl --user
+conda activate eqtl_prepare_expression
 
 ./code/01_get_inv_quantile_norm/eqtl_prepare_expression.py ${tpm_gct} ${counts_gct} ${annotation_gtf} \
     ${sample_participant_lookup} ${vcf_chr_list} ${prefix} \
