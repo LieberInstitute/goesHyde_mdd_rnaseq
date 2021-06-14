@@ -26,7 +26,8 @@ get.RNum <- function(rse, unique = TRUE){
     if(unique == TRUE){
         rse <- as.data.table(colData(rse)) %>% 
             group_by(genoSample) %>% 
-            filter(RIN == max(RIN))
+            filter(RIN == max(RIN)) %>% 
+            filter(overallMapRate == max(overallMapRate))
     }
     IID <- sapply(strsplit(rse$genoSample, "_"), "[[", 2)
     FID <- sapply(strsplit(rse$genoSample, "_"), "[[", 1)
