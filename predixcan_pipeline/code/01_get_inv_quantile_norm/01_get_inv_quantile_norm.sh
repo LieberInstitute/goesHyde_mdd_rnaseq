@@ -29,12 +29,17 @@ module use /jhpce/shared/jhpce/modulefiles/libd
 # Make sure if they recommend using SNPs not in LD - may prune out SNPs in LD
 
 # Sample IDs in the VCF, GCTs and sample lookup MUST BE IN SAME ORDER
-tpm_gct="processed-data/01_get_inv_quantile_norm/tpm.gct"
-counts_gct="processed-data/01_get_inv_quantile_norm/gene_counts.gct"
+Amyg_tpm_gct="processed-data/01_get_inv_quantile_norm/Amygdala_tpm.gct"
+Amyg_counts_gct="processed-data/01_get_inv_quantile_norm/Amygdala_gene_counts.gct"
+
+sACC_tpm_gct="processed-data/01_get_inv_quantile_norm/sACC_tpm.gct"
+sACC_counts_gct="processed-data/01_get_inv_quantile_norm/sACC_gene_counts.gct"
+
 annotation_gtf="/dcl01/lieber/ajaffe/Emily/RNAseq-pipeline/Annotation/GENCODE/GRCh38_hg38/gencode.v25.annotationGRCh38.gtf"
 prefix="goesHyde_mdd_rnaseq_"
 vcf_chr_list="processed-data/01_get_inv_quantile_norm/vcf_chr_list.txt"
-sample_participant_lookup="processed-data/01_get_inv_quantile_norm/samp_part_lookup.txt"
+
+Amyg_sample_participant_lookup="processed-data/01_get_inv_quantile_norm/Amygdala_samp_part_lookup.txt"
 
 Rscript code/01_get_inv_quantile_norm/01_prepare_gene_expression.R
 
@@ -48,7 +53,7 @@ tabix -p vcf ${Amyg_vcf}
 tabix -p vcf ${sACC_vcf}
 
 # It's just 1-22
-tabix --list-chroms ${sACC_vcf} > "processed-data/01_get_inv_quantile_norm/vcf_chr_list.txt"
+tabix --list-chroms ${Amyg_vcf} > "processed-data/01_get_inv_quantile_norm/vcf_chr_list.txt"
 
 if [ ! -f "code/01_get_inv_quantile_norm/eqtl_prepare_expression.py" ]; then
   # adding normalization script from gtex-pipeline: https://github.com/broadinstitute/gtex-pipeline/tree/master/qtl
@@ -61,8 +66,8 @@ fi
 # pip install pandas numpy scipy argparse qtl --user
 conda activate eqtl_prepare_expression
 
-./code/01_get_inv_quantile_norm/eqtl_prepare_expression.py ${tpm_gct} ${counts_gct} ${annotation_gtf} \
-    ${sample_participant_lookup} ${vcf_chr_list} ${prefix} \
+./code/01_get_inv_quantile_norm/eqtl_prepare_expression.py ${Amyg_tpm_gct} ${Amyg_counts_gct} ${annotation_gtf} \
+    ${Amyg_sample_participant_lookup} ${vcf_chr_list} "goesHyde_mdd_rnaseq_Amygdala" \
     --tpm_threshold 0.1 \
     --count_threshold 6 \
     --sample_frac_threshold 0.2 \
