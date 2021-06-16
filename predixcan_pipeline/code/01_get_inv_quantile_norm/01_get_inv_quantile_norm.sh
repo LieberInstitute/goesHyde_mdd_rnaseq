@@ -38,12 +38,17 @@ sample_participant_lookup="processed-data/01_get_inv_quantile_norm/samp_part_loo
 
 Rscript code/01_get_inv_quantile_norm/01_prepare_gene_expression.R
 
-vcf="processed-data/01_get_inv_quantile_norm/topmed_mdd_602sample_090120_maf005_MDD_sorted.vcf" # get more info about this - ask Josh?
+Amyg_vcf="processed-data/01_get_inv_quantile_norm/topmed_mdd_602sample_090120_maf005_Amygdala_sorted.vcf.gz"
+sACC_vcf="processed-data/01_get_inv_quantile_norm/topmed_mdd_602sample_090120_maf005_sACC_sorted.vcf.gz"
 
-bgzip -c ${vcf} > "processed-data/01_get_inv_quantile_norm/topmed_mdd_602sample_090120_maf005_MDD_sorted.vcf.gz"
-vcf="processed-data/01_get_inv_quantile_norm/topmed_mdd_602sample_090120_maf005_MDD_sorted.vcf.gz"
-tabix -p vcf ${vcf}
-tabix --list-chroms ${vcf} > "processed-data/01_get_inv_quantile_norm/vcf_chr_list.txt"
+bgzip -c "processed-data/01_get_inv_quantile_norm/topmed_mdd_602sample_090120_maf005_Amygdala_sorted.vcf" > ${Amyg_vcf}
+bgzip -c "processed-data/01_get_inv_quantile_norm/topmed_mdd_602sample_090120_maf005_sACC_sorted.vcf" > ${sACC_vcf}
+
+tabix -p vcf ${Amyg_vcf}
+tabix -p vcf ${sACC_vcf}
+
+# It's just 1-22
+tabix --list-chroms ${sACC_vcf} > "processed-data/01_get_inv_quantile_norm/vcf_chr_list.txt"
 
 if [ ! -f "code/01_get_inv_quantile_norm/eqtl_prepare_expression.py" ]; then
   # adding normalization script from gtex-pipeline: https://github.com/broadinstitute/gtex-pipeline/tree/master/qtl
