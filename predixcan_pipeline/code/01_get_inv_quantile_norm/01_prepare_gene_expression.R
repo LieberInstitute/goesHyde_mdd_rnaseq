@@ -274,7 +274,7 @@ write.table(
         "predixcan_pipeline",
         "processed-data",
         "01_get_inv_quantile_norm",
-        "samp_part_lookup.txt"
+        paste0(opt$region, "_samp_part_lookup.txt")
     )
 )
 
