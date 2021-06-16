@@ -250,7 +250,7 @@ write.gct(
         "predixcan_pipeline",
         "processed-data",
         "01_get_inv_quantile_norm",
-        paste0(opt$region, "tpm.gct")
+        paste0(opt$region, "_tpm.gct")
     )
 )
 
