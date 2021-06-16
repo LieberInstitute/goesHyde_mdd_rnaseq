@@ -9,7 +9,17 @@ library(edgeR)
 library(recount)
 library(magrittr)
 library(dplyr)
+library(getopt)
 
+## Flags that are supplied with RScript
+spec <- matrix(
+    c('region', 'r', 1, 'character', 'Either Amygdala, or sACC'),
+    byrow = TRUE,
+    ncol = 5
+)
+
+opt <- getopt(spec)
+# opt$region <- "Amygdala"
 # setwd("/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/predixcan_pipeline")
 # cd /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/predixcan_pipeline
 
@@ -17,11 +27,11 @@ library(dplyr)
 
 load(here::here("exprs_cutoff", "rse_gene.Rdata"))
 
-# Maybe this will help me with the duplicates?
-rse_mdd <-
-    rse_gene[, colData(rse_gene)$Experiment == "psychENCODE_MDD"]
+# XX ACCEPT NO DUPLICATES / DESTROY ALL COUNTERFEITS XX
+rse_sub <-
+    rse_gene[, colData(rse_gene)$BrainRegion == opt$region]
 
-# Very inelegant function that takes an RSE, 
+# Very inelegant function that takes an RSE,
 # chooses the genoSample with the highest RIN
 # (RNA-seq integrity score) and, after that, overallMapRate,
 # and returns a list:
@@ -35,7 +45,7 @@ get.RNum.ID <- function(rse) {
     genoSample[[1]] <- as.data.table(colData(rse)) %>%
         group_by(genoSample) %>%
         filter(RIN == max(RIN)) %>%
-        filter(overallMapRate == max(overallMapRate)) %>% 
+        filter(overallMapRate == max(overallMapRate)) %>%
         ungroup()
     
     genoSample[[2]] <- genoSample[[1]] %>%
@@ -48,10 +58,10 @@ get.RNum.ID <- function(rse) {
     return(genoSample)
 }
 
-plink_mdd <- get.RNum.ID(rse_mdd)[[2]]$genoSample
+plink_sub <- get.RNum.ID(rse_sub)[[2]]$genoSample
 
-IID <- sapply(strsplit(plink_mdd, "_"), "[[", 2)
-FID <- sapply(strsplit(plink_mdd, "_"), "[[", 1)
+IID <- sapply(strsplit(plink_sub, "_"), "[[", 2)
+FID <- sapply(strsplit(plink_sub, "_"), "[[", 1)
 
 # TODO write sample IDs of one dx (mdd) to file
 writeLines(
@@ -60,7 +70,7 @@ writeLines(
         "predixcan_pipeline",
         "processed-data",
         "01_get_inv_quantile_norm",
-        "rse_mdd_sample_IDs.txt"
+        paste0(opt$region, "_rse_sub_sample_IDs.txt")
     )
 )
 
@@ -78,47 +88,69 @@ system(
             "predixcan_pipeline",
             "processed-data",
             "01_get_inv_quantile_norm",
-            "rse_mdd_sample_IDs.txt"
+            paste0(opt$region, "_rse_sub_sample_IDs.txt")
         ),
         "--indiv-sort f",
         here::here(
             "predixcan_pipeline",
             "processed-data",
             "01_get_inv_quantile_norm",
-            "rse_mdd_sample_IDs.txt"
+            paste0(opt$region, "_rse_sub_sample_IDs.txt")
         ),
         "--make-bed --out",
         here::here(
             "predixcan_pipeline",
             "processed-data",
             "01_get_inv_quantile_norm",
-            "topmed_mdd_602sample_090120_maf005_MDD_sorted"
+            paste0("topmed_mdd_602sample_090120_maf005_", opt$region, "_sorted")
         ),
         "--memory 5000 --threads 1"
     )
 )
 
-# TODO write new PLINK file to VCF
-system(
-    paste(
-        "plink --bfile",
-        here::here(
-            "predixcan_pipeline",
-            "processed-data",
-            "01_get_inv_quantile_norm",
-            "topmed_mdd_602sample_090120_maf005_MDD_sorted"
-        ),
-        "--recode vcf",
-        "--out",
-        here::here(
-            "predixcan_pipeline",
-            "processed-data",
-            "01_get_inv_quantile_norm",
-            "topmed_mdd_602sample_090120_maf005_MDD_sorted"
-        ),
-        "--memory 5000 --threads 1"
+# Expensive step
+if (!file.exists(Sys.glob(
+    here::here(
+        "predixcan_pipeline",
+        "processed-data",
+        "01_get_inv_quantile_norm",
+        paste0(
+            "topmed_mdd_602sample_090120_maf005_",
+            opt$region,
+            "_sorted*"
+        )
     )
-)
+)))
+{
+    system(
+        paste(
+            "plink --bfile",
+            here::here(
+                "predixcan_pipeline",
+                "processed-data",
+                "01_get_inv_quantile_norm",
+                paste0(
+                    "topmed_mdd_602sample_090120_maf005_",
+                    opt$region,
+                    "_sorted"
+                )
+            ),
+            "--recode vcf",
+            "--out",
+            here::here(
+                "predixcan_pipeline",
+                "processed-data",
+                "01_get_inv_quantile_norm",
+                paste0(
+                    "topmed_mdd_602sample_090120_maf005_",
+                    opt$region,
+                    "_sorted"
+                )
+            ),
+            "--memory 5000 --threads 1"
+        )
+    )
+}
 
 # TODO use bcftools to extract sample IDs
 system(paste(
@@ -127,14 +159,14 @@ system(paste(
         "predixcan_pipeline",
         "processed-data",
         "01_get_inv_quantile_norm",
-        "topmed_mdd_602sample_090120_maf005_MDD_sorted.vcf"
+        paste0("topmed_mdd_602sample_090120_maf005_", opt$region, "_sorted.vcf")
     ),
     ">",
     here::here(
         "predixcan_pipeline",
         "processed-data",
         "01_get_inv_quantile_norm",
-        "vcf_samples.txt"
+        paste0(opt$region, "_vcf_samples.txt")
     )
 ))
 
@@ -146,23 +178,23 @@ vcf_samp <-
             "predixcan_pipeline",
             "processed-data",
             "01_get_inv_quantile_norm",
-            "vcf_samples.txt"
+            paste0(opt$region, "_vcf_samples.txt")
         )
     )
 
-# Attempting to give rse_gene the same sample names as the VCF but it doesn't work
-rse_mdd_uniq <- rse[,row.names(colData(rse_mdd)) %in% get.RNum.ID(rse_mdd)[[1]]]
+rse_sub_uniq <-
+    rse_sub[, row.names(colData(rse_sub)) %in% get.RNum.ID(rse_sub)[[1]]]
 
-colnames(rse_mdd_uniq) <- rse_mdd_uniq$genoSample
+colnames(rse_sub_uniq) <- rse_sub_uniq$genoSample
 
 ## Writing counts and normalized counts to GCT ####
 
-gene_es <- as(rse_mdd_uniq, "ExpressionSet")
+gene_es <- as(rse_sub_uniq, "ExpressionSet")
 
-assays(rse_mdd_uniq)$counts <-
-    getTPM(rse_mdd_uniq, length_var = "Length", mapped_var = NULL)
+assays(rse_sub_uniq)$counts <-
+    getTPM(rse_sub_uniq, length_var = "Length", mapped_var = NULL)
 
-tpm <- as(rse_mdd_uniq, "ExpressionSet")
+tpm <- as(rse_sub_uniq, "ExpressionSet")
 
 # lifted from https://rdrr.io/github/ctlab/phantasus/src/R/utils.R
 write.gct <- function(es, file, gzip = FALSE) {
@@ -222,14 +254,14 @@ write.gct(
     )
 )
 
-rse_vcf_union <- union(unique(rse_mdd$genoSample), vcf_samp)
+rse_vcf_union <- union(unique(rse_sub$genoSample), vcf_samp)
 
 ## Writing Sample-Participant Lookup ####
 
 samp_lookup <-
     unique(data.table(
-        intersect(rse_vcf_union, rse_mdd$genoSample),
-        intersect(rse_vcf_union, rse_mdd$genoSample)
+        intersect(rse_vcf_union, rse_sub$genoSample),
+        intersect(rse_vcf_union, rse_sub$genoSample)
     ))
 
 colnames(samp_lookup) <- c("sample_id", "participant_id")
@@ -252,24 +284,41 @@ Sys.time()
 proc.time()
 options(width = 120)
 sessioninfo::session_info()
- 
-# message("-- plink version information --")
-# system("plink --version")
+
 # > ## Reproducibility information
 #     > print('Reproducibility information:')
 # [1] "Reproducibility information:"
 # > Sys.time()
-# [1] "2021-06-14 15:37:23 EDT"
+# [1] "2021-06-16 14:10:34 EDT"
 # > proc.time()
 # user   system  elapsed 
-# 52.469    3.853 4040.392 
+# 306.843   77.645 3383.853 
 # > options(width = 120)
 # > sessioninfo::session_info()
+# ─ Session info ───────────────────────────────────────────────────────────────────────────────────────────────────────
+# setting  value                                      
+# version  R version 4.1.0 Patched (2021-05-18 r80330)
+# os       CentOS Linux 7 (Core)                      
+# system   x86_64, linux-gnu                          
+# ui       X11                                        
+# language (EN)                                       
+# collate  en_US.UTF-8                                
+# ctype    en_US.UTF-8                                
+# tz       US/Eastern                                 
+# date     2021-06-16                                 
+# 
+# ─ Packages ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+# package              * version  date       lib source        
+# AnnotationDbi          1.54.1   2021-06-08 [2] Bioconductor  
+# assertthat             0.2.1    2019-03-21 [2] CRAN (R 4.1.0)
+# backports              1.2.1    2020-12-09 [2] CRAN (R 4.1.0)
+# base64enc              0.1-3    2015-07-28 [2] CRAN (R 4.1.0)
+# Biobase              * 2.52.0   2021-05-19 [2] Bioconductor  
 # BiocFileCache          2.0.0    2021-05-19 [2] Bioconductor  
 # BiocGenerics         * 0.38.0   2021-05-19 [2] Bioconductor  
 # BiocIO                 1.2.0    2021-05-19 [2] Bioconductor  
 # BiocParallel           1.26.0   2021-05-19 [2] Bioconductor  
-# biomaRt                2.48.0   2021-05-19 [2] Bioconductor  
+# biomaRt                2.48.1   2021-06-13 [2] Bioconductor  
 # Biostrings             2.60.1   2021-06-06 [2] Bioconductor  
 # bit                    4.0.4    2020-08-04 [2] CRAN (R 4.1.0)
 # bit64                  4.0.5    2020-08-30 [2] CRAN (R 4.1.0)
@@ -311,7 +360,8 @@ sessioninfo::session_info()
 # GenomicFiles           1.28.0   2021-05-19 [2] Bioconductor  
 # GenomicRanges        * 1.44.0   2021-05-19 [2] Bioconductor  
 # GEOquery               2.60.0   2021-05-19 [2] Bioconductor  
-# ggplot2                3.3.3    2020-12-30 [2] CRAN (R 4.1.0)
+# getopt               * 1.20.3   2019-03-22 [2] CRAN (R 4.1.0)
+# ggplot2                3.3.4    2021-06-16 [2] CRAN (R 4.1.0)
 # glue                   1.4.2    2020-08-27 [2] CRAN (R 4.1.0)
 # gridExtra              2.3      2017-09-09 [2] CRAN (R 4.1.0)
 # gtable                 0.3.0    2019-03-25 [2] CRAN (R 4.1.0)
@@ -346,7 +396,6 @@ sessioninfo::session_info()
 # png                    0.1-7    2013-12-03 [2] CRAN (R 4.1.0)
 # prettyunits            1.1.1    2020-01-24 [2] CRAN (R 4.1.0)
 # progress               1.2.2    2019-05-16 [2] CRAN (R 4.1.0)
-# ps                     1.6.0    2021-02-28 [2] CRAN (R 4.1.0)
 # purrr                  0.3.4    2020-04-17 [2] CRAN (R 4.1.0)
 # qvalue                 2.24.0   2021-05-19 [2] Bioconductor  
 # R6                     2.5.0    2020-10-28 [2] CRAN (R 4.1.0)
@@ -382,7 +431,7 @@ sessioninfo::session_info()
 # VariantAnnotation      1.38.0   2021-05-19 [2] Bioconductor  
 # vctrs                  0.3.8    2021-04-29 [2] CRAN (R 4.1.0)
 # withr                  2.4.2    2021-04-18 [2] CRAN (R 4.1.0)
-# xfun                   0.23     2021-05-15 [2] CRAN (R 4.1.0)
+# xfun                   0.24     2021-06-15 [2] CRAN (R 4.1.0)
 # XML                    3.99-0.6 2021-03-16 [2] CRAN (R 4.1.0)
 # xml2                   1.3.2    2020-04-23 [2] CRAN (R 4.1.0)
 # XVector                0.32.0   2021-05-19 [2] Bioconductor  
@@ -392,8 +441,3 @@ sessioninfo::session_info()
 # [1] /users/aseyedia/R/4.1
 # [2] /jhpce/shared/jhpce/core/conda/miniconda3-4.6.14/envs/svnR-4.1/R/4.1/lib64/R/site-library
 # [3] /jhpce/shared/jhpce/core/conda/miniconda3-4.6.14/envs/svnR-4.1/R/4.1/lib64/R/library
-# > 
-#     > message("-- plink version information --")
-# -- plink version information --
-#     > system("plink --version")
-# PLINK v1.90b6.6 64-bit (10 Oct 2018)
