@@ -1,2 +1,3 @@
 gene_counts.gct
 tpm.gct
+01_get_inv_quantile_norm/*
