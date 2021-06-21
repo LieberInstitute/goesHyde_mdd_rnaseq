@@ -1,126 +1,156 @@
 
 library(SummarizedExperiment)
 library(RColorBrewer)
-library(jaffelab)
-library(here)
-library(reshape2)
-library(patchwork)
 library(tidyverse)
+library(broom)
+library(viridis)
+library(DeconvoBuddies)
+library(here)
 library(sessioninfo)
 
 ## Load colors and plotting functions
 source(here("main_colors.R"))
 source(here("deconvolution","big_little_boxplot.R"))
-load(here("deconvolution","data","cell_colors.Rdata"), verbose = TRUE)
 
-## Load MuSiC results & res data
-load(here("deconvolution","data","est_prop_MuSiC.Rdata"), verbose = TRUE)
+cell_colors <- create_cell_colors(pallet = "classic")
+region_colors <- list(Amygdala = "#FFFF1F",
+                      sACC = "#8EB0F6")
+
+## Load Bisque results & res data
 load(here("deconvolution","data","est_prop_Bisque.Rdata"),verbose = TRUE)
 load(here("exprs_cutoff", "rse_gene.Rdata"), verbose = TRUE)
 load(here("deconvolution","data","sce_filtered.Rdata"), verbose = TRUE)
 
-est_prop <- list(music = est_prop_music,
-                 bisque = est_prop_bisque)
-
-long_prop <- do.call("rbind", map(est_prop,"Est.prop.long")) %>%
-    rownames_to_column("method") %>%
-    as_tibble() %>%
-    mutate(method = ss(method, "\\."),
-           cell_cat = case_when(grepl("Excit|Inhib",cell_type) ~ "Neuron",
-                                TRUE ~ "Glia"))
-
-## reorder level
-cellTypes <- levels(long_prop$cell_type)
-excit_ct <- cellTypes[grep("Excit", cellTypes)]
-inhib_ct <- cellTypes[grep("Inhib", cellTypes)]
-other_ct <- cellTypes[!cellTypes %in% c(excit_ct, inhib_ct)]
-
-cell_order <- c(other_ct[order(other_ct)], excit_ct[order(excit_ct)], inhib_ct[order(inhib_ct)])
-long_prop$cell_type <- factor(long_prop$cell_type, levels = cell_order)
-levels(long_prop$cell_type)
-
 pd <- as.data.frame(colData(rse_gene))
-pd2 <- pd[,c("Sex","PrimaryDx","BrainRegion")]%>%
-  rownames_to_column("sample")
+pd2 <- pd[,c("RNum", "BrNum", "BrainRegion","Sex", "PrimaryDx", "Experiment")]
+# Keep Bisque/All gene results
+est_prop_bisque <- est_prop_bisque$all
 
-long_prop_pd <- left_join(long_prop, pd2, by = "sample")
+long_prop <- est_prop_bisque$Est.prop.long %>%
+  separate(sample, into = c("RNum", "Experiment"), extra = "merge") %>%
+  left_join(pd2)
 
-wide_prop <- pivot_wider(long_prop_pd, names_from = "method", values_from = "prop")
-
-#### Compare bisque vs. Music ###
-method_scatter <- ggplot(wide_prop, aes(x = music, y = bisque, color = cell_type)) +
-  geom_point(size = 0.5) +
-  facet_wrap(~BrainRegion) +
-  scale_color_manual(values = cell_colors) +
-  labs(title = "Compare Methods")
-
-ggsave(method_scatter, filename = here("deconvolution","plots","method_scatter.png"),
-       width = 15)
-
-#### Boxplots ####
-method_boxplot <- long_prop_pd %>%
-  ggplot(aes(x = cell_type, y = prop, color = method)) +
+## Boxplots
+boxplot_dx <- long_prop %>%
+  ggplot(aes(x = cell_type, y = prop, fill = PrimaryDx)) +
   geom_boxplot() +
-  facet_wrap(~BrainRegion)+
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+  labs(x = "Cell Type", y = "Proportion", fill ='Primary Dx') +
+  theme_bw(base_size = 15)+
+  scale_fill_manual(values = mdd_Dx_colors)+
+  facet_wrap(~BrainRegion)
 
-ggsave(method_boxplot, filename = here("deconvolution","plots","cellType_boxplots_method.png"),
-       width = 15)
+ggsave(boxplot_dx, filename = here("deconvolution", "plots", "bisque_cellType_boxplot_Dx.png"), width = 10)
+ggsave(boxplot_dx, filename = here("deconvolution", "plots", "bisque_cellType_boxplot_Dx.pdf"), width = 10)
 
-method_boxplot <- long_prop_pd %>%
-  ggplot(aes(x = cell_type, y = prop, color = BrainRegion)) +
+boxplot_region <- long_prop %>%
+  ggplot(aes(x = cell_type, y = prop, fill = BrainRegion)) +
   geom_boxplot() +
-  facet_wrap(~method)+
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+  labs(x = "Cell Type", y = "Proportion", fill ='Brain Region') +
+  scale_fill_manual(values = region_colors)+
+  theme_bw(base_size = 15) 
 
-ggsave(method_boxplot, filename = here("deconvolution","plots","cellType_boxplots_region.png"),
-       width = 15)
+ggsave(boxplot_region, filename = here("deconvolution", "plots", "bisque_cellType_boxplot_region.png"))
+ggsave(boxplot_region, filename = here("deconvolution", "plots", "bisque_cellType_boxplot_region.pdf"))
 
-dx_boxPlot_all <- long_prop_pd %>%
-  ggplot(aes(x = cell_type, y = prop, color = PrimaryDx)) +
+boxplot_region <- long_prop %>%
+  ggplot(aes(x = cell_type, y = prop, fill = BrainRegion)) +
   geom_boxplot() +
-  facet_grid(BrainRegion~method)+ 
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+
-  scale_color_manual(values = mdd_Dx_colors)
+  labs(x = "Cell Type", y = "Proportion", fill ='Brain Region') +
+  theme_bw(base_size = 15)+
+  facet_wrap(~BrainRegion)
 
-ggsave(dx_boxPlot_all, filename = here("deconvolution","plots","cellType_boxplots_dx.png"), width = 15)
+ggsave(boxplot_region, filename = here("deconvolution", "plots", "bisque_cellType_boxplot_region.png"))
+ggsave(boxplot_region, filename = here("deconvolution", "plots", "bisque_cellType_boxplot_region.pdf"))
+
 
 #### composition barplot ####
-sce_pd <- as.data.frame(colData(sce_pan))
-mean_prop_sce <- sce_pd %>%
-  select(cell_type = cellType.Broad, BrainRegion = region) %>%
-  group_by(cell_type, BrainRegion) %>%
-  summarise(n_cells = n()) %>%
-  group_by(BrainRegion) %>%
-  mutate(region_n_cells = sum(n_cells),
-         mean_prop = n_cells/region_n_cells,
-         method = "sce_pan",
-         BrainRegion = case_when(BrainRegion == "sacc" ~"sACC",
-                                 BrainRegion == "amy"~ "Amygdala",
-                                 TRUE ~ BrainRegion)) %>%
-  filter(BrainRegion %in% c("sACC","Amygdala"))
-
-mean_est_prop <- long_prop_pd %>%
-  group_by(method, cell_type, BrainRegion) %>%
-  summarize(mean_prop = mean(prop))
-  
-mean_prop <- rbind(mean_prop_sce, mean_est_prop) %>%
-  arrange(cell_type) %>%
-  group_by(method, BrainRegion) %>%
-  mutate(anno_y = (1 - cumsum(mean_prop)) + mean_prop *.5) 
-
-mean_prop 
-  
-comp_barplot <- mean_prop %>% ggplot(aes(x = BrainRegion, y = mean_prop, fill = cell_type)) +
-  geom_bar(stat = "identity") +
-  facet_wrap(~method, scales = "free_x") +
+comp_barplot <- plot_composition_bar(long_prop, x_col = "BrainRegion") +
   scale_fill_manual(values = cell_colors)+
-  geom_text(aes(y = anno_y, label = round(mean_prop,3)))
+  theme_bw(base_size = 15)
 
-ggsave(comp_barplot, filename = here("deconvolution","plots","composition_barplot.png"))
+ggsave(comp_barplot, filename = here("deconvolution","plots","bisque_composition_barplot.png"))
+ggsave(comp_barplot, filename = here("deconvolution","plots","bisque_composition_barplot.pdf"))
 
-mean_prop %>% pivot_wider(names_from = "method", values_from = mean_prop) %>%
-  arrange(BrainRegion)
+# #### Cor with qSV ####
+# qSV_mat <- samples[,grep("RNum|PC", colnames(samples))]
+# dim(qSV_mat)
+# 
+# qSV_long <- qSV_mat %>% pivot_longer(!RNum, names_to = "qSV", values_to = "qSV_value")
+# 
+# ## Bind with qSV table
+# est_prop_qsv <- left_join(long_prop, qSV_long, by = "RNum")
+# 
+# 
+# #### Calculate p-values ####
+# prop_qSV_fit <- est_prop_qsv %>% group_by(cell_type, qSV) %>%
+#   do(fitQSV = tidy(lm(prop ~ qSV_value-1, data = .))) %>% 
+#   unnest(fitQSV) %>%
+#   mutate(p.bonf = p.adjust(p.value, "bonf"),
+#          p.bonf.sig = p.bonf < 0.05,
+#          p.bonf.cat = cut(p.bonf, 
+#                           breaks = c(1,0.05, 0.01, 0.005, 0),
+#                           labels = c("<= 0.005","<= 0.01", "<= 0.05", "> 0.05")
+#          ),
+#          p.fdr = p.adjust(p.value, "fdr"))
+# 
+# levels(prop_qSV_fit$p.bonf.cat)
+# prop_qSV_fit %>% count(p.bonf.cat)
+# # BrainRegion p.bonf.cat     n
+# # <fct>       <fct>      <int>
+# # 1 Amygdala    <= 0.005      28
+# # 2 Amygdala    <= 0.01        3
+# # 3 Amygdala    <= 0.05        3
+# # 4 Amygdala    > 0.05        74
+# # 5 sACC        <= 0.005      31
+# # 6 sACC        <= 0.05        6
+# # 7 sACC        > 0.05        71
+# 
+# 
+# #### Tile plots ####
+# prop_qSV_fit1 <- prop_qSV_fit %>%
+#   mutate(log.p.bonf = -log10(p.bonf))
+# 
+# my_breaks <- c(0.05, 0.01, 0.005, 0)
+# 
+# sig_colors <- c(rev(viridis_pal(option = "magma")(3)),NA)
+# names(sig_colors) <- levels(prop_qSV_fit$p.bonf.cat)
+# 
+# tile_plot_val <-prop_qSV_fit1 %>%
+#   ggplot(aes(x = cell_type, y = qSV, fill = log.p.bonf)) +
+#   geom_tile(color = "grey") +
+#   geom_text(aes(label = format(round(-log10(p.bonf),1), nsmall = 1),
+#                 color = p.bonf.cat), size = 3, fontface = "bold", 
+#             show.legend = F)+
+#   scale_color_manual(values = sig_colors) +
+#   scale_fill_viridis(name = "-log10(p-value Bonf)", option = "magma", direction = -1) +
+#   labs(title ="p-values cell-type prop~qSV", x = 'Cell Type', color = "p-value Bonf\nsignificance") +
+#   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+
+#   theme_bw(base_size = 15)
+# 
+# ggsave(plot = tile_plot_val,
+#        filename = here("deconvolution","plots","qSV_prop_fit_tileVal.pdf"), 
+#        width = 10)
+# 
+# #### Create scatter plots ####
+# # sig_colors2 <- c(brewer.pal(3, "Set1"),"black")
+# sig_colors2 <- c("#440154","#31688E", "#35B779","black")
+# names(sig_colors2) <- levels(prop_qSV_fit$p.bonf.cat)
+# 
+# est_prop_qsv_fit <- left_join(est_prop_qsv, prop_qSV_fit)
+# 
+# scatter_plot <- est_prop_qsv_fit %>%
+#   ggplot(aes(x = qSV_value, y = prop, color = p.bonf.cat))+
+#   geom_point(size = .4, alpha = .2) +
+#   facet_grid(cell_type~qSV, scales = "free")+
+#   theme_bw(base_size = 10)+
+#   scale_color_manual(values = sig_colors2) +
+#   theme(legend.text = element_text(size = 15)) +
+#   guides(color = guide_legend(override.aes = list(size=5)))
+# 
+# 
+# ggsave(filename = here("deconvolution","plots", "qSV_cellType_scatter.png"),
+#        plot = scatter_plot$sacc/scatter_plot$amyg, width = 26, height = 12)
+
 
 # sgejobs::job_single('deconvo_plots', create_shell = TRUE, queue= 'bluejay', memory = '10G', command = "Rscript deconvo_plots.R")
 ## Reproducibility information
@@ -130,13 +160,9 @@ proc.time()
 options(width = 120)
 session_info()
 
-# [1] "Reproducibility information:"
-# [1] "2021-01-11 11:12:17 EST"
-# user  system elapsed 
-# 42.305   2.392  46.937 
 # ─ Session info ───────────────────────────────────────────────────────────────────────────────────────────────────────
 # setting  value                                      
-# version  R version 4.0.3 Patched (2020-11-29 r79529)
+# version  R version 4.1.0 Patched (2021-05-18 r80330)
 # os       CentOS Linux 7 (Core)                      
 # system   x86_64, linux-gnu                          
 # ui       X11                                        
@@ -144,94 +170,119 @@ session_info()
 # collate  en_US.UTF-8                                
 # ctype    en_US.UTF-8                                
 # tz       US/Eastern                                 
-# date     2021-01-11                                 
+# date     2021-06-21                                 
 # 
 # ─ Packages ───────────────────────────────────────────────────────────────────────────────────────────────────────────
-# package              * version  date       lib source                                   
-# assertthat             0.2.1    2019-03-21 [2] CRAN (R 4.0.3)                           
-# backports              1.2.0    2020-11-02 [1] CRAN (R 4.0.3)                           
-# Biobase              * 2.50.0   2020-10-27 [2] Bioconductor                             
-# BiocGenerics         * 0.36.0   2020-10-27 [2] Bioconductor                             
-# bitops                 1.0-6    2013-08-17 [2] CRAN (R 4.0.3)                           
-# broom                * 0.7.3    2020-12-16 [2] CRAN (R 4.0.3)                           
-# cellranger             1.1.0    2016-07-27 [2] CRAN (R 4.0.3)                           
-# cli                    2.2.0    2020-11-20 [1] CRAN (R 4.0.3)                           
-# colorspace             2.0-0    2020-11-11 [2] CRAN (R 4.0.3)                           
-# crayon                 1.3.4    2017-09-16 [2] CRAN (R 4.0.3)                           
-# DBI                    1.1.0    2019-12-15 [2] CRAN (R 4.0.3)                           
-# dbplyr                 2.0.0    2020-11-03 [2] CRAN (R 4.0.3)                           
-# DelayedArray           0.16.0   2020-10-27 [2] Bioconductor                             
-# digest                 0.6.27   2020-10-24 [1] CRAN (R 4.0.3)                           
-# dplyr                * 1.0.2    2020-08-18 [1] CRAN (R 4.0.3)                           
-# ellipsis               0.3.1    2020-05-15 [2] CRAN (R 4.0.3)                           
-# fansi                  0.4.1    2020-01-08 [2] CRAN (R 4.0.3)                           
-# farver                 2.0.3    2020-01-16 [2] CRAN (R 4.0.3)                           
-# forcats              * 0.5.0    2020-03-01 [2] CRAN (R 4.0.3)                           
-# fs                     1.5.0    2020-07-31 [1] CRAN (R 4.0.3)                           
-# generics               0.1.0    2020-10-31 [2] CRAN (R 4.0.3)                           
-# GenomeInfoDb         * 1.26.2   2020-12-08 [2] Bioconductor                             
-# GenomeInfoDbData       1.2.4    2020-11-30 [2] Bioconductor                             
-# GenomicRanges        * 1.42.0   2020-10-27 [2] Bioconductor                             
-# ggplot2              * 3.3.3    2020-12-30 [2] CRAN (R 4.0.3)                           
-# glue                   1.4.2    2020-08-27 [1] CRAN (R 4.0.3)                           
-# googledrive            1.0.1    2020-05-05 [1] CRAN (R 4.0.3)                           
-# gtable                 0.3.0    2019-03-25 [2] CRAN (R 4.0.3)                           
-# haven                  2.3.1    2020-06-01 [1] CRAN (R 4.0.3)                           
-# here                 * 1.0.0    2020-11-15 [1] CRAN (R 4.0.3)                           
-# hms                    0.5.3    2020-01-08 [2] CRAN (R 4.0.3)                           
-# httr                   1.4.2    2020-07-20 [1] CRAN (R 4.0.3)                           
-# IRanges              * 2.24.0   2020-10-27 [1] Bioconductor                             
-# jaffelab             * 0.99.30  2020-11-02 [1] Github (LieberInstitute/jaffelab@42637ff)
-# jsonlite               1.7.1    2020-09-07 [1] CRAN (R 4.0.3)                           
-# labeling               0.4.2    2020-10-20 [2] CRAN (R 4.0.3)                           
-# lattice                0.20-41  2020-04-02 [3] CRAN (R 4.0.3)                           
-# lifecycle              0.2.0    2020-03-06 [1] CRAN (R 4.0.3)                           
-# limma                  3.46.0   2020-10-27 [2] Bioconductor                             
-# lubridate              1.7.9.2  2020-11-13 [1] CRAN (R 4.0.3)                           
-# magrittr               2.0.1    2020-11-17 [2] CRAN (R 4.0.3)                           
-# Matrix                 1.3-2    2021-01-06 [3] CRAN (R 4.0.3)                           
-# MatrixGenerics       * 1.2.0    2020-10-27 [2] Bioconductor                             
-# matrixStats          * 0.57.0   2020-09-25 [2] CRAN (R 4.0.3)                           
-# modelr                 0.1.8    2020-05-19 [2] CRAN (R 4.0.3)                           
-# munsell                0.5.0    2018-06-12 [2] CRAN (R 4.0.3)                           
-# patchwork            * 1.1.0    2020-11-09 [1] CRAN (R 4.0.3)                           
-# pheatmap             * 1.0.12   2019-01-04 [2] CRAN (R 4.0.3)                           
-# pillar                 1.4.7    2020-11-20 [1] CRAN (R 4.0.3)                           
-# pkgconfig              2.0.3    2019-09-22 [2] CRAN (R 4.0.3)                           
-# plyr                   1.8.6    2020-03-03 [2] CRAN (R 4.0.3)                           
-# ps                     1.4.0    2020-10-07 [1] CRAN (R 4.0.3)                           
-# purrr                * 0.3.4    2020-04-17 [1] CRAN (R 4.0.3)                           
-# R6                     2.5.0    2020-10-28 [1] CRAN (R 4.0.3)                           
-# rafalib              * 1.0.0    2015-08-09 [1] CRAN (R 4.0.3)                           
-# RColorBrewer         * 1.1-2    2014-12-07 [2] CRAN (R 4.0.3)                           
-# Rcpp                   1.0.5    2020-07-06 [1] CRAN (R 4.0.3)                           
-# RCurl                  1.98-1.2 2020-04-18 [2] CRAN (R 4.0.3)                           
-# readr                * 1.4.0    2020-10-05 [2] CRAN (R 4.0.3)                           
-# readxl                 1.3.1    2019-03-13 [2] CRAN (R 4.0.3)                           
-# reprex                 0.3.0    2019-05-16 [2] CRAN (R 4.0.3)                           
-# reshape2             * 1.4.4    2020-04-09 [2] CRAN (R 4.0.3)                           
-# rlang                * 0.4.9    2020-11-26 [1] CRAN (R 4.0.3)                           
-# rprojroot              2.0.2    2020-11-15 [2] CRAN (R 4.0.3)                           
-# rstudioapi             0.13     2020-11-12 [2] CRAN (R 4.0.3)                           
-# rvest                  0.3.6    2020-07-25 [2] CRAN (R 4.0.3)                           
-# S4Vectors            * 0.28.1   2020-12-09 [2] Bioconductor                             
-# scales                 1.1.1    2020-05-11 [2] CRAN (R 4.0.3)                           
-# segmented              1.3-0    2020-10-27 [1] CRAN (R 4.0.3)                           
-# sessioninfo          * 1.1.1    2018-11-05 [2] CRAN (R 4.0.3)                           
-# SingleCellExperiment * 1.12.0   2020-10-27 [2] Bioconductor                             
-# stringi                1.5.3    2020-09-09 [1] CRAN (R 4.0.3)                           
-# stringr              * 1.4.0    2019-02-10 [2] CRAN (R 4.0.3)                           
-# SummarizedExperiment * 1.20.0   2020-10-27 [2] Bioconductor                             
-# tibble               * 3.0.4    2020-10-12 [1] CRAN (R 4.0.3)                           
-# tidyr                * 1.1.2    2020-08-27 [2] CRAN (R 4.0.3)                           
-# tidyselect             1.1.0    2020-05-11 [2] CRAN (R 4.0.3)                           
-# tidyverse            * 1.3.0    2019-11-21 [1] CRAN (R 4.0.3)                           
-# vctrs                  0.3.5    2020-11-17 [1] CRAN (R 4.0.3)                           
-# withr                  2.3.0    2020-09-22 [1] CRAN (R 4.0.3)                           
-# xml2                   1.3.2    2020-04-23 [2] CRAN (R 4.0.3)                           
-# XVector                0.30.0   2020-10-27 [2] Bioconductor                             
-# zlibbioc               1.36.0   2020-10-27 [2] Bioconductor                             
+# package              * version  date       lib source                                  
+# assertthat             0.2.1    2019-03-21 [2] CRAN (R 4.1.0)                          
+# backports              1.2.1    2020-12-09 [2] CRAN (R 4.1.0)                          
+# beachmat               2.8.0    2021-05-19 [2] Bioconductor                            
+# Biobase              * 2.52.0   2021-05-19 [2] Bioconductor                            
+# BiocGenerics         * 0.38.0   2021-05-19 [2] Bioconductor                            
+# BiocNeighbors          1.10.0   2021-05-19 [1] Bioconductor                            
+# BiocParallel           1.26.0   2021-05-19 [2] Bioconductor                            
+# BiocSingular           1.8.1    2021-06-08 [1] Bioconductor                            
+# bitops                 1.0-7    2021-04-24 [2] CRAN (R 4.1.0)                          
+# bluster                1.2.1    2021-05-27 [1] Bioconductor                            
+# broom                * 0.7.7    2021-06-13 [2] CRAN (R 4.1.0)                          
+# cellranger             1.1.0    2016-07-27 [2] CRAN (R 4.1.0)                          
+# cli                    2.5.0    2021-04-26 [2] CRAN (R 4.1.0)                          
+# cluster                2.1.2    2021-04-17 [3] CRAN (R 4.1.0)                          
+# codetools              0.2-18   2020-11-04 [2] CRAN (R 4.1.0)                          
+# colorout             * 1.2-2    2021-05-27 [1] Github (jalvesaq/colorout@79931fd)      
+# colorspace             2.0-1    2021-05-04 [2] CRAN (R 4.1.0)                          
+# crayon                 1.4.1    2021-02-08 [2] CRAN (R 4.1.0)                          
+# DBI                    1.1.1    2021-01-15 [2] CRAN (R 4.1.0)                          
+# dbplyr                 2.1.1    2021-04-06 [2] CRAN (R 4.1.0)                          
+# DeconvoBuddies       * 0.99.0   2021-06-14 [1] Github (lahuuki/DeconvoBuddies@d889340) 
+# DelayedArray           0.18.0   2021-05-19 [2] Bioconductor                            
+# DelayedMatrixStats     1.14.0   2021-05-19 [2] Bioconductor                            
+# digest                 0.6.27   2020-10-24 [2] CRAN (R 4.1.0)                          
+# dplyr                * 1.0.7    2021-06-18 [2] CRAN (R 4.1.0)                          
+# dqrng                  0.3.0    2021-05-01 [1] CRAN (R 4.1.0)                          
+# edgeR                  3.34.0   2021-05-19 [2] Bioconductor                            
+# ellipsis               0.3.2    2021-04-29 [2] CRAN (R 4.1.0)                          
+# fansi                  0.5.0    2021-05-25 [2] CRAN (R 4.1.0)                          
+# farver                 2.1.0    2021-02-28 [2] CRAN (R 4.1.0)                          
+# forcats              * 0.5.1    2021-01-27 [2] CRAN (R 4.1.0)                          
+# fs                     1.5.0    2020-07-31 [2] CRAN (R 4.1.0)                          
+# generics               0.1.0    2020-10-31 [2] CRAN (R 4.1.0)                          
+# GenomeInfoDb         * 1.28.0   2021-05-19 [2] Bioconductor                            
+# GenomeInfoDbData       1.2.6    2021-05-11 [2] Bioconductor                            
+# GenomicRanges        * 1.44.0   2021-05-19 [2] Bioconductor                            
+# ggplot2              * 3.3.4    2021-06-16 [2] CRAN (R 4.1.0)                          
+# glue                   1.4.2    2020-08-27 [2] CRAN (R 4.1.0)                          
+# gridExtra              2.3      2017-09-09 [2] CRAN (R 4.1.0)                          
+# gtable                 0.3.0    2019-03-25 [2] CRAN (R 4.1.0)                          
+# haven                  2.4.1    2021-04-23 [2] CRAN (R 4.1.0)                          
+# here                 * 1.0.1    2020-12-13 [1] CRAN (R 4.1.0)                          
+# hms                    1.1.0    2021-05-17 [2] CRAN (R 4.1.0)                          
+# httr                   1.4.2    2020-07-20 [2] CRAN (R 4.1.0)                          
+# igraph                 1.2.6    2020-10-06 [2] CRAN (R 4.1.0)                          
+# IRanges              * 2.26.0   2021-05-19 [2] Bioconductor                            
+# irlba                  2.3.3    2019-02-05 [2] CRAN (R 4.1.0)                          
+# jsonlite               1.7.2    2020-12-09 [2] CRAN (R 4.1.0)                          
+# labeling               0.4.2    2020-10-20 [2] CRAN (R 4.1.0)                          
+# lattice                0.20-44  2021-05-02 [3] CRAN (R 4.1.0)                          
+# lifecycle              1.0.0    2021-02-15 [2] CRAN (R 4.1.0)                          
+# limma                  3.48.0   2021-05-19 [2] Bioconductor                            
+# locfit                 1.5-9.4  2020-03-25 [2] CRAN (R 4.1.0)                          
+# lubridate              1.7.10   2021-02-26 [2] CRAN (R 4.1.0)                          
+# magrittr               2.0.1    2020-11-17 [2] CRAN (R 4.1.0)                          
+# Matrix                 1.3-4    2021-06-01 [3] CRAN (R 4.1.0)                          
+# MatrixGenerics       * 1.4.0    2021-05-19 [2] Bioconductor                            
+# matrixStats          * 0.59.0   2021-06-01 [2] CRAN (R 4.1.0)                          
+# metapod                1.0.0    2021-05-19 [1] Bioconductor                            
+# modelr                 0.1.8    2020-05-19 [2] CRAN (R 4.1.0)                          
+# munsell                0.5.0    2018-06-12 [2] CRAN (R 4.1.0)                          
+# patchwork            * 1.1.1    2020-12-17 [1] CRAN (R 4.1.0)                          
+# pillar                 1.6.1    2021-05-16 [2] CRAN (R 4.1.0)                          
+# pkgconfig              2.0.3    2019-09-22 [2] CRAN (R 4.1.0)                          
+# pryr                   0.1.4    2018-02-18 [2] CRAN (R 4.1.0)                          
+# ps                     1.6.0    2021-02-28 [2] CRAN (R 4.1.0)                          
+# purrr                * 0.3.4    2020-04-17 [2] CRAN (R 4.1.0)                          
+# R6                     2.5.0    2020-10-28 [2] CRAN (R 4.1.0)                          
+# rafalib                1.0.0    2015-08-09 [1] CRAN (R 4.1.0)                          
+# ragg                   1.1.3    2021-06-09 [1] CRAN (R 4.1.0)                          
+# RColorBrewer         * 1.1-2    2014-12-07 [2] CRAN (R 4.1.0)                          
+# Rcpp                   1.0.6    2021-01-15 [2] CRAN (R 4.1.0)                          
+# RCurl                  1.98-1.3 2021-03-16 [2] CRAN (R 4.1.0)                          
+# readr                * 1.4.0    2020-10-05 [2] CRAN (R 4.1.0)                          
+# readxl                 1.3.1    2019-03-13 [2] CRAN (R 4.1.0)                          
+# reprex                 2.0.0    2021-04-02 [2] CRAN (R 4.1.0)                          
+# rlang                * 0.4.11   2021-04-30 [2] CRAN (R 4.1.0)                          
+# rprojroot              2.0.2    2020-11-15 [2] CRAN (R 4.1.0)                          
+# rstudioapi             0.13     2020-11-12 [2] CRAN (R 4.1.0)                          
+# rsvd                   1.0.5    2021-04-16 [1] CRAN (R 4.1.0)                          
+# rvest                  1.0.0    2021-03-09 [2] CRAN (R 4.1.0)                          
+# S4Vectors            * 0.30.0   2021-05-19 [2] Bioconductor                            
+# ScaledMatrix           1.0.0    2021-05-19 [1] Bioconductor                            
+# scales                 1.1.1    2020-05-11 [2] CRAN (R 4.1.0)                          
+# scran                  1.20.1   2021-05-24 [1] Bioconductor                            
+# scuttle                1.2.0    2021-05-19 [1] Bioconductor                            
+# sessioninfo          * 1.1.1    2018-11-05 [2] CRAN (R 4.1.0)                          
+# sgejobs                0.99.1   2021-05-27 [1] Github (LieberInstitute/sgejobs@f5ab0ca)
+# SingleCellExperiment   1.14.1   2021-05-21 [2] Bioconductor                            
+# sparseMatrixStats      1.4.0    2021-05-19 [2] Bioconductor                            
+# statmod                1.4.36   2021-05-10 [2] CRAN (R 4.1.0)                          
+# stringi                1.6.2    2021-05-17 [2] CRAN (R 4.1.0)                          
+# stringr              * 1.4.0    2019-02-10 [2] CRAN (R 4.1.0)                          
+# SummarizedExperiment * 1.22.0   2021-05-19 [2] Bioconductor                            
+# systemfonts            1.0.2    2021-05-11 [2] CRAN (R 4.1.0)                          
+# textshaping            0.3.5    2021-06-09 [1] CRAN (R 4.1.0)                          
+# tibble               * 3.1.2    2021-05-16 [2] CRAN (R 4.1.0)                          
+# tidyr                * 1.1.3    2021-03-03 [2] CRAN (R 4.1.0)                          
+# tidyselect             1.1.1    2021-04-30 [2] CRAN (R 4.1.0)                          
+# tidyverse            * 1.3.1    2021-04-15 [2] CRAN (R 4.1.0)                          
+# utf8                   1.2.1    2021-03-12 [2] CRAN (R 4.1.0)                          
+# vctrs                  0.3.8    2021-04-29 [2] CRAN (R 4.1.0)                          
+# viridis              * 0.6.1    2021-05-11 [2] CRAN (R 4.1.0)                          
+# viridisLite          * 0.4.0    2021-04-13 [2] CRAN (R 4.1.0)                          
+# withr                  2.4.2    2021-04-18 [2] CRAN (R 4.1.0)                          
+# xml2                   1.3.2    2020-04-23 [2] CRAN (R 4.1.0)                          
+# XVector                0.32.0   2021-05-19 [2] Bioconductor                            
+# zlibbioc               1.38.0   2021-05-19 [2] Bioconductor                            
 # 
-# [1] /users/lhuuki/R/4.0.x
-# [2] /jhpce/shared/jhpce/core/conda/miniconda3-4.6.14/envs/svnR-4.0.x/R/4.0.x/lib64/R/site-library
-# [3] /jhpce/shared/jhpce/core/conda/miniconda3-4.6.14/envs/svnR-4.0.x/R/4.0.x/lib64/R/library
+# [1] /users/lhuuki/R/4.1
+# [2] /jhpce/shared/jhpce/core/conda/miniconda3-4.6.14/envs/svnR-4.1/R/4.1/lib64/R/site-library
+# [3] /jhpce/shared/jhpce/core/conda/miniconda3-4.6.14/envs/svnR-4.1/R/4.1/lib64/R/library
