@@ -1,6 +1,10 @@
 library(RColorBrewer)
 library(ggplot2)
 library(tidyverse)
+library(here)
+
+load(here("deconvolution","data","sce_filtered.Rdata"), verbose = TRUE)
+ct <- list(split = "cellType.split", broad = "cellType")
 
 cells_broad <- c("Inhib", "Excit","Astro","Micro","Oligo","OPC")
 cells_inhib_sub <- c("Inhib.1","Inhib.2","Inhib.3","Inhib.4","Inhib.5")
