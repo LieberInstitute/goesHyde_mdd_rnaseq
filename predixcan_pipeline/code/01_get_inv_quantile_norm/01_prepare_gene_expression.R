@@ -237,6 +237,7 @@ write.table(
     samp_lookup,
     quote = FALSE,
     row.names = FALSE,
+    sep = "\t",
     file = here::here(
         "predixcan_pipeline",
         "processed-data",
