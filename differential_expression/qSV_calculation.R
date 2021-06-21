@@ -33,13 +33,34 @@ colnames(modJoint)
 # [13] "RIN"                              "PrimaryDxControl:BrainRegionsACC"
 # [15] "PrimaryDxBipolar:BrainRegionsACC"
 
+modJoint_deconvo = model.matrix(~PrimaryDx*BrainRegion + AgeDeath + Sex + 
+                          snpPC1 + snpPC2 + snpPC3 + snpPC4 + snpPC5 +
+                          mitoRate + rRNA_rate + totalAssignedGene + RIN + ERCCsumLogErr +
+                          Astro + Micro + Oligo + OPC + Excit,
+                        data=colData(rse_gene))
+
+colnames(modJoint_deconvo)
+# [1] "(Intercept)"                      "PrimaryDxControl"                 "PrimaryDxBipolar"                
+# [4] "BrainRegionsACC"                  "AgeDeath"                         "SexM"                            
+# [7] "snpPC1"                           "snpPC2"                           "snpPC3"                          
+# [10] "snpPC4"                           "snpPC5"                           "mitoRate"                        
+# [13] "rRNA_rate"                        "totalAssignedGene"                "RIN"                             
+# [16] "ERCCsumLogErr"                    "Astro"                            "Micro"                           
+# [19] "Oligo"                            "OPC"                              "Excit"                           
+# [22] "PrimaryDxControl:BrainRegionsACC" "PrimaryDxBipolar:BrainRegionsACC"
+
 ## Save Models
-save(modJoint, file = here("differential_expression","data","differental_modJoint.Rdata"))
+save(modJoint, modJoint_deconvo, file = here("differential_expression","data","differental_modJoint.Rdata"))
 
 degExprs = log2(assays(cov_rse)$count+1)
 k = num.sv(degExprs, modJoint)
 message("k=", k)
 # k=26
+
+k_deconvo = num.sv(degExprs, modJoint_deconvo)
+message("k deconvo = ", k_deconvo)
+# k deconvo = 26
+
 qSV_mat = prcomp(t(degExprs))$x[,1:k]
 
 ## Save qSVmat
