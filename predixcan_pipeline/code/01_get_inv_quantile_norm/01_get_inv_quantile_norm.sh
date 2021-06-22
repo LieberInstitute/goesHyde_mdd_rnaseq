@@ -66,7 +66,7 @@ fi
 conda activate eqtl_prepare_expression
 
 ./code/01_get_inv_quantile_norm/eqtl_prepare_expression.py ${Amyg_tpm_gct} ${Amyg_counts_gct} ${annotation_gtf} \
-    ${Amyg_sample_participant_lookup} ${vcf_chr_list} "goesHyde_mdd_rnaseq_Amygdala_" \
+    ${Amyg_sample_participant_lookup} ${vcf_chr_list} "${PWD}/processed-data/01_get_inv_quantile_norm/goesHyde_mdd_rnaseq_Amygdala_" \
     --tpm_threshold 0.1 \
     --count_threshold 6 \
     --sample_frac_threshold 0.2 \
