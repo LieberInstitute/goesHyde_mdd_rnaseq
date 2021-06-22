@@ -66,11 +66,12 @@ fi
 conda activate eqtl_prepare_expression
 
 ./code/01_get_inv_quantile_norm/eqtl_prepare_expression.py ${Amyg_tpm_gct} ${Amyg_counts_gct} ${annotation_gtf} \
-    ${Amyg_sample_participant_lookup} ${vcf_chr_list} "${PWD}/processed-data/01_get_inv_quantile_norm/goesHyde_mdd_rnaseq_Amygdala_" \
+    ${Amyg_sample_participant_lookup} ${vcf_chr_list} "goesHyde_mdd_rnaseq_Amygdala_" \
     --tpm_threshold 0.1 \
     --count_threshold 6 \
     --sample_frac_threshold 0.2 \
-    --normalization_method tmm
+    --normalization_method tmm \
+    --output_dir " /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/predixcan_pipeline/processed-data/01_get_inv_quantile_norm/"
 
 # 16:13 predixcan_pipeline $ ./code/01_get_inv_quantile_norm/eqtl_prepare_expression.py ${tpm_gct} ${counts_gct} ${annotation_gtf} \
 # >     ${sample_participant_lookup} ${vcf_chr_list} ${prefix} \
@@ -84,8 +85,6 @@ conda activate eqtl_prepare_expression
 #   File "./code/01_get_inv_quantile_norm/eqtl_prepare_expression.py", line 97, in <module>
 #     raise ValueError('Sample IDs in expression files and participant lookup table must match.')
 # ValueError: Sample IDs in expression files and participant lookup table must match.
-
-mv "${prefix}*" "processed-data/01_get_inv_quantile_norm/"
 
 echo "**** Job ends ****"
 date
