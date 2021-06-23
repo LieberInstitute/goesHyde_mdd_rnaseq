@@ -4,3 +4,6 @@
 [submodule "predixcan_pipeline/PredictDB_Pipeline_GTEx_v7"]
 	path = predixcan_pipeline/PredictDB_Pipeline_GTEx_v7
 	url = https://github.com/hakyimlab/PredictDB_Pipeline_GTEx_v7.git
+[submodule "predixcan_pipeline/PredictDB-Tutorial"]
+	path = predixcan_pipeline/PredictDB-Tutorial
+	url = https://github.com/hakyimlab/PredictDB-Tutorial.git
