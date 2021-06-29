@@ -3,7 +3,7 @@
 #$ -l bluejay,mem_free=20G,h_vmem=20G,h_fsize=100G
 #$ -N eqtl_prepare_expression
 #$ -j y
-#$ -o eqtl_prepare_expression.log
+#$ -o /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/predixcan_pipeline/logs/eqtl_prepare_expression.log
 
 echo "**** Job starts ****"
 date
@@ -76,12 +76,6 @@ conda activate eqtl_prepare_expression
     --sample_frac_threshold 0.2 \
     --normalization_method tmm \
     --output_dir "/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/predixcan_pipeline/processed-data/01_get_inv_quantile_norm/"
-
-conda activate r-peer
-
-num_peer=60
-
-Rscript run_PEER.R ${prefix_Amygdala}.expression.bed.gz ${prefix_Amygdala} ${num_peer}
 
 echo "**** Job ends ****"
 date
