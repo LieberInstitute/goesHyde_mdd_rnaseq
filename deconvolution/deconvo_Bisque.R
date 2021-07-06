@@ -5,7 +5,6 @@ library(jaffelab)
 library(xbioc)
 library(BisqueRNA)
 library(tidyverse)
-# library(compositions)
 library(here)
 library(sessioninfo)
 
@@ -83,6 +82,17 @@ round(colMeans(est_prop$bulk.props), 3)
 
 est_prop_bisque <- est_prop
 save(est_prop_bisque, file = here("deconvolution","data","est_prop_Bisque.Rdata"))
+
+## save table of marker genes
+## marker stats
+rd <- as.data.frame(rowData(rse_gene)[marker_genes,]) %>% select(ensemblID, gencodeID)
+
+marker_table <- marker_stats2 %>% filter(rank_ratio <= 20) %>%
+  select(ensemblID = gene, `Cell Type` = cellType.target, Symbol) %>%
+  left_join(rd) %>%
+  select(gencodeID, `Cell Type`, Symbol)
+
+write_csv(marker_table, file = here("deconvolution","data","MDDseq-deconvolution-markers.csv"))
 
 # sgejobs::job_single('deconvo_Bisque', create_shell = TRUE, queue= 'bluejay', memory = '10G', command = "Rscript deconvo_Bisque.R")
 ## Reproducibility information
