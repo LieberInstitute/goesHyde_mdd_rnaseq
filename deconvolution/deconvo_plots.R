@@ -2,11 +2,13 @@
 library(SummarizedExperiment)
 library(RColorBrewer)
 library(tidyverse)
+library(reshape2)
 library(broom)
 library(viridis)
 library(DeconvoBuddies)
 library(here)
 library(sessioninfo)
+library(patchwork)
 
 ## Load colors and plotting functions
 source(here("main_colors.R"))
@@ -21,9 +23,8 @@ pd <- as.data.frame(colData(rse_gene))
 pd2 <- pd[,c("RNum", "BrNum", "BrainRegion","Sex", "PrimaryDx", "Experiment")]
 
 long_prop <- est_prop_bisque$Est.prop.long %>%
-  separate(Sample, into = c("RNum", "Experiment"), extra = "merge") %>%
+  separate(Sample, into = c("RNum", "Experiment"), extra = "merge", remove = FALSE) %>%
   left_join(pd2)
-
 
 long_prop$cell_type <- factor(long_prop$cell_type, levels = levels(sce_pan$cellType.Broad))
 
@@ -108,6 +109,98 @@ walk(c("ALL","Sample","region"), function(x){
     scale_fill_manual(values = cell_colors)
   ggsave(comp_prop_plot, filename = here("deconvolution", "plots",paste0("sce_",x,"_prop.png")))
 })
+
+
+#### Cor with qSV ####
+load(here("differential_expression", "data","qSV_mat.Rdata"), verbose = TRUE)
+dim(qSV_mat)
+
+qSV_long <- melt(qSV_mat) %>% rename(Sample = Var1, qSV = Var2, qSV_value = value)
+
+## Bind with qSV table
+est_prop_qsv <- left_join(long_prop, qSV_long, by = "Sample")
+levels(est_prop_qsv$cell_type)
+
+#### Calculate p-values ####
+prop_qSV_fit <- est_prop_qsv %>% group_by(cell_type, qSV, BrainRegion) %>%
+  do(fitQSV = tidy(lm(prop ~ qSV_value, data = .))) %>%
+  unnest(fitQSV) %>%
+  filter(term == "qSV_value") %>%
+  mutate(p.bonf = p.adjust(p.value, "bonf"),
+         p.bonf.sig = p.bonf < 0.05,
+         p.bonf.cat = cut(p.bonf,
+                          breaks = c(1,0.05, 0.01, 0.005, 0),
+                          labels = c("<= 0.005","<= 0.01", "<= 0.05", "> 0.05")
+         ),
+         p.fdr = p.adjust(p.value, "fdr"),
+         log.p.bonf = -log10(p.bonf))
+
+levels(prop_qSV_fit$p.bonf.cat)
+prop_qSV_fit %>% count(BrainRegion, p.bonf.cat)
+#    BrainRegion p.bonf.cat     n
+# <chr>       <fct>      <int>
+#   1 Amygdala    <= 0.005      49
+# 2 Amygdala    <= 0.01        2
+# 3 Amygdala    <= 0.05       10
+# 4 Amygdala    > 0.05       173
+# 5 sACC        <= 0.005      59
+# 6 sACC        <= 0.01        3
+# 7 sACC        <= 0.05       10
+# 8 sACC        > 0.05       162
+
+#### Tile plots ####
+my_breaks <- c(0.05, 0.01, 0.005, 0)
+
+sig_colors <- c(rev(viridis_pal(option = "magma")(4)))
+names(sig_colors) <- levels(prop_qSV_fit$p.bonf.cat)
+
+tile_plot_val <- prop_qSV_fit %>%
+  ggplot(aes(x = qSV, y = cell_type, fill = log.p.bonf)) +
+  geom_tile(color = "grey") +
+  geom_text(aes(label = ifelse(p.bonf.sig, format(round(-log10(p.bonf),1), nsmall = 1),""),
+                color = p.bonf.cat), size = 3, fontface = "bold",
+            show.legend = F)+
+  scale_color_manual(values = sig_colors) +
+  scale_fill_viridis(name = "-log10(p-value Bonf)", option = "magma", direction = -1) +
+  facet_wrap(~BrainRegion, ncol = 1)+
+  scale_y_discrete(limits = rev) +
+  labs(title ="p-values cell-type prop~qSV", x = 'Cell Type', color = "p-value Bonf\nsignificance") +
+  theme_bw(base_size = 15) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+ggsave(plot = tile_plot_val,
+       filename = here("deconvolution","plots","qSV_prop_fit_tileVal.png"),
+       width = 15)
+
+ggsave(plot = tile_plot_val,
+       filename = here("deconvolution","plots","qSV_prop_fit_tileVal.pdf"),
+       width = 10)
+
+#### Create scatter plots ####
+# sig_colors2 <- c(brewer.pal(3, "Set1"),"black")
+sig_colors2 <- c("#440154","#31688E", "#35B779","black")
+names(sig_colors2) <- levels(prop_qSV_fit$p.bonf.cat)
+
+regions <- list(sacc = "sACC", amyg = "Amygdala")
+
+est_prop_qsv_fit <- left_join(est_prop_qsv, prop_qSV_fit)
+
+scatter_plot <- map(regions, ~  est_prop_qsv_fit %>%
+                      filter(BrainRegion == .x) %>%
+                      ggplot(aes(x = qSV_value, y = prop, color = p.bonf.cat))+
+                      geom_point(size = .4, alpha = .2) +
+                      facet_grid(cell_type~qSV, scales = "free")+
+                      theme_bw(base_size = 10)+
+                      scale_color_manual(values = sig_colors2) +
+                      theme(legend.text = element_text(size = 15)) +
+                      guides(color = guide_legend(override.aes = list(size=5))) +
+                      labs(title = .x)
+)
+
+
+walk2(scatter_plot, names(scatter_plot), ~ggsave(filename = here("deconvolution","plots", paste0("qSV_cellType_scatter-",.y,".png")),
+       plot = .x, width = 26, height = 10))
+
 
 
 # sgejobs::job_single('deconvo_plots', create_shell = TRUE, queue= 'bluejay', memory = '10G', command = "Rscript deconvo_plots.R")
