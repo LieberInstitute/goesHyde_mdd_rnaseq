@@ -4,9 +4,10 @@ library(here)
 load(here("deconvolution","data","est_prop_Bisque.Rdata"),verbose = TRUE)
 load(here("exprs_cutoff", "rse_gene.Rdata"), verbose = TRUE)
 
-est_prop_bisque <- est_prop_bisque$all
-
+(existing_cell_cols <- intersect(colnames(colData(rse_gene)), colnames(est_prop_bisque$bulk.props)))
 all(colnames(rse_gene) == rownames(est_prop_bisque$bulk.props))
+
+colData(rse_gene) <- colData(rse_gene)[,!colnames(colData(rse_gene)) %in% existing_cell_cols]
 
 colData(rse_gene) <- cbind(colData(rse_gene), est_prop_bisque$bulk.props)
 colnames(colData(rse_gene))
