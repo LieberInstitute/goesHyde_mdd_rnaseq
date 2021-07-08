@@ -66,11 +66,13 @@ tabix --list-chroms ${Amyg_vcf} | awk '$1="chr"$1' > "/dcl01/lieber/ajaffe/lab/g
 
 # wget -O KJ_eqtl_prepare_expression.py https://raw.githubusercontent.com/KrotosBenjamin/gtex-pipeline/master/qtl/src/eqtl_prepare_expression.py
 # git clone git@github.com:francois-a/rnaseq-utils.git
-# export PYTHONPATH=$PYTHONPATH:/$PWD/rnaseq-utils
+
+# git submodule add https://github.com/francois-a/rnaseq-utils.git
 
 # conda create -n eqtl_prepare_expression python=3.5
 # pip install pandas numpy scipy argparse qtl --user
 conda activate eqtl_prepare_expression
+export PYTHONPATH=$PYTHONPATH:/$PWD/rnaseq-utils
 
 # bgzip needs to be mounted as a module through htslib for this step. If you're
 # encountering some bgzip related error, it's probably for that reason.
