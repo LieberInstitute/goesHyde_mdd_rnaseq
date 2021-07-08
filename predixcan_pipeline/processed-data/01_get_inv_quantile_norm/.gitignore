@@ -4,3 +4,6 @@
 *.fam
 *.nosex
 *.vcf
+./*
+*
+*vcf*
