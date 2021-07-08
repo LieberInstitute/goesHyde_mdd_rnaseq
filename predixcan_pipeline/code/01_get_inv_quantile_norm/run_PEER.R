@@ -2,8 +2,8 @@
 
 library(peer, quietly=TRUE)  # https://github.com/PMBio/peer
 library(argparser, quietly=TRUE)
-library(dplyr)
-library(data.table)
+library(dplyr, quietly=TRUE)
+library(data.table, quietly=TRUE)
 
 WriteTable <- function(data, filename, index.name) {
     datafile <- file(filename, open = "wt")
@@ -41,7 +41,7 @@ if (grepl('.bed$', argv$expr.file) || grepl('.bed.gz$', argv$expr.file)) {
         group_by(gene_id) %>%
         mutate(start = min(start), end = max(end)) %>%
         ungroup %>%
-        distinct(gene_id, .keep_all = TRUE) %>% 
+        distinct(gene_id, .keep_all = TRUE) %>%
         data.frame()
     row.names(df) <- df[, 4]
     df <- df[, 5:ncol(df)]
