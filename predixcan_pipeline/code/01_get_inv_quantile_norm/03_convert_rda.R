@@ -9,14 +9,39 @@ load(here::here("exprs_cutoff", "rse_gene.Rdata"))
 
 rownames(mds) %in% rse_gene$BrNum
 
-rownames(mds) <- rse_gene$genoSample[match(rownames(mds), rse_gene$BrNum)]
+rownames(mds) <-
+  rse_gene$genoSample[match(rownames(mds), rse_gene$BrNum)]
 
-write.table(mds, file = here::here(
-  "predixcan_pipeline",
-  "processed-data",
-  "01_get_inv_quantile_norm",
-  "goesHyde_bipolarMdd_Genotypes_mds.csv"
-), quote = FALSE, sep = "\t")
+g_pc <-
+  read.table(
+    "processed-data/01_get_inv_quantile_norm/goesHyde_mdd_rnaseq_Amygdala.PEER_covariates.txt",
+    header = TRUE,
+    row.names = 1
+  )
+
+write.table(
+  mds,
+  file = here::here(
+    "predixcan_pipeline",
+    "processed-data",
+    "01_get_inv_quantile_norm",
+    "goesHyde_bipolarMdd_Genotypes_mds.csv"
+  ),
+  quote = FALSE,
+  sep = "\t"
+)
+
+write.table(
+  g_pc,
+  file = here::here(
+    "predixcan_pipeline",
+    "processed-data",
+    "01_get_inv_quantile_norm",
+    "goesHyde_mdd_rnaseq_Amygdala.PEER_covariates_REFORMATTED.txt"
+  ),
+  quote = FALSE,
+  sep = "\t"
+)
 # (Pdb) genotype_df
 # snpPC1       snpPC2       snpPC3        snpPC4       snpPC5        snpPC6       snpPC7       snpPC8       snpPC9      snpPC10
 # Br1204  0.000337071  -0.00351165   0.00162138   -0.00389559   0.00368663   -0.00840175  0.000239701  -0.00120827  0.000250112   -0.0167761
@@ -30,7 +55,7 @@ write.table(mds, file = here::here(
 # Br6006   0.00314947   -0.0016153   0.00740929   -0.00247698   0.00433495   -0.00285719   -0.0111471   0.00441891    0.0181863      0.01073
 # Br6016   0.00385125  0.000449935   0.00675108    0.00140145   0.00312547     0.0110865   0.00572528   0.00718713   -0.0102819   0.00285737
 # Br6023   -0.0482165  0.000902909    0.0117295   -0.00793735   0.00123674   -0.00506099   0.00295157  -0.00334214    0.0104394  -0.00765483
-# 
+#
 # [595 rows x 10 columns]
 # (Pdb) expression_df.columns
 # Index(['X4572348328_R01C01', 'X4463344451_R01C01', 'X9829181016_R04C01',
@@ -45,4 +70,4 @@ write.table(mds, file = here::here(
 #       dtype='object', length=540)
 # (Pdb) genotype_df[expression_df.columns]
 # *** KeyError: "None of [Index(['X4572348328_R01C01', 'X4463344451_R01C01', 'X9829181016_R04C01',\n       'X9828658132_R03C01', 'X4256126291_A', 'X4463344439_R01C02',\n       'X4463344373_R01C02', 'X4463344452_R01C01', 'X4572348556_R01C02',\n       'X4463344384_R01C01',\n       ...\n       'X201398400056_R04C01', 'X201398400045_R03C01', 'X9964045139_R07C01',\n       'X201398930009_R02C01', 'X201398400130_R01C01', 'X4572348800_R01C02',\n       'X201398930120_R08C01', 'X201398400043_R07C01', 'X201398930004_R08C01',\n       'X9964675004_R06C01'],\n      dtype='object', length=540)] are in the [columns]"
-# (Pdb) 
+# (Pdb)

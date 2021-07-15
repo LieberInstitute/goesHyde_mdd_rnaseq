@@ -22,6 +22,16 @@ print('Combining covariates ... ', end='', flush=True)
 expression_df = pd.read_csv(args.expression_covariates, sep='\t', index_col=0, dtype=str)
 if args.genotype_pcs is not None:
     genotype_df = pd.read_csv(args.genotype_pcs, sep='\t', index_col=0, dtype=str)
+    # the following line was added to remove R's make.names 'X' from exp PCs
+    expression_df.columns = expression_df.columns.str[1:]
+    expression_df.columns = expression_df.columns.str.replace(' ', '')
+    genotype_df.columns = genotype_df.columns.str.replace(' ', '')
+    expression_df.columns = expression_df.columns.str.replace('\n', '')
+    genotype_df.columns = genotype_df.columns.str.replace('\n', '')
+
+    expression_df.columns = map(lambda s: s.strip(), expression_df.columns)
+    genotype_df.columns = map(lambda s: s.strip(), genotype_df.columns)
+
     combined_df = pd.concat([genotype_df[expression_df.columns], expression_df], axis=0)
 else:
     combined_df = expression_df

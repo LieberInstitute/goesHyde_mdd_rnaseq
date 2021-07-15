@@ -14,12 +14,12 @@ echo "Job name: \${JOB_NAME}"
 echo "Hostname: \${HOSTNAME}"
 echo "Task id: \${TASK_ID}"
 
+# Rscript code/01_get_inv_quantile_norm/03_convert_rda.R
+
 conda activate eqtl_prepare_expression
 
 prefix_Amygdala="goesHyde_mdd_rnaseq_Amygdala"
 genotype_pcs="/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/predixcan_pipeline/processed-data/01_get_inv_quantile_norm/goesHyde_bipolarMdd_Genotypes_mds.csv"
-
-Rscript code/01_get_inv_quantile_norm/03_convert_rda.R
 
 ./code/01_get_inv_quantile_norm/combine_covariates.py processed-data/01_get_inv_quantile_norm/${prefix_Amygdala}.PEER_covariates.txt ${prefix_Amygdala} \
     --genotype_pcs ${genotype_pcs}
