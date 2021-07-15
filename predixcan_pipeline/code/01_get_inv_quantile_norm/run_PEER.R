@@ -28,6 +28,14 @@ argv <- parse_args(p)
 
 # argv <- data.table()
 # argv$expr.file <- file.path("processed-data/01_get_inv_quantile_norm/goesHyde_mdd_rnaseq_Amygdala.expression.bed.gz")
+# argv$prefix <- "goesHyde_mdd_rnaseq_Amygdala"
+# argv$n <- 60
+# argv$alphaprior_a = 0.001
+# argv$alphaprior_b = 0.01
+# argv$epsprior_a = 0.1
+# argv$epsprior_b = 10
+# argv$max_iter = 1000
+# argv$output_dir = "."
 
 cat("PEER: loading expression data ... ")
 if (grepl('.gz$', argv$expr.file)) {
@@ -51,6 +59,13 @@ if (grepl('.bed$', argv$expr.file) || grepl('.bed.gz$', argv$expr.file)) {
 M <- t(as.matrix(df))
 cat("done.\n")
 
+
+# argv$n <- 60
+# p <- add_argument(p, "--alphaprior_a", help="", default=0.001)
+# p <- add_argument(p, "--alphaprior_b", help="", default=0.01)
+# p <- add_argument(p, "--epsprior_a", help="", default=0.1)
+# p <- add_argument(p, "--epsprior_b", help="", default=10)
+# p <- add_argument(p, "--max_iter", help="", default=1000)
 # run PEER
 cat(paste0("PEER: estimating hidden confounders (", argv$n, ")\n"))
 model <- PEER()

@@ -23,10 +23,12 @@ num_peer=60
 prefix_Amygdala="goesHyde_mdd_rnaseq_Amygdala"
 
 echo "Begin PEER script"
-time
-Rscript code/01_get_inv_quantile_norm/run_PEER.R processed-data/01_get_inv_quantile_norm/${prefix_Amygdala}.expression.bed.gz ${prefix_Amygdala} ${num_peer}
-time
+time {
+  Rscript code/01_get_inv_quantile_norm/run_PEER.R processed-data/01_get_inv_quantile_norm/${prefix_Amygdala}.expression.bed.gz ${prefix_Amygdala} ${num_peer}
+}
 echo "PEER script ended"
+
+mv goesHyde_mdd_rnaseq* processed-data/01_get_inv_quantile_norm/
 
 echo "**** Job ends ****"
 date
