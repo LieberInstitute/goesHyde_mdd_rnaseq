@@ -1,20 +1,22 @@
+library(SummarizedExperiment)
 library(data.table)
 
 load(
   "/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/genotype_data/goesHyde_bipolarMdd_Genotypes_mds.rda"
 )
 
+load(here::here("exprs_cutoff", "rse_gene.Rdata"))
 
-# TODO I need to figure out how to swap the Brs in genotype_df sourced from the genotype PC
-# file above to whatever the horrific naming scheme is in the expression file.
-# I don't remember how I did that but I'm going to have to try
+rownames(mds) %in% rse_gene$BrNum
 
-# write.table(mds, file = here::here(
-#   "predixcan_pipeline",
-#   "processed-data",
-#   "01_get_inv_quantile_norm",
-#   "goesHyde_bipolarMdd_Genotypes_mds.csv"
-# ), quote = FALSE, sep = "\t")
+rownames(mds) <- rse_gene$genoSample[match(rownames(mds), rse_gene$BrNum)]
+
+write.table(mds, file = here::here(
+  "predixcan_pipeline",
+  "processed-data",
+  "01_get_inv_quantile_norm",
+  "goesHyde_bipolarMdd_Genotypes_mds.csv"
+), quote = FALSE, sep = "\t")
 # (Pdb) genotype_df
 # snpPC1       snpPC2       snpPC3        snpPC4       snpPC5        snpPC6       snpPC7       snpPC8       snpPC9      snpPC10
 # Br1204  0.000337071  -0.00351165   0.00162138   -0.00389559   0.00368663   -0.00840175  0.000239701  -0.00120827  0.000250112   -0.0167761
