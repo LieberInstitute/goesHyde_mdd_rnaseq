@@ -31,7 +31,7 @@ if args.genotype_pcs is not None:
 
     expression_df.columns = map(lambda s: s.strip(), expression_df.columns)
     genotype_df.columns = map(lambda s: s.strip(), genotype_df.columns)
-
+    genotype_df = genotype_df.transpose(copy = True)
     combined_df = pd.concat([genotype_df[expression_df.columns], expression_df], axis=0)
 else:
     combined_df = expression_df
