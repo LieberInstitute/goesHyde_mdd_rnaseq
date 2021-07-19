@@ -8,11 +8,11 @@
 echo "**** Job starts ****"
 date
 echo "**** JHPCE info ****"
-echo "User: \${USER}"
-echo "Job id: \${JOB_ID}"
-echo "Job name: \${JOB_NAME}"
-echo "Hostname: \${HOSTNAME}"
-echo "Task id: \${TASK_ID}"
+echo "User: ${USER}"
+echo "Job id: ${JOB_ID}"
+echo "Job name: ${JOB_NAME}"
+echo "Hostname: ${HOSTNAME}"
+echo "Task id: ${TASK_ID}"
 
 # Rscript code/01_get_inv_quantile_norm/03_convert_rda.R
 
