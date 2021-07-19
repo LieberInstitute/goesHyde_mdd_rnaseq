@@ -24,5 +24,7 @@ genotype_pcs="/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/predixcan_pipeline/pr
 ./code/01_get_inv_quantile_norm/combine_covariates.py processed-data/01_get_inv_quantile_norm/${prefix_Amygdala}.PEER_covariates.txt ${prefix_Amygdala} \
     --genotype_pcs ${genotype_pcs}
 
+mv "${prefix_Amygdala}.combined_covariates.txt" processed-data/01_get_inv_quantile_norm/
+
 echo "**** Job ends ****"
 date
