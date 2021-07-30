@@ -51,6 +51,10 @@ split_snp_geno <- split(snp_gen, snp_gen$CHR)
 # 21    22     3     4     5     6     7     8     9     X
 # 4431  5019 23445 24640 21159 24902 21004 20506 67675    77
 
+# for(i in 1:22){
+#   split_snp_geno[[i]]$CHR <- NULL
+# }
+
 sapply(1:22,
        function (x)
          write.table(

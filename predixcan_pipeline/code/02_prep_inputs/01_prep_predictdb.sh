@@ -27,10 +27,10 @@ mkdir /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/predixcan_pipeline/processed-
 Rscript /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/predixcan_pipeline/code/02_prep_inputs/1a_process_snp_anno.R
 
 # removing the redundant chromosome column
-for genos in ls /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/predixcan_pipeline/processed-data/02_prep_inputs/split_geno/*; do
-  echo $genos;
-  awk '{NF=""; print $0}' $genos > $genos
-done
+# for genos in ls /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/predixcan_pipeline/processed-data/02_prep_inputs/split_geno/*; do
+#   echo $genos;
+#   awk '{NF=""; print $0}' $genos > $genos
+# done
 
 conda activate eqtl_prepare_expression
 
