@@ -14,7 +14,7 @@ snp_anno <- snp_anno[, c("CHR", "POS", "SNP", "COUNTED", "ALT")]
 snp_anno$snp_id_originalVCF <-
   paste0("snp_", snp_anno$CHR, "_", snp_anno$POS)
 
-snp_anno$rsNumGuess <- snpMap$rsNumGuess
+snp_anno$rsNumGuess <- snpMap[!is.na(snpMap$rsNumGuess), ]$rsNumGuess
 
 snp_anno$Num_alt_per_site <- nchar(snp_anno$ALT)
 
