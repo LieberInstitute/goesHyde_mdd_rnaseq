@@ -9,24 +9,37 @@ library(DeconvoBuddies)
 library(here)
 library(sessioninfo)
 library(patchwork)
+library(ggpubr)
 
 ## Load colors and plotting functions
-source(here("main_colors.R"))
+load(here("data","MDD_colors.Rdata"), verbose = TRUE)
+# mdd_Dx_colors
+# mdd_BrainRegion_colors
+# mdd_Sex_colors
+# mdd_dataset_colors
 
 ## Load Bisque results & res data
 load(here("deconvolution","data","est_prop_Bisque.Rdata"),verbose = TRUE)
-load(here("deconvolution","data","cell_colors.Rdata"),verbose = TRUE)
+load(here("/dcl01/lieber/ajaffe/lab/deconvolution_bsp2/data/cell_colors.Rdata"),verbose = TRUE)
 load(here("exprs_cutoff", "rse_gene.Rdata"), verbose = TRUE)
-load("/dcl01/lieber/ajaffe/lab/deconvolution_bsp2/data/sce_pan.Rdata", verbose = TRUE)
+load("/dcl01/lieber/ajaffe/lab/deconvolution_bsp2/data/sce_pan.v2.Rdata", verbose = TRUE)
 
 pd <- as.data.frame(colData(rse_gene))
 pd2 <- pd[,c("RNum", "BrNum", "BrainRegion","Sex", "PrimaryDx", "Experiment")]
 
 long_prop <- est_prop_bisque$Est.prop.long %>%
   separate(Sample, into = c("RNum", "Experiment"), extra = "merge", remove = FALSE) %>%
-  left_join(pd2)
+  left_join(pd2) %>%
+  mutate(`Region + Dx` = paste(BrainRegion, PrimaryDx))
 
 long_prop$cell_type <- factor(long_prop$cell_type, levels = levels(sce_pan$cellType.Broad))
+
+long_prop %>% filter(prop > 0.99)
+# Sample                 RNum   Experiment      cell_type  prop BrNum  BrainRegion Sex   PrimaryDx
+# <chr>                  <chr>  <chr>           <fct>     <dbl> <chr>  <chr>       <chr> <fct>    
+# 1 R17828_psychENCODE_MDD R17828 psychENCODE_MDD Oligo      1    Br5914 sACC        F     MDD      
+# 2 R15043_psychENCODE_BP  R15043 psychENCODE_BP  Oligo      1    Br5712 Amygdala    M     Control  
+# 3 R15093_psychENCODE_BP  R15093 psychENCODE_BP  Inhib      1.00 Br6016 Amygdala    F     Bipolar 
 
 ## Boxplots
 boxplot_dx <- long_prop %>%
@@ -41,6 +54,7 @@ boxplot_dx <- long_prop %>%
 ggsave(boxplot_dx, filename = here("deconvolution", "plots", "bisque_cellType_boxplot_Dx.png"), width = 10)
 ggsave(boxplot_dx, filename = here("deconvolution", "plots", "bisque_cellType_boxplot_Dx.pdf"), width = 10)
 
+# TODO Rotate x axis names
 boxplot_region <- long_prop %>%
   ggplot(aes(x = cell_type, y = prop, fill = BrainRegion)) +
   geom_boxplot() +
@@ -51,6 +65,32 @@ boxplot_region <- long_prop %>%
 ggsave(boxplot_region, filename = here("deconvolution", "plots", "bisque_cellType_boxplot_region.png"))
 ggsave(boxplot_region, filename = here("deconvolution", "plots", "bisque_cellType_boxplot_region.pdf"))
 
+## Preform tests
+
+map
+
+oligo_data <- long_prop %>% filter(cell_type == "Oligo", BrainRegion == "sACC")
+compare_means(prop ~ PrimaryDx, data = oligo_data, method = "t.test")
+compare_means(prop ~ PrimaryDx, data = oligo_data, method = "anova")
+
+kw_boxplot <- ggboxplot(oligo_data, x = "PrimaryDx", y = "prop",
+                        color = "PrimaryDx", palette = "jco")+
+  stat_compare_means()
+
+ggsave(kw_boxplot, filename = "plots/test.png")
+
+prop_t_test <- long_prop %>% group_by(cell_type, BrainRegion) %>%
+  do(compare_means(prop ~ PrimaryDx, data = ., method = "t.test"))
+
+prop_t_test %>% mutate(FDR = p.adjust(p, "fdr"),
+                       p.bonf = p.adjust(p, "bonf")) %>%
+  filter(p.bonf < 0.005)
+
+## loop marker stats
+test <- lm(assays(sce_pan)$logcounts[1,sce_pan$cellType.Broad %in% c("Astro","Micro")] ~ 
+     sce_pan$cellType.Broad[sce_pan$cellType.Broad %in% c("Astro","Micro")])
+
+summary(test)$coef[2,4]
 
 #### composition barplot ####
 comp_barplot <- plot_composition_bar(long_prop, x_col = "BrainRegion") +
@@ -59,11 +99,6 @@ comp_barplot <- plot_composition_bar(long_prop, x_col = "BrainRegion") +
 
 ggsave(comp_barplot, filename = here("deconvolution","plots","bisque_composition_barplot.png"))
 ggsave(comp_barplot, filename = here("deconvolution","plots","bisque_composition_barplot.pdf"))
-
-long_prop2 <- long_prop %>%
-  mutate(`Region + Dx` = paste(BrainRegion, PrimaryDx))
-
-long_prop2 %>% count(`Region + Dx`)
 
 comp_barplot_dx <- plot_composition_bar(long_prop2, x_col = "Region + Dx") +
   scale_fill_manual(values = cell_colors)+
@@ -137,16 +172,16 @@ prop_qSV_fit <- est_prop_qsv %>% group_by(cell_type, qSV, BrainRegion) %>%
 
 levels(prop_qSV_fit$p.bonf.cat)
 prop_qSV_fit %>% count(BrainRegion, p.bonf.cat)
-#    BrainRegion p.bonf.cat     n
+# BrainRegion p.bonf.cat     n
 # <chr>       <fct>      <int>
-#   1 Amygdala    <= 0.005      49
-# 2 Amygdala    <= 0.01        2
-# 3 Amygdala    <= 0.05       10
-# 4 Amygdala    > 0.05       173
-# 5 sACC        <= 0.005      59
-# 6 sACC        <= 0.01        3
-# 7 sACC        <= 0.05       10
-# 8 sACC        > 0.05       162
+# 1 Amygdala    <= 0.005      53
+# 2 Amygdala    <= 0.01        3
+# 3 Amygdala    <= 0.05       12
+# 4 Amygdala    > 0.05       192
+# 5 sACC        <= 0.005      58
+# 6 sACC        <= 0.01        4
+# 7 sACC        <= 0.05        9
+# 8 sACC        > 0.05       189
 
 #### Tile plots ####
 my_breaks <- c(0.05, 0.01, 0.005, 0)
