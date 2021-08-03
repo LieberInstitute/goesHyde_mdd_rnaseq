@@ -66,9 +66,6 @@ ggsave(boxplot_region, filename = here("deconvolution", "plots", "bisque_cellTyp
 ggsave(boxplot_region, filename = here("deconvolution", "plots", "bisque_cellType_boxplot_region.pdf"))
 
 ## Preform tests
-
-map
-
 oligo_data <- long_prop %>% filter(cell_type == "Oligo", BrainRegion == "sACC")
 compare_means(prop ~ PrimaryDx, data = oligo_data, method = "t.test")
 compare_means(prop ~ PrimaryDx, data = oligo_data, method = "anova")
@@ -79,12 +76,30 @@ kw_boxplot <- ggboxplot(oligo_data, x = "PrimaryDx", y = "prop",
 
 ggsave(kw_boxplot, filename = "plots/test.png")
 
-prop_t_test <- long_prop %>% group_by(cell_type, BrainRegion) %>%
-  do(compare_means(prop ~ PrimaryDx, data = ., method = "t.test"))
+prop_t_test_dx <- long_prop %>% group_by(cell_type, BrainRegion) %>%
+  do(compare_means(prop ~ PrimaryDx, data = ., method = "t.test")) %>%
+  mutate(FDR = p.adjust(p, "fdr"),
+                       p.bonf = p.adjust(p, "bonf"))
 
-prop_t_test %>% mutate(FDR = p.adjust(p, "fdr"),
-                       p.bonf = p.adjust(p, "bonf")) %>%
-  filter(p.bonf < 0.005)
+prop_t_test_dx %>% ungroup ()%>% count(p.bonf < 0.05)
+# # A tibble: 2 × 2
+# `p.bonf < 0.05`     n
+# <lgl>           <int>
+# 1 FALSE              38
+# 2 TRUE               22
+
+prop_t_test_sex <- long_prop %>% group_by(cell_type, BrainRegion) %>%
+  do(compare_means(prop ~ Sex, data = ., method = "t.test")) %>%
+  mutate(FDR = p.adjust(p, "fdr"),
+         p.bonf = p.adjust(p, "bonf"))
+
+prop_t_test_sex %>% ungroup() %>% count(p.bonf < 0.05)
+# # A tibble: 2 × 2
+# `p.bonf < 0.05`     n
+# <lgl>           <int>
+# 1 FALSE              14
+# 2 TRUE                6
+prop_t_test_sex  %>% filter(p.bonf < 0.05)
 
 ## loop marker stats
 test <- lm(assays(sce_pan)$logcounts[1,sce_pan$cellType.Broad %in% c("Astro","Micro")] ~ 
