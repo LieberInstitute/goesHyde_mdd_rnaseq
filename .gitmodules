@@ -4,3 +4,6 @@
 [submodule "predixcan_pipeline/rnaseq-utils"]
 	path = predixcan_pipeline/rnaseq-utils
 	url = https://github.com/francois-a/rnaseq-utils.git
+[submodule "predixcan_pipeline/PredictDB-Tutorial"]
+	path = predixcan_pipeline/PredictDB-Tutorial
+	url = https://github.com/LieberInstitute/PredictDB-Tutorial.git
