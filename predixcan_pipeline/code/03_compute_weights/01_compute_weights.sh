@@ -18,7 +18,7 @@ echo "Task id: ${TASK_ID}"
 module load conda_R/4.1
 
 echo "Computing weights for chromosome $TASK_ID"
-time Rscript /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/predixcan_pipeline/PredictDB-Tutorial/code/gtex_tiss_chrom_training.R ${TASK_ID}
+time Rscript /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/predixcan_pipeline/PredictDB-Tutorial/code/gtex_tiss_chrom_training.R $TASK_ID
 
 echo "**** Job ends ****"
 date
