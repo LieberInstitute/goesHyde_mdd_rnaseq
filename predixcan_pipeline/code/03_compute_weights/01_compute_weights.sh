@@ -13,12 +13,12 @@ echo "User: ${USER}"
 echo "Job id: ${JOB_ID}"
 echo "Job name: ${JOB_NAME}"
 echo "Hostname: ${HOSTNAME}"
-echo "Task id: ${TASK_ID}"
+echo "Task id: $SGE_TASK_ID"
 
 module load conda_R/4.1
 
-echo "Computing weights for chromosome $TASK_ID"
-time Rscript /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/predixcan_pipeline/PredictDB-Tutorial/code/gtex_tiss_chrom_training.R $TASK_ID
+echo "Computing weights for chromosome $SGE_TASK_ID"
+time Rscript /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/predixcan_pipeline/PredictDB-Tutorial/code/gtex_tiss_chrom_training.R $SGE_TASK_ID
 
 echo "**** Job ends ****"
 date
