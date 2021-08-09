@@ -136,10 +136,28 @@ rse_mdd <- rse_jx
 rse_mdd$Experiment <- "psychENCODE_MDD"
 colnames(rse_mdd) <- paste0(rse_mdd$SAMPLE_ID, "_", rse_mdd$Experiment)
 
+dim(rse_mdd)
+# [1] 2272461     634
+log10(nrow(rse_mdd) * ncol(rse_mdd))
+# [1] 9.158586
+print(object.size(rse_mdd),units = "auto")
+# 12.3 Gb
+class(assays(rse_mdd)$counts)
+# [1] "matrix" "array" 
+
 load("/dcl01/lieber/ajaffe/lab/zandiHyde_bipolar_rnaseq/preprocessed_data/rse_jx_zandiHyde_Bipolar_LIBD_n540.Rdata", verbose = TRUE)
 rse_bip <- rse_jx
 rse_bip$Experiment <- "psychENCODE_BP"
 colnames(rse_bip) <- paste0(rse_bip$RNum, "_", rse_bip$Experiment)
+
+dim(rse_bip)
+# [1] 2314770     540
+log10(nrow(rse_bip) * ncol(rse_bip))
+# [1] 9.096902
+print(object.size(rse_bip),units = "auto")
+# 4.8 Gb
+class(assays(rse_bip)$counts)
+# [1] "S4Vectors"
 
 # filter samples
 rse_mdd <- rse_mdd[, samples_mdd]
@@ -156,26 +174,35 @@ length(all_jxn)
 
 ## Create union matrix
 jxn_add <- all_jxn[!names(all_jxn) %in% rownames(rse_mdd),]
-jxn_mat_mdd <- rbind(assays(rse_mdd)$counts, 
+jxn_mat_mdd <- rbind(as.matrix(assays(rse_mdd)$counts), 
                      matrix(data = 0, 
                             ncol = length(samples_mdd), 
                             nrow = length(jxn_add),
                             dimnames = list(names(jxn_add),samples_mdd)))
+dim(jxn_mat_mdd)
+# [1] 2760639     588
 
 jxn_add <- all_jxn[!names(all_jxn) %in% rownames(rse_bip),]
-jxn_mat_bip <- rbind(as.data.frame(assays(rse_bip)$counts), 
+jxn_mat_bip <- as.matrix(rbind(assays(rse_bip)$counts, 
                      matrix(data = 0, 
                             ncol = length(samples_bip), 
                             nrow = length(jxn_add),
-                            dimnames = list(names(jxn_add),samples_bip)))
-
+                            dimnames = list(names(jxn_add),samples_bip))))
+dim(jxn_mat_bip)
+# [1] 2760639     503
 
 jxn_mat_both <- cbind(jxn_mat_mdd, jxn_mat_bip)
+dim(jxn_mat_both)
+class(jxn_mat_both)
+jxn_mat_both[1:5,499:503]
+pryr::object_size(jxn_mat_both)
+# 24.3 GB
 
 ## define and populate new SE
 rse_jxn <- SummarizedExperiment(assays = list(counts = jxn_mat_both), rowRanges = all_jxn, colData = pd)
 rm(jxn_mat_mdd, jxn_mat_bip, jxn_mat_both, rse_bip, rse_mdd, rse_jx)
 
+log10(nrow(rse_jxn) * as.numeric(ncol(rse_jxn)))
 pryr::object_size(rse_jxn)
 # 24.8 GB
 rowData(rse_jxn)$Length <- 100
