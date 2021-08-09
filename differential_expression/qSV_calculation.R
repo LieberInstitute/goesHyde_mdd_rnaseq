@@ -36,7 +36,7 @@ colnames(modJoint)
 modJoint_deconvo = model.matrix(~PrimaryDx*BrainRegion + AgeDeath + Sex + 
                           snpPC1 + snpPC2 + snpPC3 + snpPC4 + snpPC5 +
                           mitoRate + rRNA_rate + totalAssignedGene + RIN + ERCCsumLogErr +
-                          Astro + Micro + Oligo + OPC + Excit,
+                          Astro + Endo + Macro + Micro + Mural + Oligo + OPC + Tcell + Excit,
                         data=colData(rse_gene))
 
 colnames(modJoint_deconvo)
@@ -45,9 +45,10 @@ colnames(modJoint_deconvo)
 # [7] "snpPC1"                           "snpPC2"                           "snpPC3"                          
 # [10] "snpPC4"                           "snpPC5"                           "mitoRate"                        
 # [13] "rRNA_rate"                        "totalAssignedGene"                "RIN"                             
-# [16] "ERCCsumLogErr"                    "Astro"                            "Micro"                           
-# [19] "Oligo"                            "OPC"                              "Excit"                           
-# [22] "PrimaryDxControl:BrainRegionsACC" "PrimaryDxBipolar:BrainRegionsACC"
+# [16] "ERCCsumLogErr"                    "Astro"                            "Endo"                            
+# [19] "Macro"                            "Micro"                            "Mural"                           
+# [22] "Oligo"                            "OPC"                              "Tcell"                           
+# [25] "Excit"                            "PrimaryDxControl:BrainRegionsACC" "PrimaryDxBipolar:BrainRegionsACC"
 
 ## Save Models
 save(modJoint, modJoint_deconvo, file = here("differential_expression","data","differental_modJoint.Rdata"))
