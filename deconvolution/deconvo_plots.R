@@ -10,6 +10,7 @@ library(here)
 library(sessioninfo)
 library(patchwork)
 library(ggpubr)
+library(rstatix)
 
 ## Load colors and plotting functions
 load(here("data","MDD_colors.Rdata"), verbose = TRUE)
@@ -19,9 +20,9 @@ load(here("data","MDD_colors.Rdata"), verbose = TRUE)
 # mdd_dataset_colors
 
 ## Load Bisque results & res data
+load(here("exprs_cutoff", "rse_gene.Rdata"), verbose = TRUE)
 load(here("deconvolution","data","est_prop_Bisque.Rdata"),verbose = TRUE)
 load(here("/dcl01/lieber/ajaffe/lab/deconvolution_bsp2/data/cell_colors.Rdata"),verbose = TRUE)
-load(here("exprs_cutoff", "rse_gene.Rdata"), verbose = TRUE)
 load("/dcl01/lieber/ajaffe/lab/deconvolution_bsp2/data/sce_pan.v2.Rdata", verbose = TRUE)
 
 pd <- as.data.frame(colData(rse_gene))
@@ -30,7 +31,8 @@ pd2 <- pd[,c("RNum", "BrNum", "BrainRegion","Sex", "PrimaryDx", "Experiment")]
 long_prop <- est_prop_bisque$Est.prop.long %>%
   separate(Sample, into = c("RNum", "Experiment"), extra = "merge", remove = FALSE) %>%
   left_join(pd2) %>%
-  mutate(`Region + Dx` = paste(BrainRegion, PrimaryDx))
+  mutate(`Region + Dx` = paste(BrainRegion, PrimaryDx),
+         region_cell_type = paste(BrainRegion, cell_type))
 
 long_prop$cell_type <- factor(long_prop$cell_type, levels = levels(sce_pan$cellType.Broad))
 
@@ -54,39 +56,71 @@ boxplot_dx <- long_prop %>%
 ggsave(boxplot_dx, filename = here("deconvolution", "plots", "bisque_cellType_boxplot_Dx.png"), width = 10)
 ggsave(boxplot_dx, filename = here("deconvolution", "plots", "bisque_cellType_boxplot_Dx.pdf"), width = 10)
 
-# TODO Rotate x axis names
 boxplot_region <- long_prop %>%
   ggplot(aes(x = cell_type, y = prop, fill = BrainRegion)) +
   geom_boxplot() +
   labs(x = "Cell Type", y = "Proportion", fill ='Brain Region') +
   # scale_fill_manual(values = region_colors)+
-  theme_bw(base_size = 15)
+  theme_bw(base_size = 15)+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 ggsave(boxplot_region, filename = here("deconvolution", "plots", "bisque_cellType_boxplot_region.png"))
 ggsave(boxplot_region, filename = here("deconvolution", "plots", "bisque_cellType_boxplot_region.pdf"))
 
 ## Preform t-tests
-prop_t_test_dx <- long_prop %>% group_by(cell_type, BrainRegion) %>%
+# prop_t_test_dx <- long_prop %>% group_by(cell_type, BrainRegion) %>%
+prop_t_test_dx <- long_prop %>% group_by(region_cell_type) %>%
   do(compare_means(prop ~ PrimaryDx, data = ., method = "t.test")) %>%
+  ungroup() %>%
   mutate(FDR = p.adjust(p, "fdr"),
-                       p.bonf = p.adjust(p, "bonf"))
+         p.bonf = p.adjust(p, "bonf"),
+         p.signif.bonf = case_when(p.bonf >= 0.05~"",
+                   p.bonf < 0.05 ~"*"),
+         anno = paste0(group1, " vs. ", group2, ":", round(p.bonf, 3),p.signif.bonf))
 
-prop_t_test_dx %>% ungroup ()%>% count(p.bonf < 0.05)
-# # A tibble: 2 × 2
+prop_t_test_dx %>% count(p.bonf < 0.05)
 # `p.bonf < 0.05`     n
 # <lgl>           <int>
-# 1 FALSE              38
-# 2 TRUE               22
+# 1 FALSE              46
+# 2 TRUE               14
 
-table(rse_gene$BrainRegion, rse_gene$PrimaryDx)
-#          MDD Control Bipolar
-# Amygdala 231     187     122
-# sACC     228     200     123
+prop_t_test_dx %>% filter(p.bonf < 0.05)
 
+anno_amyg <- filter(prop_t_test_dx , grepl("Amygdala",region_cell_type)) %>%
+  group_by(region_cell_type) %>%
+  summarise(anno = paste0(anno, collapse = "\n"))
+
+geom_box <- long_prop %>%
+  filter(BrainRegion == "Amygdala") %>%
+  ggplot(aes(x = PrimaryDx, y = prop, fill = PrimaryDx)) +
+  geom_boxplot() +
+  facet_wrap(~region_cell_type, ncol = 5, scales = "free_y")+
+  # geom_bracket(data = filter(prop_t_test_dx , grepl("Amygdala",region_cell_type)),
+  #              aes(xmin = group1, xmax = group2, label = signif(p.bonf, 2), y.position = y.position))  +
+  # geom_text(data = anno_amyg,
+  #           mapping = aes(x = "MDD", y = Inf, label = anno),
+  #           hjust   = 1.05,
+  #           vjust   = 1.5) +
+  scale_fill_manual(values = mdd_Dx_colors)+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  labs(title = "Amygdala")
+
+ggsave(geom_box, filename = here("deconvolution", "plots", "geombox_Dx.png"), width = 12)
+
+ggbox <- ggboxplot(long_prop, x = "PrimaryDx", y = "prop", fill = "PrimaryDx", facet.by = "region_cell_type") +
+  scale_fill_manual(values = mdd_Dx_colors)+
+  # stat_pvalue_manual(prop_t_test_dx) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+ggsave(ggbox, filename = here("deconvolution", "plots", "ggbox_Dx.png"), width = 15, height = 15)
+
+
+## Sex
 prop_t_test_sex <- long_prop %>% group_by(cell_type, BrainRegion) %>%
   do(compare_means(prop ~ Sex, data = ., method = "t.test")) %>%
+  ungroup() %>%
   mutate(FDR = p.adjust(p, "fdr"),
-         p.bonf = p.adjust(p, "bonf"))
+         p.bonf = p.adjust(p, "bonf")) 
 
 prop_t_test_sex %>% ungroup() %>% count(p.bonf < 0.05)
 # # A tibble: 2 × 2
@@ -96,11 +130,15 @@ prop_t_test_sex %>% ungroup() %>% count(p.bonf < 0.05)
 # 2 TRUE                6
 prop_t_test_sex  %>% filter(p.bonf < 0.05)
 
-table(rse_gene$BrainRegion, rse_gene$Sex)
-#            F   M
-# Amygdala 160 380
-# sACC     167 384
+ggbox <- ggboxplot(long_prop, x = "Sex", y = "prop", fill = "Sex", facet.by = "region_cell_type") + 
+  stat_compare_means(method = "t.test") +
+  scale_fill_manual(values = mdd_Sex_colors)+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
+ggsave(ggbox, filename = here("deconvolution", "plots", "ggbox_sex.png"), width = 15, height = 15)
+
+
+## Check out effect size and power
 ## Amyg
 d = 0.2
 
@@ -131,9 +169,11 @@ pwr.t2n.test(n1 = 167, n2= 384, d = 0.0132 ,sig.level = 0.05)
 pwr.t2n.test(n1 = 167, n2= 384, d = 0.254 ,sig.level = 0.05)
 # power = 0.7809604
 
+# pubr plots
+dx_comparisons <- list( c("MDD", "Control"), c("Bipolar", "Control"), c("MDD", "Bipolar") )
 
 #### composition barplot ####
-comp_barplot <- plot_composition_bar(long_prop, x_col = "BrainRegion") +
+comp_barplot <- plot_composition_bar(long_prop, x_col = "BrainRegion", min_prop_text = 0.01) +
   scale_fill_manual(values = cell_colors)+
   theme_bw(base_size = 15)
 
