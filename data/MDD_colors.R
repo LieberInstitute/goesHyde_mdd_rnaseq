@@ -29,4 +29,4 @@ mdd_dataset_colors <- c("psychENCODE_BP" = mdd_Dx_colors[[2]],
 # mdd_Sex_colors <- c(M = "#1E4482", `F` = "#783F58")
 mdd_Sex_colors <- c(M = "steelblue4", `F` = "maroon4")
 
-mdd_all_colors <- c(mdd_Dx_colors, mdd_BrainRegion_colors, mdd_Sex_colors, mdd_dataset_colors)
+save(mdd_Dx_colors, mdd_BrainRegion_colors, mdd_Sex_colors, mdd_dataset_colors, file = "MDD_colors.Rdata")
