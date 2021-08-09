@@ -37,7 +37,7 @@ marker_stats %>%
 
 marker_stats2 <- marker_stats %>%
   filter(gene %in% rownames(rse_gene)) %>%
-  filter(cellType.target != "Macro" | (cellType.target == "Macro" & rank_ratio < 23)) %>%
+  filter(cellType.target != "Macro" | (cellType.target == "Macro" & rank_ratio <= 23)) %>%
   group_by(cellType.target) %>%
   mutate(rank_ratio = row_number())
 

@@ -65,17 +65,7 @@ boxplot_region <- long_prop %>%
 ggsave(boxplot_region, filename = here("deconvolution", "plots", "bisque_cellType_boxplot_region.png"))
 ggsave(boxplot_region, filename = here("deconvolution", "plots", "bisque_cellType_boxplot_region.pdf"))
 
-## Preform tests
-oligo_data <- long_prop %>% filter(cell_type == "Oligo", BrainRegion == "sACC")
-compare_means(prop ~ PrimaryDx, data = oligo_data, method = "t.test")
-compare_means(prop ~ PrimaryDx, data = oligo_data, method = "anova")
-
-kw_boxplot <- ggboxplot(oligo_data, x = "PrimaryDx", y = "prop",
-                        color = "PrimaryDx", palette = "jco")+
-  stat_compare_means()
-
-ggsave(kw_boxplot, filename = "plots/test.png")
-
+## Preform t-tests
 prop_t_test_dx <- long_prop %>% group_by(cell_type, BrainRegion) %>%
   do(compare_means(prop ~ PrimaryDx, data = ., method = "t.test")) %>%
   mutate(FDR = p.adjust(p, "fdr"),
@@ -87,6 +77,11 @@ prop_t_test_dx %>% ungroup ()%>% count(p.bonf < 0.05)
 # <lgl>           <int>
 # 1 FALSE              38
 # 2 TRUE               22
+
+table(rse_gene$BrainRegion, rse_gene$PrimaryDx)
+#          MDD Control Bipolar
+# Amygdala 231     187     122
+# sACC     228     200     123
 
 prop_t_test_sex <- long_prop %>% group_by(cell_type, BrainRegion) %>%
   do(compare_means(prop ~ Sex, data = ., method = "t.test")) %>%
@@ -101,11 +96,41 @@ prop_t_test_sex %>% ungroup() %>% count(p.bonf < 0.05)
 # 2 TRUE                6
 prop_t_test_sex  %>% filter(p.bonf < 0.05)
 
-## loop marker stats
-test <- lm(assays(sce_pan)$logcounts[1,sce_pan$cellType.Broad %in% c("Astro","Micro")] ~ 
-     sce_pan$cellType.Broad[sce_pan$cellType.Broad %in% c("Astro","Micro")])
+table(rse_gene$BrainRegion, rse_gene$Sex)
+#            F   M
+# Amygdala 160 380
+# sACC     167 384
 
-summary(test)$coef[2,4]
+## Amyg
+d = 0.2
+
+prop_sd <- long_prop %>% group_by(BrainRegion, cell_type) %>% summarise(sd = sd(prop))
+
+effect_size <- long_prop %>% group_by(BrainRegion, Sex, cell_type) %>% 
+  summarise(mean = mean(prop)) %>%
+  pivot_wider(names_from = Sex, values_from = mean) %>%
+  left_join(prop_sd) %>%
+  mutate(d = abs(`F` - M)/sd)
+
+effect_size %>%
+  group_by(BrainRegion) %>%
+  summarise(min(d), max(d))
+
+# BrainRegion `min(d)` `max(d)`
+# <chr>          <dbl>    <dbl>
+# 1 Amygdala      0.0313    0.254
+# 2 sACC          0.0132    0.254
+
+pwr.t2n.test(n1 = 160, n2= 380, d = 0.0313 ,sig.level = 0.05)
+# power = 0.06268394
+pwr.t2n.test(n1 = 160, n2= 380, d = 0.254 ,sig.level = 0.05)
+# power = 0.7674
+## sACC 
+pwr.t2n.test(n1 = 167, n2= 384, d = 0.0132 ,sig.level = 0.05)
+# power = 0.05231809
+pwr.t2n.test(n1 = 167, n2= 384, d = 0.254 ,sig.level = 0.05)
+# power = 0.7809604
+
 
 #### composition barplot ####
 comp_barplot <- plot_composition_bar(long_prop, x_col = "BrainRegion") +
