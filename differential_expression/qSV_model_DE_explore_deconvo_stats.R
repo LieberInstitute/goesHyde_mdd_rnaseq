@@ -37,10 +37,7 @@ names(sig_colors) <- c("sig_Both", "sig_no-deconvo", "sig_deconvo", "None")
 
 n_gene <- nrow(gene_topTables$sacc$no_deconvo)
 
-## find critical values
-df <- table(rse_gene$BrainRegion) -1
-crit_t <- map_dfr(df, ~qt(1-0.05/2, .x))
-  
+
 compare_stats <- function(stat_data, term, other_term ,stat = ".F", p_col = ".adj.P"){
   stat_data <- stat_data %>% select(!contains(other_term))
   
@@ -191,12 +188,11 @@ t_stats_deconvo = list(ilr = t_stats_ilr %>% left_join(deconvo_coef %>% select(-
 
 t_stats_limits <- map(t_stats_deconvo, ~ .x %>% 
                         mutate(signif = cut(deconvo.adj.P.Val, breaks = c(1, 0.05, 0.01, 0),
-                                            labels = c("<= 0.01", "<= 0.05", "> 0.05"))) %>%
-                        filter(signif != "> 0.05") %>%
-                        group_by(signif,coef,method, Region) %>%
-                        summarize(min_t = min(abs(deconvo.t)))%>%
-                        mutate(min_t_n = -min_t) %>%
-                        pivot_longer(cols = c("min_t", "min_t_n"), values_to = "deconvo.t")
+                                            labels = c("<= 0.01", "<= 0.05", "> 0.05")),
+                               neg = ifelse(deconvo.t < 0, -1, 1)) %>%
+                        filter(signif == "<= 0.01") %>%
+                        group_by(signif,coef,method, Region, neg) %>%
+                        summarize(deconvo.t = min(abs(deconvo.t)) * neg)
 )
 
 t_stats_limits_nd <- t_stats %>% 
@@ -209,9 +205,6 @@ t_stats_limits_nd <- t_stats %>%
   mutate(min_t_n = -min_t) %>%
   pivot_longer(cols = c("min_t", "min_t_n"), values_to = "no_deconvo.t")
 
-
-
-
 #### t-stats Plots ####
 ## simple
 pwalk(list(t = t_stats_deconvo, l = t_stats_limits, name = names(t_stats_deconvo)), 
@@ -221,7 +214,8 @@ pwalk(list(t = t_stats_deconvo, l = t_stats_limits, name = names(t_stats_deconvo
     mutate(alpha = Signif != "None") %>%
     ggplot(aes(x = no_deconvo.t, y = deconvo.t)) +
     geom_hline(data = l, aes(yintercept =  deconvo.t, linetype = signif))+
-    geom_vline(data = t_stats_limits_nd, aes(xintercept =  no_deconvo.t, linetype = signif))+
+    geom_vline(data = t_stats_limits_nd %>% filter(signif == "<= 0.01"), 
+               aes(xintercept =  no_deconvo.t, linetype = signif))+
     geom_point(aes(color = Signif, alpha = alpha), size = 0.5) +
     facet_grid(method ~ Region + coef) +
     scale_color_manual(values = sig_colors)
@@ -232,8 +226,7 @@ pwalk(list(t = t_stats_deconvo, l = t_stats_limits, name = names(t_stats_deconvo
   
 })
 
-
-## ilr plots
+## coef plots
 walk2(t_stats_deconvo, names(t_stats_deconvo), function(data, name){
   coef_t_plot <- t_stat_ilr2 %>%
     mutate(alpha = Signif != "None") %>%
@@ -247,6 +240,69 @@ walk2(t_stats_deconvo, names(t_stats_deconvo), function(data, name){
          filename = here("differential_expression","plots",paste0("t-stats_signif_coef-",name,".png")), width = 15)
 
 })
+
+#### prop vs. ilr ####
+
+t_stats_deconvo2 <- map(t_stats_deconvo, ~select(.x, !starts_with("coef_"))) %>%
+  do.call("rbind", .)
+
+t_stats_deconvo_term <- t_stats_deconvo2 %>%
+  select(Region:deconvo.t) %>%
+  pivot_wider(names_from = "term", values_from = "deconvo.t",
+              names_prefix = "t.") %>%
+  left_join(t_stats_deconvo2 %>%
+              select(Region:method, deconvo.adj.P.Val) %>%
+              pivot_wider(names_from = "term", values_from = "deconvo.adj.P.Val",
+                          names_prefix = "adj.P.Val.")) %>%
+  mutate(Signif = case_when(adj.P.Val.ilr < 0.05 & adj.P.Val.prop < 0.05 ~"sig_Both",
+                            adj.P.Val.ilr < 0.05 ~ "sig_ilr",
+                            adj.P.Val.prop < 0.05 ~ "sig_prop",
+                            TRUE ~ "None")) %>%
+  left_join(gene_anno)
+
+## sig colors
+names(sig_colors) <- c("sig_Both", "sig_ilr", "sig_prop", "None")
+
+simple_t_plot_term <- t_stats_deconvo_term  %>%
+  mutate(alpha = Signif != "None") %>%
+  ggplot(aes(x = t.prop, y = t.ilr)) +
+  geom_point(aes(color = Signif, alpha = alpha), size = 0.5) +
+  facet_grid(method ~ Region + coef) +
+  scale_color_manual(values = sig_colors)
+
+ggsave(simple_t_plot_term ,
+       filename = here("differential_expression","plots","t-stats_signif-terms.png"),
+       width = 15)
+
+### by method
+t_stats_deconvo_method <- t_stats_deconvo2 %>%
+  select(Region:deconvo.t) %>%
+  pivot_wider(names_from = "method", values_from = "deconvo.t",
+              names_prefix = "t.") %>%
+  left_join(t_stats_deconvo2 %>%
+              select(Region:method, deconvo.adj.P.Val) %>%
+              pivot_wider(names_from = "method", values_from = "deconvo.adj.P.Val",
+                          names_prefix = "adj.P.Val.")) %>%
+  mutate(Signif = case_when(adj.P.Val.music < 0.05 & adj.P.Val.bisque < 0.05 ~"sig_Both",
+                            adj.P.Val.music < 0.05 ~ "sig_music",
+                            adj.P.Val.bisque < 0.05 ~ "sig_bisque",
+                            TRUE ~ "None")) %>%
+  left_join(gene_anno)
+
+t_stats_deconvo_method %>% count(Signif)
+
+names(sig_colors) <- c("sig_Both", "sig_music", "sig_bisque", "None")
+
+simple_t_plot_method <- t_stats_deconvo_method  %>%
+  mutate(alpha = Signif != "None") %>%
+  ggplot(aes(x = t.bisque, y = t.music)) +
+  geom_point(aes(color = Signif, alpha = alpha), size = 0.5) +
+  facet_grid(term ~ Region + coef) +
+  scale_color_manual(values = sig_colors)
+
+ggsave(simple_t_plot_method ,
+       filename = here("differential_expression","plots","t-stats_signif-method.png"),
+       width = 15)
 
 #sgejobs::job_single('qSV_model_DE_explore', create_shell = TRUE, memory = '80G', command = "Rscript qSV_model_DE_explore.R")
 
