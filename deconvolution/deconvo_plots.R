@@ -72,9 +72,8 @@ y_position <- long_prop %>%
   group_by(region_cell_type) %>%
   summarise(y.position = max(prop) + .1*max(prop))
 
-# prop_t_test_dx <- long_prop %>% group_by(cell_type, BrainRegion) %>%
-prop_t_test_dx <- long_prop %>% group_by(region_cell_type) %>%
-  do(compare_means(prop ~ PrimaryDx, data = ., method = "t.test")) %>%
+prop_t_test_dx <- long_prop %>% 
+  do(compare_means(prop ~ PrimaryDx, data = ., method = "t.test", p.adjust.method = "bonferroni", group.by = "region_cell_type")) %>%
   ungroup() %>%
   mutate(FDR = p.adjust(p, "fdr"),
          p.bonf = p.adjust(p, "bonf"),
@@ -87,6 +86,26 @@ prop_t_test_dx <- long_prop %>% group_by(region_cell_type) %>%
   left_join(y_position) %>%
   mutate(y.position = y.position - (y.adj*y.position))
 
+prop_t_test_dx %>% count(group1, group2)
+
+dx_df <- data.frame(n1 = dx[c("Control", "MDD","MDD")],
+           n1 = dx[ c("Bipolar", "Bipolar", "Control")])
+colnames(dx_df) <- c("group1","n1","group2","n2")
+dx_df$df <- (dx_df$n1 + dx_df$n2 - 2)
+
+prop_t_test_dx<- prop_t_test_dx %>% left_join(dx_df %>% select(-n1,-n2)) %>% mutate(t = qt(p, df))
+
+summary(prop_t_test_dx$t)
+# Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+# -4.9128 -2.8452 -1.7731 -1.7150 -0.3765  1.9571 
+t_check <- long_prop %>% 
+  group_by(region_cell_type, cell_type, BrainRegion) %>% 
+  summarise(mean_prop = mean(prop)) %>%
+  left_join(prop_t_test_dx %>% select(region_cell_type, group1, group2, t))
+
+t_check_scatter <- t_check %>% ggplot(aes(mean_prop, t, color = cell_type, shape = BrainRegion)) + geom_point() + facet_grid(group1~group2)
+ggsave(t_check_scatter, filename = here("deconvolution", "plots","t_check_scatter.png"))
+
 prop_t_test_dx %>% count(p.bonf < 0.05)
 # `p.bonf < 0.05`     n
 # <lgl>           <int>
@@ -95,12 +114,14 @@ prop_t_test_dx %>% count(p.bonf < 0.05)
 
 prop_t_test_dx %>% filter(p.bonf < 0.05)
 
-# dx_comparisons <- list( c("MDD", "Control"), c("Bipolar", "Control"), c("MDD", "Bipolar") )
+dx_comparisons <- list( c("MDD", "Control"), c("Bipolar", "Control"), c("MDD", "Bipolar") )
 
 ggbox <- ggboxplot(long_prop, x = "PrimaryDx", y = "prop", fill = "PrimaryDx", facet.by = "region_cell_type", scales = "free_y") +
   scale_fill_manual(values = mdd_Dx_colors)+
-  # stat_compare_means(aes(label=format.pval(..p.adj.., digits = 1)),
-  #                    comparisons = dx_comparisons, method = "t.test")+
+  # stat_compare_means(aes(label=..p.adj..),
+  #                    comparisons = dx_comparisons, method = "t.test", 
+  #                    p.adjust.method = "bonferroni", 
+  #                    group.by = "region_cell_type")+
   stat_pvalue_manual(prop_t_test_dx, label = "p.bonf.anno", color = "blue")+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
