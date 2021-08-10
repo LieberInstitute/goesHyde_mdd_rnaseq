@@ -31,7 +31,7 @@ pd2 <- pd[,c("RNum", "BrNum", "BrainRegion","Sex", "PrimaryDx", "Experiment")]
 long_prop <- est_prop_bisque$Est.prop.long %>%
   separate(Sample, into = c("RNum", "Experiment"), extra = "merge", remove = FALSE) %>%
   left_join(pd2) %>%
-  mutate(`Region + Dx` = paste(BrainRegion, PrimaryDx),
+  mutate(region_dx = paste(BrainRegion, PrimaryDx),
          region_cell_type = paste(BrainRegion, cell_type))
 
 long_prop$cell_type <- factor(long_prop$cell_type, levels = levels(sce_pan$cellType.Broad))
@@ -68,15 +68,24 @@ ggsave(boxplot_region, filename = here("deconvolution", "plots", "bisque_cellTyp
 ggsave(boxplot_region, filename = here("deconvolution", "plots", "bisque_cellType_boxplot_region.pdf"))
 
 ## Preform t-tests
+y_position <- long_prop %>%
+  group_by(region_cell_type) %>%
+  summarise(y.position = max(prop) + .1*max(prop))
+
 # prop_t_test_dx <- long_prop %>% group_by(cell_type, BrainRegion) %>%
 prop_t_test_dx <- long_prop %>% group_by(region_cell_type) %>%
   do(compare_means(prop ~ PrimaryDx, data = ., method = "t.test")) %>%
   ungroup() %>%
   mutate(FDR = p.adjust(p, "fdr"),
          p.bonf = p.adjust(p, "bonf"),
-         p.signif.bonf = case_when(p.bonf >= 0.05~"",
-                   p.bonf < 0.05 ~"*"),
-         anno = paste0(group1, " vs. ", group2, ":", round(p.bonf, 3),p.signif.bonf))
+         p.signif.bonf = case_when(p.bonf < 0.005 ~ "***",
+                   p.bonf < 0.01 ~"**",
+                   p.bonf < 0.05 ~"*",
+                   TRUE~""),
+         p.bonf.anno = paste0(round(p.bonf, 3),p.signif.bonf),
+         y.adj = rep(c(0.05, 0, 0.1),20)) %>%
+  left_join(y_position) %>%
+  mutate(y.position = y.position - (y.adj*y.position))
 
 prop_t_test_dx %>% count(p.bonf < 0.05)
 # `p.bonf < 0.05`     n
@@ -86,56 +95,37 @@ prop_t_test_dx %>% count(p.bonf < 0.05)
 
 prop_t_test_dx %>% filter(p.bonf < 0.05)
 
-anno_amyg <- filter(prop_t_test_dx , grepl("Amygdala",region_cell_type)) %>%
-  group_by(region_cell_type) %>%
-  summarise(anno = paste0(anno, collapse = "\n"))
+# dx_comparisons <- list( c("MDD", "Control"), c("Bipolar", "Control"), c("MDD", "Bipolar") )
 
-geom_box <- long_prop %>%
-  filter(BrainRegion == "Amygdala") %>%
-  ggplot(aes(x = PrimaryDx, y = prop, fill = PrimaryDx)) +
-  geom_boxplot() +
-  facet_wrap(~region_cell_type, ncol = 5, scales = "free_y")+
-  # geom_bracket(data = filter(prop_t_test_dx , grepl("Amygdala",region_cell_type)),
-  #              aes(xmin = group1, xmax = group2, label = signif(p.bonf, 2), y.position = y.position))  +
-  # geom_text(data = anno_amyg,
-  #           mapping = aes(x = "MDD", y = Inf, label = anno),
-  #           hjust   = 1.05,
-  #           vjust   = 1.5) +
+ggbox <- ggboxplot(long_prop, x = "PrimaryDx", y = "prop", fill = "PrimaryDx", facet.by = "region_cell_type", scales = "free_y") +
   scale_fill_manual(values = mdd_Dx_colors)+
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
-  labs(title = "Amygdala")
-
-ggsave(geom_box, filename = here("deconvolution", "plots", "geombox_Dx.png"), width = 12)
-
-ggbox <- ggboxplot(long_prop, x = "PrimaryDx", y = "prop", fill = "PrimaryDx", facet.by = "region_cell_type") +
-  scale_fill_manual(values = mdd_Dx_colors)+
-  # stat_pvalue_manual(prop_t_test_dx) +
+  # stat_compare_means(aes(label=format.pval(..p.adj.., digits = 1)),
+  #                    comparisons = dx_comparisons, method = "t.test")+
+  stat_pvalue_manual(prop_t_test_dx, label = "p.bonf.anno", color = "blue")+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
-ggsave(ggbox, filename = here("deconvolution", "plots", "ggbox_Dx.png"), width = 15, height = 15)
-
+ggsave(ggbox, filename = here("deconvolution", "plots", "ggbox_t-test_Dx.png"), width = 16, height = 16)
 
 ## Sex
-prop_t_test_sex <- long_prop %>% group_by(cell_type, BrainRegion) %>%
+prop_t_test_sex <- long_prop %>% group_by(region_cell_type) %>%
   do(compare_means(prop ~ Sex, data = ., method = "t.test")) %>%
   ungroup() %>%
   mutate(FDR = p.adjust(p, "fdr"),
-         p.bonf = p.adjust(p, "bonf")) 
+         p.bonf = p.adjust(p, "bonf"),
+         p.bonf.anno = paste0(round(p.bonf,3), ifelse(p.bonf < 0.05, "*",""))) %>%
+  left_join(y_position)
 
-prop_t_test_sex %>% ungroup() %>% count(p.bonf < 0.05)
-# # A tibble: 2 × 2
+prop_t_test_sex %>% count(p.bonf < 0.05)
 # `p.bonf < 0.05`     n
 # <lgl>           <int>
-# 1 FALSE              14
-# 2 TRUE                6
-prop_t_test_sex  %>% filter(p.bonf < 0.05)
+#   1 FALSE              20
 
-ggbox <- ggboxplot(long_prop, x = "Sex", y = "prop", fill = "Sex", facet.by = "region_cell_type") + 
-  stat_compare_means(method = "t.test") +
-  scale_fill_manual(values = mdd_Sex_colors)+
+## Manual
+ggbox_sex <- ggboxplot(long_prop, x = "Sex", y = "prop", fill = "Sex", facet.by = "region_cell_type", scales = "free_y") + 
+  stat_pvalue_manual(prop_t_test_sex, label = "p.bonf.anno", color = "blue")+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
-ggsave(ggbox, filename = here("deconvolution", "plots", "ggbox_sex.png"), width = 15, height = 15)
+ggsave(ggbox_sex, filename = here("deconvolution", "plots", "ggbox_t-test_Sex.png"), width = 15, height = 15)
 
 
 ## Check out effect size and power
@@ -169,9 +159,6 @@ pwr.t2n.test(n1 = 167, n2= 384, d = 0.0132 ,sig.level = 0.05)
 pwr.t2n.test(n1 = 167, n2= 384, d = 0.254 ,sig.level = 0.05)
 # power = 0.7809604
 
-# pubr plots
-dx_comparisons <- list( c("MDD", "Control"), c("Bipolar", "Control"), c("MDD", "Bipolar") )
-
 #### composition barplot ####
 comp_barplot <- plot_composition_bar(long_prop, x_col = "BrainRegion", min_prop_text = 0.01) +
   scale_fill_manual(values = cell_colors)+
@@ -180,7 +167,7 @@ comp_barplot <- plot_composition_bar(long_prop, x_col = "BrainRegion", min_prop_
 ggsave(comp_barplot, filename = here("deconvolution","plots","bisque_composition_barplot.png"))
 ggsave(comp_barplot, filename = here("deconvolution","plots","bisque_composition_barplot.pdf"))
 
-comp_barplot_dx <- plot_composition_bar(long_prop2, x_col = "Region + Dx") +
+comp_barplot_dx <- plot_composition_bar(long_prop, x_col = "region_dx", min_prop_text = 0.01) +
   scale_fill_manual(values = cell_colors)+
   theme_bw(base_size = 15) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
@@ -196,8 +183,6 @@ comp_barplot_sample <- plot_composition_bar(long_prop, x_col = "RNum",
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 ggsave(comp_barplot_sample, filename = here("deconvolution","plots","bisque_composition_barplot_sample.png"), height = 8, width = 15)
-
-
 
 #### SCE composition ####
 sce_pd<- as.data.frame(colData(sce_pan)) %>%
