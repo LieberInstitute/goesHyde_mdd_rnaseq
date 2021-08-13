@@ -80,7 +80,7 @@ snpMap$name[snpMap$Type == "SNV"] = rs$name[match(
 
 rm(rs)
 
-load("dbSNP.Rdata", verbose = TRUE)
+load(here("genotype_data", "dbSNP.Rdata"), verbose = TRUE)
 dbSnp149 = dbSnp149[dbSnp149$RefSNP_id %in% snpMap$name]
 
 ### match to SNPs
@@ -138,7 +138,7 @@ colnames(mds) = paste0("snpPC",1:ncol(mds))
 ## save #####
 message("\n***** Save data ***** ", Sys.time())
 save(snp, snpMap, compress=TRUE,
-     file = here("predixcan_pipeline", "02_prep_inputs", "goesHyde_bipolarMdd_Genotypes_PredictDB_NO-MDS.rda"))
+     file = here("predixcan_pipeline","processed-data", "02_prep_inputs", "goesHyde_bipolarMdd_Genotypes_PredictDB_NO-MDS.rda"))
 
 # sgejobs::job_single('pull_genotype_data', create_shell = TRUE, queue= 'bluejay', memory = '150G', command = "Rscript pull_genotype_data.R")
 
