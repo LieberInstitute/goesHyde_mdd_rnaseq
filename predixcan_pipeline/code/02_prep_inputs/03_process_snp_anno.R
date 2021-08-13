@@ -4,17 +4,24 @@ library(dplyr)
 setwd("/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/predixcan_pipeline")
 
 load(
-  "/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/genotype_data/goesHyde_bipolarMdd_Genotypes.rda"
+  here::here(
+    "predixcan_pipeline",
+    "processed-data",
+    "02_prep_inputs",
+    "goesHyde_bipolarMdd_Genotypes_PredictDB_NO-MDS.rda"
+  )
 )
 
-snp_anno <- snpMap[!is.na(snpMap$rsNumGuess), ]
+
+snp_anno <- snpMap[!is.na(snpMap$rsNumGuess),]
 
 snp_anno <- snp_anno[, c("CHR", "POS", "SNP", "COUNTED", "ALT")]
 
 snp_anno$snp_id_originalVCF <-
   paste0("snp_", snp_anno$CHR, "_", snp_anno$POS)
 
-snp_anno$rsNumGuess <- snpMap[!is.na(snpMap$rsNumGuess), ]$rsNumGuess
+snp_anno$rsNumGuess <-
+  snpMap[!is.na(snpMap$rsNumGuess),]$rsNumGuess
 
 snp_anno$Num_alt_per_site <- nchar(snp_anno$ALT)
 
@@ -28,7 +35,7 @@ colnames(snp_anno) <-
     "snp_id_originalVCF",
     "rsid")
 
-snp_anno <- snp_anno[snp_anno$chromosome != "X", ]
+snp_anno <- snp_anno[snp_anno$chromosome != "X",]
 
 # snp_anno$VariantID <- snp_anno$VariantID %>% gsub(pattern = "[:]", replacement = "_") %>% gsub(pattern = "chr", replacement = "")
 
@@ -39,9 +46,9 @@ snp_gen$varID <- snpMap$rsNumGuess
 snp_gen <- snp_gen %>%
   relocate(varID)
 
-snp_gen <- snp_gen[!is.na(snp_gen$varID), ]
+snp_gen <- snp_gen[!is.na(snp_gen$varID),]
 
-snp_gen$CHR <- snpMap[!is.na(snpMap$rsNumGuess), ]$CHR
+snp_gen$CHR <- snpMap[!is.na(snpMap$rsNumGuess),]$CHR
 
 split_snp_geno <- split(snp_gen, snp_gen$CHR)
 
