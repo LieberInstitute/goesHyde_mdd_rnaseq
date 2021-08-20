@@ -12,7 +12,6 @@ load(
   )
 )
 
-
 snp_anno <- snpMap[!is.na(snpMap$rsNumGuess),]
 
 snp_anno <- snp_anno[, c("CHR", "POS", "SNP", "COUNTED", "ALT")]
