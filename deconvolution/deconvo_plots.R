@@ -88,14 +88,14 @@ prop_t_test_dx <- long_prop %>%
 
 prop_t_test_dx %>% count(group1, group2)
 
-dx_df <- data.frame(n1 = dx[c("Control", "MDD","MDD")],
-           n1 = dx[ c("Bipolar", "Bipolar", "Control")])
-colnames(dx_df) <- c("group1","n1","group2","n2")
-dx_df$df <- (dx_df$n1 + dx_df$n2 - 2)
-
-prop_t_test_dx<- prop_t_test_dx %>% left_join(dx_df %>% select(-n1,-n2)) %>% mutate(t = qt(p, df))
-
-summary(prop_t_test_dx$t)
+# dx_df <- data.frame(n1 = dx[c("Control", "MDD","MDD")],
+#            n1 = dx[ c("Bipolar", "Bipolar", "Control")])
+# colnames(dx_df) <- c("group1","n1","group2","n2")
+# dx_df$df <- (dx_df$n1 + dx_df$n2 - 2)
+# 
+# prop_t_test_dx<- prop_t_test_dx %>% left_join(dx_df %>% select(-n1,-n2)) %>% mutate(t = qt(p, df))
+# 
+# summary(prop_t_test_dx$t)
 # Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
 # -4.9128 -2.8452 -1.7731 -1.7150 -0.3765  1.9571 
 t_check <- long_prop %>% 
@@ -122,7 +122,7 @@ ggbox <- ggboxplot(long_prop, x = "PrimaryDx", y = "prop", fill = "PrimaryDx", f
   #                    comparisons = dx_comparisons, method = "t.test", 
   #                    p.adjust.method = "bonferroni", 
   #                    group.by = "region_cell_type")+
-  stat_pvalue_manual(prop_t_test_dx, label = "p.bonf.anno", color = "blue")+
+  stat_pvalue_manual(prop_t_test_dx, label = "p.bonf.anno", color = "p.signif.bonf")+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 ggsave(ggbox, filename = here("deconvolution", "plots", "ggbox_t-test_Dx.png"), width = 16, height = 16)
@@ -322,7 +322,80 @@ scatter_plot <- map(regions, ~  est_prop_qsv_fit %>%
 walk2(scatter_plot, names(scatter_plot), ~ggsave(filename = here("deconvolution","plots", paste0("qSV_cellType_scatter-",.y,".png")),
        plot = .x, width = 26, height = 10))
 
+#### Cor w/ Covariates ####
+covariate_terms <- c("rRNA_rate","RIN","overallMapRate","mitoRate","AgeDeath")
+qc <- pd[,c("RNum",covariate_terms)]
 
+qc_long <- qc %>% pivot_longer(!RNum, names_to = "Covariate")
+head(qc_long)
+
+## Bind with qc table
+est_prop_qc <- left_join(long_prop, qc_long, by = "RNum")
+
+#### Calculate p-values ####
+prop_qc_fit <- est_prop_qc %>% group_by(cell_type, Covariate, BrainRegion) %>%
+  do(fitQSV = tidy(lm(prop ~ value, data = .))) %>%
+  unnest(fitQSV) %>%
+  filter(term == "value") %>%
+  mutate(p.bonf = p.adjust(p.value, "bonf"),
+         p.bonf.sig = p.bonf < 0.05,
+         p.bonf.cat = cut(p.bonf,
+                          breaks = c(1,0.05, 0.01, 0.005, 0),
+                          labels = c("<= 0.005","<= 0.01", "<= 0.05", "> 0.05")
+         ),
+         p.fdr = p.adjust(p.value, "fdr"),
+         log.p.bonf = -log10(p.bonf))
+
+levels(prop_qc_fit$p.bonf.cat)
+prop_qc_fit %>% count(BrainRegion, p.bonf.cat)
+# BrainRegion p.bonf.cat     n
+# <chr>       <fct>      <int>
+# 1 Amygdala    <= 0.005      10
+# 2 Amygdala    <= 0.05        4
+# 3 Amygdala    > 0.05        36
+# 4 sACC        <= 0.005      11
+# 5 sACC        <= 0.01        1
+# 6 sACC        <= 0.05        2
+# 7 sACC        > 0.05        36
+
+## covariate tile plots
+tile_plot_val_qc <- prop_qc_fit %>%
+  ggplot(aes(x = Covariate, y = cell_type, fill = log.p.bonf)) +
+  geom_tile(color = "grey") +
+  geom_text(aes(label = ifelse(p.bonf.sig, format(round(-log10(p.bonf),1), nsmall = 1),""),
+                color = p.bonf.cat), size = 3, fontface = "bold",
+            show.legend = F)+
+  scale_color_manual(values = sig_colors) +
+  scale_fill_viridis(name = "-log10(p-value Bonf)", option = "magma", direction = -1) +
+  facet_wrap(~BrainRegion, ncol = 1)+
+  scale_y_discrete(limits = rev) +
+  labs(title ="p-values cell-type prop~qSV", x = 'Cell Type', color = "p-value Bonf\nsignificance") +
+  theme_bw(base_size = 15) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+ggsave(plot = tile_plot_val_qc,
+       filename = here("deconvolution","plots","covar_prop_fit_tileVal.png"))
+
+## Scatter plots
+regions <- list(sacc = "sACC", amyg = "Amygdala")
+
+est_prop_qc_fit <- left_join(est_prop_qc, prop_qc_fit)
+
+scatter_plot_qc <- map(regions, ~  est_prop_qc_fit %>%
+                      filter(BrainRegion == .x) %>%
+                      ggplot(aes(x = value, y = prop, color = p.bonf.cat))+
+                      geom_point(size = .4, alpha = .2) +
+                      facet_grid(cell_type~Covariate, scales = "free")+
+                      theme_bw(base_size = 10)+
+                      scale_color_manual(values = sig_colors2) +
+                      theme(legend.text = element_text(size = 15)) +
+                      guides(color = guide_legend(override.aes = list(size=5))) +
+                      labs(title = .x)
+)
+
+
+walk2(scatter_plot_qc, names(scatter_plot_qc), ~ggsave(filename = here("deconvolution","plots", paste0("covar_cellType_scatter-",.y,".png")),
+                                                 plot = .x, width = 10, height = 10))
 
 # sgejobs::job_single('deconvo_plots', create_shell = TRUE, queue= 'bluejay', memory = '10G', command = "Rscript deconvo_plots.R")
 ## Reproducibility information
