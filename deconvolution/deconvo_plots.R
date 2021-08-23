@@ -323,7 +323,7 @@ walk2(scatter_plot, names(scatter_plot), ~ggsave(filename = here("deconvolution"
        plot = .x, width = 26, height = 10))
 
 #### Cor w/ Covariates ####
-covariate_terms <- c("rRNA_rate","RIN","overallMapRate","mitoRate","AgeDeath")
+covariate_terms <- c("rRNA_rate","RIN","overallMapRate","mitoRate","AgeDeath", "ERCCsumLogErr")
 qc <- pd[,c("RNum",covariate_terms)]
 
 qc_long <- qc %>% pivot_longer(!RNum, names_to = "Covariate")
@@ -352,11 +352,10 @@ prop_qc_fit %>% count(BrainRegion, p.bonf.cat)
 # <chr>       <fct>      <int>
 # 1 Amygdala    <= 0.005      10
 # 2 Amygdala    <= 0.05        4
-# 3 Amygdala    > 0.05        36
+# 3 Amygdala    > 0.05        46
 # 4 sACC        <= 0.005      11
-# 5 sACC        <= 0.01        1
-# 6 sACC        <= 0.05        2
-# 7 sACC        > 0.05        36
+# 5 sACC        <= 0.05        3
+# 6 sACC        > 0.05        46
 
 ## covariate tile plots
 tile_plot_val_qc <- prop_qc_fit %>%
@@ -369,7 +368,7 @@ tile_plot_val_qc <- prop_qc_fit %>%
   scale_fill_viridis(name = "-log10(p-value Bonf)", option = "magma", direction = -1) +
   facet_wrap(~BrainRegion, ncol = 1)+
   scale_y_discrete(limits = rev) +
-  labs(title ="p-values cell-type prop~qSV", x = 'Cell Type', color = "p-value Bonf\nsignificance") +
+  labs(title ="p-values cell-type prop~Covariate", x = 'Cell Type', color = "p-value Bonf\nsignificance") +
   theme_bw(base_size = 15) +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 
