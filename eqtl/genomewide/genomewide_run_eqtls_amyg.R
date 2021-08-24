@@ -24,19 +24,28 @@ rse_tx <- rse_tx[, regInd]
 pd <- colData(rse_gene)
 
 ## load SNP data
-load(here("eqtl", "genomewide", "rdas", "overlappingSNPs.rda"), verbose = TRUE) # snpMapKeep
-load(here("genotype_data", "goesHyde_bipolarMdd_Genotypes_n593.rda"), verbose = TRUE)
+# load(here("eqtl", "genomewide", "rdas", "overlappingSNPs.rda"), verbose = TRUE) # snpMapKeep what snps do we want to keep?
+load(here("genotype_data", "goesHyde_bipolarMdd_Genotypes.rda"), verbose = TRUE) # mds snp snpMap
 head(snpMap)
 corner(snp)
-snpMap$pos_hg19 <- paste0(snpMap$CHR, ":", snpMap$POS)
+dim(snp)
+# [1] 8892060     595
+length(unique(pd$BrNum))
+# [1] 540
 
-#  In Bipolar code rownames are SNP, need to assign here
-# > identical(rownames(snpMap), snpMap$SNP)
-# [1] TRUE
+snpMap$pos_hg19 <- paste0(snpMap$CHR, ":", snpMap$POS)
 rownames(snp) <- rownames(snpMap) <- snpMap$SNP
-snpInd <- which(rownames(snpMap) %in% rownames(snpMapKeep) & !is.na(snpMap$pos_hg38))
+
+# table(rownames(snpMap) %in% rownames(snpMapKeep))
+# snpInd <- which(rownames(snpMap) %in% rownames(snpMapKeep) & !is.na(snpMap$pos_hg38))
+
+# First 1M to test
+snpInd <- 1:1e6
+length(snpInd)
 snpMap <- snpMap[snpInd, ]
 snp <- snp[snpInd, ]
+
+dim(snp)
 
 #####################
 # filter brain region
@@ -46,7 +55,10 @@ snp <- snp[snpInd, ]
 table(pd$BrNum %in% colnames(snp))
 table(pd$BrNum %in% rownames(mds))
 
-has_genotype <- pd$BrNum %in% rownames(mds) # snp and mds are missing BR1843
+## Non longer missing samples
+all(pd$BrNum %in% rownames(mds))
+has_genotype <- pd$BrNum %in% rownames(mds)
+length(has_genotype)
 rse_gene <- rse_gene[, has_genotype]
 rse_exon <- rse_exon[, has_genotype]
 rse_jxn <- rse_jxn[, has_genotype]
@@ -57,7 +69,9 @@ mds <- mds[pd$BrNum, ]
 snp <- snp[, pd$BrNum]
 rownames(mds) <- colnames(snp) <- pd$RNum
 snpMap$maf <- rowSums(snp, na.rm = TRUE) / (2 * rowSums(!is.na(snp)))
-
+summary(snpMap$maf)
+# Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+# 0.005556 0.037963 0.124074 0.171798 0.288889 0.515741
 
 ######################
 # statistical model ##
