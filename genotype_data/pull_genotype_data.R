@@ -21,11 +21,14 @@ rownames(pd_genoSamples) <- NULL
 message("\n ***** Read in genotypes *****")
 ## read in genotypes
 newbfile = "goesHyde_mdd_Genotypes_maf01_geno10_hwe1e6"
-genotypes  = read_delim(paste0(newbfile, ".traw"), delim="\t")
+genotypes  = read_delim(here("genotype_data",paste0(newbfile, ".traw")), delim="\t")
+
 
 snp = as.data.frame(genotypes[,-(1:6)])
-colnames(snp) = ifelse(grepl("^Br", ss(colnames(snp), "_")),
-                       ss(colnames(snp), "_"), ss(colnames(snp), "_",2))
+snp_BrNum = pd_genoSamples$BrNum[match(colnames(snp), pd_genoSamples$genoSample)]
+length(unique(snp_BrNum)) == nrow(pd_genoSamples)
+
+colnames(snp) = snp_BrNum
 
 # make map
 snpMap = as.data.frame(genotypes[,(1:6)])
