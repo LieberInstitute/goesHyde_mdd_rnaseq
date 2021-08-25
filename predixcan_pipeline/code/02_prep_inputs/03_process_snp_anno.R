@@ -17,7 +17,7 @@ snp_anno <- snpMap[!is.na(snpMap$rsNumGuess),]
 snp_anno <- snp_anno[, c("chr_hg38", "pos_hg38", "SNP", "COUNTED", "ALT")]
 
 snp_anno$snp_id_originalVCF <-
-  paste0("snp_", snp_anno$CHR, "_", snp_anno$POS)
+  paste0("snp_", gsub("chr", "", snp_anno$chr_hg38), "_", snp_anno$pos_hg38)
 
 snp_anno$rsNumGuess <-
   snpMap[!is.na(snpMap$rsNumGuess),]$rsNumGuess
