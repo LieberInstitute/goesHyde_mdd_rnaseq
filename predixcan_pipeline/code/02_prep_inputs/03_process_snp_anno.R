@@ -14,7 +14,7 @@ load(
 
 snp_anno <- snpMap[!is.na(snpMap$rsNumGuess),]
 
-snp_anno <- snp_anno[, c("CHR", "POS", "SNP", "COUNTED", "ALT")]
+snp_anno <- snp_anno[, c("chr_hg38", "pos_hg38", "SNP", "COUNTED", "ALT")]
 
 snp_anno$snp_id_originalVCF <-
   paste0("snp_", snp_anno$CHR, "_", snp_anno$POS)
