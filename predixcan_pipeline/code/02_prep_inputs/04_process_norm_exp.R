@@ -1,4 +1,5 @@
 library(GenomicRanges)
+# TODO package variant annotation :: readVCF?
 
 norm_exp <-
   read.delim(

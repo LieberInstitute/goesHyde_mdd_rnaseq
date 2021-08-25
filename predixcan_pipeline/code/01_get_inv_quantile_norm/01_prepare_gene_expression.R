@@ -38,26 +38,26 @@ rse_sub <-
 # and returns a list:
 # [[1]] is psychENCODE RNum
 # [[2]] is a vector of the genoSample column
-get.RNum.ID <- function(rse) {
-    # colData(rse)$ID <- seq.int(nrow(colData(rse)))
-    colData(rse)$psychENCODE <- row.names(colData(rse))
-    genoSample <- list()
-    # Selecting by highest RIN
-    genoSample[[1]] <- as.data.table(colData(rse)) %>%
-        group_by(genoSample) %>%
-        filter(RIN == max(RIN)) %>%
-        filter(overallMapRate == max(overallMapRate)) %>%
-        ungroup()
-    
-    genoSample[[2]] <- genoSample[[1]] %>%
-        select(genoSample) %>%
-        ungroup() %>%
-        as.vector()
-    
-    genoSample[[1]] <- genoSample[[1]]$psychENCODE
-    
-    return(genoSample)
-}
+# get.RNum.ID <- function(rse) {
+#     # colData(rse)$ID <- seq.int(nrow(colData(rse)))
+#     colData(rse)$psychENCODE <- row.names(colData(rse))
+#     genoSample <- list()
+#     # Selecting by highest RIN
+#     genoSample[[1]] <- as.data.table(colData(rse)) %>%
+#         group_by(genoSample) %>%
+#         filter(RIN == max(RIN)) %>%
+#         filter(overallMapRate == max(overallMapRate)) %>%
+#         ungroup()
+#     
+#     genoSample[[2]] <- genoSample[[1]] %>%
+#         select(genoSample) %>%
+#         ungroup() %>%
+#         as.vector()
+#     
+#     genoSample[[1]] <- genoSample[[1]]$psychENCODE
+#     
+#     return(genoSample)
+# }
 
 # plink_sub <- get.RNum.ID(rse_sub)[[2]]$genoSample
 plink_sub <- rse_sub$genoSample
