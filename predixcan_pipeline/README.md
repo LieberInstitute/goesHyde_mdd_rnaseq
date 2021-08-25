@@ -12,6 +12,8 @@ PROCESSED Gene Annotation file: `/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/pr
 
 Genotype: `/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/genotype_data/goesHyde_bipolarMdd_Genotypes.rda`
 
+Custom Genotype: `/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/predixcan_pipeline/processed-data/02_prep_inputs/goesHyde_bipolarMdd_Genotypes_PredictDB_NO-MDS.rda`
+
 Processed Genotype: `/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/predixcan_pipeline/processed-data/split_geno/`
 
 SNP Annotation Prepped: `/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/predixcan_pipeline/processed-data/02_prep_inputs/snp_annot_prep.txt`
