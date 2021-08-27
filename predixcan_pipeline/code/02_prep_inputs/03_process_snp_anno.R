@@ -16,6 +16,12 @@ snp_anno <- snpMap[!is.na(snpMap$rsNumGuess),]
 
 snp_anno <- snp_anno[, c("chr_hg38", "pos_hg38", "SNP", "COUNTED", "ALT")]
 
+# table(paste0(snp_anno$chr_hg38, ":", snp_anno$pos_hg38, ":", snp_anno$COUNTED, ":", snp_anno$ALT) == snp_anno$SNP)
+
+snp_anno$SNP <- paste0(snp_anno$chr_hg38, ":", snp_anno$pos_hg38, ":", snp_anno$COUNTED, ":", snp_anno$ALT)
+
+names(snp_anno)[3] <- "SNP_hg38"
+
 snp_anno$chr_hg38 <- snp_anno$chr_hg38 %>% gsub("chr", "", .)
 
 snp_anno$snp_id_originalVCF <-
@@ -42,7 +48,7 @@ snp_anno <- snp_anno[snp_anno$chromosome != "X",]
 
 snp_gen <- snp
 
-snp_gen$varID <- snpMap$rsNumGuess
+snp_gen$varID <- paste0(snpMap$chr_hg38, ":", snpMap$pos_hg38, ":", snpMap$COUNTED, ":", snpMap$ALT)
 
 snp_gen <- snp_gen %>%
   relocate(varID)
