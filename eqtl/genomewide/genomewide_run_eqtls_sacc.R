@@ -24,19 +24,19 @@ rse_tx <- rse_tx[, regInd]
 pd <- colData(rse_gene)
 
 ## load SNP data
-load(here("eqtl", "genomewide", "rdas", "overlappingSNPs.rda"), verbose = TRUE) # snpMapKeep
-load(here("genotype_data", "goesHyde_bipolarMdd_Genotypes_n593.rda"), verbose = TRUE)
+# load(here("eqtl", "genomewide", "rdas", "overlappingSNPs.rda"), verbose = TRUE) # snpMapKeep
+load(here("genotype_data", "goesHyde_bipolarMdd_Genotypes.rda"), verbose = TRUE)
 head(snpMap)
 corner(snp)
 snpMap$pos_hg19 <- paste0(snpMap$CHR, ":", snpMap$POS)
 
 #  In Bipolar code rownames are SNP, need to assign here
-# > identical(rownames(snpMap), snpMap$SNP)
-# [1] TRUE
 rownames(snp) <- rownames(snpMap) <- snpMap$SNP
-snpInd <- which(rownames(snpMap) %in% rownames(snpMapKeep) & !is.na(snpMap$pos_hg38))
-snpMap <- snpMap[snpInd, ]
-snp <- snp[snpInd, ]
+
+## filter snps w/ no HG38 pos
+has_pos <- !is.na(snpMap$pos_hg38)
+snpMap <- snpMap[has_pos, ]
+snp <- snp[has_pos, ]
 
 #####################
 # filter brain region
@@ -55,9 +55,9 @@ rse_tx <- rse_tx[, has_genotype]
 pd <- pd[has_genotype, ]
 mds <- mds[pd$BrNum, ]
 snp <- snp[, pd$BrNum]
+dim(snp)
 rownames(mds) <- colnames(snp) <- pd$RNum
 snpMap$maf <- rowSums(snp, na.rm = TRUE) / (2 * rowSums(!is.na(snp)))
-
 
 ######################
 # statistical model ##
@@ -67,10 +67,7 @@ pd$PrimaryDx <- factor(pd$PrimaryDx,
     levels = c("Control", "Bipolar", "MDD")
 )
 
-mod <- model.matrix(~ PrimaryDx + Sex + as.matrix(mds[, 1:5]), data = pd)
-colnames(mod)[grep("snpPC", colnames(mod))] <- colnames(mds)[1:5]
-
-
+mod <- cbind(model.matrix(~ PrimaryDx + Sex, data = pd),as.matrix(mds[, 1:5]))
 ######################
 # create SNP objects #
 ######################

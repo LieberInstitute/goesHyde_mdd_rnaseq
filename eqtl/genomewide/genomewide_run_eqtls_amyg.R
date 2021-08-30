@@ -39,14 +39,21 @@ rownames(snp) <- rownames(snpMap) <- snpMap$SNP
 # table(rownames(snpMap) %in% rownames(snpMapKeep))
 # snpInd <- which(rownames(snpMap) %in% rownames(snpMapKeep) & !is.na(snpMap$pos_hg38))
 
+## filter snps w/ no HG38 pos
+has_pos <- !is.na(snpMap$pos_hg38)
+table(has_pos)
+# FALSE    TRUE 
+# 92045 8800015 
+
+snpMap <- snpMap[has_pos, ]
+snp <- snp[has_pos, ]
+
 # First 1M to test
-snpInd <- 1:1e6
-length(snpInd)
-snpMap <- snpMap[snpInd, ]
-snp <- snp[snpInd, ]
+# snpInd <- 1:1e6
+# snpMap <- snpMap[snpInd, ]
+# snp <- snp[snpInd, ]
 
 dim(snp)
-
 #####################
 # filter brain region
 # make mds and snp dimensions equal to N
@@ -58,13 +65,13 @@ table(pd$BrNum %in% rownames(mds))
 ## Non longer missing samples
 all(pd$BrNum %in% rownames(mds))
 has_genotype <- pd$BrNum %in% rownames(mds)
-length(has_genotype)
-rse_gene <- rse_gene[, has_genotype]
-rse_exon <- rse_exon[, has_genotype]
-rse_jxn <- rse_jxn[, has_genotype]
-rse_tx <- rse_tx[, has_genotype]
+all(has_genotype)
+# rse_gene <- rse_gene[, has_genotype]
+# rse_exon <- rse_exon[, has_genotype]
+# rse_jxn <- rse_jxn[, has_genotype]
+# rse_tx <- rse_tx[, has_genotype]
+# pd <- pd[has_genotype, ]
 
-pd <- pd[has_genotype, ]
 mds <- mds[pd$BrNum, ]
 snp <- snp[, pd$BrNum]
 rownames(mds) <- colnames(snp) <- pd$RNum
@@ -72,6 +79,8 @@ snpMap$maf <- rowSums(snp, na.rm = TRUE) / (2 * rowSums(!is.na(snp)))
 summary(snpMap$maf)
 # Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
 # 0.005556 0.037963 0.124074 0.171798 0.288889 0.515741
+
+dim(snp)
 
 ######################
 # statistical model ##
@@ -81,14 +90,13 @@ pd$PrimaryDx <- factor(pd$PrimaryDx,
     levels = c("Control", "Bipolar", "MDD")
 )
 
-mod <- model.matrix(~ PrimaryDx + Sex + as.matrix(mds[, 1:5]), data = pd)
-colnames(mod)[grep("snpPC", colnames(mod))] <- colnames(mds)[1:5]
-
+mod <- cbind(model.matrix(~ PrimaryDx + Sex, data = pd), as.matrix(mds[, 1:5]))
+colnames(mod)
 
 ######################
 # create SNP objects #
 ######################
-
+message(Sys.time(), " Create SlicedData")
 theSnps <- SlicedData$new(as.matrix(snp))
 theSnps$ResliceCombined(sliceSize = 50000)
 
@@ -144,7 +152,6 @@ covsExon <- SlicedData$new(t(cbind(mod[, -1], exonPCs)))
 covsJxn <- SlicedData$new(t(cbind(mod[, -1], jxnPCs)))
 covsTx <- SlicedData$new(t(cbind(mod[, -1], txPCs)))
 
-
 ##########################
 ### feature annotation ###
 ##########################
@@ -192,6 +199,7 @@ message(Sys.time(), " EQTLs")
 print("Starting eQTLs")
 # takes a long time
 meGene_rda <- "matrixEqtl_output_amyg_genomewide_gene.rda"
+
 if(!file.exists(meGene_rda)){
     meGene <- Matrix_eQTL_main(
         snps = theSnps, gene = geneSlice,
