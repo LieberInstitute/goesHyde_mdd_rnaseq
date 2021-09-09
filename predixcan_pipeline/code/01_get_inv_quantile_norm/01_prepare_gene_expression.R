@@ -76,7 +76,7 @@ writeLines(
     )
 )
 
-# TODO extract PLINK sample restricted to IDs which only correspond to one
+# extract PLINK sample restricted to IDs which only correspond to one
 # diagnosis (try to sort while you're at it)
 # plink --bfile data --keep mylist.txt --make-bed --out data_keep
 

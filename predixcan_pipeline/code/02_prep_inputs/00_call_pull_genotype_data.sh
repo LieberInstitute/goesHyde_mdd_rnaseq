@@ -17,7 +17,7 @@ echo "Job name: ${JOB_NAME}"
 echo "Hostname: ${HOSTNAME}"
 echo "Task id: ${TASK_ID}"
 
-Rscript /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/predixcan_pipeline/code/02_prep_inputs/02_pull_genotype_data.R
+Rscript /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/predixcan_pipeline/code/02_prep_inputs/01_pull_genotype_data.R
 
 echo "**** Job ends ****"
 date
