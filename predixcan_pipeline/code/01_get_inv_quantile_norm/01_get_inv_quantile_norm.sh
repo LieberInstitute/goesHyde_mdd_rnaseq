@@ -78,6 +78,10 @@ export PYTHONPATH=$PYTHONPATH:/$PWD/rnaseq-utils
 # encountering some bgzip related error, it's probably for that reason.
 # python -m pdb
 # b 118
+
+# https://groups.google.com/g/predixcanmetaxcan/c/iC-aXrMUdT8/m/Z71Dgl1BBwAJ
+# "PredictDB-tutorial (https://github.com/hakyimlab/PredictDB-Tutorial) might
+# help you once you have normalized expression (via any normalization of your choice)."
 ./code/01_get_inv_quantile_norm/KJ_eqtl_prepare_expression.py ${Amyg_tpm_gct} ${Amyg_counts_gct} ${annotation_gtf} \
     ${Amyg_sample_participant_lookup} ${vcf_chr_list} ${prefix_Amygdala} \
     --tpm_threshold 0.1 \
