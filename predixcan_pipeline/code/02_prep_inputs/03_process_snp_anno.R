@@ -1,4 +1,5 @@
 library(dplyr)
+library(stringr)
 # qrsh -l mem_free=50G,h_vmem=50G
 
 setwd("/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/predixcan_pipeline")
@@ -11,10 +12,37 @@ load(
     "goesHyde_bipolarMdd_Genotypes_PredictDB_NO-MDS.rda"
   )
 )
+# 14:45 predixcan_pipeline $ head g.txt
+# chr10:78468655:T:G
+# chr10:78468656:T:G
+# chr1:1000006:T:C
+# chr1:100001850:T:C
+# chr1:100004543:G:A
+# chr1:1000051:A:G
+# chr1:100008665:T:C
+# chr1:1000113:A:G
+# chr1:100011988:G:A
+# chr1:10001199:A:AGTTT
 
+# 14:45 predixcan_pipeline $ tail g.txt
+# NA:NA:T:TG
+# NA:NA:T:TGACCTA
+# NA:NA:T:TGAGCACAGA
+# NA:NA:T:TGTCA
+# NA:NA:T:TTA
+# NA:NA:T:TTAAG
+# NA:NA:T:TTAGA
+# NA:NA:T:TTGAC
+# NA:NA:T:TTTA
+# NA:NA:T:TTTG
+
+# 15:14 predixcan_pipeline $ fgrep -v chr1 /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/predixcan_pipeline/processed-data/02_prep_inputs/split_geno/split_snp_geno.chr1.txt | wc -l
+# 4296
+
+# Remove all rows from snp annotation where there is no RSID
 snp_anno <- snpMap[!is.na(snpMap$rsNumGuess),]
 
-snp_anno <- snp_anno[, c("chr_hg38", "pos_hg38", "SNP", "COUNTED", "ALT")]
+snp_anno <- snp_anno[, c("chr_hg38", "pos_hg38", "SNP", "COUNTED", "ALT", "rsNumGuess")]
 
 # table(paste0(snp_anno$chr_hg38, ":", snp_anno$pos_hg38, ":", snp_anno$COUNTED, ":", snp_anno$ALT) == snp_anno$SNP)
 
@@ -27,9 +55,8 @@ snp_anno$chr_hg38 <- snp_anno$chr_hg38 %>% gsub("chr", "", .)
 snp_anno$snp_id_originalVCF <-
   paste0("snp_", gsub("chr", "", snp_anno$chr_hg38), "_", snp_anno$pos_hg38)
 
-snp_anno$rsNumGuess <-
-  snpMap[!is.na(snpMap$rsNumGuess),]$rsNumGuess
-
+# TODO Should I restrict the snp annotation to biallelic variants only? I guess it doesn't
+# matter since I already did it to another input although I don't remember which one right now
 snp_anno$Num_alt_per_site <- nchar(snp_anno$ALT)
 
 # colnames(snp_anno) <- c("Chr", "Pos", "VariantID", "Ref_b37", "Alt", "snp_id_originalVCF", "Num_alt_per_site")
@@ -39,21 +66,37 @@ colnames(snp_anno) <-
     "varID",
     "ref_vcf",
     "alt_vcf",
+    "rsid",
     "snp_id_originalVCF",
-    "rsid")
+    "Num_alt_per_site")
 
+# TODO Should I be removing X?
 snp_anno <- snp_anno[snp_anno$chromosome != "X",]
+
+snp_anno <- snp_anno[!is.na(snp_anno),]
 
 # snp_anno$VariantID <- snp_anno$VariantID %>% gsub(pattern = "[:]", replacement = "_") %>% gsub(pattern = "chr", replacement = "")
 
+# Assuming that snp and snpMap are in the same order
 snp_gen <- snp
 
 snp_gen$varID <- paste0(snpMap$chr_hg38, ":", snpMap$pos_hg38, ":", snpMap$COUNTED, ":", snpMap$ALT)
+snp_gen$rsid <- snpMap$rsNumGuess
 
 snp_gen <- snp_gen %>%
+  relocate(rsid) %>%
   relocate(varID)
 
-snp_gen <- snp_gen[!is.na(snp_gen$varID),]
+snp_gen <- snp_gen[!is.na(snp_gen$rsid),]
+
+# > table(snp_anno$varID %in% snp_gen$varID)
+#
+# FALSE    TRUE
+# 2875607  410801
+# > table(snp_gen$varID  %in%  snp_anno$varID)
+#
+# FALSE   TRUE
+# 154 410801
 
 snp_gen$CHR <- snpMap[!is.na(snpMap$rsNumGuess),]$CHR
 
@@ -68,6 +111,20 @@ split_snp_geno <- split(snp_gen, snp_gen$CHR)
 # for(i in 1:22){
 #   split_snp_geno[[i]]$CHR <- NULL
 # }
+
+for( i in 1:22){
+    print(table(split_snp_geno[[i]]$CHR))
+}
+
+str_split(split_snp_geno[[1]]$varID, ":")[[1]][1]
+
+test1 <- sapply(split_snp_geno[[1]]$varID, str_split, ":")
+
+# TODO Why is this happening?
+# > table(sapply(test1, "[[", 1) %>% unname())
+#
+#  chr1 chr21  chr9    NA
+# 24700     1     1     5
 
 sapply(1:22,
        function (x)
