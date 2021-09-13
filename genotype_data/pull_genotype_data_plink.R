@@ -15,9 +15,9 @@ pd = colData(rse_gene)
 # fam file ##
 
 ### read in fam
-bfile="topmed_mdd_602sample_090120_maf005"
+bfile="mdd_bpd/mdd_bpd_maf01"
 fam = read.table(paste0(bfile, ".fam"), as.is=TRUE)
-fam_samples <- paste0(fam$V1, "_", fam$V2)
+fam_samples <- fam$V2
 
 message("All ",length(unique(pd$genoSample)) , " samples present: ", all(unique(pd$genoSample) %in% fam_samples))
 
