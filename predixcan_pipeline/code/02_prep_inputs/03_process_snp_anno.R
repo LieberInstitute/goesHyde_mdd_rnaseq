@@ -54,7 +54,7 @@ snp_gen <- snp
 
 snp_gen$CHR <- snpMap$chr_hg38
 
-snp_anno$chr_hg38 <- snp_gen$CHR %>% gsub("chr", "", .)
+snp_gen$CHR <- snp_gen$CHR %>% gsub("chr", "", .)
 
 snp_gen$varID <- paste0(snpMap$chr_hg38, ":", snpMap$pos_hg38, ":", snpMap$COUNTED, ":", snpMap$ALT)
 snp_gen$rsid <- snpMap$rsNumGuess
