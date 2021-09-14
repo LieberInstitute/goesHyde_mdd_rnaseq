@@ -50,6 +50,7 @@ snp_anno <- snp_anno[!is.na(snp_anno),]
 # snp_anno$VariantID <- snp_anno$VariantID %>% gsub(pattern = "[:]", replacement = "_") %>% gsub(pattern = "chr", replacement = "")
 
 # Assuming that snp and snpMap are in the same order
+## Process genotype file
 snp_gen <- snp
 
 snp_gen$CHR <- snpMap$chr_hg38
@@ -65,34 +66,30 @@ snp_gen <- snp_gen %>%
 
 snp_gen <- snp_gen[!is.na(snp_gen$rsid),]
 
-# > table(snp_anno$varID %in% snp_gen$varID)
-#
-# FALSE    TRUE
-# 2875607  410801
-# > table(snp_gen$varID  %in%  snp_anno$varID)
+# table(snp_gen$varID %in% snp_anno$varID)
 #
 # FALSE   TRUE
 # 154 410801
 
+# head(snp_gen[!(snp_gen$varID  %in%  snp_anno$varID),1:5])
+# varID        rsid 4463344439_R01C02 4463344373_R01C02
+# 41391  NA:NA:T:C rs185317146                 2                 1
+# 363431 NA:NA:T:C rs541293479                 0                 0
+# 363452 NA:NA:A:T  rs61787357                 0                 0
+# 369147 NA:NA:A:G  rs74813420                 0                 0
+# 370016 NA:NA:T:G rs201128975                 1                 0
+# 988980 NA:NA:T:C  rs62652648                 0                 0
+# 4572348328_R01C01
+# 41391                  1
+# 363431                 0
+# 363452                 0
+# 369147                 0
+# 370016                 0
+# 988980                 0
+
 split_snp_geno <- split(snp_gen, snp_gen$CHR)
 
-# test1 <- sapply(split_snp_geno[[1]]$varID, str_split, ":")
-#
-# # TODO Why is this happening?
-# table(sapply(test1, "[[", 1) %>% unname())
 
-# > sapply(1:23, function(i) table(split_snp_geno[[i]]$CHR))
-# 1    10    11    12    13    14    15    16    17    18    19     2    20
-# 24707 17091 20370 15627 11830 10655  9276 12784  8675 17533 12203 29672  7674
-# 21    22     3     4     5     6     7     8     9     X
-# 4431  5019 23445 24640 21159 24902 21004 20506 67675    77
-
-# str_split(split_snp_geno[[1]]$varID, ":")[[1]][1]
-
-
-#
-#  chr1 chr21  chr9    NA
-# 24700     1     1     5
 
 sapply(1:22,
        function (x)
