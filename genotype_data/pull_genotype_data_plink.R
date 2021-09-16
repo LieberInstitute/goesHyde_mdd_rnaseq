@@ -15,7 +15,7 @@ pd = colData(rse_gene)
 # fam file ##
 
 ### read in fam
-bfile="mdd_bpd/mdd_bpd_maf01"
+bfile="mdd_bpd/maf01/mdd_bpd_maf01"
 fam = read.table(paste0(bfile, ".fam"), as.is=TRUE)
 fam_samples <- fam$V2
 
