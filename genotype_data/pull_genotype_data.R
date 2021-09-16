@@ -25,6 +25,7 @@ genotypes  = read_delim(here("genotype_data",paste0(newbfile, ".traw")), delim="
 
 
 snp = as.data.frame(genotypes[,-(1:6)])
+colnames(snp) <- gsub("^0_","",colnames(snp))
 snp_BrNum = pd_genoSamples$BrNum[match(colnames(snp), pd_genoSamples$genoSample)]
 length(unique(snp_BrNum)) == nrow(pd_genoSamples)
 
@@ -77,13 +78,16 @@ snpMap$name = NA
 snpMap$name[snpMap$Type != "SNV"] = rs$name[match(
   paste0("chr", snpMap$CHR, ":", snpMap$POS)[snpMap$Type != "SNV"], 
   paste0(rs$chrom, ":", rs$chromStart))]
+
 snpMap$name[snpMap$Type == "SNV"] = rs$name[match(
   paste0("chr", snpMap$CHR, ":", snpMap$POS)[snpMap$Type == "SNV"], 
   paste0(rs$chrom, ":", rs$chromEnd))]
 
+table(is.na(snpMap$name))
+table(is.na(snpMap$name), snpMap$Type)
 rm(rs)
 
-load("dbSNP.Rdata", verbose = TRUE)
+load(here("genotype_data","dbSNP.Rdata"), verbose = TRUE)
 dbSnp149 = dbSnp149[dbSnp149$RefSNP_id %in% snpMap$name]
 
 ### match to SNPs
@@ -128,7 +132,8 @@ rm(mm, mm2)
 #### read in MDS
 mds = read.table(paste0(newbfile, ".mds"), 
                  header=TRUE,as.is=TRUE)
-mds$genoSample = paste0(mds$FID,"_",mds$IID)
+mds$genoSample = mds$IID
+
 message("All genoSamples in mds: ", all(pd_genoSamples$genoSample %in%  mds$genoSample))
 mds$BrNum <- pd_genoSamples$BrNum[match(mds$genoSample, pd_genoSamples$genoSample)]
 rownames(mds) = mds$BrNum
