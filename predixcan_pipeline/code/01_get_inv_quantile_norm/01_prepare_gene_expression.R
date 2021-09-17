@@ -28,44 +28,20 @@ opt <- getopt(spec)
 
 load(here::here("exprs_cutoff", "rse_gene.Rdata"))
 
-# XX ACCEPT NO DUPLICATES / DESTROY ALL COUNTERFEITS XX
+# > table(colData(rse_gene)$PrimaryDx)
+# 
+# MDD Control Bipolar 
+# 459     387     245 
+
 rse_sub <-
     rse_gene[, colData(rse_gene)$BrainRegion == opt$region]
 
-# Very inelegant function that takes an RSE,
-# chooses the genoSample with the highest RIN
-# (RNA-seq integrity score) and, after that, overallMapRate,
-# and returns a list:
-# [[1]] is psychENCODE RNum
-# [[2]] is a vector of the genoSample column
-# get.RNum.ID <- function(rse) {
-#     # colData(rse)$ID <- seq.int(nrow(colData(rse)))
-#     colData(rse)$psychENCODE <- row.names(colData(rse))
-#     genoSample <- list()
-#     # Selecting by highest RIN
-#     genoSample[[1]] <- as.data.table(colData(rse)) %>%
-#         group_by(genoSample) %>%
-#         filter(RIN == max(RIN)) %>%
-#         filter(overallMapRate == max(overallMapRate)) %>%
-#         ungroup()
-#     
-#     genoSample[[2]] <- genoSample[[1]] %>%
-#         select(genoSample) %>%
-#         ungroup() %>%
-#         as.vector()
-#     
-#     genoSample[[1]] <- genoSample[[1]]$psychENCODE
-#     
-#     return(genoSample)
-# }
-
-# plink_sub <- get.RNum.ID(rse_sub)[[2]]$genoSample
 plink_sub <- rse_sub$genoSample
 
 IID <- sapply(strsplit(plink_sub, "_"), "[[", 2)
 FID <- sapply(strsplit(plink_sub, "_"), "[[", 1)
 
-# TODO write sample IDs of one dx (mdd) to file
+# Write sample IDs of one brain region
 writeLines(
     paste(FID, IID),
     con = here::here(
@@ -110,6 +86,7 @@ system(
     )
 )
 
+# Write genotype as a vcf
 system(
     paste(
         "plink --bfile",
@@ -136,7 +113,7 @@ system(
 )
 
 
-# TODO use bcftools to extract sample IDs
+# Use bcftools to extract sample IDs
 system(paste(
     "bcftools query -l",
     here::here(
@@ -159,7 +136,7 @@ system(paste(
 ))
 
 
-# TODO read in the sample IDs
+# Read in the sample IDs
 vcf_samp <-
     readLines(
         here::here(
@@ -170,9 +147,6 @@ vcf_samp <-
         )
     )
 
-# rse_sub_uniq <-
-#     rse_sub[, row.names(colData(rse_sub)) %in% get.RNum.ID(rse_sub)[[1]]] gets the psychencode ID
-# save <- rse_sub
 colnames(rse_sub) <- rse_sub$genoSample
 
 ## Writing counts and normalized counts to GCT ####

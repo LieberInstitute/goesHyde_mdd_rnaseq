@@ -26,7 +26,7 @@ colnames(norm_exp_transpose) <- n
 
 write.table(
   norm_exp_transpose,
-  file = "/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/predixcan_pipeline/processed-data/02_prep_inputs/transformed_expression.txt",
+  file = "/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/predixcan_pipeline/processed-data/02_prep_inputs/transformed_expression.txt", # TODO use here::here
   sep = "\t",
   row.names = TRUE
 )

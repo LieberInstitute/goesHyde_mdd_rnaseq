@@ -14,7 +14,7 @@ echo "Job name: ${JOB_NAME}"
 echo "Hostname: ${HOSTNAME}"
 echo "Task id: ${TASK_ID}"
 
-# Rscript code/01_get_inv_quantile_norm/03_convert_rda.R
+Rscript code/01_get_inv_quantile_norm/03_convert_rda.R
 
 conda activate eqtl_prepare_expression
 
