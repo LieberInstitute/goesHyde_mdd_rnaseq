@@ -23,8 +23,14 @@ module load htslib
 module list
 
 ## Edit with your job command
-bgzip /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/eqtl/data/phenotype_bed/gene_Amygdala.bed && tabix -p bed /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/eqtl/data/phenotype_bed/gene_Amygdala.bed.gz
-bgzip /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/eqtl/data/phenotype_bed/gene_sACC.bed && tabix -p bed /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/eqtl/data/phenotype_bed/gene_sACC.bed.gz
+bgzip /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/eqtl/data/expression_bed/gene_Amygdala.bed && tabix -p bed /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/eqtl/data/expression_bed/gene_Amygdala.bed.gz
+bgzip /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/eqtl/data/expression_bed/gene_sACC.bed && tabix -p bed /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/eqtl/data/expression_bed/gene_sACC.bed.gz
+bgzip /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/eqtl/data/expression_bed/exon_Amygdala.bed && tabix -p bed /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/eqtl/data/expression_bed/exon_Amygdala.bed.gz
+bgzip /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/eqtl/data/expression_bed/exon_sACC.bed && tabix -p bed /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/eqtl/data/expression_bed/exon_sACC.bed.gz
+bgzip /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/eqtl/data/expression_bed/jxn_Amygdala.bed && tabix -p bed /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/eqtl/data/expression_bed/jxn_Amygdala.bed.gz
+bgzip /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/eqtl/data/expression_bed/jxn_sACC.bed && tabix -p bed /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/eqtl/data/expression_bed/jxn_sACC.bed.gz
+bgzip /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/eqtl/data/expression_bed/tx_Amygdala.bed && tabix -p bed /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/eqtl/data/expression_bed/tx_Amygdala.bed.gz
+bgzip /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/eqtl/data/expression_bed/tx_sACC.bed && tabix -p bed /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/eqtl/data/expression_bed/tx_sACC.bed.gz
 
 echo "**** Job ends ****"
 date
