@@ -14,7 +14,7 @@ load(here("exprs_cutoff", "rse_tx.Rdata"), verbose = TRUE)
 
 pd <- colData(rse_gene)
 
-load(here("genotype_data","goesHyde_bipolarMdd_Genotypes_mds.rda"), verbose = TRUE)
+# load(here("genotype_data","goesHyde_bipolarMdd_Genotypes_mds.rda"), verbose = TRUE)
 
 #### Model ####
 message(Sys.time(), " Get statistical model")
@@ -22,7 +22,7 @@ pd$PrimaryDx <- factor(pd$PrimaryDx,
                        levels = c("Control", "Bipolar", "MDD")
 )
 
-mod <- model.matrix(~ PrimaryDx + Sex + snpPC1 + snpPC2 + snpPC3 + snpPC4 + snpPC5, data = pd)
+mod <- model.matrix(~PrimaryDx + Sex + snpPC1 + snpPC2 + snpPC3 + snpPC4 + snpPC5, data = pd)
 colnames(mod)
 
 #### calculate rpkm ####
@@ -38,7 +38,7 @@ jxnRp10m <- recount::getRPKM(rse_jxn, "Length")
 rm(rse_jxn)
 
 txTpm <- assays(rse_tx)$tpm
-rm(rse_tx
+rm(rse_tx)
 
 #### do PCA ####
 message(Sys.time(), " Do PCA")
@@ -61,7 +61,7 @@ pcaTx <- prcomp(t(log2(txTpm + 1)))
 kTx <- num.sv(log2(txTpm + 1), mod, vfilter = 50000)
 txPCs <- pcaTx$x[, 1:kTx]
 
-save(genePCs, exonPCs, jxnPCs, txPCs, file = pca_rda_file)
+save(genePCs, exonPCs, jxnPCs, txPCs, file = here("eqtl", "data", "pcs_4features.Rdata"))
   
 # sgejobs::job_single("get_pcs_4features", memory = "150G",create_shell = TRUE, command = "Rscript get_pcs_4features.R")
 
