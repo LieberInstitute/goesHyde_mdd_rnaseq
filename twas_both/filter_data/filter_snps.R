@@ -120,7 +120,7 @@ save(genePCs, file = paste0(opt$region, "_rda/genePCs.Rdata"))
 colData(rse_gene) <- cbind(colData(rse_gene), genePCs)
 
 ## Save for later
-save(rse_gene, file = paste0(opt$region, "_rda/MDD_", opt$region, "_hg38_rseGene_rawCounts_allSamples_n", ncol(rse_gene), ".Rdata"))
+save(rse_gene, file = paste0(opt$region, "_rda/", opt$region, "_hg38_rseGene_rawCounts_allSamples_n", ncol(rse_gene), ".Rdata"))
 
 ## Now extract the genotype data too
 filter_m <- match(brnumerical(rse_gene$BrNum), libd_fam$brnumerical)
@@ -130,7 +130,7 @@ fwrite(
     file = samp_file,
     sep = "\t", col.names = FALSE
 )
-newbfile_root <- paste0("mdd_bpd_maf01.rsid", opt$region, "_MDD")
+newbfile_root <- paste0("mdd_bpd_maf01.rsid", opt$region)
 
 dir.create(paste0(opt$region, "_duplicate_snps_bim"), showWarnings = FALSE)
 newbfile <- here::here("twas_both", "filter_data", paste0(opt$region, "_duplicate_snps_bim"), paste0(
