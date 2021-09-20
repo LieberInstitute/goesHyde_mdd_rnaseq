@@ -167,3 +167,7 @@ Scripts:
         - `expression_file <- "/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/predixcan_pipeline/processed-data/02_prep_inputs/transformed_expression.txt"`
         - `covariates_file <- "/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/predixcan_pipeline/processed-data/01_get_inv_quantile_norm/goesHyde_mdd_rnaseq_Amygdala.combined_covariates.txt"`
         - `prefix <- "goesHyde_mdd_Amygada_Model_training"`
+      - Outputs:
+        - `predixcan_pipeline/summary/goesHyde_mdd_Amygada_Model_training_chr{1-22}_model_summaries.txt`
+        - `predixcan_pipeline/summary/goesHyde_mdd_Amygada_Model_training_chr{1-22}_summary.txt`
+        - `predixcan_pipeline/weights/goesHyde_mdd_Amygada_Model_training_chr{1-22}_weights.txt`
