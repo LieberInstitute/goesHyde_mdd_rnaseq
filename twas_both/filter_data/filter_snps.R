@@ -20,7 +20,7 @@ opt <- getopt(spec)
 if (tolower(opt$region) == "sacc") {
     opt$region = "sACC"
 } else if (tolower(opt$region) == "amygdala" || tolower(opt$region) == "amyg") {
-    opt$region = "Amygdala" 
+    opt$region = "Amygdala"
 } else {
     cat(getopt(spec, usage = TRUE))
     q(status = 1)
@@ -38,20 +38,13 @@ data.table::setDTthreads(threads = 1)
 ## Find the samples for this project
 load("/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/exprs_cutoff/rse_gene.Rdata", verbose = TRUE)
 
-## TODO Take in a command line option that allows the user to define whether they want to filter amyg or sACC samples
-
 ## 99 brains only have 1 sample either in one region or another
-## 540 amyg samples from 540 brains
-## 551 sACC samples from 551 brains
+## 540 amyg samples
+## 551 sACC samples
 ## 588 MDD
 ## 503 BP
 
-experiments <- subset(colData(rse_gene), select = SAMPLE_ID) 
-# Rnum <- experiments[grepl("MDD", rownames(experiments)),]
-
-rse_gene <- rse_gene[, grepl("MDD", rownames(experiments))]
-
-# subset rse_gene to either Amygdala or sACC, whichever the user selected 
+# subset rse_gene to either Amygdala or sACC, whichever the user selected
 rse_gene <- rse_gene[, colData(rse_gene)$BrainRegion == opt$region]
 
 stopifnot(length(unique(rse_gene$BrNum)) == ncol(rse_gene))
@@ -65,14 +58,23 @@ brnumerical <- function(x) {
     as.integer(gsub("Br|_.*", "", x))
 }
 
-libd_bfile <- "/dcl01/lieber/ajaffe/Brain/Imputation/Subj_Cleaned/LIBD_merged_h650_1M_Omni5M_Onmi2pt5_Macrogen_QuadsPlus_dropBrains_maf01_hwe6_geno10_hg38"
+libd_bfile <- "/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/genotype_data/mdd_bpd/maf01/mdd_bpd_maf01.rsid"
+
+# Cross referencing to retrieve BrNums
+cross_ref <- fread("/dcl01/lieber/RNAseq/Datasets/BrainGenotyping_2018/merged_batches_topmed/usable_genotypes/maf01/Genotype2422.csv", skip = 1, drop = 1)
+colnames(cross_ref) <- c("PLINK_ID", "BrNum")
 
 ## Read the LIBD fam data
 libd_fam <- fread(
     paste0(libd_bfile, ".fam"),
     col.names = c("famid", "w_famid", "w_famid_fa", "w_famid_mo", "sex_code", "phenotype")
 )
-libd_fam$brnumerical <- brnumerical(libd_fam$famid)
+
+libd_fam$plink_key <- paste0(libd_fam$famid, "_", libd_fam$w_famid)
+
+libd_fam$BrNum <- cross_ref[match(libd_fam$plink_key, cross_ref$PLINK_ID),]$BrNum
+
+libd_fam$brnumerical <- brnumerical(libd_fam$BrNum)
 setkey(libd_fam, "brnumerical")
 
 ## Filter the LIBD data to the one specific to this project
@@ -128,7 +130,7 @@ fwrite(
     file = samp_file,
     sep = "\t", col.names = FALSE
 )
-newbfile_root <- paste0("LIBD_merged_h650_1M_Omni5M_Onmi2pt5_Macrogen_QuadsPlus_dropBrains_maf01_hwe6_geno10_hg38_filtered_", opt$region, "_MDD")
+newbfile_root <- paste0("mdd_bpd_maf01.rsid", opt$region, "_MDD")
 
 dir.create(paste0(opt$region, "_duplicate_snps_bim"), showWarnings = FALSE)
 newbfile <- here::here("twas_both", "filter_data", paste0(opt$region, "_duplicate_snps_bim"), paste0(
