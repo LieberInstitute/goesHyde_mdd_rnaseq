@@ -6,6 +6,8 @@ print(f'PyTorch {torch.__version__}')
 print(f'Pandas {pd.__version__}')
 
 def my_tensorqtl_run(plink_prefix_path, expression_bed, covariates_file, prefix):
+    print("Starting " + prefix)
+    
     # load phenotypes and covariates
     phenotype_df, phenotype_pos_df = tensorqtl.read_phenotype_bed(expression_bed)
     covariates_df = pd.read_csv(covariates_file, sep='\t', index_col=0).T
@@ -42,11 +44,3 @@ def my_tensorqtl_run(plink_prefix_path, expression_bed, covariates_file, prefix)
         
     cis_df.to_csv(prefix + ".csv")
 
-# define paths to data
-plink_prefix_path = "../data/risk_snps/LIBD_maf01_gwas_BPD_Amygdala"
-expression_bed = '../data/expression_bed/gene_Amygdala.bed.gz'
-covariates_file = '../data/covariates_txt/covariates_gene_Amygdala.txt'
-prefix = '/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/eqtl/data/tensorQTL_out/Amyg_test_cis'
-
-
-cis_df.to_csv(prefix + ".csv")
