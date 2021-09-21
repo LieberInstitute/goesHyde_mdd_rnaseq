@@ -12,128 +12,33 @@ library("sessioninfo")
 library("tidyverse")
 library("getopt")
 
-spec <- matrix(
-    c('region', 'r', 1, 'character', 'Either Amygdala or SACC'),
-    byrow = TRUE,
-    ncol = 5
-)
+spec <- matrix(c(
+    'region', 'r', 1, 'character', 'Either Amygdala or SACC'
+), byrow=TRUE, ncol=5)
 opt <- getopt(spec)
+
+# opt$region <- "Amygdala"
 
 if (tolower(opt$region) == "sacc") {
     opt$region = "sACC"
-} else if (tolower(opt$region) == "amygdala" ||
-           tolower(opt$region) == "amyg") {
+} else if (tolower(opt$region) == "amygdala" || tolower(opt$region) == "amyg") {
     opt$region = "Amygdala"
 } else {
     cat(getopt(spec, usage = TRUE))
     q(status = 1)
 }
 
-## For converting BrNum's into numbers
-brnumerical <- function(x) {
-    as.integer(gsub("Br|_.*", "", x))
-}
-
-# opt$region <- "Amygdala"
-
-# --update-ids expects input with the following four fields:
-#
-# Old family ID
-# Old within-family ID
-# New family ID
-# New within-family ID
-
-## USING PLINK TO UPDATE IDs ####
-
-# Cross referencing to retrieve BrNums
-cross_ref <-
-    fread(
-        "/dcl01/lieber/RNAseq/Datasets/BrainGenotyping_2018/merged_batches_topmed/usable_genotypes/maf01/Genotype2422.csv",
-        skip = 1,
-        drop = 1
-    )
-colnames(cross_ref) <- c("PLINK_ID", "BrNum")
-
-libd_bfile <-
-    "/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/genotype_data/mdd_bpd/maf01/mdd_bpd_maf01.rsid"
-
-## Read the LIBD fam data
-libd_fam <- fread(
-    paste0(libd_bfile, ".fam"),
-    col.names = c(
-        "famid",
-        "w_famid",
-        "w_famid_fa",
-        "w_famid_mo",
-        "sex_code",
-        "phenotype"
-    )
-)
-
-convert_to_BrNum <- data.table()
-
-libd_fam$plink_key <- paste0(libd_fam$famid, "_", libd_fam$w_famid)
-
-libd_fam$BrNum <-
-    cross_ref[match(libd_fam$plink_key, cross_ref$PLINK_ID), ]$BrNum
-
-convert_to_BrNum$famid <- libd_fam$famid
-convert_to_BrNum$w_famid <- libd_fam$w_famid
-convert_to_BrNum$new_famid <- libd_fam$BrNum
-convert_to_BrNum$new_w_famid <- libd_fam$w_famid
-
-dir.create(here::here("twas_both", "filter_data", "reformat_genotype"), showWarnings = FALSE)
-
-BrNum_lookup <- here::here(
-    "twas_both",
-    "filter_data",
-    "reformat_genotype",
-    "mdd_bpd_maf01.rsid.BrNumOnly.lookup.txt"
-)
-
-fwrite(
-    convert_to_BrNum,
-    file = BrNum_lookup,
-    quote = FALSE,
-    sep = "\t",
-    col.names = FALSE
-)
-
-new_BrNum_genotype <- here::here("twas_both", "filter_data", "reformat_genotype", "mdd_bpd_maf01.rsid.BrNumOnly")
-
-## Extract
-message(paste(
-    Sys.time(),
-    "creating new PLINK files with appropriate IDs",
-    new_BrNum_genotype
-))
-
-system(
-    paste(
-        "plink --bfile",
-        libd_bfile,
-        "--update-ids",
-        BrNum_lookup,
-        "--make-bed --out",
-        new_BrNum_genotype,
-        " --memory 100000 --biallelic-only"
-    )
-)
-
 ## Show the options used
 message(paste(Sys.time(), "options used"))
 print(opt)
 
-dir.create(paste0(opt$region, "_rda"), showWarnings = FALSE)
+dir.create(paste0(opt$region,"_rda"), showWarnings = FALSE)
 
 ## To avoid issues with running this code on qsub
 data.table::setDTthreads(threads = 1)
 
 ## Find the samples for this project
-load(
-    "/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/exprs_cutoff/rse_gene.Rdata",
-    verbose = TRUE
-)
+load(here::here("exprs_cutoff", "rse_gene.Rdata"))
 
 ## 99 brains only have 1 sample either in one region or another
 ## 540 amyg samples
@@ -146,37 +51,75 @@ rse_gene <- rse_gene[, colData(rse_gene)$BrainRegion == opt$region]
 
 stopifnot(length(unique(rse_gene$BrNum)) == ncol(rse_gene))
 
-## Note that some rse_gene$BrNums have 0s that the rownames(mds)
-## don't have
-load(
-    "/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/genotype_data/goesHyde_bipolarMdd_Genotypes_mds.rda",
-    verbose = TRUE
+# Load snpPCs
+load(here::here("genotype_data", "goesHyde_bipolarMdd_Genotypes_mds.rda"))
+
+## For converting BrNum's into numbers
+brnumerical <- function(x) {
+    as.integer(gsub("Br|_.*", "", x))
+}
+
+# Read in original PLINK files
+libd_bfile <- here::here("genotype_data", "mdd_bpd", "maf01", "mdd_bpd_maf01.rsid")
+
+# Cross referencing to retrieve BrNums
+cross_ref <- fread("/dcl01/lieber/RNAseq/Datasets/BrainGenotyping_2018/merged_batches_topmed/usable_genotypes/maf01/Genotype2422.csv", skip = 1, drop = 1)
+colnames(cross_ref) <- c("PLINK_ID", "BrNum")
+
+new_plink_loc <- here::here("twas_both", "filter_data", "reformat_genotype")
+
+dir.create(new_plink_loc, showWarnings = FALSE)
+
+# copying the genotype data
+system(paste0("cp ", libd_bfile, "* ", new_plink_loc, "/"))
+
+libd_bfile <- here::here("twas_both", "filter_data", "reformat_genotype", "mdd_bpd_maf01.rsid")
+
+## Read the LIBD fam data
+libd_fam <- fread(
+    paste0(libd_bfile, ".fam"),
+    col.names = c("famid", "w_famid", "w_famid_fa", "w_famid_mo", "sex_code", "phenotype")
 )
 
-libd_fam$brnumerical <- brnumerical(libd_fam$BrNum)
+libd_fam$plink_key <- paste0(libd_fam$famid, "_", libd_fam$w_famid)
 
+libd_fam$BrNum <- cross_ref[match(libd_fam$plink_key, cross_ref$PLINK_ID),]$BrNum
+
+libd_fam_save <- libd_fam %>%
+    mutate(famid = BrNum) %>%
+    mutate(w_famid = BrNum) %>%
+    mutate(plink_key = NULL) %>%
+    mutate(BrNum = NULL)
+
+fwrite(libd_fam_save,
+       file = paste0(libd_bfile, ".fam"),
+       quote = FALSE,
+       sep = "\t",
+       row.names = FALSE,
+       col.names = FALSE)
+
+libd_fam$brnumerical <- brnumerical(libd_fam$BrNum)
 setkey(libd_fam, "brnumerical")
 
 ## Filter the LIBD data to the one specific to this project
-# region <- "NAc_Nicotine"
 message(paste(Sys.time(), "processing", opt$region))
 samp_file <- paste0("samples_to_extract_", opt$region, ".txt")
 
 ## Which samples have genotype data and MDS data?
-samples_in_all <- intersect(intersect(brnumerical(rse_gene$BrNum), libd_fam$brnumerical),
-                            brnumerical(rownames(mds)))
+samples_in_all <- intersect(
+    intersect(brnumerical(rse_gene$BrNum), libd_fam$brnumerical),
+    brnumerical(rownames(mds))
+)
 
 ################################
 ## Subset and save all key files
 ################################
-rse_gene <-
-    rse_gene[, brnumerical(rse_gene$BrNum) %in% samples_in_all]
+rse_gene <- rse_gene[, brnumerical(rse_gene$BrNum) %in% samples_in_all]
 
 ## Match rse_gene to mds
-m_to_mds <-
-    match(brnumerical(rse_gene$BrNum), brnumerical(rownames(mds)))
+m_to_mds <- match(brnumerical(rse_gene$BrNum), brnumerical(rownames(mds)))
 stopifnot(all(!is.na(m_to_mds)))
-mds <- mds[m_to_mds,]
+mds <- mds[m_to_mds, ]
 
 ## Append mds to colData
 colData(rse_gene) <- cbind(colData(rse_gene), mds)
@@ -190,8 +133,7 @@ pcaGene <- prcomp(t(log2(assays(rse_gene)$RPKM + 1)))
 save(pcaGene, file = paste0(opt$region, "_rda/pcaGene.Rdata"))
 
 message(Sys.time(), " determine how many gene PCs to adjust for")
-mod <-
-    model.matrix( ~ Sex + snpPC1 + snpPC2 + snpPC3 + snpPC4 + snpPC5, data = colData(rse_gene))
+mod <- model.matrix(~ Sex + snpPC1 + snpPC2 + snpPC3 + snpPC4 + snpPC5, data = colData(rse_gene))
 kGene <- num.sv(log2(assays(rse_gene)$RPKM + 1), mod)
 stopifnot(kGene > 0)
 genePCs <- pcaGene$x[, seq_len(kGene)]
@@ -201,96 +143,54 @@ save(genePCs, file = paste0(opt$region, "_rda/genePCs.Rdata"))
 colData(rse_gene) <- cbind(colData(rse_gene), genePCs)
 
 ## Save for later
-save(
-    rse_gene,
-    file = paste0(
-        opt$region,
-        "_rda/",
-        opt$region,
-        "_hg38_rseGene_rawCounts_allSamples_n",
-        ncol(rse_gene),
-        ".Rdata"
-    )
-)
+save(rse_gene, file = paste0(opt$region, "_rda/", opt$region, "_hg38_rseGene_rawCounts_allSamples_n", ncol(rse_gene), ".Rdata"))
 
 ## Now extract the genotype data too
 filter_m <- match(brnumerical(rse_gene$BrNum), libd_fam$brnumerical)
 stopifnot(all(!is.na(filter_m)))
-fwrite(libd_fam[filter_m, 1:2],
-       ## can be more involved
-       file = samp_file,
-       sep = "\t",
-       col.names = FALSE)
+fwrite(
+    libd_fam[filter_m, 1:2], ## can be more involved
+    file = samp_file,
+    sep = "\t", col.names = FALSE
+)
 newbfile_root <- paste0("mdd_bpd_maf01.rsid", opt$region)
 
 dir.create(paste0(opt$region, "_duplicate_snps_bim"), showWarnings = FALSE)
-newbfile <-
-    here::here(
-        "twas_both",
-        "filter_data",
-        paste0(opt$region, "_duplicate_snps_bim"),
-        paste0(newbfile_root,
-               "_duplicateSNPs")
-    )
+newbfile <- here::here("twas_both", "filter_data", paste0(opt$region, "_duplicate_snps_bim"), paste0(
+    newbfile_root,
+    "_duplicateSNPs"
+))
 
 ## Extract
 message(paste(Sys.time(), "running bfile extract for", newbfile))
-system(
-    paste(
-        "plink --bfile",
-        libd_bfile,
-        "--keep",
-        samp_file,
-        "--make-bed --out",
-        newbfile,
-        " --memory 100000 --biallelic-only"
-    )
-)
+system(paste(
+    "plink --bfile", libd_bfile,
+    "--keep", samp_file, "--make-bed --out",
+    newbfile, " --memory 100000 --biallelic-only"
+))
 
 ## Check that we have the right data
-newbfile_fam <- fread(
-    paste0(newbfile, ".fam"),
-    col.names = c(
-        "famid",
-        "w_famid",
-        "w_famid_fa",
-        "w_famid_mo",
-        "sex_code",
-        "phenotype"
-    )
+newbfile_fam <- fread(paste0(newbfile, ".fam"),
+    col.names = c("famid", "w_famid", "w_famid_fa", "w_famid_mo", "sex_code", "phenotype")
 )
-
-# error
-check_m <-
-    match(brnumerical(newbfile_fam$famid),
-          brnumerical(colData(rse_gene)$BrNum))
+check_m <- match(brnumerical(newbfile_fam$famid), brnumerical(colData(rse_gene)$BrNum))
 stopifnot(all(!is.na(check_m)))
 
 
 ## Re-run but now make the SNV names unique
 dir.create(paste0(opt$region, "_unique_snps_bim"), showWarnings = FALSE)
-newbfile_unique <-
-    here::here(
-        "twas_both",
-        "filter_data",
-        paste0(opt$region, "_unique_snps_bim"),
-        paste0(newbfile_root,
-               "_uniqueSNPs")
-    )
+newbfile_unique <- here::here("twas_both", "filter_data", paste0(opt$region, "_unique_snps_bim"), paste0(
+    newbfile_root,
+    "_uniqueSNPs"
+))
 
 ## Extract again (could also copy and rename, but it's fast this way)
 message(paste(Sys.time(), "running bfile extract for", newbfile_unique))
-system(
-    paste(
-        "plink --bfile",
-        libd_bfile,
-        "--keep",
-        samp_file,
-        "--make-bed --out",
-        newbfile_unique,
-        " --memory 100000 --biallelic-only"
-    )
-)
+system(paste(
+    "plink --bfile", libd_bfile,
+    "--keep", samp_file, "--make-bed --out",
+    newbfile_unique, " --memory 100000 --biallelic-only"
+))
 
 
 message(paste(Sys.time(), "reading the bim file", newbfile_unique))
@@ -309,12 +209,7 @@ bim$snp <- make.names(bim$snp, unique = TRUE)
 stopifnot(all(!duplicated(bim$snp)))
 
 ## Ovewrite the PLINK bim file
-fwrite(
-    bim,
-    file = paste0(newbfile_unique, ".bim"),
-    sep = " ",
-    col.names = FALSE
-)
+fwrite(bim, file = paste0(newbfile_unique, ".bim"), sep = " ", col.names = FALSE)
 
 
 ## Reproducibility information
