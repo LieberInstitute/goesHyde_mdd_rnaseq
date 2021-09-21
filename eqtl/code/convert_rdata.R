@@ -16,29 +16,34 @@ load(here("exprs_cutoff", "rse_tx.Rdata"), verbose = TRUE)
 ## Split gene data
 regions <- c(amyg = "Amygdala", sacc = "sACC")
 features <- c("gene", "exon", "jxn", "tx")
+names(features)  <- features
+
 rse_gene_split <- map(regions, ~rse_gene[,rse_gene$BrainRegion == .x])
 samples_split <- map(rse_gene_split, colnames)
 
 #### Covariate Data ####
-# load(here("eqtl", "genomewide", "rdas", "pcs_4features_amyg.rda"), verbose = TRUE)
-load(here("eqtl", "data", "pcs_4features_gene_temp.rda"), verbose = TRUE)
-
+load(here("eqtl", "data", "pcs_4features.Rdata"), verbose = TRUE)
 corner(genePCs)
+dim(genePCs)
+
 all(rownames(genePCs) == colnames(rse_gene))
 
-covars <- map2(rse_gene_split, regions,  
-               ~map2(list(genePCs), features[[1]],
-                     function(pc, feat){
-                       message(.y)
-                       pc <- pc[colnames(.x),]
-                       rownames(pc) <- .x$genoSample
-                       pc <- t(pc)
-                       pc <- as.data.frame(pc) %>% rownames_to_column("id")
-                       # write.table(pc,
-                       #             file= here("eqtl","data","covariates_txt", paste0("covariates_",feat,"_",.y,".txt")),
-                       #             sep = "\t", quote = FALSE, row.names = FALSE)
-                       return(pc)
-                     }))
+covars <- map2(list(genePCs, exonPCs, jxnPCs, txPCs), features,
+                function(pc, feat){
+                  map2(rse_gene_split, regions, function(rse, region){
+                    message(paste(feat, region))
+                    pc <- pc[colnames(rse),]
+                    rownames(pc) <- rse$genoSample
+                    pc <- t(pc)
+                    pc <- as.data.frame(pc) %>% rownames_to_column("id")
+                    write.table(pc,
+                                file= here("eqtl","data","covariates_txt", paste0("covariates_",feat,"_",region,".txt")),
+                                sep = "\t", quote = FALSE, row.names = FALSE)
+                    return(pc)
+                  })
+                })
+
+
 
 #### Expression Data ####
 expression_fn <- map(features, function(feat) map(regions, ~here("eqtl","data", "expression_bed", paste0(feat, "_",.x,".bed"))))
@@ -56,7 +61,7 @@ walk2(expression_bed, expression_fn, function(expr, fn){
 )
 
 ## Create shell script to zip data
-commands <- map(fn_gene, ~paste0("bgzip ", .x," && tabix -p bed ", .x,".gz"))
+commands <- map(unlist(expression_fn), ~paste0("bgzip ", .x," && tabix -p bed ", .x,".gz"))
 if(file.exists("bed_bgzip.sh")) file.remove("bed_bgzip.sh")
 sgejobs::job_single("bed_bgzip", create_shell = TRUE, queue= 'bluejay', memory = '100G', 
                     command = paste(commands, collapse = '\n'))
@@ -83,3 +88,6 @@ map2(bed, covars, ~all(colnames(.x[,5:ncol(.x)]) == colnames(.y[[1]][,2:ncol(.y[
 
 vcf_test <- readVcf("../data/risk_snps/LIBD_maf01_gwas_BPD_Amygdala.vcf.gz")
 ## create shell commands ##
+
+sgejobs::job_single("tensorqtl_risk_snps", create_shell = TRUE, queue= 'bluejay', memory = '50G', 
+                    command = "python tensorqtl_risk_snps.py")
