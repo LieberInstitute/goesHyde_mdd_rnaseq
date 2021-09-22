@@ -59,9 +59,9 @@ genePCs <- map2(region_samples, names(region_samples), function(r_samples, r_nam
   pca <- prcomp(t(log2(rpkm_region + 1)))
   message("start num sv")
   k <- num.sv(log2(rpkm_region + 1), mod_region)
-  PCs <- pcaGene$x[, 1:k]
+  PCs <- pca$x[, 1:k]
   
-  save(genePCs, file = paste0(pca_rda_dir, "genePCs",r_name,".rda"))
+  save(PCs, file = paste0(pca_rda_dir, "genePCs",r_name,".rda"))
   return(PCs)
 })
 
@@ -74,9 +74,9 @@ otherPCs <- map2(rpkm, names(rpkm), function(f_rpkm, f_name){
     mod_region <- mod[r_samples,]
     pca <- prcomp(t(log2(rpkm_region + 1)))
     k <- num.sv(log2(rpkm_region + 1), mod_region, vfilter = 50000)
-    PCs <- pcaGene$x[, 1:k]
+    PCs <- pca$x[, 1:k]
     
-    save(genePCs, file = paste0(pca_rda_dir, f_name, "PCs",r_name,".rda"))
+    save(PCs, file = paste0(pca_rda_dir, f_name, "PCs",r_name,".rda"))
     return(PCs)
   })
 })
