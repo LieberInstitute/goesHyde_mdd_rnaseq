@@ -57,38 +57,9 @@ stopifnot(length(unique(rse_gene$BrNum)) == ncol(rse_gene))
 # Load snpPCs
 load(here::here("genotype_data", "goesHyde_bipolarMdd_Genotypes_mds.rda"))
 
-## For converting BrNum's into numbers
-brnumerical <- function(x) {
-    as.integer(gsub("Br|_.*", "", x))
-}
-
 # Read in original PLINK files
 libd_bfile <-
     here::here("genotype_data", "mdd_bpd", "maf01", "mdd_bpd_maf01.rsid")
-
-# Cross referencing to retrieve BrNums
-cross_ref <-
-    fread(
-        "/dcl01/lieber/RNAseq/Datasets/BrainGenotyping_2018/merged_batches_topmed/usable_genotypes/maf01/Genotype2422.csv",
-        skip = 1,
-        drop = 1
-    )
-colnames(cross_ref) <- c("PLINK_ID", "BrNum")
-
-new_plink_loc <-
-    here::here("twas_both", "filter_data", "reformat_genotype")
-
-dir.create(new_plink_loc, showWarnings = FALSE)
-
-# copying the genotype data
-if (!file.exists(here(
-    "twas_both",
-    "filter_data",
-    "reformat_genotype",
-    "mdd_bpd_maf01.rsid.bed"
-))) {
-    system(paste0("cp ", libd_bfile, "* ", new_plink_loc, "/"))
-}
 
 ## Read the LIBD fam data
 libd_fam <- fread(
@@ -103,59 +74,20 @@ libd_fam <- fread(
     )
 )
 
-libd_fam$plink_key <- paste0(libd_fam$famid, "_", libd_fam$w_famid)
-
-libd_fam$BrNum <-
-    cross_ref[match(libd_fam$plink_key, cross_ref$PLINK_ID), ]$BrNum
-
-libd_fam_save <- libd_fam %>%
-    mutate(
-        famid = BrNum,
-        w_famid = BrNum,
-        plink_key = NULL,
-        BrNum = NULL
-    )
-
-libd_bfile <-
-    here::here("twas_both",
-               "filter_data",
-               "reformat_genotype",
-               "mdd_bpd_maf01.rsid")
-
-fwrite(
-    libd_fam_save,
-    file = paste0(libd_bfile, ".fam"),
-    quote = FALSE,
-    sep = "\t",
-    row.names = FALSE,
-    col.names = FALSE
-)
-
-libd_fam$brnumerical <- brnumerical(libd_fam$BrNum)
-setkey(libd_fam, "brnumerical")
+libd_fam$famKey <- paste0(libd_fam$famid, "_", libd_fam$w_famid)
 
 ## Filter the LIBD data to the one specific to this project
 message(paste(Sys.time(), "processing", opt$region))
 samp_file <- paste0("samples_to_extract_", opt$region, ".txt")
 
 ## Which samples have genotype data and MDS data?
-samples_in_all <- intersect(intersect(brnumerical(rse_gene$BrNum), libd_fam$brnumerical),
-                            brnumerical(rownames(mds)))
+samples_in_all <- intersect(rse_gene$genoSample, libd_fam$famKey)
 
 ################################
 ## Subset and save all key files
 ################################
 rse_gene <-
-    rse_gene[, brnumerical(rse_gene$BrNum) %in% samples_in_all]
-
-## Match rse_gene to mds
-m_to_mds <-
-    match(brnumerical(rse_gene$BrNum), brnumerical(rownames(mds)))
-stopifnot(all(!is.na(m_to_mds)))
-mds <- mds[m_to_mds,]
-
-## Append mds to colData
-colData(rse_gene) <- cbind(colData(rse_gene), mds)
+    rse_gene[, rse_gene$genoSample %in% samples_in_all]
 
 ## Compute RPKM
 assays(rse_gene)$RPKM <- getRPKM(rse_gene, "Length")
@@ -190,7 +122,7 @@ save(
 )
 
 ## Now extract the genotype data too
-filter_m <- match(brnumerical(rse_gene$BrNum), libd_fam$brnumerical)
+filter_m <- match(rse_gene$genoSample, libd_fam$famKey)
 stopifnot(all(!is.na(filter_m)))
 fwrite(libd_fam[filter_m, 1:2],
        ## can be more involved
@@ -235,11 +167,14 @@ newbfile_fam <- fread(
         "phenotype"
     )
 )
-check_m <-
-    match(brnumerical(newbfile_fam$famid),
-          brnumerical(colData(rse_gene)$BrNum))
-stopifnot(all(!is.na(check_m)))
 
+newbfile_fam$famKey <- paste0(newbfile_fam$famid, "_", newbfile_fam$w_famid)
+
+check_m <-
+    match(newbfile_fam$famKey,
+          colData(rse_gene)$genoSample)
+
+stopifnot(all(!is.na(check_m)))
 
 ## Re-run but now make the SNV names unique
 dir.create(paste0(opt$region, "_unique_snps_bim"), showWarnings = FALSE)
@@ -273,9 +208,14 @@ bim <- fread(
     col.names = c("chr", "snp", "position", "basepair", "allele1", "allele2")
 )
 
-table(duplicated(bim$snp))
-#    FALSE     TRUE
-# 10943065    44114
+# > table(duplicated(bim$snp))
+# 
+# FALSE     TRUE 
+# 10871656       10 
+
+# > bim[duplicated(bim$snp),]$snp
+# [1] "rs113644963"  "rs1209962010" "rs1344644938" "rs1165668794" "rs1236764134"
+# [6] "rs1436504993" "rs1231536300" "rs542456559"  "rs74818883"   "rs755663741" 
 
 ## Make names unique
 message(Sys.time(), " making the variant names unique")
@@ -465,4 +405,4 @@ session_info()
 # PLINK v1.90b6.6 64-bit (10 Oct 2018)
 
 system("plink --version")
-
+# PLINK v1.90b6.6 64-bit (10 Oct 2018)
