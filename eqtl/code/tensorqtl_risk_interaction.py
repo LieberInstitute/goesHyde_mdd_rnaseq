@@ -20,7 +20,7 @@ for region in ["Amygdala", "sACC"]:
         
         nominal_test = cis.map_nominal(genotype_df, variant_df, phenotype_df_filter, phenotype_pos_df_filter,
         prefix = tag, covariates_df=covariates_df, output_dir= out_path + "parquet_data/", 
-        interaction_s = cf_interaction, maf_threshold_interaction=0, group_s=None, window=1000000, 
+        interaction_s = cf_interaction, maf_threshold_interaction=0, group_s=None, window=500000, 
         run_eigenmt=True, write_top = False)
         
         nominal_test.to_csv('../data/tensorQTL_out/nominal_bpd_risk/' + tag + ".csv")
