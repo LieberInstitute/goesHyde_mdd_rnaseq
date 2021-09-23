@@ -79,14 +79,11 @@ load_rse <- function(feat, reg) {
     pcs <- genePCs
 
     pd = colData(rse)
-    # pd$PrimaryDx[pd$PrimaryDx=="Other"] = "Bipolar"
 
     colnames(pd)
 
     colData(rse) <- cbind(colData(rse), pcs)
     print(head(rse))
-    
-    colData(rse)$PrimaryDx <- droplevels(colData(rse)$PrimaryDx, "Bipolar")
     
     mod <- model.matrix(~PrimaryDx + Sex + snpPC1 + snpPC2 + snpPC3 + snpPC4 + snpPC5 + pcs,
     	data = colData(rse))
