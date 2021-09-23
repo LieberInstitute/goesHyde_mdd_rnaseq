@@ -22,12 +22,9 @@ rse_gene_split <- map(regions, ~rse_gene[,rse_gene$BrainRegion == .x])
 samples_split <- map(rse_gene_split, colnames)
 
 #### Covariate Data ####
-load(here("eqtl", "data", "pcs_4features.Rdata"), verbose = TRUE)
-load(here("eqtl", "data", "pcs_4features_gene_temp.rda"), verbose = TRUE)
-corner(genePCs)
-dim(genePCs)
+pcs <- map(features[1], function(f_name) map(regions, ~get(load(here("eqtl", "data", "featuresPCs", paste0(f_name, "PCs", .x, ".rda"))))))
 
-all(rownames(genePCs) == colnames(rse_gene))
+corner(pcs$gene$amyg)
 
 covar_format <- function(data, rn){
   data <- as.data.frame(data) 
@@ -37,19 +34,21 @@ covar_format <- function(data, rn){
   return(data)
 }
 
-# covars <- map2(list(genePCs, exonPCs, jxnPCs, txPCs), features,
-covars <- map2(list(gene = genePCs),features[1],
+covars <- map2(pcs,features[1],
                 function(pc, feat){
-                  map2(rse_gene_split, regions, function(rse, region){
+                  pmap(list(rse = rse_gene_split, region = regions, pc = pc), function(rse, region, pc){
                     message(paste(feat, region))
                     ## Phenodata
                     pd <- colData(rse)[,c("PrimaryDx", "Sex", paste0("snpPC", 1:5))]
+                    pd <- as.data.frame(pd) %>% 
+                      mutate(PrimaryDx = as.character(case_when(PrimaryDx == "Control"~0,
+                                            PrimaryDx == "Bipolar"~1,
+                                            TRUE~2)),
+                             Sex = as.character(as.integer(Sex == "F")))
                     pd <- covar_format(pd, rse$genoSample)
-                    
+
                     ## PC data
-                    pc <- pc[colnames(rse),]
                     pc <- covar_format(pc, rse$genoSample)
-                    
                     ##bind and save
                     covars <- rbind(pd, pc)
                     write.table(covars,
@@ -58,7 +57,7 @@ covars <- map2(list(gene = genePCs),features[1],
                     return(covars)
                   })
                 })
-# corner(covars$gene$amyg)
+corner(covars$gene$amyg)
 
 
 #### Expression Data ####
