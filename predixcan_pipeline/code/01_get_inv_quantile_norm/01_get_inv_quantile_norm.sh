@@ -33,8 +33,8 @@ module use /jhpce/shared/jhpce/modulefiles/libd
 Amyg_tpm_gct="/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/predixcan_pipeline/processed-data/01_get_inv_quantile_norm/Amygdala_tpm.gct"
 Amyg_counts_gct="/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/predixcan_pipeline/processed-data/01_get_inv_quantile_norm/Amygdala_gene_counts.gct"
 
-sACC_tpm_gct="/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/predixcan_pipeline/processed-data/01_get_inv_quantile_norm/sACC_tpm.gct"
-sACC_counts_gct="/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/predixcan_pipeline/processed-data/01_get_inv_quantile_norm/sACC_gene_counts.gct"
+# sACC_tpm_gct="/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/predixcan_pipeline/processed-data/01_get_inv_quantile_norm/sACC_tpm.gct"
+# sACC_counts_gct="/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/predixcan_pipeline/processed-data/01_get_inv_quantile_norm/sACC_gene_counts.gct"
 
 annotation_gtf="/dcl01/lieber/ajaffe/Emily/RNAseq-pipeline/Annotation/GENCODE/GRCh38_hg38/gencode.v25.annotationGRCh38.gtf"
 vcf_chr_list="/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/predixcan_pipeline/processed-data/01_get_inv_quantile_norm/vcf_chr_list.txt"
@@ -43,12 +43,12 @@ Amyg_sample_participant_lookup="/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/pre
 
 Rscript code/01_get_inv_quantile_norm/01_prepare_gene_expression.R -r "Amygdala"
 
-Amyg_vcf="/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/predixcan_pipeline/processed-data/01_get_inv_quantile_norm/topmed_mdd_602sample_090120_maf005_Amygdala_sorted.vcf.gz"
+Amyg_vcf="/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/predixcan_pipeline/processed-data/01_get_inv_quantile_norm/mdd_bpd_maf01.vcf.gz"
 # sACC_vcf="processed-data/01_get_inv_quantile_norm/topmed_mdd_602sample_090120_maf005_sACC_sorted.vcf.gz"
 
 prefix_Amygdala="goesHyde_mdd_rnaseq_Amygdala"
 
-bgzip -c "/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/predixcan_pipeline/processed-data/01_get_inv_quantile_norm/topmed_mdd_602sample_090120_maf005_Amygdala_sorted.vcf" > ${Amyg_vcf}
+bgzip -c "/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/predixcan_pipeline/processed-data/01_get_inv_quantile_norm/mdd_bpd_maf01.vcf" > ${Amyg_vcf}
 # bgzip -c "/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/predixcan_pipeline/processed-data/01_get_inv_quantile_norm/topmed_mdd_602sample_090120_maf005_sACC_sorted.vcf" > ${sACC_vcf}
 
 tabix -p vcf ${Amyg_vcf}
