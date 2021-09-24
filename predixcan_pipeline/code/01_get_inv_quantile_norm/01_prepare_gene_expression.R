@@ -60,7 +60,9 @@ system(
     paste(
         "plink --bfile",
         here::here("genotype_data",
-                   "topmed_mdd_602sample_090120_maf005"),
+                   "mdd_bpd",
+                   "maf01",
+                   "mdd_bpd_maf01"),
         "--keep",
         here::here(
             "predixcan_pipeline",
@@ -80,7 +82,7 @@ system(
             "predixcan_pipeline",
             "processed-data",
             "01_get_inv_quantile_norm",
-            paste0("topmed_mdd_602sample_090120_maf005_", opt$region, "_sorted")
+            paste0("mdd_bpd_maf01_", opt$region, "_sorted")
         ),
         "--memory 5000 --threads 1"
     )
@@ -94,7 +96,7 @@ system(
             "predixcan_pipeline",
             "processed-data",
             "01_get_inv_quantile_norm",
-            paste0("topmed_mdd_602sample_090120_maf005_",
+            paste0("mdd_bpd_maf01_",
                    opt$region,
                    "_sorted")
         ),
@@ -104,7 +106,7 @@ system(
             "predixcan_pipeline",
             "processed-data",
             "01_get_inv_quantile_norm",
-            paste0("topmed_mdd_602sample_090120_maf005_",
+            paste0("mdd_bpd_maf01_",
                    opt$region,
                    "_sorted")
         ),
@@ -121,7 +123,7 @@ system(paste(
         "processed-data",
         "01_get_inv_quantile_norm",
         paste0(
-            "topmed_mdd_602sample_090120_maf005_",
+            "mdd_bpd_maf01_",
             opt$region,
             "_sorted.vcf"
         )
