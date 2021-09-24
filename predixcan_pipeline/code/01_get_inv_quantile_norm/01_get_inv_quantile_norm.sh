@@ -52,7 +52,7 @@ bgzip -c "/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/predixcan_pipeline/proces
 # bgzip -c "/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/predixcan_pipeline/processed-data/01_get_inv_quantile_norm/topmed_mdd_602sample_090120_maf005_sACC_sorted.vcf" > ${sACC_vcf}
 
 tabix -p vcf ${Amyg_vcf}
-tabix -p vcf ${sACC_vcf}
+# tabix -p vcf ${sACC_vcf}
 
 # It's just 1-23
 tabix --list-chroms ${Amyg_vcf} | awk '$1="chr"$1' > "/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/predixcan_pipeline/processed-data/01_get_inv_quantile_norm/vcf_chr_list.txt"
