@@ -43,7 +43,7 @@ colnames(snp_anno) <-
     "Num_alt_per_site")
 
 # TODO Should I be removing X?
-snp_anno <- snp_anno[snp_anno$chromosome != "X",]
+# snp_anno <- snp_anno[snp_anno$chromosome != "X",]
 
 snp_anno <- snp_anno[!is.na(snp_anno),]
 
