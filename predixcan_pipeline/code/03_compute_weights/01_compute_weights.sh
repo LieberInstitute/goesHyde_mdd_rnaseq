@@ -1,10 +1,11 @@
 #!/bin/bash
 #$ -cwd
-#$ -l bluejay,mem_free=100G,h_vmem=100G,h_fsize=100G
+#$ -l mem_free=150G,h_vmem=150G,h_fsize=150G
 #$ -N PredictDB_compute_weights
 #$ -j y
 #$ -o /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/predixcan_pipeline/logs/PredictDB_compute_weights.$TASK_ID.log
 #$ -t 1-22
+# #$ -l shared,mem_free=100G,h_vmem=100G,h_fsize=100G
 
 echo "**** Job starts ****"
 date
