@@ -39,12 +39,13 @@ covars <- map2(pcs,features[1],
                   pmap(list(rse = rse_gene_split, region = regions, pc = pc), function(rse, region, pc){
                     message(paste(feat, region))
                     ## Phenodata
-                    pd <- colData(rse)[,c("PrimaryDx", "Sex", paste0("snpPC", 1:5))]
-                    pd <- as.data.frame(pd) %>% 
-                      mutate(PrimaryDx = as.character(case_when(PrimaryDx == "Control"~0,
-                                            PrimaryDx == "Bipolar"~1,
-                                            TRUE~2)),
-                             Sex = as.character(as.integer(Sex == "F")))
+                    pd <- as.data.frame(colData(rse)[,c("PrimaryDx", "Sex", paste0("snpPC", 1:5))])
+                    # pd <- as.data.frame(pd) %>% 
+                    #   mutate(PrimaryDx = as.character(case_when(PrimaryDx == "Control"~0,
+                    #                         PrimaryDx == "Bipolar"~1,
+                    #                         TRUE~2)),
+                    #          Sex = as.character(as.integer(Sex == "F")))
+                    pd <- model.matrix(~PrimaryDx + Sex + snpPC1 + snpPC2 + snpPC3 + snpPC4 + snpPC5, data = pd)[,2:9]
                     pd <- covar_format(pd, rse$genoSample)
 
                     ## PC data
@@ -52,7 +53,7 @@ covars <- map2(pcs,features[1],
                     ##bind and save
                     covars <- rbind(pd, pc)
                     write.table(covars,
-                                file= here("eqtl","data","covariates_txt", paste0("covariates_",feat,"_",region,".txt")),
+                                file= here("eqtl","data","covariates_txt", paste0("covariates_",feat,"_",region,"_mm.txt")),
                                 sep = "\t", quote = FALSE, row.names = FALSE)
                     return(covars)
                   })
