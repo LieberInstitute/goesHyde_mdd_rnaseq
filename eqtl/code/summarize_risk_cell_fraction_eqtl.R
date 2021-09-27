@@ -23,7 +23,11 @@ geno_long <- as.data.frame(geno(risk_vcf)$GT) %>%
                               TRUE~"1"))
 
 ## Load tensorqtl outputs
-tensorqtl_fn <- list.files(here("eqtl","data","tensorQTL_out","nominal_bpd_risk"), pattern = "*.csv", full.names = TRUE)
+# amyg_astro <- read.csv(here("eqtl","data","tensorQTL_out","nominal_bpd_risk","gene_Amygdala_Astro.csv"))
+# amyg_astro_mm <- read.csv(here("eqtl","data","tensorQTL_out","nominal_bpd_risk","gene_Amygdala_Astro_mm.csv"))
+# summary(amyg_astro$pval_gi - amyg_astro_mm$pval_gi)
+
+tensorqtl_fn <- list.files(here("eqtl","data","tensorQTL_out","nominal_bpd_risk"), pattern = "*mm.csv", full.names = TRUE)
 
 tensorqtl_out <- map_dfr(tensorqtl_fn, ~read.csv(.x) %>% mutate(fn = .x)) %>% 
   mutate(fn = gsub("/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/eqtl/data/tensorQTL_out/nominal_bpd_risk/","",fn)) %>%
@@ -109,7 +113,9 @@ express_geno_cf <- tensorqtl_adj_anno %>%
 express_geno_cf %>% count(cell_type, eqtl)
 
 #### PLOT ####
-walk(c("Amygdala","sACC"), function(r){
+tensorqtl_adj_anno %>% count(BrainRegion)
+
+walk(c("sACC","Amygdala"), function(r){
   express_cf_sactter <- express_geno_cf %>%
     filter(BrainRegion == r) %>%
     ggplot(aes(x = cell_fraction, y = expression)) +
@@ -128,8 +134,3 @@ walk(c("Amygdala","sACC"), function(r){
   dev.off()
 })
 
-
-# ggsave(express_cf_sactter + 
-#          facet_wrap_paginate(~eqtl + cell_type, scales = "free", nrow = 2, ncol =2, page = 1),
-#        filename = here("eqtl","plots","eqtl_cf_test.png"), width = 10
-#        )
