@@ -48,7 +48,7 @@ Amyg_vcf="/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/predixcan_pipeline/proces
 
 prefix_Amygdala="goesHyde_mdd_rnaseq_Amygdala"
 
-bgzip -c "/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/predixcan_pipeline/processed-data/01_get_inv_quantile_norm/mdd_bpd_maf01.vcf" > ${Amyg_vcf}
+bgzip -c "/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/predixcan_pipeline/processed-data/01_get_inv_quantile_norm/mdd_bpd_maf01_Amygdala_sorted.vcf" > ${Amyg_vcf}
 # bgzip -c "/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/predixcan_pipeline/processed-data/01_get_inv_quantile_norm/topmed_mdd_602sample_090120_maf005_sACC_sorted.vcf" > ${sACC_vcf}
 
 tabix -p vcf ${Amyg_vcf}
