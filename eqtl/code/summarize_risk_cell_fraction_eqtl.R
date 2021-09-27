@@ -2,6 +2,7 @@ library(SummarizedExperiment)
 library(VariantAnnotation)
 library(tidyverse)
 library(jaffelab)
+library(ggforce)
 library(sessioninfo)
 library(here)
 
@@ -43,8 +44,9 @@ tensorqtl_adj <- tensorqtl_out %>%
          p.bonf_gi = p.adjust(pval_gi, "bonf"))
 
 tensorqtl_adj %>% filter(FDR_gi < 0.05) %>% arrange(FDR_gi)
+tensorqtl_adj %>% filter(FDR_gi < 0.05) %>% ungroup() %>% dplyr::count(BrainRegion)
 tensorqtl_adj %>% filter(FDR_gi < 0.05) %>% count() %>% arrange(-n)
-tensorqtl_adj %>% filter(FDR_gi < 0.05) %>% ungroup() %>% count(region, gencodeID, variant_id) %>% arrange(-n)
+tensorqtl_adj %>% filter(FDR_gi < 0.05) %>% ungroup() %>% count(BrainRegion, gencodeID, variant_id) %>% arrange(-n)
 
 write_csv(tensorqtl_adj, file = here("eqtl","data","summary","gene_BPD_risk_cell_fraction_interaction.csv"))
 
@@ -86,15 +88,18 @@ cell_fractions <- pd %>%
 
 ## Merge Data
 tensorqtl_adj_anno <- tensorqtl_adj %>%
+  filter(FDR_gi < 0.05) %>%
   ungroup() %>% 
-  arrange(FDR_gi) %>% 
-  dplyr::slice(1:10) %>% 
-  mutate(eqtl = paste(BrainRegion, gencodeID, variant_id))
+  dplyr::group_by(BrainRegion) %>% 
+  arrange(FDR_gi) %>%
+  mutate(eqtl = paste0(row_number(),". ", gencodeID, " - " ,variant_id),
+         eqtl_anno = paste("Gene:",Symbol,"\nSNP:",RS, "\nFDR= ", scales::scientific(FDR_gi, didgits = 3)))
 
 tensorqtl_adj_anno$eqtl <- factor(tensorqtl_adj_anno$eqtl)
 tensorqtl_adj_anno$eqtl <- fct_reorder(tensorqtl_adj_anno$eqtl, tensorqtl_adj_anno$FDR_gi, min)
+
 levels(tensorqtl_adj_anno$eqtl)
-tensorqtl_adj_anno %>% count(cell_type, eqtl)
+tensorqtl_adj_anno %>% count(eqtl) 
 
 express_geno_cf <- tensorqtl_adj_anno %>% 
   left_join(geno_long, by = "variant_id") %>%
@@ -104,10 +109,27 @@ express_geno_cf <- tensorqtl_adj_anno %>%
 express_geno_cf %>% count(cell_type, eqtl)
 
 #### PLOT ####
-express_cf_sactter <- express_geno_cf %>%
-  ggplot(aes(x = cell_fraction, y = expression, color = Genotype, fill = Genotype)) +
-  geom_point(alpha = 0.5, size = .5) +
-  geom_smooth(method = lm) +
-  facet_wrap(~eqtl + cell_type, scales = "free", nrow = 2)
+walk(c("Amygdala","sACC"), function(r){
+  express_cf_sactter <- express_geno_cf %>%
+    filter(BrainRegion == r) %>%
+    ggplot(aes(x = cell_fraction, y = expression)) +
+    geom_point(aes(color = Genotype), alpha = 0.5, size = .5) +
+    geom_smooth(aes(color = Genotype, fill = Genotype), method = lm)+
+    geom_text(aes(label = eqtl_anno), x = 0, y =Inf, vjust = "inward", hjust = "inward", size = 3)
+  
+  required_n_pages <- n_pages(express_cf_sactter +  facet_wrap_paginate(~eqtl + cell_type, scales = "free", nrow = 2, ncol =2))
+  message(required_n_pages)
+  
+  
+  pdf(here("eqtl","plots",paste0("eqtl_risk_BPD_cell_fraction_",r,".pdf")), width = 10)
+  for(i in 1:required_n_pages){
+    print(express_cf_sactter +  facet_wrap_paginate(~eqtl + cell_type, scales = "free", nrow = 2, ncol =2, page = i))
+  }
+  dev.off()
+})
 
-ggsave(express_cf_sactter, filename = here("eqtl","plots","eqtl_cf_test.png"), width = 15)
+
+# ggsave(express_cf_sactter + 
+#          facet_wrap_paginate(~eqtl + cell_type, scales = "free", nrow = 2, ncol =2, page = 1),
+#        filename = here("eqtl","plots","eqtl_cf_test.png"), width = 10
+#        )
