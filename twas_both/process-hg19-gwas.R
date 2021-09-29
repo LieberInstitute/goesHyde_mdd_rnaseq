@@ -3,45 +3,16 @@ library(dplyr)
 
 setDTthreads(1)
 
-# Load snpMap
-load(
-    "/dcl01/lieber/ajaffe/Brain/Imputation/Subj_Cleaned/LIBD_merged_h650_1M_Omni5M_Onmi2pt5_Macrogen_QuadsPlus_dropBrains_maf01_hwe6_geno10_hg38.Rdata"
-)
-
-snpMap <- as.data.table(snpMap)
-
 # Read in Fernando's GWAS
-hg19_gwas <-
+hg38_gwas <-
     fread(
-        "/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/PGC_MDD_sumstats/PGC_UKB_23andMe_depression_genome-wide.txt"
+        "/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/genotype_data/mdd_bpd/maf01/PGC_UKB_depression_genome-wide_hg38.txt"
     )
 
-table(snpMap$rsNumGuess %in% hg19_gwas$MarkerName)
-table(snpMap$name %in% hg19_gwas$MarkerName)
-# > nrow(hg19_gwas)
-# [1] 8098588
-# > 4408597/ nrow(hg19_gwas)
-# [1] 0.5443661
-# > 4408597+6579814
-# [1] 10988411
-# > 4408597 / nrow(snpMap)
-# [1] 0.4012042
-# > 4410625 / nrow(snpMap)
-# [1] 0.4013888
-
-snpMap <- snpMap[snpMap$name %in% hg19_gwas$MarkerName, ]
-
-# Merge in the hg38 coordinates based on hg19 coordinates
-hg38_gwas <-
-    merge(hg19_gwas, snpMap[, c("chr_hg38", "pos_hg38", "name")], by.x = "MarkerName", by.y = "name")
-
-# Drop hg19 coords from gwas
-# hg38_gwas <- hg38_gwas[, -c("hg19_key", "CHR", "BP")]
-
 # reorder columns
-col_order <- c("chr_hg38",
+col_order <- c("chr",
                "MarkerName",
-               "pos_hg38",
+               "bp",
                "A1",
                "A2",
                "Freq",
@@ -51,14 +22,12 @@ col_order <- c("chr_hg38",
 
 hg38_gwas <- hg38_gwas[, ..col_order]
 
-names(hg38_gwas)[1] <- "CHR"
-
-names(hg38_gwas)[3] <- "BP"
+names(hg38_gwas)[1:3] <- c("CHR", "SNP", "BP")
 
 # read bim file with unique rsIDs
 uniq_bim <-
     fread(
-        "filter_data/Amygdala_unique_snps_bim/LIBD_merged_h650_1M_Omni5M_Onmi2pt5_Macrogen_QuadsPlus_dropBrains_maf01_hwe6_geno10_hg38_filtered_Amygdala_MDD_uniqueSNPs.bim"
+        here::here("twas_both", "filter_data", "Amygdala_unique_snps_bim", "mdd_bpd_maf01.rsidAmygdala_uniqueSNPs.bim")
     )
 
 colnames(uniq_bim) <- c("CHR", "SNP", "dummy", "BP", "A1", "A2")
@@ -69,13 +38,13 @@ uniq_bim$new_test <- paste0(uniq_bim$CHR, "_", uniq_bim$BP)
 hg38_gwas$new_test <-
     paste0(gsub("chr", "" , hg38_gwas$CHR), "_", hg38_gwas$BP)
 
-table(uniq_bim$new_test %in% hg38_gwas$new_test)
+table(hg38_gwas$new_test %in% uniq_bim$new_test)
 
-# > table(uniq_bim$new_test %in% hg38_gwas$new_test)
-# 
 # FALSE    TRUE 
-# 4409489 6577690 
-# > 4409489 / 657769
+# 823651 7656313 
+
+# hg38_bb <- head(hg38_gwas)
+# bim_bb <- head(uniq_bim)
 
 # merge in unique rsIDs
 hg38_gwas <-
@@ -101,7 +70,7 @@ hg38_gwas$Z <- hg38_gwas$LogOR / hg38_gwas$StdErrLogOR
 
 pdf(file = "PGC_UKB_23andMe_depression_genome-wide_HIST_hg38.pdf", useDingbats = FALSE)
 
-hist(hg38_gwas$effect, color = "gold")
+hist(hg38_gwas$LogOR, color = "gold")
 hist(hg38_gwas$Z, color = "darkorange")
 
 dev.off()
@@ -117,5 +86,3 @@ write.table(
     row.names = FALSE,
     col.names = TRUE
 )
-
-
