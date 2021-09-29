@@ -2,7 +2,7 @@
 #$ -cwd
 #$ -l mem_free=10G,h_vmem=10G,h_fsize=100G
 #$ -pe local 1
-#$ -N process-hg19-gwas
+#$ -N process-gwas
 #$ -j y
 #$ -o logs/hg19_gwas.txt
 
