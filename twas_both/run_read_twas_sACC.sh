@@ -1,9 +1,9 @@
 #!/bin/bash
 #$ -cwd
 #$ -l bluejay,mem_free=4G,h_vmem=4G,h_fsize=100G
-#$ -N read_twas
+#$ -N read_twas_sACC
 #$ -j y
-#$ -o logs/read_twas.txt
+#$ -o logs/read_twas_sACC.txt
 
 echo "**** Job starts ****"
 date
@@ -21,8 +21,7 @@ module load conda_R/4.0.x
 ## List current modules
 module list
 
-# Either bim file will work, no need to distinguish between tissues
-Rscript read_twas.R -r "Amygdala"
+Rscript read_twas.R -r "sACC"
 
 echo "**** Job ends ****"
 date
