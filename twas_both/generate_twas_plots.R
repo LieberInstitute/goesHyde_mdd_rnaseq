@@ -168,7 +168,7 @@ system("mv *_ManhattanPlotly.html analysis/plots/")
 # Scatter plots ####
 
 pdf(
-    'analysis/plots/goesHyde_TWAS_ScatterPlots.pdf',
+    'analysis/plots/goesHyde_TWAS_ScatterPlots_hsqFail.pdf',
     useDingbats = FALSE,
     width = 10,
     height = 10
@@ -190,11 +190,11 @@ twas_z_wide$Amygdala.fdr.p <-
 twas_z_wide$sACC.fdr.p <- p.adjust(twas_z_wide$TWAS.P_sACC, 'fdr')
 
 # Indicate in both
-twas_z_wide$in_both <-
-    ifelse(!is.na(twas_z_wide$TWAS.Z_Amygdala &
-                      twas_z_wide$TWAS.Z_sACC),
-           TRUE,
-           FALSE)
+# twas_z_wide$in_both <-
+#     ifelse(!is.na(twas_z_wide$TWAS.Z_Amygdala &
+#                       twas_z_wide$TWAS.Z_sACC),
+#            TRUE,
+#            FALSE)
 
 # FDR cutoffs
 twas_z_wide$FDR.5perc <- 'None'
@@ -205,8 +205,8 @@ twas_z_wide$FDR.5perc[twas_z_wide$Amygdala.fdr.p < 0.05 &
                           twas_z_wide$sACC.fdr.p < 0.05] <- 'Both'
 
 # Remove NAs
-# twas_z_wide[is.na(twas_z_wide)] <- 0
-twas_z_wide <- twas_z_wide[twas_z_wide$in_both, ]
+twas_z_wide[is.na(twas_z_wide)] <- 0
+# twas_z_wide <- twas_z_wide[twas_z_wide$in_both, ]
 
 twas_z_wide$FDR.5perc <-
     factor(twas_z_wide$FDR.5perc,
@@ -378,3 +378,125 @@ Sys.time()
 proc.time()
 options(width = 120)
 session_info()
+
+# EXECUTED INTERACTIVELY
+# > print("Reproducibility information:")
+# [1] "Reproducibility information:"
+# > Sys.time()
+# [1] "2021-09-30 12:28:57 EDT"
+# > proc.time()
+# user  system elapsed 
+# 59.658   5.185 742.482 
+# > options(width = 120)
+# > session_info()
+# ─ Session info ───────────────────────────────────────────────────────────────────────────────────────────────────────
+# setting  value                                      
+# version  R version 4.1.0 Patched (2021-05-18 r80330)
+# os       CentOS Linux 7 (Core)                      
+# system   x86_64, linux-gnu                          
+# ui       X11                                        
+# language (EN)                                       
+# collate  en_US.UTF-8                                
+# ctype    en_US.UTF-8                                
+# tz       US/Eastern                                 
+# date     2021-09-30                                 
+# 
+# ─ Packages ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+# package              * version  date       lib source        
+# abind                  1.4-5    2016-07-21 [2] CRAN (R 4.1.0)
+# assertthat             0.2.1    2019-03-21 [2] CRAN (R 4.1.0)
+# backports              1.2.1    2020-12-09 [2] CRAN (R 4.1.0)
+# Biobase              * 2.52.0   2021-05-19 [2] Bioconductor  
+# BiocGenerics         * 0.38.0   2021-05-19 [2] Bioconductor  
+# bitops                 1.0-7    2021-04-24 [2] CRAN (R 4.1.0)
+# broom                  0.7.9    2021-07-27 [2] CRAN (R 4.1.0)
+# car                    3.0-11   2021-06-27 [2] CRAN (R 4.1.0)
+# carData                3.0-4    2020-05-22 [2] CRAN (R 4.1.0)
+# cellranger             1.1.0    2016-07-27 [2] CRAN (R 4.1.0)
+# cli                    3.0.1    2021-07-17 [2] CRAN (R 4.1.0)
+# colorspace             2.0-2    2021-06-24 [2] CRAN (R 4.1.0)
+# crayon                 1.4.1    2021-02-08 [2] CRAN (R 4.1.0)
+# crosstalk              1.1.1    2021-01-12 [2] CRAN (R 4.1.0)
+# curl                   4.3.2    2021-06-23 [2] CRAN (R 4.1.0)
+# data.table           * 1.14.0   2021-02-21 [2] CRAN (R 4.1.0)
+# DBI                    1.1.1    2021-01-15 [2] CRAN (R 4.1.0)
+# DelayedArray           0.18.0   2021-05-19 [2] Bioconductor  
+# digest                 0.6.27   2020-10-24 [2] CRAN (R 4.1.0)
+# dplyr                * 1.0.7    2021-06-18 [2] CRAN (R 4.1.0)
+# ellipsis               0.3.2    2021-04-29 [2] CRAN (R 4.1.0)
+# fansi                  0.5.0    2021-05-25 [2] CRAN (R 4.1.0)
+# farver                 2.1.0    2021-02-28 [2] CRAN (R 4.1.0)
+# fastmap                1.1.0    2021-01-25 [2] CRAN (R 4.1.0)
+# forcats                0.5.1    2021-01-27 [2] CRAN (R 4.1.0)
+# foreign                0.8-81   2020-12-22 [3] CRAN (R 4.1.0)
+# generics               0.1.0    2020-10-31 [2] CRAN (R 4.1.0)
+# GenomeInfoDb         * 1.28.1   2021-07-01 [2] Bioconductor  
+# GenomeInfoDbData       1.2.6    2021-05-11 [2] Bioconductor  
+# GenomicRanges        * 1.44.0   2021-05-19 [2] Bioconductor  
+# ggplot2              * 3.3.5    2021-06-25 [2] CRAN (R 4.1.0)
+# ggpubr               * 0.4.0    2020-06-27 [1] CRAN (R 4.1.0)
+# ggrepel              * 0.9.1    2021-01-15 [2] CRAN (R 4.1.0)
+# ggsignif               0.6.3    2021-09-09 [1] CRAN (R 4.1.0)
+# glue                   1.4.2    2020-08-27 [2] CRAN (R 4.1.0)
+# gtable                 0.3.0    2019-03-25 [2] CRAN (R 4.1.0)
+# haven                  2.4.3    2021-08-04 [2] CRAN (R 4.1.0)
+# here                   1.0.1    2020-12-13 [1] CRAN (R 4.1.0)
+# hms                    1.1.0    2021-05-17 [2] CRAN (R 4.1.0)
+# htmltools              0.5.1.1  2021-01-22 [2] CRAN (R 4.1.0)
+# htmlwidgets          * 1.5.3    2020-12-10 [2] CRAN (R 4.1.0)
+# httpuv                 1.6.1    2021-05-07 [2] CRAN (R 4.1.0)
+# httr                   1.4.2    2020-07-20 [2] CRAN (R 4.1.0)
+# IRanges              * 2.26.0   2021-05-19 [2] Bioconductor  
+# jsonlite               1.7.2    2020-12-09 [2] CRAN (R 4.1.0)
+# labeling               0.4.2    2020-10-20 [2] CRAN (R 4.1.0)
+# later                  1.2.0    2021-04-23 [2] CRAN (R 4.1.0)
+# lattice                0.20-44  2021-05-02 [3] CRAN (R 4.1.0)
+# lazyeval               0.2.2    2019-03-15 [2] CRAN (R 4.1.0)
+# lifecycle              1.0.0    2021-02-15 [2] CRAN (R 4.1.0)
+# magrittr               2.0.1    2020-11-17 [2] CRAN (R 4.1.0)
+# Matrix                 1.3-4    2021-06-01 [3] CRAN (R 4.1.0)
+# MatrixGenerics       * 1.4.2    2021-08-08 [2] Bioconductor  
+# matrixStats          * 0.60.0   2021-07-26 [2] CRAN (R 4.1.0)
+# mgcv                   1.8-36   2021-06-01 [3] CRAN (R 4.1.0)
+# mime                   0.11     2021-06-23 [2] CRAN (R 4.1.0)
+# munsell                0.5.0    2018-06-12 [2] CRAN (R 4.1.0)
+# nlme                   3.1-152  2021-02-04 [3] CRAN (R 4.1.0)
+# openxlsx               4.2.4    2021-06-16 [2] CRAN (R 4.1.0)
+# pillar                 1.6.2    2021-07-29 [2] CRAN (R 4.1.0)
+# pkgconfig              2.0.3    2019-09-22 [2] CRAN (R 4.1.0)
+# plotly               * 4.9.4.1  2021-06-18 [2] CRAN (R 4.1.0)
+# promises               1.2.0.1  2021-02-11 [2] CRAN (R 4.1.0)
+# purrr                  0.3.4    2020-04-17 [2] CRAN (R 4.1.0)
+# R6                     2.5.0    2020-10-28 [2] CRAN (R 4.1.0)
+# Rcpp                   1.0.7    2021-07-07 [2] CRAN (R 4.1.0)
+# RCurl                  1.98-1.3 2021-03-16 [2] CRAN (R 4.1.0)
+# readxl                 1.3.1    2019-03-13 [2] CRAN (R 4.1.0)
+# rio                    0.5.27   2021-06-21 [2] CRAN (R 4.1.0)
+# rJava                  1.0-4    2021-04-29 [2] CRAN (R 4.1.0)
+# rlang                  0.4.11   2021-04-30 [2] CRAN (R 4.1.0)
+# rprojroot              2.0.2    2020-11-15 [2] CRAN (R 4.1.0)
+# rstatix                0.7.0    2021-02-13 [1] CRAN (R 4.1.0)
+# S4Vectors            * 0.30.0   2021-05-19 [2] Bioconductor  
+# scales                 1.1.1    2020-05-11 [2] CRAN (R 4.1.0)
+# sessioninfo          * 1.1.1    2018-11-05 [2] CRAN (R 4.1.0)
+# shiny                  1.6.0    2021-01-25 [2] CRAN (R 4.1.0)
+# stringi                1.7.3    2021-07-16 [2] CRAN (R 4.1.0)
+# SummarizedExperiment * 1.22.0   2021-05-19 [2] Bioconductor  
+# tibble                 3.1.3    2021-07-23 [2] CRAN (R 4.1.0)
+# tidyr                  1.1.3    2021-03-03 [2] CRAN (R 4.1.0)
+# tidyselect             1.1.1    2021-04-30 [2] CRAN (R 4.1.0)
+# utf8                   1.2.2    2021-07-24 [2] CRAN (R 4.1.0)
+# vctrs                  0.3.8    2021-04-29 [2] CRAN (R 4.1.0)
+# viridisLite            0.4.0    2021-04-13 [2] CRAN (R 4.1.0)
+# withr                  2.4.2    2021-04-18 [2] CRAN (R 4.1.0)
+# xlsx                 * 0.6.5    2020-11-10 [2] CRAN (R 4.1.0)
+# xlsxjars               0.6.1    2014-08-22 [2] CRAN (R 4.1.0)
+# xtable                 1.8-4    2019-04-21 [2] CRAN (R 4.1.0)
+# XVector                0.32.0   2021-05-19 [2] Bioconductor  
+# yaml                   2.2.1    2020-02-01 [2] CRAN (R 4.1.0)
+# zip                    2.2.0    2021-05-31 [2] CRAN (R 4.1.0)
+# zlibbioc               1.38.0   2021-05-19 [2] Bioconductor  
+# 
+# [1] /users/aseyedia/R/4.1
+# [2] /jhpce/shared/jhpce/core/conda/miniconda3-4.6.14/envs/svnR-4.1/R/4.1/lib64/R/site-library
+# [3] /jhpce/shared/jhpce/core/conda/miniconda3-4.6.14/envs/svnR-4.1/R/4.1/lib64/R/library
