@@ -26,9 +26,9 @@ dir.create(file.path("analysis/tables"),
 # Filter N/A Z scores
 twas_z <- twas_exp_fin %>% filter(!is.na(TWAS.Z))
 
-twas_z_sACC <- twas_z[twas_z$region == "sACC",]
+twas_z_sACC <- twas_z[twas_z$region == "sACC", ]
 
-twas_z_amyg <- twas_z[twas_z$region == "Amygdala",]
+twas_z_amyg <- twas_z[twas_z$region == "Amygdala", ]
 
 don <- list()
 
@@ -46,7 +46,7 @@ fin_plot <- list()
 for (i in 1:2) {
     if (i == 1) {
         twas_var <- twas_z_amyg
-    } else{
+    } else {
         twas_var <- twas_z_sACC
     }
     
@@ -96,7 +96,7 @@ for (i in 1:2) {
 }
 
 # TWAS Z Manhattan Plot ####
-pdf(file = "analysis/plots/MDD_TWAS_ManhattanPlot.pdf")
+pdf(file = here::here("twas_both", "analysis", "plots", "goesHyde_TWAS_ManhattanPlot.pdf"))
 # storing ggplot as an object3
 
 sig <- qnorm(1 - 0.025 / table(twas_exp_fin$region))
@@ -112,7 +112,7 @@ for (i in 1:2) {
         geom_point(aes(color = as.factor(CHR)), alpha = 0.8, size = 1.3) +
         scale_color_manual(values = rep(c("#861657", "#D56AA0"), 22)) +
         geom_hline(
-            yintercept = c(sig_bonf, -sig_bonf),
+            yintercept = c(sig_bonf,-sig_bonf),
             color = "grey40",
             linetype = "dashed"
         ) +
@@ -136,9 +136,9 @@ dev.off()
 
 # Z scores threshold
 twas_z_amyg_threshold <-
-    rbind(twas_z_amyg[TWAS.Z > sig[[1]],], twas_z_amyg[TWAS.Z < -sig[[1]],])
+    rbind(twas_z_amyg[TWAS.Z > sig[[1]], ], twas_z_amyg[TWAS.Z < -sig[[1]], ])
 twas_z_sACC_threshold <-
-    rbind(twas_z_sACC[TWAS.Z > sig[[2]],], twas_z_sACC[TWAS.Z < -sig[[2]],])
+    rbind(twas_z_sACC[TWAS.Z > sig[[2]], ], twas_z_sACC[TWAS.Z < -sig[[2]], ])
 
 # Interactive TWAS Z Manhattan Plots ####
 for (i in 1:2) {
@@ -156,7 +156,7 @@ for (i in 1:2) {
     saveWidget(fin_plot[[i]],
                file.path(paste0(
                    # "analysis/plots/",
-                   "MDD_TWAS_",
+                   "goesHyde_TWAS_",
                    ifelse(i == 1, "Amygdala", "sACC"),
                    "_ManhattanPlotly.html"
                )))
@@ -168,7 +168,7 @@ system("mv *_ManhattanPlotly.html analysis/plots/")
 # Scatter plots ####
 
 pdf(
-    'analysis/plots/MDD_TWAS_ScatterPlots.pdf',
+    'analysis/plots/goesHyde_TWAS_ScatterPlots.pdf',
     useDingbats = FALSE,
     width = 10,
     height = 10
@@ -206,7 +206,7 @@ twas_z_wide$FDR.5perc[twas_z_wide$Amygdala.fdr.p < 0.05 &
 
 # Remove NAs
 # twas_z_wide[is.na(twas_z_wide)] <- 0
-twas_z_wide <- twas_z_wide[twas_z_wide$in_both,]
+twas_z_wide <- twas_z_wide[twas_z_wide$in_both, ]
 
 twas_z_wide$FDR.5perc <-
     factor(twas_z_wide$FDR.5perc,
@@ -246,7 +246,7 @@ both_z_scores <- both_genes_sACC %>%
     )
 
 pdf(
-    'analysis/plots/MDD_TWAS_Z_Correlation.pdf',
+    'analysis/plots/goesHyde_TWAS_Z_Correlation.pdf',
     useDingbats = FALSE,
     width = 10,
     height = 10
@@ -278,7 +278,7 @@ if (FALSE) {
         verbose = TRUE
     )
     
-    statOutGene <- statOut[statOut$Type == "Gene",] %>%
+    statOutGene <- statOut[statOut$Type == "Gene", ] %>%
         as.data.table(keep.rownames = "geneid") %>%
         select(geneid, t_Amyg, t_sACC)
     
@@ -317,7 +317,7 @@ if (FALSE) {
                    y = 6,
                    label = paste0("rho == ", formatC(amyg_rho, format = "e")),
                    parse = TRUE
-               ) + scale_y_continuous(breaks = c(-6, -3, 0, 3, 6)) + xlim(-6, 6) +
+               ) + scale_y_continuous(breaks = c(-6,-3, 0, 3, 6)) + xlim(-6, 6) +
         theme_bw(base_size = 20)
     
     ggplot(merged_t,
@@ -332,7 +332,7 @@ if (FALSE) {
                    y = 6,
                    label = paste0("rho == ", formatC(sACC_rho, format = "e")),
                    parse = TRUE
-               ) + scale_y_continuous(breaks = c(-6, -3, 0, 3, 6)) +
+               ) + scale_y_continuous(breaks = c(-6,-3, 0, 3, 6)) +
         scale_x_continuous(breaks = waiver()) +
         theme_bw(base_size = 20)
     
@@ -340,11 +340,32 @@ if (FALSE) {
 }
 
 # XLSX Output ####
-write.xlsx2(x = twas_z_amyg_threshold, file = "analysis/tables/MDD_Amyg_sACC_FinalOutputTable.xlsx", sheetName = "Significant TWAS Z Scores in Amygdala", col.names = TRUE, row.names = FALSE, append = FALSE)
+write.xlsx2(
+    x = twas_z_amyg_threshold,
+    file = "analysis/tables/goesHyde_Amyg_sACC_FinalOutputTable.xlsx",
+    sheetName = "Significant TWAS Z Scores in Amygdala",
+    col.names = TRUE,
+    row.names = FALSE,
+    append = FALSE
+)
 
-write.xlsx2(x = twas_z_sACC_threshold, file = "analysis/tables/MDD_Amyg_sACC_FinalOutputTable.xlsx", sheetName = "Significant TWAS Z Scores in sACC", col.names = TRUE, row.names = FALSE, append = TRUE)
+write.xlsx2(
+    x = twas_z_sACC_threshold,
+    file = "analysis/tables/goesHyde_Amyg_sACC_FinalOutputTable.xlsx",
+    sheetName = "Significant TWAS Z Scores in sACC",
+    col.names = TRUE,
+    row.names = FALSE,
+    append = TRUE
+)
 
-write.xlsx2(x = twas_z_wide, file = "analysis/tables/MDD_Amyg_sACC_FinalOutputTable.xlsx", sheetName = "TWAS Z Scatterplot with FDR and P-Values for Both Regions", col.names = TRUE, row.names = FALSE, append = TRUE)
+write.xlsx2(
+    x = twas_z_wide,
+    file = "analysis/tables/goesHyde_Amyg_sACC_FinalOutputTable.xlsx",
+    sheetName = "TWAS Z Scatterplot with FDR and P-Values for Both Regions",
+    col.names = TRUE,
+    row.names = FALSE,
+    append = TRUE
+)
 
 # write.xlsx2(x = merged_t, file = "analysis/tables/MDD_Amyg_sACC_FinalOutputTable.xlsx", sheetName = "TWAS vs MDD Differential Expression in Both Regions", col.names = TRUE, row.names = FALSE, append = TRUE)
 
