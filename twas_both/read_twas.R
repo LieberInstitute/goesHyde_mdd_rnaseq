@@ -47,19 +47,19 @@ locate_files <- function(ftype, path, type) {
         ftype == "dropped" ~ "\\.analysis\\.joint_dropped"
     )
     patt <- paste0(type,
-        "\\.[[:digit:]]*",
-        fpatt,
-        "\\.dat$")
-
+                   "\\.[[:digit:]]*",
+                   fpatt,
+                   "\\.dat$")
+    
     ## Find the files
     dat_files <- dir(path = path,
-        pattern = patt,
-        full.names = TRUE)
-
+                     pattern = patt,
+                     full.names = TRUE)
+    
     ## Extract the chromosome
     names(dat_files) <- str_extract(basename(dat_files),
-        "[:digit:]+")
-
+                                    "[:digit:]+")
+    
     ## Done
     return(dat_files)
 }
@@ -77,35 +77,33 @@ twas <- map(file_types, function(ftype) {
         feature = features,
         stringsAsFactors = FALSE
     )
-
-
+    
+    
     pmap_dfr(arg_grid, function(region, type, feature) {
         ## Construct the path to the files
-        path <- file.path(
-            here("twas_both"),
-            paste0(region, "_", feature),
-            type
-        )
-
+        path <- file.path(here("twas_both"),
+                          paste0(region, "_", feature),
+                          type)
+        
         ## Now locate the files
         dat_files <- locate_files(ftype = ftype,
-            path = path,
-            type = type)
-
+                                  path = path,
+                                  type = type)
+        
         ## Next read the files and add the chromosome info
         result <- map2_dfr(dat_files,
-            names(dat_files),
-            function(f, chr) {
-                res <- suppressMessages(read_tsv(f))
-                res$chr <- chr
-                return(res)
-            })
-
+                           names(dat_files),
+                           function(f, chr) {
+                               res <- suppressMessages(read_tsv(f))
+                               res$chr <- chr
+                               return(res)
+                           })
+        
         ## Next add the region, feature and type information
         result$region <- region
         result$feature <- feature
         result$type <- type
-
+        
         ## Done
         return(result)
     })
@@ -128,14 +126,22 @@ map_dfr(twas, dim)
 ## adapted from https://github.com/LieberInstitute/brainseq_phase2/blob/master/development/load_funs.R
 load_rse <- function(type) {
     # expmnt data
-    load_file <- Sys.glob(here("twas_both", "filter_data", paste0(opt$region, "_rda"), "MDD_*_hg38_rseGene_rawCounts_allSamples_n*.Rdata"))
+    load_file <-
+        Sys.glob(
+            here(
+                "twas_both",
+                "filter_data",
+                paste0(opt$region, "_rda"),
+                "*_hg38_rseGene_rawCounts_allSamples_n*.Rdata"
+            )
+        )
     
     stopifnot(file.exists(load_file))
     load(load_file)
-
+    
     ## Get the appropriate object
     rse <- rse_gene
-
+    
     return(rse)
 }
 
@@ -146,43 +152,45 @@ names(rse) <- unique(twas$all$feature)
 twas_exp <- map(twas, function(tw) {
     ## For testing the inner part of the function
     # tw <- twas$included
-
+    
     by_feat <- split(tw, tw$feature)
     ## Make sure it's in the right order
     if (!identical(names(by_feat), names(rse))) {
         message(paste(Sys.time(), "fixing order"))
         by_feat <- by_feat[names(rse)]
     }
-
+    
     ## Now add the gene gencode ID and symbol
     result <- pmap_dfr(list(by_feat, rse, names(rse)),
-        function(info, rs, feature) {
-            ## Find the appropriate variables
-            gene_var <- case_when(
-                feature == "gene" ~ "gencodeID",
-                feature == "exon" ~ "gencodeID",
-                feature == "jxn" ~ "newGeneID",
-                feature == "tx" ~ "gene_id"
-            )
-            symbol_var <- case_when(
-                feature == "gene" ~ "Symbol",
-                feature == "exon" ~ "Symbol",
-                feature == "jxn" ~ "newGeneSymbol",
-                feature == "tx" ~ "gene_name"
-            )
-
-            ## Match by id
-            m <- match(info$ID, names(rowRanges(rs)))
-            stopifnot(!is.na(m))
-
-            ## Add the gene id/symbol
-            info$geneid <- mcols(rowRanges(rs))[[gene_var]][m]
-            info$genesymbol <- mcols(rowRanges(rs))[[symbol_var]][m]
-
-            ## Done
-            return(info)
-        })
-
+                       function(info, rs, feature) {
+                           ## Find the appropriate variables
+                           gene_var <- case_when(
+                               feature == "gene" ~ "gencodeID",
+                               feature == "exon" ~ "gencodeID",
+                               feature == "jxn" ~ "newGeneID",
+                               feature == "tx" ~ "gene_id"
+                           )
+                           symbol_var <- case_when(
+                               feature == "gene" ~ "Symbol",
+                               feature == "exon" ~ "Symbol",
+                               feature == "jxn" ~ "newGeneSymbol",
+                               feature == "tx" ~ "gene_name"
+                           )
+                           
+                           ## Match by id
+                           m <- match(info$ID, names(rowRanges(rs)))
+                           stopifnot(!is.na(m))
+                           
+                           ## Add the gene id/symbol
+                           info$geneid <-
+                               mcols(rowRanges(rs))[[gene_var]][m]
+                           info$genesymbol <-
+                               mcols(rowRanges(rs))[[symbol_var]][m]
+                           
+                           ## Done
+                           return(info)
+                       })
+    
     return(result)
 })
 names(twas_exp) <- names(twas)
@@ -209,7 +217,7 @@ twas_exp_fin <- cbind(twas_exp_ranges, twas_mean_dist)
 
 ## Save the data for later use
 dir.create("rda", showWarnings = FALSE)
-save(twas_exp_fin, file = "rda/twas_exp_ranges.Rdata"))
+save(twas_exp_fin, file = "rda/twas_exp_ranges.Rdata")
 
 ## Reproducibility information
 print("Reproducibility information:")
@@ -222,28 +230,28 @@ session_info()
 # > Sys.time()
 # [1] "2021-03-05 17:04:52 EST"
 # > proc.time()
-# user  system elapsed 
-# 21.621   5.625 744.877 
+# user  system elapsed
+# 21.621   5.625 744.877
 # > options(width = 120)
 # > session_info()
-# 
+#
 # ─ Session info ───────────────────────────────────────────────────────────────────────────────────────────────────────
-# setting  value                                 
+# setting  value
 # version  R version 4.0.4 RC (2021-02-08 r79975)
-# os       CentOS Linux 7 (Core)                 
-# system   x86_64, linux-gnu                     
-# ui       X11                                   
-# language (EN)                                  
-# collate  en_US.UTF-8                           
-# ctype    en_US.UTF-8                           
-# tz       US/Eastern                            
-# date     2021-03-05                            
-# 
+# os       CentOS Linux 7 (Core)
+# system   x86_64, linux-gnu
+# ui       X11
+# language (EN)
+# collate  en_US.UTF-8
+# ctype    en_US.UTF-8
+# tz       US/Eastern
+# date     2021-03-05
+#
 # ─ Packages ───────────────────────────────────────────────────────────────────────────────────────────────────────────
-# package              * version  date       lib source        
+# package              * version  date       lib source
 # assertthat             0.2.1    2019-03-21 [2] CRAN (R 4.0.3)
-# Biobase              * 2.50.0   2020-10-27 [2] Bioconductor  
-# BiocGenerics         * 0.36.0   2020-10-27 [2] Bioconductor  
+# Biobase              * 2.50.0   2020-10-27 [2] Bioconductor
+# BiocGenerics         * 0.36.0   2020-10-27 [2] Bioconductor
 # bitops                 1.0-6    2013-08-17 [2] CRAN (R 4.0.3)
 # caTools                1.18.1   2021-01-11 [2] CRAN (R 4.0.3)
 # cli                    2.3.1    2021-02-23 [2] CRAN (R 4.0.4)
@@ -251,7 +259,7 @@ session_info()
 # crayon                 1.4.1    2021-02-08 [2] CRAN (R 4.0.3)
 # data.table           * 1.14.0   2021-02-21 [2] CRAN (R 4.0.4)
 # DBI                    1.1.1    2021-01-15 [2] CRAN (R 4.0.3)
-# DelayedArray           0.16.2   2021-02-26 [2] Bioconductor  
+# DelayedArray           0.16.2   2021-02-26 [2] Bioconductor
 # dplyr                * 1.0.5    2021-03-05 [1] CRAN (R 4.0.4)
 # ellipsis               0.3.1    2020-05-15 [2] CRAN (R 4.0.3)
 # fansi                  0.4.2    2021-01-15 [2] CRAN (R 4.0.3)
@@ -259,9 +267,9 @@ session_info()
 # futile.logger        * 1.4.3    2016-07-10 [2] CRAN (R 4.0.3)
 # futile.options         1.0.1    2018-04-20 [2] CRAN (R 4.0.3)
 # generics               0.1.0    2020-10-31 [2] CRAN (R 4.0.3)
-# GenomeInfoDb         * 1.26.2   2020-12-08 [2] Bioconductor  
-# GenomeInfoDbData       1.2.4    2020-11-30 [2] Bioconductor  
-# GenomicRanges        * 1.42.0   2020-10-27 [2] Bioconductor  
+# GenomeInfoDb         * 1.26.2   2020-12-08 [2] Bioconductor
+# GenomeInfoDbData       1.2.4    2020-11-30 [2] Bioconductor
+# GenomicRanges        * 1.42.0   2020-10-27 [2] Bioconductor
 # getopt               * 1.20.3   2019-03-22 [2] CRAN (R 4.0.3)
 # ggplot2              * 3.3.3    2020-12-30 [2] CRAN (R 4.0.3)
 # glue                   1.4.2    2020-08-27 [2] CRAN (R 4.0.3)
@@ -270,14 +278,14 @@ session_info()
 # gtools                 3.8.2    2020-03-31 [2] CRAN (R 4.0.3)
 # here                 * 1.0.1    2020-12-13 [1] CRAN (R 4.0.4)
 # hms                    1.0.0    2021-01-13 [2] CRAN (R 4.0.3)
-# IRanges              * 2.24.1   2020-12-12 [2] Bioconductor  
+# IRanges              * 2.24.1   2020-12-12 [2] Bioconductor
 # KernSmooth             2.23-18  2020-10-29 [3] CRAN (R 4.0.4)
 # lambda.r               1.2.4    2019-09-18 [2] CRAN (R 4.0.3)
 # lattice                0.20-41  2020-04-02 [3] CRAN (R 4.0.4)
 # lifecycle              1.0.0    2021-02-15 [2] CRAN (R 4.0.4)
 # magrittr               2.0.1    2020-11-17 [2] CRAN (R 4.0.3)
 # Matrix                 1.3-2    2021-01-06 [3] CRAN (R 4.0.4)
-# MatrixGenerics       * 1.2.1    2021-01-30 [2] Bioconductor  
+# MatrixGenerics       * 1.2.1    2021-01-30 [2] Bioconductor
 # matrixStats          * 0.58.0   2021-01-29 [2] CRAN (R 4.0.3)
 # munsell                0.5.0    2018-06-12 [2] CRAN (R 4.0.3)
 # pillar                 1.5.0    2021-02-22 [2] CRAN (R 4.0.4)
@@ -291,21 +299,21 @@ session_info()
 # rlang                  0.4.10   2020-12-30 [2] CRAN (R 4.0.3)
 # rprojroot              2.0.2    2020-11-15 [2] CRAN (R 4.0.3)
 # rstudioapi             0.13     2020-11-12 [2] CRAN (R 4.0.3)
-# S4Vectors            * 0.28.1   2020-12-09 [2] Bioconductor  
+# S4Vectors            * 0.28.1   2020-12-09 [2] Bioconductor
 # scales                 1.1.1    2020-05-11 [2] CRAN (R 4.0.3)
 # sessioninfo          * 1.1.1    2018-11-05 [2] CRAN (R 4.0.3)
 # stringi                1.5.3    2020-09-09 [2] CRAN (R 4.0.3)
 # stringr              * 1.4.0    2019-02-10 [2] CRAN (R 4.0.3)
-# SummarizedExperiment * 1.20.0   2020-10-27 [2] Bioconductor  
+# SummarizedExperiment * 1.20.0   2020-10-27 [2] Bioconductor
 # tibble                 3.1.0    2021-02-25 [2] CRAN (R 4.0.4)
 # tidyselect             1.1.0    2020-05-11 [2] CRAN (R 4.0.3)
 # utf8                   1.1.4    2018-05-24 [2] CRAN (R 4.0.3)
 # vctrs                  0.3.6    2020-12-17 [2] CRAN (R 4.0.3)
 # VennDiagram          * 1.6.20   2018-03-28 [2] CRAN (R 4.0.3)
 # withr                  2.4.1    2021-01-26 [2] CRAN (R 4.0.3)
-# XVector                0.30.0   2020-10-27 [2] Bioconductor  
-# zlibbioc               1.36.0   2020-10-27 [2] Bioconductor  
-# 
+# XVector                0.30.0   2020-10-27 [2] Bioconductor
+# zlibbioc               1.36.0   2020-10-27 [2] Bioconductor
+#
 # [1] /users/aseyedia/R/4.0.x
 # [2] /jhpce/shared/jhpce/core/conda/miniconda3-4.6.14/envs/svnR-4.0.x/R/4.0.x/lib64/R/site-library
 # [3] /jhpce/shared/jhpce/core/conda/miniconda3-4.6.14/envs/svnR-4.0.x/R/4.0.x/lib64/R/library
