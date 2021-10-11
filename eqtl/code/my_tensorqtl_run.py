@@ -24,7 +24,7 @@ def load_data(plink_prefix_path, expression_bed, covariates_file):
     genotype_df.columns = genoSamples
     
     ## Fix chr names (maybe fix in plink?)
-    variant_df.chrom = "chr" + variant_df.chrom
+    ##variant_df.chrom = "chr" + variant_df.chrom
 
     # Filter expression to chrom in snp data
     my_chrom = set(variant_df.chrom)
@@ -42,11 +42,11 @@ def get_input_paths(feature, region):
     prefix = '/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/eqtl/data/tensorQTL_out/' + feature + '_' + region + '_cis_genomewide'
     return plink_prefix_path, expression_bed, covariates_file, prefix
 
-def run_map_nominal(feature, region, interaction):
-    print("Running " + feature + " " + region + " ~" + interaction)
-    
-    plink_prefix_path, expression_bed, covariates_file, prefix = get_input_paths(feature, region)
-    genotype_df, variant_df, phenotype_df_filter, phenotype_pos_df_filter, covariates_df = load_data(plink_prefix_path, expression_bed, covariates_file)
+## def run_map_nominal(feature, region, interaction):
+##    print("Running " + feature + " " + region + " ~" + interaction)
+##    
+##    plink_prefix_path, expression_bed, covariates_file, prefix = get_input_paths(feature, region)
+##    genotype_df, variant_df, phenotype_df_filter, phenotype_pos_df_filter, covariates_df = load_data(plink_prefix_path, expression_bed, covariates_file)
 
 ##    print("Run tensorQTL")
 ##    cis_df = cis.map_cis(

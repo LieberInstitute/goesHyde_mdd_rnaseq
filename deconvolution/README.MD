@@ -1,6 +1,8 @@
 deconvolution
 ========
 
+[`deconvolution.sh`](deconvolution.sh) Runs full deconvolution analysis
+
 ### Prep sce data & Find Markers
 1. [`sce_data_prep.R`](sce_data_prep.R): Filter cell types, filter for common genes
 with bulk data sets and for genes with all 0 expression , add bp lenghts (for RPKM, not used for now) 

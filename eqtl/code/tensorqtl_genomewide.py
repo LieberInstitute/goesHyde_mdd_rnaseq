@@ -1,25 +1,20 @@
-from my_tensorqtl_run import my_tensorqtl_run
+import my_tensorqtl_run
+from tensorqtl import cis
+import pandas as pd
 import os.path
 
 # define paths to data
 
-def get_input_paths(feature, region):
-    plink_prefix_path = "/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/genotype_data/mdd_bpd/maf01/mdd_bpd_maf01"
-    expression_bed = '../data/expression_bed/' + feature + '_' + region + '.bed.gz'
-    covariates_file = '../data/covariates_txt/covariates_' + feature + '_' + region + '.txt'
-    prefix = '/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/eqtl/data/tensorQTL_out/' + feature + '_' + region + '_cis_genomewide'
-    return plink_prefix_path, expression_bed, covariates_file, prefix
+for region in ["Amygdala", "sACC"]:
+    plink, expres, covar, prefix = my_tensorqtl_run.get_input_paths("gene", region)
+    print(prefix)
+    plink = "/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/genotype_data/mdd_bpd/maf01/mdd_bpd_maf01"
+    genotype_df, variant_df, phenotype_df_filter, phenotype_pos_df_filter, covariates_df = my_tensorqtl_run.load_data(plink, expres, covar)
+    
+    cis_out = cis.map_cis(genotype_df, variant_df, phenotype_df_filter, phenotype_pos_df_filter, covariates_df=covariates_df,
+                group_s=None, maf_threshold=0, beta_approx=True, nperm=10000,
+                window=500000, random_tiebreak=False, logger=None, seed=None,
+               verbose=True, warn_monomorphic=False)
 
-
-plink, expres, covar, prefix = get_input_paths("gene", "Amygdala")
-my_tensorqtl_run(plink, expres, covar, prefix)
-
-
-
-## for feature in ["gene", "exon","jxn","tx"]:
-##    for region in ["Amygdala", "sACC"]:
-##         plink, expres, covar, prefix = get_input_paths(feature, region)
-##         print(expres + " - " + str(os.path.exists(expres)))
-##         my_tensorqtl_run(plink, expres, covar, prefix)
-
+    cis_out.to_csv(prefix + ".csv")
 

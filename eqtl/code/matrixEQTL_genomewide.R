@@ -35,8 +35,8 @@ table(has_pos)
 # FALSE    TRUE 
 # 92045 8800015 
 
-# snpMap <- snpMap[has_pos, ]
-# snp <- snp[has_pos, ]
+snpMap <- snpMap[has_pos, ]
+snp <- snp[has_pos, ]
 
 dim(snp)
 # [1] 8401829     540

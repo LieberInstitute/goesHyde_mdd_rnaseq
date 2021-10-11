@@ -18,7 +18,7 @@ rownames(pd_genoSamples) <- NULL
 
 ################
 ## read in #####
-message("\n ***** Read in genotypes *****")
+message("\n ***** Read in genotypes *****", Sys.time())
 ## read in genotypes
 newbfile = "goesHyde_mdd_Genotypes_maf01_geno10_hwe1e6"
 genotypes  = read_delim(here("genotype_data",paste0(newbfile, ".traw")), delim="\t")
@@ -64,7 +64,7 @@ head(snpMap[snpMap$Type != "SNV",],10)
 rm(dIndex, iIndex,ncRef, ncCount)
 #### 
 ## dbsnp 142 for rs number
-message("\n***** dbsnp 142 ***** ",Sys.time())
+message("\n***** dbsnp 142 ***** ", Sys.time())
 rs = read_delim("/dcs01/ajaffe/Annotation/dbsnp142_common.txt", delim = "\t")
 rs$class = factor(rs$class, c("single", "deletion", "insertion",
                               "in-del", "microsatellite", "mnp"))
@@ -132,7 +132,7 @@ rm(mm, mm2)
 #### read in MDS
 mds = read.table(paste0(newbfile, ".mds"), 
                  header=TRUE,as.is=TRUE)
-mds$genoSample = mds$IID
+mds$genoSample = paste0(mds$FID, "_", mds$IID)
 
 message("All genoSamples in mds: ", all(pd_genoSamples$genoSample %in%  mds$genoSample))
 mds$BrNum <- pd_genoSamples$BrNum[match(mds$genoSample, pd_genoSamples$genoSample)]

@@ -45,28 +45,27 @@ region_samples <- splitit(rse_gene$BrainRegion)
 map(region_samples, length)
 
 map(region_samples, ~dim(rse_gene[,.x]))
-rpkm <- c(exon = exonRpkm, jxn = jxnRp10m, tx = txTpm) 
 
 #### do PCA ####
 (pca_rda_dir <- here("eqtl", "data", "featuresPCs/"))
 
 ## genePCs
-genePCs <- map2(region_samples, names(region_samples), function(r_samples, r_name){
-  message(Sys.time(), paste(" gene", r_name, "PCA"))
-  
-  rpkm_region <- geneRpkm[,r_samples]
-  mod_region <- mod[r_samples,]
-  pca <- prcomp(t(log2(rpkm_region + 1)))
-  message("start num sv")
-  k <- num.sv(log2(rpkm_region + 1), mod_region)
-  PCs <- pca$x[, 1:k]
-  
-  save(PCs, file = paste0(pca_rda_dir, "genePCs",r_name,".rda"))
-  return(PCs)
-})
+# genePCs <- map2(region_samples, names(region_samples), function(r_samples, r_name){
+#   message(Sys.time(), paste(" gene", r_name, "PCA"))
+#   
+#   rpkm_region <- geneRpkm[,r_samples]
+#   mod_region <- mod[r_samples,]
+#   pca <- prcomp(t(log2(rpkm_region + 1)))
+#   message("start num sv")
+#   k <- num.sv(log2(rpkm_region + 1), mod_region)
+#   PCs <- pca$x[, 1:k]
+#   
+#   save(PCs, file = paste0(pca_rda_dir, "genePCs",r_name,".rda"))
+#   return(PCs)
+# })
 
 ## Other Featuers w/ vfilter
-otherPCs <- map2(rpkm, names(rpkm), function(f_rpkm, f_name){
+otherPCs <- map2(list(exon = exonRpkm, jxn = jxnRp10m, tx = txTpm) , c("exon", "jxn", "tx"), function(f_rpkm, f_name){
   map2(region_samples, names(region_samples), function(r_samples, r_name){
     message(Sys.time(), paste("", f_name, r_name, "PCA"))
     
@@ -75,13 +74,14 @@ otherPCs <- map2(rpkm, names(rpkm), function(f_rpkm, f_name){
     pca <- prcomp(t(log2(rpkm_region + 1)))
     k <- num.sv(log2(rpkm_region + 1), mod_region, vfilter = 50000)
     PCs <- pca$x[, 1:k]
-    
+
     save(PCs, file = paste0(pca_rda_dir, f_name, "PCs",r_name,".rda"))
     return(PCs)
   })
 })
 
-save(genePCs, otherPCs, file = here("eqtl", "data", "featuresPCs","pcs_4features.Rdata"))
+save(otherPCs, file = here("eqtl", "data", "featuresPCs","pcs_4features.Rdata"))
+# save(genePCs, otherPCs, file = here("eqtl", "data", "featuresPCs","pcs_4features.Rdata"))
 # sgejobs::job_single("get_pcs_4features", memory = "150G",create_shell = TRUE, command = "Rscript get_pcs_4features.R")
 
 ## Reproducibility information

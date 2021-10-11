@@ -8,6 +8,14 @@ cd ${MAINDIR}/data
 rm logs/clean_data.txt ## wipe out the previous log since we only care about the last version
 qsub clean_data.sh
 
+## Pull genotype data
+cd ${MAINDIR}/genotype_data
+rm logs/pull_genotype_data_plink.txt
+qsub pull_genotype_data_plink.sh
+
+rm logs/pull_genotype_data.txt
+qsub pull_genotype_data.sh
+
 ## Filter the expression features
 cd ${MAINDIR}/exprs_cutoff
 rm logs/get_expression_cutoff.txt
@@ -17,11 +25,6 @@ qsub get_expression_cutoff.sh
 cd ${MAINDIR}
 rm logs/get_degredation_regions.sh
 qsub get_degredation_regions.sh
-
-## Merge MDDseq and BiPseq data
-cd ${MAINDIR}/data
-rm logs/merge_MDDseq_BiPseq_degradation.txt
-qsub merge_MDDseq_BiPseq_degradation.sh
 
 ## Run qSV DE analysis
 cd ${MAINDIR}/differential_expression

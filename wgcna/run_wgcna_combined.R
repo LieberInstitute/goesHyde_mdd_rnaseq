@@ -5,14 +5,22 @@ library(recount)
 library(WGCNA)
 library(sva)
 library(sessioninfo)
+library(here)
 
+#qrsh -l mem_free=100G,h_vmem=100G
 
 ## multithread
-allowWGCNAThreads(8)
+#setallowWGCNAThreads(8)
 
-dir.create("rdas", showWarnings = FALSE)
+options(stringsAsFactors = FALSE)
+#enableWGCNAThreads(8)
+
+
+#dir.create("rdas", showWarnings = FALSE)
 
 ## load data
+#load(here("exprs_cutoff","rse_gene.Rdata"))
+
 load("../exprs_cutoff/rse_gene.Rdata", verbose = TRUE)
 load("../data/degradation_rse_MDDseq_BiPSeq_BothRegions.Rdata", verbose = TRUE)
 
@@ -20,7 +28,7 @@ load("../data/degradation_rse_MDDseq_BiPSeq_BothRegions.Rdata", verbose = TRUE)
 identical(colnames(rse_gene), colnames(cov_rse)) # TRUE
 table(rse_gene$PrimaryDx)
 # MDD Control Bipolar
-# 463     385     245
+# 463     387     245
 
 table(cov_rse$PrimaryDx)
 
@@ -28,51 +36,52 @@ rse_gene <- rse_gene[, rse_gene$PrimaryDx %in% c("Control", "MDD")]
 cov_rse <- cov_rse[, cov_rse$PrimaryDx %in% c("Control", "MDD")]
 table(rse_gene$PrimaryDx)
 # MDD Control Bipolar
-# 463     385       0
+# 463     387       0
 
 rse_gene$Dx <- droplevels(rse_gene$PrimaryDx)
 cov_rse$Dx <- droplevels(cov_rse$PrimaryDx)
 
 table(rse_gene$Dx)
 # MDD Control
-# 463     385
+# 463     387
 
 ## add ancestry
-load("../genotype_data/goesHyde_bipolarMdd_Genotypes_n588_mds.rda", verbose = TRUE)
-class(mds)
-dim(mds)
-corner(mds)
-table(rse_gene$BrNum %in% rownames(mds))
+#no need -- already in new rse_object
+#load("../genotype_data/goesHyde_bipolarMdd_Genotypes_n588_mds.rda", verbose = TRUE)
+#class(mds)
+#dim(mds)
+#corner(mds)
+#table(rse_gene$BrNum %in% rownames(mds))
 
 # FALSE  TRUE
 # 12   836
 ## 6 individual, 12 brain regions absent in mds file
 
-table(rse_gene$BrNum %in% rownames(mds), rse_gene$BrainRegion)
+#table(rse_gene$BrNum %in% rownames(mds), rse_gene$BrainRegion)
 # Amygdala sACC
 # FALSE        6    6
 # TRUE       415  421
 
 ## keep samples with genotypes
-rse_gene <- rse_gene[, rse_gene$BrNum %in% rownames(mds)]
-cov_rse <- cov_rse[, cov_rse$BrNum %in% rownames(mds)]
+#rse_gene <- rse_gene[, rse_gene$BrNum %in% rownames(mds)]
+#cov_rse <- cov_rse[, cov_rse$BrNum %in% rownames(mds)]
 
 dim(rse_gene)
-# [1] 25212   836
+# [1] 25212   846
 addmargins(table(rse_gene$Dx, rse_gene$BrainRegion))
-# Amygdala sACC Sum
-# MDD          234  227 461
-# Control      181  194 375
-# Sum          415  421 836
+#         Amygdala sACC Sum
+#  MDD          231  228 459
+#  Control      187  200 387
+#  Sum          418  428 846
 
 #### reorders according to rse_gene$BrNum
-mds = mds[rse_gene$BrNum,1:5]
-dim(mds)
+#mds = mds[rse_gene$BrNum,1:5]
+#dim(mds)
 # [1] 836   5
 
 #colnames(mds) = paste0("snpPC", 1:5)
-colData(rse_gene) = cbind(colData(rse_gene), mds)
-colData(cov_rse) = cbind(colData(cov_rse), mds)
+#colData(rse_gene) = cbind(colData(rse_gene), mds)
+#colData(cov_rse) = cbind(colData(cov_rse), mds)
 
 ###########
 #compute RPKM
@@ -89,8 +98,10 @@ assays(rse_gene)$rpkm = recount::getRPKM(rse_gene, 'Length')
 
 
 ### removed ERCCsumLogErr term
+### REPLACED ERCCsumLogErr term
+
 modJoint = model.matrix(~Dx*BrainRegion + AgeDeath + Sex + snpPC1 + snpPC2 + snpPC3 +
-	mitoRate + rRNA_rate + totalAssignedGene + RIN,
+	mitoRate + rRNA_rate + totalAssignedGene + RIN + ERCCsumLogErr,
 	data=colData(rse_gene))
 
 
@@ -108,45 +119,46 @@ colnames(modJoint)
 # [5] "SexM"                      "snpPC1"
 # [7] "snpPC2"                    "snpPC3"
 # [9] "mitoRate"                  "rRNA_rate"
-# [11] "totalAssignedGene"         "RIN"
-# [13] "DxControl:BrainRegionsACC"
+#[11] "totalAssignedGene"         "RIN"
+#[13] "ERCCsumLogErr"             "DxControl:BrainRegionsACC"
 
-modQsva = cbind(modJoint[,c(1:4,13,5:12)], qSV_mat)
+modQsva = cbind(modJoint[,c(1:4,14,5:13)], qSV_mat)
 
 colnames(modQsva)
 
-#  [1] "(Intercept)"               "DxControl"
-#  [3] "BrainRegionsACC"           "AgeDeath"
-#  [5] "DxControl:BrainRegionsACC" "SexM"
-#  [7] "snpPC1"                    "snpPC2"
-#  [9] "snpPC3"                    "mitoRate"
-# [11] "rRNA_rate"                 "totalAssignedGene"
-# [13] "RIN"                       "PC1"
-# [15] "PC2"                       "PC3"
-# [17] "PC4"                       "PC5"
-# [19] "PC6"                       "PC7"
-# [21] "PC8"                       "PC9"
-# [23] "PC10"                      "PC11"
-# [25] "PC12"                      "PC13"
-# [27] "PC14"                      "PC15"
-# [29] "PC16"                      "PC17"
-# [31] "PC18"                      "PC19"
-# [33] "PC20"                      "PC21"
-# [35] "PC22"
-# >
-
+ #[1] "(Intercept)"               "DxControl"
+ #[3] "BrainRegionsACC"           "AgeDeath"
+ #[5] "DxControl:BrainRegionsACC" "SexM"
+ #[7] "snpPC1"                    "snpPC2"
+ #[9] "snpPC3"                    "mitoRate"
+#[11] "rRNA_rate"                 "totalAssignedGene"
+#[13] "RIN"                       "ERCCsumLogErr"
+#[15] "PC1"                       "PC2"
+#[17] "PC3"                       "PC4"
+#[19] "PC5"                       "PC6"
+#[21] "PC7"                       "PC8"
+#[23] "PC9"                       "PC10"
+#[25] "PC11"                      "PC12"
+#[27] "PC13"                      "PC14"
+#[29] "PC15"                      "PC16"
+#[31] "PC17"                      "PC18"
+#[33] "PC19"                      "PC20"
+#[35] "PC21"                      "PC22"
 ## clean expression
 geneExprs = log2(recount::getRPKM(rse_gene, "Length")+1)
 
 ### regress out after variable 5 (protect 1,2,3,4, 5)
 geneExprsClean = cleaningY(geneExprs, modQsva, P=5)
 
+geneExprsClean_sex = cleaningY(geneExprs, modQsva, P=6)
+
 #########################
 ## get power
 powers <- c(1:10, seq(from = 12, to=20, by=2))
 sftthresh1 <- pickSoftThreshold(t(geneExprsClean), powerVector = powers,
                                networkType = "signed", verbose = 5)
-cat(sftthresh1$powerEstimate)
+sftthresh1$powerEstimate
+#10
 save(sftthresh1, file = "rdas/power_object.rda")
 
 ## run wgcna
@@ -162,9 +174,9 @@ fNames = rownames(geneExprs)
 #save(net, fNames, file = "rdas/constructed_network_signed_bicor.rda")
 
 ########################
-## by region remove ERCCsumLogErr
+## by region remove 
 modRegion =  model.matrix(~Dx + AgeDeath + Sex + snpPC1 + snpPC2 + snpPC3 +
-	mitoRate + rRNA_rate + totalAssignedGene + RIN,
+	mitoRate + rRNA_rate + totalAssignedGene + RIN + ERCCsumLogErr,
 	data=colData(rse_gene))
 
 colnames(modRegion)

@@ -1,72 +1,120 @@
 library(dplyr)
 library(stringr)
-# qrsh -l mem_free=50G,h_vmem=50G
+library(rtracklayer)
+library(vcfR)
+library(VariantAnnotation)
 
 setwd("/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/predixcan_pipeline")
 
-load(
-  here::here(
-    "predixcan_pipeline",
-    "processed-data",
-    "02_prep_inputs",
-    "goesHyde_bipolarMdd_Genotypes_PredictDB_NO-MDS.rda"
-  )
-)
+snp <-
+    readGeno(here::here(
+        "genotype_data",
+        "mdd_bpd",
+        "maf01",
+        "mdd_bpd_maf01.rsid.vcf.gz"
+    ),
+    x = "GT")
+
+snpMap <- readInfo(here::here(
+    "genotype_data",
+    "mdd_bpd",
+    "maf01",
+    "mdd_bpd_maf01.rsid.vcf.gz"
+),
+x = "GT")
+
+# TODO use read geno on the VCF for snp
+# read info should get you snpMap
+
+# load(
+#     here::here(
+#         "predixcan_pipeline",
+#         "trash",
+#         "processed-data",
+#         "02_prep_inputs",
+#         "goesHyde_bipolarMdd_Genotypes_PredictDB_NO-MDS.rda"
+#     )
+# )
+
+# snpMap <- snpMap[!is.na(snpMap$chr_hg38),]
 
 # Remove all rows from snp annotation where there is no RSID
-snp_anno <- snpMap[!is.na(snpMap$rsNumGuess),]
+snp_anno <- snpMap[!is.na(snpMap$rsNumGuess), ]
 
-snp_anno <- snp_anno[, c("chr_hg38", "pos_hg38", "SNP", "COUNTED", "ALT", "rsNumGuess")]
+snp_anno <-
+    snp_anno[, c("chr_hg38", "pos_hg38", "SNP", "COUNTED", "ALT", "rsNumGuess")]
 
-# table(paste0(snp_anno$chr_hg38, ":", snp_anno$pos_hg38, ":", snp_anno$COUNTED, ":", snp_anno$ALT) == snp_anno$SNP)
+# Remove NAs
+# nrow(snp_anno[!is.na(snp_anno),])
+# [1] 2465576
+# nrow(snp_anno[is.na(snp_anno),])
+# [1] 154
 
-snp_anno$SNP <- paste0(snp_anno$chr_hg38, ":", snp_anno$pos_hg38, ":", snp_anno$COUNTED, ":", snp_anno$ALT)
+snp_anno <- na.omit(snp_anno)
+
+# Chromosome 23 is X
+snp_anno[snp_anno$chr_hg38 == "chrX", ]$chr_hg38 <- "chr23"
+
+snp_anno$SNP <-
+    paste0(snp_anno$chr_hg38,
+           ":",
+           snp_anno$pos_hg38,
+           ":",
+           snp_anno$COUNTED,
+           ":",
+           snp_anno$ALT)
 
 names(snp_anno)[3] <- "SNP_hg38"
 
 snp_anno$chr_hg38 <- snp_anno$chr_hg38 %>% gsub("chr", "", .)
 
 snp_anno$snp_id_originalVCF <-
-  paste0("snp_", gsub("chr", "", snp_anno$chr_hg38), "_", snp_anno$pos_hg38)
+    paste0("snp_",
+           gsub("chr", "", snp_anno$chr_hg38),
+           "_",
+           snp_anno$pos_hg38)
 
 snp_anno$Num_alt_per_site <- nchar(snp_anno$ALT)
 
 # colnames(snp_anno) <- c("Chr", "Pos", "VariantID", "Ref_b37", "Alt", "snp_id_originalVCF", "Num_alt_per_site")
 colnames(snp_anno) <-
-  c("chromosome",
-    "pos",
-    "varID",
-    "ref_vcf",
-    "alt_vcf",
-    "rsid",
-    "snp_id_originalVCF",
-    "Num_alt_per_site")
-
-# TODO Should I be removing X?
-# snp_anno <- snp_anno[snp_anno$chromosome != "X",]
-
-snp_anno <- snp_anno[!is.na(snp_anno),]
-
-# snp_anno$VariantID <- snp_anno$VariantID %>% gsub(pattern = "[:]", replacement = "_") %>% gsub(pattern = "chr", replacement = "")
+    c(
+        "chromosome",
+        "pos",
+        "varID",
+        "ref_vcf",
+        "alt_vcf",
+        "rsid",
+        "snp_id_originalVCF",
+        "Num_alt_per_site"
+    )
 
 # Assuming that snp and snpMap are in the same order
-## Process genotype file
+# Process genotype file ####
 snp_gen <- snp
 
-snp_gen$CHR <- snpMap$chr_hg38
+snp_gen$CHR <-
+    snpMap$chr_hg38 %>% gsub("chr", "", .)
 
-snp_gen$CHR <- snp_gen$CHR %>% gsub("chr", "", .)
+snp_gen$CHR <- snp_gen$CHR %>% gsub("X", "23", .)
 
-snp_gen$varID <- paste0(snpMap$chr_hg38, ":", snpMap$pos_hg38, ":", snpMap$COUNTED, ":", snpMap$ALT)
+snp_gen$varID <-
+    paste0(snp_gen$CHR,
+           ":",
+           snp_gen$pos_hg38,
+           ":",
+           snp_gen$COUNTED,
+           ":",
+           snp_gen$ALT)
+
 snp_gen$rsid <- snpMap$rsNumGuess
 
 snp_gen <- snp_gen %>%
-  relocate(rsid) %>%
-  relocate(varID)
+    relocate(rsid) %>%
+    relocate(varID)
 
-snp_gen <- snp_gen[!is.na(snp_gen$rsid),]
+snp_gen <- snp_gen[!is.na(snp_gen$rsid), ]
 
-# table(snp_gen$varID %in% snp_anno$varID)
 #
 # FALSE   TRUE
 # 154 410801
@@ -93,33 +141,33 @@ split_snp_geno <- split(snp_gen, snp_gen$CHR)
 
 sapply(1:22,
        function (x)
-         write.table(
-           split_snp_geno[[x]],
-           file = here::here(
-             "predixcan_pipeline",
-             "processed-data",
-             "02_prep_inputs",
-             "split_geno",
-             paste0("split_snp_geno.chr",
-                    split_snp_geno[[x]]$CHR[1], ".txt")
-           ),
-           sep = "\t",
-           quote = FALSE,
-           row.names = FALSE
-         ))
+           write.table(
+               split_snp_geno[[x]],
+               file = here::here(
+                   "predixcan_pipeline",
+                   "processed-data",
+                   "02_prep_inputs",
+                   "split_geno",
+                   paste0("split_snp_geno.chr",
+                          split_snp_geno[[x]]$CHR[1], ".txt")
+               ),
+               sep = "\t",
+               quote = FALSE,
+               row.names = FALSE
+           ))
 
 
 write.table(
-  snp_anno,
-  file = here::here(
-    "predixcan_pipeline",
-    "processed-data",
-    "02_prep_inputs",
-    "snp_annot_prep.txt"
-  ),
-  quote = FALSE,
-  sep = "\t",
-  row.names = FALSE
+    snp_anno,
+    file = here::here(
+        "predixcan_pipeline",
+        "processed-data",
+        "02_prep_inputs",
+        "snp_annot_prep.txt"
+    ),
+    quote = FALSE,
+    sep = "\t",
+    row.names = FALSE
 )
 
 # write.table(

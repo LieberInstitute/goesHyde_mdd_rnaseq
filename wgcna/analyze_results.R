@@ -10,7 +10,10 @@ library(clusterProfiler)
 library(readxl)
 library(RColorBrewer)
 library(sessioninfo)
+library(here)
 
+
+capabilities()
 
 ## load data
 
@@ -27,29 +30,62 @@ rse_gene$Dx <- droplevels(rse_gene$PrimaryDx)
 cov_rse$Dx <- droplevels(cov_rse$PrimaryDx)
 
 ## add ancestry
-load("../genotype_data/goesHyde_bipolarMdd_Genotypes_n588_mds.rda", verbose = TRUE)
+#load("../genotype_data/goesHyde_bipolarMdd_Genotypes_n588_mds.rda", verbose = TRUE)
 
 ## keep samples with genotypes (remember that rse_gene is summarized experiment, so BrNum is in colData)
-rse_gene <- rse_gene[, rse_gene$BrNum %in% rownames(mds)]
-cov_rse <- cov_rse[, cov_rse$BrNum %in% rownames(mds)]
+#rse_gene <- rse_gene[, rse_gene$BrNum %in% rownames(mds)]
+#cov_rse <- cov_rse[, cov_rse$BrNum %in% rownames(mds)]
 
 #### reorders according to rse_gene$BrNum
-mds = mds[rse_gene$BrNum,1:5]
+#mds = mds[rse_gene$BrNum,1:5]
 
-colData(rse_gene) = cbind(colData(rse_gene), mds)
-colData(cov_rse) = cbind(colData(cov_rse), mds)
+#colData(rse_gene) = cbind(colData(rse_gene), mds)
+#colData(cov_rse) = cbind(colData(cov_rse), mds)
 
 ###########
 #compute RPKM
 assays(rse_gene)$rpkm = recount::getRPKM(rse_gene, 'Length')
 
+##### from run_wgcna_coombinedR script this was the model used for wgcna 
+colnames(modQsva)
+
+ #[1] "(Intercept)"               "DxControl"
+ #[3] "BrainRegionsACC"           "AgeDeath"
+ #[5] "DxControl:BrainRegionsACC" "SexM"
+ #[7] "snpPC1"                    "snpPC2"
+ #[9] "snpPC3"                    "mitoRate"
+#[11] "rRNA_rate"                 "totalAssignedGene"
+#[13] "RIN"                       "ERCCsumLogErr"
+#[15] "PC1"                       "PC2"
+#[17] "PC3"                       "PC4"
+#[19] "PC5"                       "PC6"
+#[21] "PC7"                       "PC8"
+#[23] "PC9"                       "PC10"
+#[25] "PC11"                      "PC12"
+#[27] "PC13"                      "PC14"
+#[29] "PC15"                      "PC16"
+#[31] "PC17"                      "PC18"
+#[33] "PC19"                      "PC20"
+#[35] "PC21"                      "PC22"
+## clean expression
+geneExprs = log2(recount::getRPKM(rse_gene, "Length")+1)
+
+### regress out after variable 5 (protect 1,2,3,4, 5)
+geneExprsClean = cleaningY(geneExprs, modQsva, P=5)
+
+load(here('wgcna', 'geneExprsClean'), verbose = TRUE)
+          
+          ##### Load rse data, examine ####
+
+#######end of model used 
+
 ##########
 ## model #
 ##########
 
-### removed ERCCsumLogErr term
+### put back ERCCsumLogErr term
 modJoint = model.matrix(~Dx*BrainRegion + AgeDeath + Sex + snpPC1 + snpPC2 + snpPC3 +
-                          mitoRate + rRNA_rate + totalAssignedGene + RIN,
+                          mitoRate + rRNA_rate + totalAssignedGene + RIN + ERCCsumLogErr,
                         data=colData(rse_gene))
 
 ## counts from degrafation into log2 scale
@@ -66,49 +102,57 @@ colnames(modJoint)
 # [5] "SexM"                      "snpPC1"
 # [7] "snpPC2"                    "snpPC3"
 # [9] "mitoRate"                  "rRNA_rate"
-# [11] "totalAssignedGene"         "RIN"
-# [13] "DxControl:BrainRegionsACC"
+#[11] "totalAssignedGene"         "RIN"
+#[13] "ERCCsumLogErr"             "DxControl:BrainRegionsACC"
 
-modQsva = cbind(modJoint[,c(1:4,13,5:12)], qSV_mat)
+modQsva = cbind(modJoint[,c(1:4,14,5:13)], qSV_mat)
 
 colnames(modQsva)
 
-#  [1] "(Intercept)"               "DxControl"
+# [1] "(Intercept)"               "DxControl"
 #  [3] "BrainRegionsACC"           "AgeDeath"
 #  [5] "DxControl:BrainRegionsACC" "SexM"
 #  [7] "snpPC1"                    "snpPC2"
 #  [9] "snpPC3"                    "mitoRate"
 # [11] "rRNA_rate"                 "totalAssignedGene"
-# [13] "RIN"                       "PC1"
-# [15] "PC2"                       "PC3"
-# [17] "PC4"                       "PC5"
-# [19] "PC6"                       "PC7"
-# [21] "PC8"                       "PC9"
-# [23] "PC10"                      "PC11"
-# [25] "PC12"                      "PC13"
-# [27] "PC14"                      "PC15"
-# [29] "PC16"                      "PC17"
-# [31] "PC18"                      "PC19"
-# [33] "PC20"                      "PC21"
-# [35] "PC22"
-# >
+# [13] "RIN"                       "ERCCsumLogErr"
+# [15] "PC1"                       "PC2"
+# [17] "PC3"                       "PC4"
+# [19] "PC5"                       "PC6"
+# [21] "PC7"                       "PC8"
+# [23] "PC9"                       "PC10"
+# [25] "PC11"                      "PC12"
+# [27] "PC13"                      "PC14"
+# [29] "PC15"                      "PC16"
+# [31] "PC17"                      "PC18"
+# [33] "PC19"                      "PC20"
+# [35] "PC21"                      "PC22"
+
+
 #########################
 ## load wgcna output ####
 #########################
 
 ## load
 load("rdas/constructed_network_signed_bicor.rda", verbose=TRUE)
+# Loading objects:
+#   net_list
+#   net
+#   fNames
 
-
+#net is the main blockwide module command
 
 ### added code to create dendogram from WGCNA Tutorial
 mergedColors = labels2colors(net$colors)
+
+pdf("dendrogram_092321.pdf")
 
 plotDendroAndColors(net$dendrograms[[1]], mergedColors[net$blockGenes[[1]]],
 "Module colors",
 dendroLabels = FALSE, hang = 0.03,
 addGuide = TRUE, guideHang = 0.05)
 
+dev.off() 
 #########
 
 # get colors LOOK AT WGCNA Instructions
@@ -125,7 +169,7 @@ dim(colorDat)
 ### WILL CHANGE WITH AGE PROTECTED
 colorDat
 
-#                    num          col Label numGenes
+#  old                  num          col Label numGenes
 # ENSG00000227232.5    0         grey   ME0    15381
 # ENSG00000228794.8    1    turquoise   ME1     2777
 # ENSG00000225630.1    2         blue   ME2     1720
@@ -146,6 +190,27 @@ colorDat
 # ENSG00000117155.16  17       grey60  ME17       56
 # >
 
+17 4
+#                    num          col Label numGenes
+# ENSG00000227232.5    0         grey   ME0    15157
+# ENSG00000228794.8    1    turquoise   ME1     2859
+# ENSG00000225630.1    2         blue   ME2     1769
+# ENSG00000205116.3    3        brown   ME3     1214
+# ENSG00000230415.1    4       yellow   ME4      729
+# ENSG00000078369.17   5        green   ME5      662
+# ENSG00000142609.17   6          red   ME6      600
+# ENSG00000188976.10   7        black   ME7      587
+# ENSG00000142583.17   8         pink   ME8      579
+# ENSG00000196581.10   9      magenta   ME9      338
+# ENSG00000162576.16  10       purple  ME10      187
+# ENSG00000179546.4   11  greenyellow  ME11      132
+# ENSG00000088280.18  12          tan  ME12       94
+# ENSG00000060656.19  13       salmon  ME13       94
+# ENSG00000187634.11  14         cyan  ME14       85
+# ENSG00000077254.14  15 midnightblue  ME15       76
+# ENSG00000107404.18  16    lightcyan  ME16       50
+
+
 ######################
 ## gene ontology
 ### plit genes by each color 
@@ -159,6 +224,14 @@ go = compareCluster(gList, univ = univ,
 	OrgDb = "org.Hs.eg.db", ont = "ALL",
 	readable = TRUE, pvalueCutoff = 1, qvalueCutoff = 1)
 save(go, file = "rdas/go_enrichment_MDD_Control_wgcna.rda")
+######
+
+#### split genes with enselble ID 
+gList = split(rowData(rse_gene)$ensemblID, 
+	factor(net$colorsLab,levels = colorDat$col))
+gList = lapply(gList, function(x) as.character(x[!is.na(x)]))
+univ = rowData(rse_gene)$ensemblID
+univ = as.character(univ[!is.na(univ)])
 
 
 goDf = as.data.frame(go)
@@ -172,17 +245,18 @@ write.csv(goCheck, file = "go_enrichment_MDD_Control_wgcna_three_TEST_CandidateM
 ##############
 ## associate eigengenes with brain region
 m = modQsva[,1:5] # this is what was protected
-
+colnames(m)
 #### look up MEs in WGCNA 
 MEs = net$MEs
 ## same order 
 colnames(MEs) = colorDat$col[match(colnames(MEs), colorDat$Label)]
-MEs = MEs[,colorDat$col]
-
+MEs = MEs[,colorDat$col] #change order of columns
+dim(MEs)
 ## check## lmer intercept -- random effect -- check what -1 means 
 statList = lapply(MEs, function(x) summary(lmer(x ~ m + (1|rse_gene$BrNum) - 1))$coef)
 
 statList[[1]]
+
 #    WILL CHANGE                 Estimate  Std. Error       df    t value
 # m(Intercept)               -0.0006301415 0.002246288 641.3682 -0.2805257
 # mDxControl                 -0.0080397674 0.003359925 672.6521 -2.3928413
@@ -194,6 +268,21 @@ statList[[1]]
 # mBrainRegionsACC           0.089407829
 # mDxControl:BrainRegionsACC 0.003428175
 
+#updated_092321
+#                                 Estimate   Std. Error       df    t value
+# m(Intercept)                0.0050057015 4.602188e-03 495.0492  1.0876787
+# mDxControl                 -0.0029024699 3.391172e-03 680.2306 -0.8558900
+# mBrainRegionsACC           -0.0010713519 2.099795e-03 405.0555 -0.5102174
+# mAgeDeath                  -0.0001061467 9.048749e-05 448.5304 -1.1730539
+# mDxControl:BrainRegionsACC  0.0081205984 3.137935e-03 415.2745  2.5878795
+#                               Pr(>|t|)
+# m(Intercept)               0.277266253
+# mDxControl                 0.392360007
+# mBrainRegionsACC           0.610177080
+# mAgeDeath                  0.241396772
+# mDxControl:BrainRegionsACC 0.009995445
+
+
 # modified extract information from lme object
 MDDEffect = as.data.frame(t(sapply(statList, function(x) x[2,])))
 regionEffect = as.data.frame(t(sapply(statList, function(x) x[3,])))
@@ -204,54 +293,54 @@ intEffect = as.data.frame(t(sapply(statList, function(x) x[5,])))
 #colnames(MDDEffect)= colnames(regionEffect) = colnames(ageEffect) = colnames(intEffect) = c(
 #	"slope", "se", "df", "t", "pvalue")
 
-colnames(MDDEffect)= colnames(regionEffect) = colnames(intEffect) = c(
+colnames(MDDEffect)= colnames(regionEffect) = colnames(ageEffect) = colnames(intEffect) = c(
 	"slope", "se", "df", "t", "pvalue")
 
 print_effect <- function(x) { signif(cbind(x, FDR = p.adjust(x$pvalue, 'fdr')), 3) }
 print_effect(MDDEffect)
 
-#                 slope      se  df       t   pvalue
-# grey         -0.00804 0.00336 673 -2.3900 0.017000
-# turquoise    -0.00360 0.00164 790 -2.1900 0.028500
-# blue         -0.00429 0.00174 827 -2.4600 0.013900
-# brown         0.00206 0.00338 819  0.6100 0.542000
-# yellow       -0.01030 0.00309 809 -3.3500 0.000854
-# green        -0.00521 0.00312 802 -1.6700 0.095400
-# red           0.00700 0.00336 712  2.0900 0.037400
-# black        -0.01010 0.00341 799 -2.9700 0.003050
-# pink         -0.00956 0.00333 815 -2.8700 0.004170
-# magenta      -0.00027 0.00329 793 -0.0821 0.935000
-# purple        0.00563 0.00329 820  1.7100 0.087700
-# greenyellow  -0.00516 0.00327 831 -1.5800 0.116000
-# tan          -0.00504 0.00338 788 -1.4900 0.137000
-# salmon       -0.00834 0.00312 657 -2.6700 0.007740
-# cyan          0.00681 0.00290 829  2.3500 0.019200
-# midnightblue  0.00150 0.00333 795  0.4520 0.652000
-# lightcyan    -0.00281 0.00316 830 -0.8910 0.373000
-# grey60       -0.01090 0.00319 823 -3.4300 0.000637
 
-#signif(regionEffect, 3)
-print_effect(regionEffect)
 
-#                  slope      se  df       t    pvalue
-# grey          0.003560 0.00209 391   1.700  8.94e-02
-# turquoise     0.059700 0.00131 399  45.400 1.22e-159
-# blue         -0.060900 0.00156 391 -39.000 9.46e-137
-# brown         0.004920 0.00292 401   1.680  9.30e-02
-# yellow       -0.029500 0.00261 377 -11.300  1.01e-25
-# green         0.026600 0.00260 366  10.200  1.10e-21
-# red          -0.010800 0.00230 380  -4.680  4.03e-06
-# black        -0.000501 0.00284 341  -0.176  8.60e-01
-# pink          0.012900 0.00286 382   4.530  8.01e-06
-# magenta       0.015300 0.00264 409   5.800  1.35e-08
-# purple        0.018900 0.00285 408   6.630  1.05e-10
-# greenyellow  -0.018700 0.00301 405  -6.210  1.32e-09
-# tan           0.010600 0.00273 371   3.900  1.16e-04
-# salmon       -0.027600 0.00186 392 -14.900  5.31e-40
-# cyan         -0.036700 0.00262 412 -14.000  1.23e-36
-# midnightblue  0.012700 0.00269 402   4.730  3.08e-06
-# lightcyan    -0.028900 0.00288 405 -10.100  2.12e-21
-# grey60        0.022800 0.00281 391   8.120  6.16e-15
+###updated_092321
+#                  slope      se  df      t  pvalue     FDR
+# grey         -0.002900 0.00339 680 -0.856 0.39200 0.51300
+# turquoise    -0.001590 0.00167 781 -0.948 0.34300 0.48600
+# blue         -0.002910 0.00174 834 -1.670 0.09490 0.21500
+# brown        -0.000536 0.00332 830 -0.161 0.87200 0.91100
+# yellow        0.005440 0.00332 743  1.640 0.10100 0.21500
+# green        -0.006430 0.00324 831 -1.990 0.04750 0.13500
+# red           0.004450 0.00322 806  1.380 0.16700 0.28100
+# black        -0.007840 0.00324 818 -2.420 0.01570 0.08880
+# pink          0.011300 0.00333 721  3.380 0.00076 0.00973
+# magenta      -0.006820 0.00315 818 -2.170 0.03060 0.10900
+# purple        0.001850 0.00330 787  0.560 0.57500 0.65200
+# greenyellow   0.000341 0.00306 836  0.111 0.91100 0.91100
+# tan          -0.006670 0.00310 648 -2.150 0.03200 0.10900
+# salmon        0.002490 0.00337 828  0.739 0.46000 0.55800
+# cyan          0.004310 0.00322 802  1.340 0.18200 0.28100
+# midnightblue  0.004400 0.00285 838  1.540 0.12300 0.23300
+# lightcyan    -0.010900 0.00335 774 -3.260 0.00114 0.00973
+
+
+#updated092321
+#                 slope      se  df      t    pvalue       FDR
+# grey         -0.00107 0.00210 405  -0.51  6.10e-01  6.10e-01
+# turquoise     0.05960 0.00129 409  46.10 7.13e-164 1.21e-162
+# blue         -0.06100 0.00155 419 -39.20 2.05e-142 1.75e-141
+# brown         0.00577 0.00292 420   1.98  4.85e-02  5.15e-02
+# yellow        0.00657 0.00241 385   2.72  6.74e-03  7.64e-03
+# green        -0.02090 0.00286 401  -7.29  1.66e-12  3.14e-12
+# red           0.02230 0.00266 389   8.39  8.99e-16  1.91e-15
+# black        -0.02440 0.00275 400  -8.88  2.35e-17  5.70e-17
+# pink         -0.00716 0.00230 393  -3.11  2.00e-03  2.43e-03
+# magenta       0.02600 0.00269 387   9.70  4.74e-20  1.34e-19
+# purple        0.01230 0.00258 418   4.78  2.45e-06  3.79e-06
+# greenyellow  -0.02920 0.00276 418 -10.60  2.14e-23  7.27e-23
+# tan          -0.02790 0.00178 401 -15.70  1.43e-43  8.10e-43
+# salmon        0.01300 0.00294 422   4.41  1.31e-05  1.85e-05
+# cyan          0.01400 0.00261 415   5.34  1.55e-07  2.64e-07
+# midnightblue -0.03810 0.00260 431 -14.70  8.24e-40  3.50e-39
+# lightcyan     0.01170 0.00265 348   4.40  1.42e-05  1.85e-05
 
 
 #signif(ageEffect, 3)
@@ -277,15 +366,56 @@ print_effect(ageEffect)
 # lightcyan     0.004220 0.00430 428  0.979 0.32800
 # grey60        0.002750 0.00420 414  0.654 0.51300
 
+#updated092321 Age
+#                  slope       se  df      t   pvalue      FDR
+# grey         -1.06e-04 9.05e-05 449 -1.170 2.41e-01 2.74e-01
+# turquoise     1.12e-04 4.08e-05 435  2.750 6.20e-03 1.17e-02
+# blue         -6.52e-05 3.88e-05 429 -1.680 9.35e-02 1.20e-01
+# brown         3.56e-04 7.50e-05 432  4.750 2.82e-06 1.60e-05
+# yellow        1.38e-04 8.35e-05 417  1.650 9.90e-02 1.20e-01
+# green         2.45e-04 7.26e-05 413  3.380 8.01e-04 1.95e-03
+# red           1.25e-04 7.56e-05 408  1.660 9.77e-02 1.20e-01
+# black        -2.22e-05 7.48e-05 417 -0.297 7.67e-01 8.15e-01
+# pink          2.39e-04 8.57e-05 429  2.790 5.46e-03 1.16e-02
+# magenta       3.38e-04 7.25e-05 403  4.670 4.19e-06 1.78e-05
+# purple        3.60e-04 8.02e-05 444  4.490 9.18e-06 3.12e-05
+# greenyellow  -5.04e-04 6.77e-05 427 -7.440 5.50e-13 9.34e-12
+# tan          -3.11e-04 8.46e-05 449 -3.670 2.67e-04 7.57e-04
+# salmon        1.91e-04 7.64e-05 435  2.500 1.29e-02 2.00e-02
+# cyan          5.27e-04 7.67e-05 436  6.870 2.20e-11 1.87e-10
+# midnightblue -6.87e-06 6.23e-05 439 -0.110 9.12e-01 9.12e-01
+# lightcyan     2.10e-04 8.10e-05 372  2.600 9.71e-03 1.65e-02
 
 print_effect(intEffect)
 
+updated092321
+#                  slope      se  df      t pvalue    FDR
+# grey          0.008120 0.00314 415  2.590 0.0100 0.0850
+# turquoise     0.001240 0.00192 423  0.645 0.5190 0.8020
+# blue          0.003820 0.00230 434  1.660 0.0979 0.3420
+# brown         0.010100 0.00432 435  2.330 0.0203 0.1150
+# yellow        0.011900 0.00359 397  3.310 0.0010 0.0171
+# green        -0.001090 0.00424 416 -0.256 0.7980 0.8600
+# red           0.002740 0.00395 403  0.694 0.4880 0.8020
+# black         0.003720 0.00408 415  0.913 0.3620 0.6830
+# pink          0.001380 0.00343 405  0.403 0.6870 0.8600
+# magenta      -0.000906 0.00398 402 -0.227 0.8200 0.8600
+# purple        0.004170 0.00383 432  1.090 0.2770 0.5880
+# greenyellow   0.004790 0.00408 433  1.170 0.2410 0.5860
+# tan           0.004140 0.00266 410  1.550 0.1210 0.3420
+# salmon       -0.001860 0.00436 437 -0.427 0.6700 0.8600
+# cyan          0.001320 0.00388 429  0.341 0.7330 0.8600
+# midnightblue -0.000681 0.00385 447 -0.177 0.8600 0.8600
+# lightcyan     0.006360 0.00394 361  1.610 0.1080 0.3420
+# > 
 
 
 ##################
 # make boxplots ##
 lab = paste0(substr(rse_gene$BrainRegion,1,4), ":", rse_gene$Dx)
 table(lab)
+# Amyg:Control     Amyg:MDD sACC:Control     sACC:MDD 
+#          187          231          200          228 
 ### changed BP to MDD labels
 lab = factor(lab, levels = c("sACC:Control", "sACC:MDD", "Amyg:Control", "Amyg:MDD"))
 
@@ -303,10 +433,9 @@ for(i in 1:ncol(MEs)) {
 dev.off()
 
 colnames(m)
-# > colnames(m)  WILL CHANGE 
-# [1] "(Intercept)"               "DxControl"
-# [3] "BrainRegionsACC"           "DxControl:BrainRegionsACC"
-
+# [1] "(Intercept)"               "DxControl"                
+# [3] "BrainRegionsACC"           "AgeDeath"                 
+# [5] "DxControl:BrainRegionsACC"
 
 clean_ME = t(cleaningY(t(MEs), m, P=2))
 pdf("clean_MEs_vs_dx.pdf",w=5,h=6, useDingbats = FALSE)
@@ -351,6 +480,10 @@ plot(-log10(deModEnrich$Pvalue), -log10(MDDEffect$pvalue ))
 
 ## read in magma
 magma = read_excel("../PGC_BP_Magma_table.xlsx", skip = 2)
+#updated 
+magma = read.table(file = "/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/Howard_MDD_MAGMA_genes.csv", sep = ",")
+
+
 magma = as.data.frame(magma)
 magma$FDR_JOINT = p.adjust(magma$P_JOINT, "fdr")
 magma$BONF_JOINT = p.adjust(magma$P_JOINT, "bonf")
@@ -391,6 +524,59 @@ magmaSig = magma[which(magma$P_JOINT
 ## line up
 mm = match(rowData(rse_gene)$Symbol, magma$SYMBOL)
 magGenes = split(magma$SYMBOL[mm], net$colorsLab)
+
+
+
+#####extract genes in module for visualization 
+
+TOM <- get(load("rdas/wgcna_signed_TOM-block.1.RData"))
+TOM.mat = as.matrix(TOM)
+
+#TOM = TOMsimilarityFromExpr(t(geneExprsClean), power = 10)
+
+dim(TOM.mat)    
+# choose module
+module = "lightcyan"
+# get list of genes
+
+load("/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/wgcna/geneExprsClean.rda", verbose = TRUE)
+dim(geneExprsClean)
+probes = rownames(geneExprsClean)
+
+length(probes)
+#25212
+
+
+inModule = (net$colorsLab==module)
+
+modProbes = probes[inModule]
+# Select the corresponding Topological Overlap
+modTOM = TOM.mat[inModule, inModule]
+
+kIN=softConnectivity(t(geneExprsClean))[, ]
+
+Error in softConnectivity(t(geneExprsClean))[, modProbes] : 
+  incorrect number of dimensions
+> 
+
+selectHubs = (rank (-kIN) 
+vis = exportNetworkToVisANT(modTOM[selectHubs,selectHubs],
+file=paste("VisANTInput-", module, "-top30.txt", sep=""),
+weighted=TRUE, threshold = 0, probeToGene=
+data.frame((GeneAnnotation)$substanceBXH,GeneAnnotation$gene_symbol))
+
+names(colData(rse_gene))
+
+    
+dimnames(modTOM) = list(modProbes, modProbes)
+# Export the network into an edge list file VisANT can read
+vis = exportNetworkToVisANT(modTOM,
+file = paste("VisANTInput-", module, ".txt", sep=""),
+weighted = TRUE,
+threshold = 0)
+
+
+probeToGene = data.frame(annot$substanceBXH, annot$gene_symbol) )
 
 ## Reproducibility information
 print('Reproducibility information:')

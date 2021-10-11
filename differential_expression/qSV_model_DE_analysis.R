@@ -10,8 +10,11 @@ library(devtools)
 library(edgeR)
 library(sessioninfo)
 library(here)
+library(dplyr)
 
 ##### Load rse data, examine ####
+#to see more column
+options("width"=200)
 
 #load objects
 load(here('exprs_cutoff','rse_gene.Rdata'), verbose=TRUE)
@@ -67,8 +70,10 @@ colnames(modSep)
 ## both
 sACC_Index = which(colData(rse_gene)$BrainRegion == "sACC")
 mod_sACC = cbind(modSep[sACC_Index,], qSV_mat[sACC_Index, ])
+dim(mod_sACC)
 Amyg_Index = which(colData(rse_gene)$BrainRegion == "Amygdala")
 mod_Amyg = cbind(modSep[Amyg_Index,], qSV_mat[Amyg_Index, ])
+dim(mod_Amyg)
 
 ## Save Models
 save(modSep, mod_Amyg, mod_sACC, file = here("differential_expression","data","differental_models.Rdata"))
@@ -86,8 +91,20 @@ fitGene_sACC = lmFit(vGene_sACC)
 eBGene_sACC = eBayes(fitGene_sACC)
 #### need to know  what went into model (modssep) -- case-control and  BP control
 #### because of more than 1 component, computing F statistics instead of t=-statistics
-outGene_sACC = topTable(eBGene_sACC,coef=2:3,
-	p.value = 1,number=nrow(rse))
+
+colnames(eBGene_sACC$coefficient)
+
+outGene_sACC = topTable(eBGene_sACC,coef=("PrimaryDxControl"),
+	p.value = 1, number=nrow(rse_gene))
+
+sum(outGene_sACC$adj.P.Val < 0.05)
+#237
+
+head(
+topTable(eBGene_sACC,coef=("PrimaryDxControl"), p.value = 0.05, number=nrow(rse_gene))[, c("Symbol", "gene_type", "meanExprs","logFC", "t", "P.Value", "adj.P.Val")]
+, n = 30L)
+outGene_sACC %>% filter(Symbol == "DUSP6")
+
 #### reorderoing based on genes in rse_gene
 outGene_sACC = outGene_sACC[rownames(rse_gene),]
 
@@ -129,8 +146,24 @@ vGene_Amyg = voom(dge_Amyg,mod_Amyg, plot=FALSE)
 
 fitGene_Amyg = lmFit(vGene_Amyg)
 eBGene_Amyg = eBayes(fitGene_Amyg)
-outGene_Amyg = topTable(eBGene_Amyg,coef=2:3,
+
+#outGene_Amyg = topTable(eBGene_Amyg,coef=2:3,
+#	p.value = 1,number=nrow(rse_gene))
+
+outGene_Amyg = topTable(eBGene_Amyg,coef="PrimaryDxControl",
 	p.value = 1,number=nrow(rse_gene))
+
+sum(outGene_Amyg$adj.P.Val < 0.05)
+#6
+
+head(
+topTable(eBGene_Amyg,coef=("PrimaryDxControl"), p.value = 0.05, number=nrow(rse_gene))[, c("Symbol", "gene_type", "meanExprs","logFC", "t", "P.Value", "adj.P.Val")]
+, n = 30L)
+
+outGene_Amyg %>% filter(Symbol == "FUS")
+outGene_sACC %>% filter(Symbol == "FUS")
+
+
 outGene_Amyg = outGene_Amyg[rownames(rse_gene),]
 
 ## significance levels
@@ -154,8 +187,9 @@ sum(outGene_Amyg$q_PrimaryDxBipolar < 0.05)
 sum(outGene_Amyg$q_PrimaryDxBipolar < 0.01)
 # [1] 53
 
-save(outGene_Amyg, outGene_sACC, file= here("differential_expression","data","qSVA_MDD_gene_DEresults.rda"))
+save(eBGene_Amyg, outGene_Amyg, eBGene_sACC, outGene_sACC, file= here("differential_expression","data","qSVA_MDD_gene_DEresults_083121.rda"))
 
+load(here("differential_expression","data","qSVA_MDD_gene_DEresults.rda"), verbose = TRUE)
 
 
 #### Exon ####

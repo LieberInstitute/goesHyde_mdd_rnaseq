@@ -20,11 +20,11 @@ load(here("genotype_data","goesHyde_bipolarMdd_Genotypes_mds.rda"), verbose = TR
 ## Check that all BrNum are included
 message("# BrNum in rse: ", length(unique(rse_gene$BrNum)),
         ", # BrNum in mds: ", nrow(mds))
-message("All mds BrNum in rse:", all(rownames(mds) %in% unique(rse_gene$BrNum)))
-message("All rse BrNum in mds:", all(unique(rse_gene$BrNum) %in% rownames(mds)))
+message("Uncommon BrNum: ", length(setdiff(rownames(mds), unique(rse_gene$BrNum))))
 
 ## reorders according to rse_gene$BrNum  (matched the order of rse_gene)
 mds = mds[rse_gene$BrNum,1:5]
+dim(mds)
 
 ## Merge colData
 colData(rse_gene) = cbind(colData(rse_gene), mds)

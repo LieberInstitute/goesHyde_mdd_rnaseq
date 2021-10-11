@@ -9,3 +9,6 @@ PGC_MDD_sumstats
 synapse/*.xlsx
 *.tsv
 genotype_data_old
+qc_checks/plotly/*
+trash/*
+deconvolution/plots/*

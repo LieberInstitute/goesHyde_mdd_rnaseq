@@ -4,26 +4,53 @@ Loading LIBD module for git-status-size/github
 Loading LIBD module for git-lfs/2.8.0
 Loading LIBD module for rmate/1.5.9
 Loading LIBD module for ruby/2.6.4p104
-Loading conda_R/4.0
+Loading conda_R/4.1
 **** Job starts ****
-Tue Sep 29 12:52:35 EDT 2020
+Mon Aug 30 16:07:44 EDT 2021
 **** JHPCE info ****
 User: lhuuki
-Job id: 3166859
+Job id: 6829176
 Job name: genomewide_run_eqtls_amyg
-Hostname: compute-068.cm.cluster
+Hostname: compute-122.cm.cluster
 Task id: undefined
-Unloading conda_R/4.0
-Loading conda_R/4.0
+Unloading conda_R/4.1
+Loading conda_R/4.0.x
+
+The following have been reloaded with a version change:
+  1) conda_R/4.1 => conda_R/4.0.x
+
 
 Currently Loaded Modules:
-  1) matlab/R2019a     6) COMMUNITY_CENTOS7_DEFAULT_ENV  11) ruby/2.6.4p104
+  1) matlab/R2021a     6) COMMUNITY_CENTOS7_DEFAULT_ENV  11) ruby/2.6.4p104
   2) stata/16          7) JHPCE_CENTOS7_DEFAULT_ENV      12) rmate/1.5.9
   3) JHPCE_tools/1.0   8) git-status-size/github         13) conda/3-4.6.14
-  4) sge/8.1.9         9) git/2.28.0                     14) conda_R/4.0
+  4) sge/8.1.9         9) git/2.28.0                     14) conda_R/4.0.x
   5) gcc/4.4.7        10) git-lfs/2.8.0
 
  
+
+Loading required package: MatrixGenerics
+Loading required package: matrixStats
+
+Attaching package: ‘MatrixGenerics’
+
+The following objects are masked from ‘package:matrixStats’:
+
+    colAlls, colAnyNAs, colAnys, colAvgsPerRowSet, colCollapse,
+    colCounts, colCummaxs, colCummins, colCumprods, colCumsums,
+    colDiffs, colIQRDiffs, colIQRs, colLogSumExps, colMadDiffs,
+    colMads, colMaxs, colMeans2, colMedians, colMins, colOrderStats,
+    colProds, colQuantiles, colRanges, colRanks, colSdDiffs, colSds,
+    colSums2, colTabulates, colVarDiffs, colVars, colWeightedMads,
+    colWeightedMeans, colWeightedMedians, colWeightedSds,
+    colWeightedVars, rowAlls, rowAnyNAs, rowAnys, rowAvgsPerColSet,
+    rowCollapse, rowCounts, rowCummaxs, rowCummins, rowCumprods,
+    rowCumsums, rowDiffs, rowIQRDiffs, rowIQRs, rowLogSumExps,
+    rowMadDiffs, rowMads, rowMaxs, rowMeans2, rowMedians, rowMins,
+    rowOrderStats, rowProds, rowQuantiles, rowRanges, rowRanks,
+    rowSdDiffs, rowSds, rowSums2, rowTabulates, rowVarDiffs, rowVars,
+    rowWeightedMads, rowWeightedMeans, rowWeightedMedians,
+    rowWeightedSds, rowWeightedVars
 
 Loading required package: GenomicRanges
 Loading required package: stats4
@@ -34,7 +61,9 @@ Attaching package: ‘BiocGenerics’
 
 The following objects are masked from ‘package:parallel’:
 
-    clusterApply, clusterApplyLB, clusterCall, clusterEvalQ, clusterExport, clusterMap, parApply, parCapply, parLapply, parLapplyLB, parRapply, parSapply, parSapplyLB
+    clusterApply, clusterApplyLB, clusterCall, clusterEvalQ,
+    clusterExport, clusterMap, parApply, parCapply, parLapply,
+    parLapplyLB, parRapply, parSapply, parSapplyLB
 
 The following objects are masked from ‘package:stats’:
 
@@ -42,9 +71,12 @@ The following objects are masked from ‘package:stats’:
 
 The following objects are masked from ‘package:base’:
 
-    anyDuplicated, append, as.data.frame, basename, cbind, colnames, dirname, do.call, duplicated, eval, evalq, Filter, Find, get, grep, grepl, intersect, is.unsorted, lapply,
-    Map, mapply, match, mget, order, paste, pmax, pmax.int, pmin, pmin.int, Position, rank, rbind, Reduce, rownames, sapply, setdiff, sort, table, tapply, union, unique, unsplit,
-    which, which.max, which.min
+    anyDuplicated, append, as.data.frame, basename, cbind, colnames,
+    dirname, do.call, duplicated, eval, evalq, Filter, Find, get, grep,
+    grepl, intersect, is.unsorted, lapply, Map, mapply, match, mget,
+    order, paste, pmax, pmax.int, pmin, pmin.int, Position, rank,
+    rbind, Reduce, rownames, sapply, setdiff, sort, table, tapply,
+    union, unique, unsplit, which.max, which.min
 
 Loading required package: S4Vectors
 
@@ -59,27 +91,20 @@ Loading required package: GenomeInfoDb
 Loading required package: Biobase
 Welcome to Bioconductor
 
-    Vignettes contain introductory material; view with 'browseVignettes()'. To cite Bioconductor, see 'citation("Biobase")', and for packages 'citation("pkgname")'.
-
-Loading required package: DelayedArray
-Loading required package: matrixStats
-
-Attaching package: ‘matrixStats’
-
-The following objects are masked from ‘package:Biobase’:
-
-    anyMissing, rowMedians
+    Vignettes contain introductory material; view with
+    'browseVignettes()'. To cite Bioconductor, see
+    'citation("Biobase")', and for packages 'citation("pkgname")'.
 
 
-Attaching package: ‘DelayedArray’
+Attaching package: ‘Biobase’
+
+The following object is masked from ‘package:MatrixGenerics’:
+
+    rowMedians
 
 The following objects are masked from ‘package:matrixStats’:
 
-    colMaxs, colMins, colRanges, rowMaxs, rowMins, rowRanges
-
-The following objects are masked from ‘package:base’:
-
-    aperm, apply, rowsum
+    anyMissing, rowMedians
 
 Loading required package: rafalib
 Loading required package: mgcv
@@ -91,10 +116,14 @@ The following object is masked from ‘package:IRanges’:
 
     collapse
 
-This is mgcv 1.8-31. For overview type 'help("mgcv-package")'.
+This is mgcv 1.8-35. For overview type 'help("mgcv-package")'.
 Loading required package: genefilter
 
 Attaching package: ‘genefilter’
+
+The following objects are masked from ‘package:MatrixGenerics’:
+
+    rowSds, rowVars
 
 The following objects are masked from ‘package:matrixStats’:
 
@@ -111,12 +140,1159 @@ Loading objects:
 Loading objects:
   rse_tx
 Loading objects:
-  snpMapKeep
-Error in readChar(con, 5L, useBytes = TRUE) : cannot open the connection
-Calls: load -> readChar
-In addition: Warning message:
-In readChar(con, 5L, useBytes = TRUE) :
-  cannot open compressed file '/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/genotype_data/goesHyde_bipolarMdd_Genotypes_n593.rda', probable reason 'No such file or directory'
-Execution halted
+  mds
+  snp
+  snpMap
+  CHR                SNP (C)M   POS COUNTED   ALT     Type newRef newCount
+1   1 chr1:11171:CCTTG:C    0 11171       C CCTTG Deletion   CTTG        -
+2   1     chr1:48824:T:C    0 48824       C     T      SNV      T        C
+3   1     chr1:54490:G:A    0 54490       A     G      SNV      G        A
+4   1     chr1:60351:A:G    0 60351       G     A      SNV      A        G
+5   1     chr1:64931:G:A    0 64931       A     G      SNV      G        A
+6   1     chr1:80346:C:G    0 80346       G     C      SNV      C        G
+                name  rsNumGuess chr_hg38 pos_hg38
+1 chr1:11171:CCTTG:C        <NA>     chr1    11171
+2     chr1:48824:T:C        <NA>     chr1    48824
+3        rs141149254 rs141149254     chr1    54490
+4         rs62637817  rs62637817     chr1    60351
+5         rs62639104  rs62639104     chr1    64931
+6        rs376665626 rs376665626     chr1    80346
+  Br1204 Br1225 Br1279 Br1304 Br1316 Br1355
+1      0      0      0      0      0      0
+2      0      0      0      0      0      0
+3      1      0      2      1      0      0
+4      0      0      0      0      0      0
+5      0      0      0      0      0      0
+6      0      0      0      0      0      0
+[1] 8892060     595
+[1] 540
+has_pos
+  FALSE    TRUE 
+  92045 8800015 
+[1] 8800015     595
+
+TRUE 
+ 540 
+
+TRUE 
+ 540 
+[1] TRUE
+[1] TRUE
+    Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+0.003704 0.037963 0.125926 0.172343 0.287963 0.517593 
+[1] 8800015     540
+2021-08-30 16:17:25 Get statistical model
+[1] "(Intercept)"      "PrimaryDxBipolar" "PrimaryDxMDD"     "SexM"            
+[5] "snpPC1"           "snpPC2"           "snpPC3"           "snpPC4"          
+[9] "snpPC5"          
+2021-08-30 16:17:25 Create SlicedData
+2021-08-30 16:22:42 Get rpkm values
+Setting options('download.file.method.GEOquery'='auto')
+Setting options('GEOquery.inmemory.gpl'=FALSE)
+2021-08-30 16:23:05 Do PCA
+Loading objects:
+  genePCs
+  exonPCs
+  jxnPCs
+  txPCs
+2021-08-30 16:23:43 EQTLs
+[1] "Starting eQTLs"
+Matching data files and location files
+25212 of 25212 genes matched
+8800015 of 8800015 SNPs matched
+
+Task finished in 4.612 seconds
+Reordering SNPs
+Task finished in 129.467 seconds
+Reordering genes
+Task finished in 9.271 seconds
+Processing covariates
+Task finished in 0.006 seconds
+Processing gene expression data (imputation, residualization)
+Task finished in 1.132 seconds
+Creating output file(s)
+Task finished in 0.066 seconds
+Performing eQTL analysis
+ 0.09% done, 84,754 cis-eQTLs
+ 0.65% done, 184,524 cis-eQTLs
+ 1.22% done, 285,842 cis-eQTLs
+ 1.78% done, 333,562 cis-eQTLs
+ 2.35% done, 367,329 cis-eQTLs
+ 2.91% done, 428,926 cis-eQTLs
+ 3.48% done, 475,524 cis-eQTLs
+ 4.04% done, 591,357 cis-eQTLs
+ 4.61% done, 654,610 cis-eQTLs
+ 5.17% done, 701,039 cis-eQTLs
+ 5.74% done, 753,049 cis-eQTLs
+ 6.30% done, 806,048 cis-eQTLs
+ 6.87% done, 867,736 cis-eQTLs
+ 7.43% done, 949,232 cis-eQTLs
+ 8.00% done, 965,843 cis-eQTLs
+ 8.56% done, 1,020,842 cis-eQTLs
+ 9.13% done, 1,060,724 cis-eQTLs
+ 9.69% done, 1,105,012 cis-eQTLs
+10.26% done, 1,162,261 cis-eQTLs
+10.82% done, 1,211,217 cis-eQTLs
+11.39% done, 1,241,814 cis-eQTLs
+11.95% done, 1,280,229 cis-eQTLs
+12.52% done, 1,356,278 cis-eQTLs
+13.08% done, 1,388,158 cis-eQTLs
+13.65% done, 1,425,283 cis-eQTLs
+14.21% done, 1,464,108 cis-eQTLs
+14.78% done, 1,497,702 cis-eQTLs
+15.34% done, 1,561,684 cis-eQTLs
+15.91% done, 1,592,402 cis-eQTLs
+16.47% done, 1,630,509 cis-eQTLs
+17.04% done, 1,668,129 cis-eQTLs
+17.60% done, 1,710,302 cis-eQTLs
+18.17% done, 1,784,165 cis-eQTLs
+18.73% done, 1,828,964 cis-eQTLs
+19.30% done, 1,900,848 cis-eQTLs
+19.86% done, 1,914,816 cis-eQTLs
+19.96% done, 1,953,539 cis-eQTLs
+20.52% done, 1,992,154 cis-eQTLs
+21.09% done, 2,051,369 cis-eQTLs
+21.65% done, 2,115,742 cis-eQTLs
+22.22% done, 2,160,985 cis-eQTLs
+22.78% done, 2,194,096 cis-eQTLs
+23.35% done, 2,211,887 cis-eQTLs
+23.91% done, 2,249,049 cis-eQTLs
+24.48% done, 2,292,443 cis-eQTLs
+25.04% done, 2,330,241 cis-eQTLs
+25.61% done, 2,377,097 cis-eQTLs
+26.17% done, 2,415,331 cis-eQTLs
+26.74% done, 2,462,985 cis-eQTLs
+27.30% done, 2,516,987 cis-eQTLs
+27.87% done, 2,542,656 cis-eQTLs
+28.43% done, 2,569,626 cis-eQTLs
+29.00% done, 2,593,736 cis-eQTLs
+29.56% done, 2,622,710 cis-eQTLs
+30.13% done, 2,687,817 cis-eQTLs
+30.69% done, 2,719,889 cis-eQTLs
+31.26% done, 2,832,324 cis-eQTLs
+31.82% done, 2,872,146 cis-eQTLs
+32.39% done, 2,902,740 cis-eQTLs
+32.95% done, 2,932,179 cis-eQTLs
+33.52% done, 2,987,448 cis-eQTLs
+34.08% done, 3,082,237 cis-eQTLs
+34.65% done, 3,119,096 cis-eQTLs
+35.21% done, 3,154,229 cis-eQTLs
+35.78% done, 3,208,207 cis-eQTLs
+36.34% done, 3,304,585 cis-eQTLs
+36.91% done, 3,359,893 cis-eQTLs
+37.47% done, 3,393,972 cis-eQTLs
+38.04% done, 3,420,616 cis-eQTLs
+38.60% done, 3,458,428 cis-eQTLs
+39.17% done, 3,468,903 cis-eQTLs
+39.73% done, 3,508,885 cis-eQTLs
+40.30% done, 3,539,066 cis-eQTLs
+40.86% done, 3,576,205 cis-eQTLs
+41.43% done, 3,591,715 cis-eQTLs
+41.99% done, 3,621,036 cis-eQTLs
+42.56% done, 3,646,086 cis-eQTLs
+43.12% done, 3,664,312 cis-eQTLs
+43.69% done, 3,712,780 cis-eQTLs
+44.25% done, 3,742,435 cis-eQTLs
+44.82% done, 3,762,213 cis-eQTLs
+45.38% done, 3,806,802 cis-eQTLs
+45.95% done, 3,840,388 cis-eQTLs
+46.51% done, 3,903,275 cis-eQTLs
+47.08% done, 3,934,912 cis-eQTLs
+47.64% done, 3,956,410 cis-eQTLs
+48.21% done, 3,983,300 cis-eQTLs
+48.77% done, 4,001,034 cis-eQTLs
+48.87% done, 4,068,374 cis-eQTLs
+49.43% done, 4,117,038 cis-eQTLs
+50.00% done, 4,150,282 cis-eQTLs
+50.56% done, 4,222,291 cis-eQTLs
+51.12% done, 4,252,488 cis-eQTLs
+51.69% done, 4,648,009 cis-eQTLs
+52.25% done, 4,781,842 cis-eQTLs
+52.82% done, 4,817,165 cis-eQTLs
+53.38% done, 4,841,160 cis-eQTLs
+53.95% done, 4,876,041 cis-eQTLs
+54.51% done, 4,916,692 cis-eQTLs
+55.08% done, 4,949,401 cis-eQTLs
+55.64% done, 4,994,802 cis-eQTLs
+56.21% done, 5,047,630 cis-eQTLs
+56.77% done, 5,097,592 cis-eQTLs
+57.34% done, 5,169,360 cis-eQTLs
+57.90% done, 5,205,923 cis-eQTLs
+58.47% done, 5,282,400 cis-eQTLs
+59.03% done, 5,330,059 cis-eQTLs
+59.60% done, 5,424,159 cis-eQTLs
+60.16% done, 5,464,554 cis-eQTLs
+60.73% done, 5,547,187 cis-eQTLs
+61.29% done, 5,582,849 cis-eQTLs
+61.86% done, 5,650,593 cis-eQTLs
+62.42% done, 5,713,253 cis-eQTLs
+62.99% done, 5,781,822 cis-eQTLs
+63.55% done, 5,817,123 cis-eQTLs
+64.12% done, 5,897,302 cis-eQTLs
+64.68% done, 5,937,043 cis-eQTLs
+65.25% done, 6,005,686 cis-eQTLs
+65.81% done, 6,080,414 cis-eQTLs
+66.38% done, 6,134,248 cis-eQTLs
+66.94% done, 6,181,091 cis-eQTLs
+67.51% done, 6,210,114 cis-eQTLs
+68.07% done, 6,239,195 cis-eQTLs
+68.64% done, 6,243,649 cis-eQTLs
+68.73% done, 6,270,660 cis-eQTLs
+69.30% done, 6,303,581 cis-eQTLs
+69.86% done, 6,325,663 cis-eQTLs
+70.43% done, 6,351,097 cis-eQTLs
+70.99% done, 6,531,684 cis-eQTLs
+71.56% done, 6,710,340 cis-eQTLs
+72.12% done, 6,866,616 cis-eQTLs
+72.69% done, 7,059,042 cis-eQTLs
+73.25% done, 7,165,857 cis-eQTLs
+73.82% done, 7,198,915 cis-eQTLs
+74.38% done, 7,230,650 cis-eQTLs
+74.95% done, 7,292,712 cis-eQTLs
+75.51% done, 7,446,921 cis-eQTLs
+76.08% done, 7,482,461 cis-eQTLs
+76.64% done, 7,515,106 cis-eQTLs
+77.21% done, 7,582,895 cis-eQTLs
+77.77% done, 7,646,665 cis-eQTLs
+78.34% done, 7,767,415 cis-eQTLs
+78.90% done, 7,824,933 cis-eQTLs
+79.47% done, 7,887,111 cis-eQTLs
+80.03% done, 7,978,726 cis-eQTLs
+80.60% done, 8,029,064 cis-eQTLs
+81.16% done, 8,061,288 cis-eQTLs
+81.73% done, 8,136,733 cis-eQTLs
+82.29% done, 8,217,087 cis-eQTLs
+82.86% done, 8,331,177 cis-eQTLs
+83.42% done, 8,428,770 cis-eQTLs
+83.99% done, 8,438,820 cis-eQTLs
+84.08% done, 8,498,400 cis-eQTLs
+84.65% done, 8,604,807 cis-eQTLs
+85.21% done, 8,659,342 cis-eQTLs
+85.78% done, 8,724,791 cis-eQTLs
+86.34% done, 8,766,781 cis-eQTLs
+86.91% done, 8,813,367 cis-eQTLs
+87.47% done, 8,819,531 cis-eQTLs
+88.04% done, 8,836,354 cis-eQTLs
+88.60% done, 8,865,704 cis-eQTLs
+89.17% done, 8,907,482 cis-eQTLs
+89.73% done, 8,977,195 cis-eQTLs
+90.30% done, 9,007,973 cis-eQTLs
+90.86% done, 9,065,360 cis-eQTLs
+91.43% done, 9,143,938 cis-eQTLs
+91.99% done, 9,186,498 cis-eQTLs
+92.56% done, 9,369,065 cis-eQTLs
+93.12% done, 9,430,998 cis-eQTLs
+93.69% done, 9,524,929 cis-eQTLs
+94.25% done, 9,574,755 cis-eQTLs
+94.82% done, 9,673,867 cis-eQTLs
+95.38% done, 9,761,184 cis-eQTLs
+95.95% done, 9,894,523 cis-eQTLs
+96.51% done, 10,014,910 cis-eQTLs
+97.08% done, 10,109,392 cis-eQTLs
+97.64% done, 10,189,452 cis-eQTLs
+98.21% done, 10,315,112 cis-eQTLs
+98.77% done, 10,411,398 cis-eQTLs
+99.34% done, 10,454,268 cis-eQTLs
+99.43% done, 10,518,845 cis-eQTLs
+100.00% done, 10,518,912 cis-eQTLs
+Task finished in 25613.448 seconds
+
+Matching data files and location files
+399529 of 399529 genes matched
+8800015 of 8800015 SNPs matched
+
+Task finished in 3.183 seconds
+Reordering genes
+Task finished in 24.316 seconds
+Processing covariates
+Task finished in 0.006 seconds
+Processing gene expression data (imputation, residualization)
+Task finished in 19.879 seconds
+Creating output file(s)
+Task finished in 0.622 seconds
+Performing eQTL analysis
+ 0.00% done, 1,285,330 cis-eQTLs
+ 0.57% done, 1,813,780 cis-eQTLs
+ 0.57% done, 2,794,087 cis-eQTLs
+ 1.14% done, 3,352,205 cis-eQTLs
+ 1.15% done, 4,222,012 cis-eQTLs
+ 1.71% done, 4,913,297 cis-eQTLs
+ 2.28% done, 4,955,434 cis-eQTLs
+ 2.28% done, 5,295,982 cis-eQTLs
+ 2.85% done, 5,991,695 cis-eQTLs
+ 3.41% done, 6,663,794 cis-eQTLs
+ 3.98% done, 6,698,750 cis-eQTLs
+ 3.99% done, 7,845,180 cis-eQTLs
+ 3.99% done, 8,325,672 cis-eQTLs
+ 4.56% done, 9,027,642 cis-eQTLs
+ 5.12% done, 9,509,048 cis-eQTLs
+ 5.69% done, 9,724,320 cis-eQTLs
+ 5.69% done, 10,269,287 cis-eQTLs
+ 6.26% done, 10,884,571 cis-eQTLs
+ 6.82% done, 11,712,922 cis-eQTLs
+ 6.83% done, 11,745,558 cis-eQTLs
+ 7.40% done, 12,215,812 cis-eQTLs
+ 7.96% done, 12,365,718 cis-eQTLs
+ 8.53% done, 13,134,490 cis-eQTLs
+ 9.09% done, 13,277,254 cis-eQTLs
+ 9.10% done, 13,675,495 cis-eQTLs
+ 9.66% done, 14,327,043 cis-eQTLs
+10.23% done, 14,904,515 cis-eQTLs
+10.79% done, 15,354,341 cis-eQTLs
+11.36% done, 15,486,215 cis-eQTLs
+11.37% done, 15,781,292 cis-eQTLs
+11.93% done, 16,269,073 cis-eQTLs
+12.50% done, 17,025,360 cis-eQTLs
+12.50% done, 17,267,455 cis-eQTLs
+13.07% done, 17,683,293 cis-eQTLs
+13.63% done, 18,195,940 cis-eQTLs
+14.20% done, 18,702,240 cis-eQTLs
+14.76% done, 18,809,272 cis-eQTLs
+14.77% done, 19,085,401 cis-eQTLs
+15.33% done, 19,725,004 cis-eQTLs
+15.90% done, 20,097,885 cis-eQTLs
+16.46% done, 20,499,549 cis-eQTLs
+16.47% done, 20,542,776 cis-eQTLs
+17.04% done, 21,023,532 cis-eQTLs
+17.60% done, 21,622,801 cis-eQTLs
+18.17% done, 22,113,926 cis-eQTLs
+18.17% done, 22,900,907 cis-eQTLs
+18.74% done, 23,396,084 cis-eQTLs
+19.30% done, 23,524,132 cis-eQTLs
+19.31% done, 24,347,047 cis-eQTLs
+19.87% done, 25,134,157 cis-eQTLs
+20.44% done, 25,516,013 cis-eQTLs
+20.45% done, 25,774,135 cis-eQTLs
+21.01% done, 26,687,804 cis-eQTLs
+21.58% done, 27,256,695 cis-eQTLs
+21.58% done, 27,615,040 cis-eQTLs
+22.15% done, 28,131,988 cis-eQTLs
+22.71% done, 28,525,623 cis-eQTLs
+23.28% done, 28,862,870 cis-eQTLs
+23.29% done, 28,881,461 cis-eQTLs
+23.85% done, 29,456,916 cis-eQTLs
+24.42% done, 30,184,253 cis-eQTLs
+24.98% done, 30,469,444 cis-eQTLs
+24.99% done, 30,889,907 cis-eQTLs
+25.55% done, 31,766,978 cis-eQTLs
+26.12% done, 31,965,341 cis-eQTLs
+26.12% done, 32,353,729 cis-eQTLs
+26.69% done, 33,051,147 cis-eQTLs
+27.25% done, 33,578,848 cis-eQTLs
+27.26% done, 33,727,083 cis-eQTLs
+27.83% done, 34,127,472 cis-eQTLs
+28.39% done, 34,618,349 cis-eQTLs
+28.96% done, 34,883,512 cis-eQTLs
+29.52% done, 35,214,353 cis-eQTLs
+30.09% done, 35,229,580 cis-eQTLs
+30.09% done, 36,181,755 cis-eQTLs
+30.66% done, 36,602,240 cis-eQTLs
+31.22% done, 37,145,958 cis-eQTLs
+31.23% done, 38,586,174 cis-eQTLs
+31.24% done, 38,757,703 cis-eQTLs
+31.80% done, 39,347,201 cis-eQTLs
+32.37% done, 39,528,889 cis-eQTLs
+32.93% done, 39,914,456 cis-eQTLs
+33.50% done, 40,679,812 cis-eQTLs
+33.50% done, 40,687,084 cis-eQTLs
+34.06% done, 40,713,682 cis-eQTLs
+34.07% done, 41,917,434 cis-eQTLs
+34.63% done, 42,489,746 cis-eQTLs
+35.20% done, 42,677,765 cis-eQTLs
+35.21% done, 42,969,144 cis-eQTLs
+35.77% done, 43,899,183 cis-eQTLs
+36.34% done, 44,749,475 cis-eQTLs
+36.34% done, 45,313,860 cis-eQTLs
+36.91% done, 45,951,579 cis-eQTLs
+37.47% done, 46,436,019 cis-eQTLs
+38.04% done, 46,809,399 cis-eQTLs
+38.60% done, 47,023,661 cis-eQTLs
+38.61% done, 47,280,965 cis-eQTLs
+39.18% done, 47,424,097 cis-eQTLs
+39.74% done, 48,060,802 cis-eQTLs
+40.31% done, 48,440,416 cis-eQTLs
+40.87% done, 48,651,979 cis-eQTLs
+40.88% done, 48,876,777 cis-eQTLs
+41.44% done, 49,118,397 cis-eQTLs
+42.01% done, 49,447,046 cis-eQTLs
+42.57% done, 49,773,876 cis-eQTLs
+43.14% done, 50,036,954 cis-eQTLs
+43.70% done, 50,334,607 cis-eQTLs
+43.71% done, 50,717,277 cis-eQTLs
+44.27% done, 51,047,454 cis-eQTLs
+44.84% done, 51,152,184 cis-eQTLs
+45.40% done, 51,763,677 cis-eQTLs
+45.97% done, 52,124,733 cis-eQTLs
+46.53% done, 52,316,198 cis-eQTLs
+46.54% done, 52,899,573 cis-eQTLs
+47.11% done, 53,286,145 cis-eQTLs
+47.67% done, 53,609,758 cis-eQTLs
+48.24% done, 53,923,341 cis-eQTLs
+48.24% done, 53,935,693 cis-eQTLs
+48.81% done, 54,933,086 cis-eQTLs
+49.37% done, 55,398,647 cis-eQTLs
+49.38% done, 55,637,692 cis-eQTLs
+49.95% done, 56,177,762 cis-eQTLs
+50.51% done, 57,099,704 cis-eQTLs
+51.08% done, 57,280,232 cis-eQTLs
+51.08% done, 57,421,160 cis-eQTLs
+51.65% done, 61,621,001 cis-eQTLs
+52.21% done, 62,796,152 cis-eQTLs
+52.22% done, 63,409,725 cis-eQTLs
+52.78% done, 63,890,339 cis-eQTLs
+53.35% done, 64,217,474 cis-eQTLs
+53.91% done, 64,618,259 cis-eQTLs
+54.48% done, 64,787,718 cis-eQTLs
+54.49% done, 65,029,797 cis-eQTLs
+55.05% done, 65,433,717 cis-eQTLs
+55.62% done, 65,963,729 cis-eQTLs
+56.18% done, 66,578,777 cis-eQTLs
+56.75% done, 66,703,031 cis-eQTLs
+56.75% done, 67,107,579 cis-eQTLs
+57.32% done, 68,128,182 cis-eQTLs
+57.88% done, 68,588,311 cis-eQTLs
+58.45% done, 69,356,168 cis-eQTLs
+58.46% done, 69,426,246 cis-eQTLs
+59.02% done, 70,098,457 cis-eQTLs
+59.59% done, 70,743,084 cis-eQTLs
+60.15% done, 71,345,514 cis-eQTLs
+60.72% done, 71,458,824 cis-eQTLs
+60.72% done, 72,628,633 cis-eQTLs
+61.29% done, 73,057,799 cis-eQTLs
+61.29% done, 73,144,395 cis-eQTLs
+61.86% done, 73,845,287 cis-eQTLs
+62.42% done, 74,633,624 cis-eQTLs
+62.99% done, 74,984,704 cis-eQTLs
+63.00% done, 75,415,765 cis-eQTLs
+63.56% done, 75,835,462 cis-eQTLs
+64.13% done, 76,633,862 cis-eQTLs
+64.13% done, 76,817,737 cis-eQTLs
+64.70% done, 77,319,126 cis-eQTLs
+65.26% done, 77,885,435 cis-eQTLs
+65.27% done, 77,897,008 cis-eQTLs
+65.28% done, 78,201,785 cis-eQTLs
+65.84% done, 78,279,457 cis-eQTLs
+65.85% done, 78,644,009 cis-eQTLs
+66.41% done, 79,655,071 cis-eQTLs
+66.98% done, 80,385,418 cis-eQTLs
+67.54% done, 80,463,811 cis-eQTLs
+67.55% done, 80,819,127 cis-eQTLs
+68.12% done, 81,167,165 cis-eQTLs
+68.68% done, 81,613,663 cis-eQTLs
+69.25% done, 82,042,263 cis-eQTLs
+69.25% done, 82,107,855 cis-eQTLs
+69.82% done, 82,423,232 cis-eQTLs
+70.38% done, 82,879,917 cis-eQTLs
+70.95% done, 83,381,422 cis-eQTLs
+70.96% done, 85,599,117 cis-eQTLs
+70.96% done, 86,224,669 cis-eQTLs
+71.53% done, 87,402,169 cis-eQTLs
+71.53% done, 88,315,237 cis-eQTLs
+72.10% done, 89,643,477 cis-eQTLs
+72.11% done, 90,586,062 cis-eQTLs
+72.67% done, 91,382,307 cis-eQTLs
+72.68% done, 93,294,618 cis-eQTLs
+73.24% done, 93,408,312 cis-eQTLs
+73.25% done, 95,017,892 cis-eQTLs
+73.82% done, 95,579,484 cis-eQTLs
+74.38% done, 95,605,538 cis-eQTLs
+74.39% done, 95,990,449 cis-eQTLs
+74.95% done, 96,831,733 cis-eQTLs
+75.52% done, 97,291,371 cis-eQTLs
+75.52% done, 98,709,922 cis-eQTLs
+75.53% done, 99,517,550 cis-eQTLs
+76.10% done, 99,921,029 cis-eQTLs
+76.66% done, 100,372,492 cis-eQTLs
+77.23% done, 100,710,723 cis-eQTLs
+77.23% done, 101,592,322 cis-eQTLs
+77.80% done, 102,485,315 cis-eQTLs
+78.36% done, 102,666,945 cis-eQTLs
+78.37% done, 103,847,080 cis-eQTLs
+78.94% done, 104,719,510 cis-eQTLs
+79.50% done, 104,988,568 cis-eQTLs
+79.51% done, 105,443,428 cis-eQTLs
+80.07% done, 106,560,069 cis-eQTLs
+80.08% done, 107,245,284 cis-eQTLs
+80.64% done, 107,984,358 cis-eQTLs
+81.21% done, 108,299,525 cis-eQTLs
+81.22% done, 108,455,836 cis-eQTLs
+81.78% done, 109,677,649 cis-eQTLs
+82.35% done, 110,019,646 cis-eQTLs
+82.35% done, 110,814,338 cis-eQTLs
+82.92% done, 111,710,618 cis-eQTLs
+83.48% done, 111,826,874 cis-eQTLs
+83.49% done, 113,126,899 cis-eQTLs
+84.06% done, 113,599,010 cis-eQTLs
+84.06% done, 114,195,366 cis-eQTLs
+84.63% done, 115,390,529 cis-eQTLs
+84.63% done, 115,718,475 cis-eQTLs
+85.20% done, 116,446,682 cis-eQTLs
+85.76% done, 116,989,047 cis-eQTLs
+86.33% done, 117,285,966 cis-eQTLs
+86.34% done, 117,513,373 cis-eQTLs
+86.90% done, 118,033,997 cis-eQTLs
+87.47% done, 118,090,364 cis-eQTLs
+88.03% done, 118,286,197 cis-eQTLs
+88.60% done, 118,576,383 cis-eQTLs
+89.16% done, 119,089,481 cis-eQTLs
+89.17% done, 119,162,321 cis-eQTLs
+89.73% done, 119,175,727 cis-eQTLs
+89.73% done, 120,454,439 cis-eQTLs
+90.30% done, 120,800,698 cis-eQTLs
+90.86% done, 120,947,429 cis-eQTLs
+90.87% done, 121,634,687 cis-eQTLs
+91.44% done, 122,722,752 cis-eQTLs
+92.00% done, 122,747,186 cis-eQTLs
+92.01% done, 123,431,313 cis-eQTLs
+92.57% done, 124,658,691 cis-eQTLs
+92.58% done, 126,281,011 cis-eQTLs
+93.14% done, 126,941,151 cis-eQTLs
+93.15% done, 126,944,289 cis-eQTLs
+93.71% done, 126,966,982 cis-eQTLs
+93.72% done, 128,263,054 cis-eQTLs
+93.72% done, 128,356,909 cis-eQTLs
+94.29% done, 129,168,038 cis-eQTLs
+94.85% done, 129,789,692 cis-eQTLs
+94.86% done, 130,534,518 cis-eQTLs
+95.43% done, 131,762,914 cis-eQTLs
+95.99% done, 132,360,442 cis-eQTLs
+96.00% done, 134,004,810 cis-eQTLs
+96.56% done, 134,334,519 cis-eQTLs
+96.57% done, 135,597,923 cis-eQTLs
+96.58% done, 135,665,927 cis-eQTLs
+97.14% done, 136,995,695 cis-eQTLs
+97.15% done, 137,359,747 cis-eQTLs
+97.71% done, 138,389,131 cis-eQTLs
+97.72% done, 138,855,158 cis-eQTLs
+98.29% done, 140,347,684 cis-eQTLs
+98.29% done, 141,044,648 cis-eQTLs
+98.86% done, 142,269,434 cis-eQTLs
+98.87% done, 142,309,987 cis-eQTLs
+99.42% done, 142,311,245 cis-eQTLs
+99.43% done, 143,789,467 cis-eQTLs
+100.00% done, 143,790,804 cis-eQTLs
+Task finished in 36602.775 seconds
+
+Matching data files and location files
+305558 of 305558 genes matched
+8800015 of 8800015 SNPs matched
+
+Task finished in 2.666 seconds
+Reordering genes
+Task finished in 24.026 seconds
+Processing covariates
+Task finished in 0.011 seconds
+Processing gene expression data (imputation, residualization)
+Task finished in 15.165 seconds
+Creating output file(s)
+Task finished in 3.754 seconds
+Performing eQTL analysis
+ 0.00% done, 1,029,010 cis-eQTLs
+ 0.57% done, 1,845,369 cis-eQTLs
+ 0.58% done, 2,157,936 cis-eQTLs
+ 1.14% done, 3,205,537 cis-eQTLs
+ 1.71% done, 3,300,022 cis-eQTLs
+ 1.72% done, 3,782,755 cis-eQTLs
+ 2.28% done, 4,142,617 cis-eQTLs
+ 2.85% done, 4,757,144 cis-eQTLs
+ 3.41% done, 5,135,352 cis-eQTLs
+ 3.42% done, 5,284,987 cis-eQTLs
+ 3.99% done, 6,255,891 cis-eQTLs
+ 4.00% done, 6,598,163 cis-eQTLs
+ 4.56% done, 7,169,176 cis-eQTLs
+ 5.13% done, 7,643,874 cis-eQTLs
+ 5.69% done, 8,167,603 cis-eQTLs
+ 5.70% done, 8,292,454 cis-eQTLs
+ 6.26% done, 8,818,088 cis-eQTLs
+ 6.83% done, 9,560,450 cis-eQTLs
+ 7.39% done, 10,006,347 cis-eQTLs
+ 7.40% done, 10,095,756 cis-eQTLs
+ 7.97% done, 10,257,884 cis-eQTLs
+ 8.53% done, 10,882,697 cis-eQTLs
+ 9.10% done, 11,389,365 cis-eQTLs
+ 9.11% done, 11,424,364 cis-eQTLs
+ 9.67% done, 11,976,801 cis-eQTLs
+10.24% done, 12,599,980 cis-eQTLs
+10.80% done, 13,031,765 cis-eQTLs
+11.37% done, 13,405,933 cis-eQTLs
+11.93% done, 13,491,171 cis-eQTLs
+11.94% done, 13,823,184 cis-eQTLs
+12.51% done, 14,710,325 cis-eQTLs
+13.07% done, 15,000,266 cis-eQTLs
+13.08% done, 15,078,272 cis-eQTLs
+13.65% done, 15,500,808 cis-eQTLs
+14.21% done, 16,022,764 cis-eQTLs
+14.78% done, 16,438,863 cis-eQTLs
+15.34% done, 16,976,392 cis-eQTLs
+15.35% done, 16,978,007 cis-eQTLs
+15.91% done, 16,987,464 cis-eQTLs
+15.91% done, 17,347,141 cis-eQTLs
+16.48% done, 17,774,536 cis-eQTLs
+17.04% done, 18,252,281 cis-eQTLs
+17.61% done, 18,460,254 cis-eQTLs
+17.62% done, 18,793,242 cis-eQTLs
+18.18% done, 19,697,059 cis-eQTLs
+18.19% done, 19,802,687 cis-eQTLs
+18.76% done, 20,267,944 cis-eQTLs
+19.32% done, 21,141,227 cis-eQTLs
+19.89% done, 21,765,189 cis-eQTLs
+19.90% done, 21,784,044 cis-eQTLs
+20.45% done, 21,787,468 cis-eQTLs
+20.46% done, 22,361,831 cis-eQTLs
+21.03% done, 22,942,927 cis-eQTLs
+21.59% done, 23,476,094 cis-eQTLs
+21.60% done, 23,821,760 cis-eQTLs
+22.17% done, 24,273,026 cis-eQTLs
+22.73% done, 24,621,286 cis-eQTLs
+23.30% done, 24,940,240 cis-eQTLs
+23.86% done, 25,090,682 cis-eQTLs
+23.87% done, 25,457,759 cis-eQTLs
+24.43% done, 26,044,761 cis-eQTLs
+25.00% done, 26,579,715 cis-eQTLs
+25.01% done, 26,581,073 cis-eQTLs
+25.56% done, 26,600,931 cis-eQTLs
+25.57% done, 27,218,705 cis-eQTLs
+26.14% done, 27,650,624 cis-eQTLs
+26.70% done, 28,201,341 cis-eQTLs
+27.27% done, 28,271,744 cis-eQTLs
+27.28% done, 28,707,981 cis-eQTLs
+27.84% done, 29,005,560 cis-eQTLs
+28.41% done, 29,316,208 cis-eQTLs
+28.97% done, 29,530,155 cis-eQTLs
+29.54% done, 29,844,805 cis-eQTLs
+30.10% done, 29,974,451 cis-eQTLs
+30.11% done, 30,612,209 cis-eQTLs
+30.68% done, 30,942,428 cis-eQTLs
+31.24% done, 31,770,995 cis-eQTLs
+31.25% done, 32,350,410 cis-eQTLs
+31.82% done, 32,802,830 cis-eQTLs
+32.38% done, 32,993,110 cis-eQTLs
+32.95% done, 33,291,392 cis-eQTLs
+33.51% done, 33,621,348 cis-eQTLs
+33.52% done, 33,871,496 cis-eQTLs
+34.08% done, 34,724,427 cis-eQTLs
+34.65% done, 35,100,009 cis-eQTLs
+35.21% done, 35,442,044 cis-eQTLs
+35.78% done, 35,661,581 cis-eQTLs
+35.79% done, 36,055,333 cis-eQTLs
+36.35% done, 37,104,380 cis-eQTLs
+36.92% done, 37,759,565 cis-eQTLs
+37.48% done, 37,996,394 cis-eQTLs
+37.49% done, 38,128,535 cis-eQTLs
+38.06% done, 38,430,973 cis-eQTLs
+38.62% done, 38,894,430 cis-eQTLs
+39.19% done, 39,061,824 cis-eQTLs
+39.75% done, 39,586,371 cis-eQTLs
+40.32% done, 39,892,021 cis-eQTLs
+40.88% done, 39,894,098 cis-eQTLs
+40.89% done, 40,250,212 cis-eQTLs
+41.46% done, 40,468,103 cis-eQTLs
+42.02% done, 40,719,395 cis-eQTLs
+42.59% done, 40,992,928 cis-eQTLs
+43.15% done, 41,240,387 cis-eQTLs
+43.72% done, 41,694,456 cis-eQTLs
+43.73% done, 41,929,392 cis-eQTLs
+44.29% done, 42,224,526 cis-eQTLs
+44.86% done, 42,368,466 cis-eQTLs
+45.42% done, 42,825,514 cis-eQTLs
+45.99% done, 43,109,776 cis-eQTLs
+46.55% done, 43,490,562 cis-eQTLs
+46.56% done, 43,750,767 cis-eQTLs
+47.12% done, 44,095,104 cis-eQTLs
+47.69% done, 44,393,148 cis-eQTLs
+48.25% done, 44,642,414 cis-eQTLs
+48.82% done, 45,170,237 cis-eQTLs
+48.83% done, 45,343,708 cis-eQTLs
+49.39% done, 45,849,758 cis-eQTLs
+49.96% done, 46,230,674 cis-eQTLs
+50.52% done, 46,878,828 cis-eQTLs
+51.09% done, 47,003,127 cis-eQTLs
+51.10% done, 47,201,675 cis-eQTLs
+51.66% done, 49,931,496 cis-eQTLs
+52.23% done, 51,261,697 cis-eQTLs
+52.24% done, 51,295,236 cis-eQTLs
+52.80% done, 51,822,533 cis-eQTLs
+53.37% done, 52,182,440 cis-eQTLs
+53.93% done, 52,564,800 cis-eQTLs
+54.50% done, 52,974,593 cis-eQTLs
+55.06% done, 53,261,132 cis-eQTLs
+55.07% done, 53,396,377 cis-eQTLs
+55.64% done, 53,896,977 cis-eQTLs
+56.20% done, 54,417,509 cis-eQTLs
+56.77% done, 55,002,867 cis-eQTLs
+57.33% done, 55,476,991 cis-eQTLs
+57.34% done, 55,743,562 cis-eQTLs
+57.90% done, 56,150,255 cis-eQTLs
+58.47% done, 56,841,738 cis-eQTLs
+59.03% done, 57,360,095 cis-eQTLs
+59.60% done, 58,022,381 cis-eQTLs
+60.16% done, 58,137,403 cis-eQTLs
+60.17% done, 58,608,124 cis-eQTLs
+60.74% done, 59,552,500 cis-eQTLs
+61.30% done, 59,822,525 cis-eQTLs
+61.31% done, 59,941,281 cis-eQTLs
+61.88% done, 60,560,768 cis-eQTLs
+62.44% done, 61,209,451 cis-eQTLs
+63.01% done, 61,890,557 cis-eQTLs
+63.02% done, 62,026,724 cis-eQTLs
+63.58% done, 62,416,793 cis-eQTLs
+64.15% done, 63,202,381 cis-eQTLs
+64.71% done, 63,486,383 cis-eQTLs
+64.72% done, 63,626,100 cis-eQTLs
+65.29% done, 64,060,029 cis-eQTLs
+65.29% done, 64,072,632 cis-eQTLs
+65.30% done, 64,582,429 cis-eQTLs
+65.87% done, 65,128,832 cis-eQTLs
+66.43% done, 65,781,688 cis-eQTLs
+67.00% done, 66,231,259 cis-eQTLs
+67.01% done, 66,291,312 cis-eQTLs
+67.57% done, 66,576,204 cis-eQTLs
+68.14% done, 66,864,866 cis-eQTLs
+68.70% done, 67,163,819 cis-eQTLs
+69.27% done, 67,517,569 cis-eQTLs
+69.83% done, 67,734,524 cis-eQTLs
+70.40% done, 67,806,171 cis-eQTLs
+70.41% done, 68,096,586 cis-eQTLs
+70.97% done, 69,611,180 cis-eQTLs
+70.98% done, 70,033,137 cis-eQTLs
+71.55% done, 71,315,775 cis-eQTLs
+72.11% done, 71,664,787 cis-eQTLs
+72.12% done, 72,805,468 cis-eQTLs
+72.68% done, 73,549,804 cis-eQTLs
+72.69% done, 74,431,605 cis-eQTLs
+73.26% done, 75,407,424 cis-eQTLs
+73.82% done, 75,722,599 cis-eQTLs
+73.83% done, 75,795,100 cis-eQTLs
+74.40% done, 76,150,361 cis-eQTLs
+74.96% done, 76,683,647 cis-eQTLs
+75.53% done, 77,404,328 cis-eQTLs
+75.54% done, 78,277,418 cis-eQTLs
+76.10% done, 78,601,744 cis-eQTLs
+76.67% done, 78,920,752 cis-eQTLs
+77.23% done, 79,287,179 cis-eQTLs
+77.24% done, 79,729,856 cis-eQTLs
+77.81% done, 80,455,926 cis-eQTLs
+78.37% done, 81,413,285 cis-eQTLs
+78.38% done, 81,427,999 cis-eQTLs
+78.95% done, 82,069,341 cis-eQTLs
+79.51% done, 82,564,515 cis-eQTLs
+80.08% done, 83,265,278 cis-eQTLs
+80.08% done, 83,601,751 cis-eQTLs
+80.65% done, 84,115,610 cis-eQTLs
+81.21% done, 84,448,396 cis-eQTLs
+81.78% done, 85,084,618 cis-eQTLs
+81.79% done, 85,278,885 cis-eQTLs
+82.35% done, 86,146,808 cis-eQTLs
+82.92% done, 87,165,961 cis-eQTLs
+82.93% done, 87,439,471 cis-eQTLs
+83.49% done, 88,446,981 cis-eQTLs
+84.06% done, 88,993,944 cis-eQTLs
+84.07% done, 89,203,103 cis-eQTLs
+84.63% done, 90,228,658 cis-eQTLs
+85.20% done, 90,742,147 cis-eQTLs
+85.76% done, 90,891,682 cis-eQTLs
+85.77% done, 91,237,844 cis-eQTLs
+86.34% done, 91,699,208 cis-eQTLs
+86.90% done, 92,152,014 cis-eQTLs
+87.47% done, 92,222,958 cis-eQTLs
+88.03% done, 92,449,042 cis-eQTLs
+88.60% done, 92,747,522 cis-eQTLs
+89.16% done, 92,811,756 cis-eQTLs
+89.17% done, 93,163,494 cis-eQTLs
+89.73% done, 93,916,802 cis-eQTLs
+90.30% done, 94,481,531 cis-eQTLs
+90.31% done, 95,108,347 cis-eQTLs
+90.87% done, 95,681,187 cis-eQTLs
+91.44% done, 96,041,670 cis-eQTLs
+91.45% done, 96,427,195 cis-eQTLs
+92.01% done, 96,886,094 cis-eQTLs
+92.58% done, 98,054,935 cis-eQTLs
+92.59% done, 98,482,242 cis-eQTLs
+93.15% done, 98,985,700 cis-eQTLs
+93.72% done, 99,788,509 cis-eQTLs
+93.73% done, 100,038,735 cis-eQTLs
+94.29% done, 100,534,860 cis-eQTLs
+94.86% done, 101,351,960 cis-eQTLs
+95.42% done, 101,371,912 cis-eQTLs
+95.43% done, 102,092,093 cis-eQTLs
+95.99% done, 103,659,647 cis-eQTLs
+96.56% done, 103,679,741 cis-eQTLs
+96.57% done, 104,703,404 cis-eQTLs
+97.13% done, 104,987,417 cis-eQTLs
+97.14% done, 105,754,118 cis-eQTLs
+97.71% done, 106,363,953 cis-eQTLs
+97.72% done, 106,640,464 cis-eQTLs
+98.28% done, 107,898,593 cis-eQTLs
+98.85% done, 108,253,006 cis-eQTLs
+98.86% done, 108,762,734 cis-eQTLs
+99.42% done, 109,861,022 cis-eQTLs
+99.99% done, 109,862,049 cis-eQTLs
+Task finished in 28891.772 seconds
+
+Matching data files and location files
+79730 of 79730 genes matched
+8800015 of 8800015 SNPs matched
+
+Task finished in 2.361 seconds
+Reordering genes
+Task finished in 24.947 seconds
+Processing covariates
+Task finished in 0.004 seconds
+Processing gene expression data (imputation, residualization)
+Task finished in 3.167 seconds
+Creating output file(s)
+Task finished in 3.015 seconds
+Performing eQTL analysis
+ 0.03% done, 244,450 cis-eQTLs
+ 0.60% done, 521,532 cis-eQTLs
+ 1.16% done, 795,837 cis-eQTLs
+ 1.73% done, 959,240 cis-eQTLs
+ 2.29% done, 1,053,732 cis-eQTLs
+ 2.86% done, 1,183,921 cis-eQTLs
+ 3.42% done, 1,319,139 cis-eQTLs
+ 3.99% done, 1,583,782 cis-eQTLs
+ 4.02% done, 1,650,346 cis-eQTLs
+ 4.59% done, 1,779,992 cis-eQTLs
+ 5.15% done, 1,876,125 cis-eQTLs
+ 5.72% done, 2,031,326 cis-eQTLs
+ 6.28% done, 2,154,256 cis-eQTLs
+ 6.85% done, 2,324,745 cis-eQTLs
+ 7.41% done, 2,456,665 cis-eQTLs
+ 7.98% done, 2,508,777 cis-eQTLs
+ 8.54% done, 2,684,535 cis-eQTLs
+ 9.11% done, 2,814,868 cis-eQTLs
+ 9.67% done, 2,963,417 cis-eQTLs
+10.24% done, 3,095,183 cis-eQTLs
+10.80% done, 3,189,487 cis-eQTLs
+11.37% done, 3,277,551 cis-eQTLs
+11.93% done, 3,399,272 cis-eQTLs
+12.50% done, 3,493,186 cis-eQTLs
+12.53% done, 3,583,509 cis-eQTLs
+13.10% done, 3,673,621 cis-eQTLs
+13.66% done, 3,779,243 cis-eQTLs
+14.23% done, 3,892,809 cis-eQTLs
+14.79% done, 3,966,033 cis-eQTLs
+15.36% done, 4,098,064 cis-eQTLs
+15.92% done, 4,174,318 cis-eQTLs
+16.49% done, 4,273,958 cis-eQTLs
+17.05% done, 4,362,063 cis-eQTLs
+17.62% done, 4,489,257 cis-eQTLs
+18.18% done, 4,738,468 cis-eQTLs
+18.75% done, 4,842,920 cis-eQTLs
+19.31% done, 5,009,826 cis-eQTLs
+19.87% done, 5,176,695 cis-eQTLs
+19.91% done, 5,190,628 cis-eQTLs
+20.48% done, 5,352,018 cis-eQTLs
+21.04% done, 5,550,643 cis-eQTLs
+21.61% done, 5,729,615 cis-eQTLs
+22.17% done, 5,831,187 cis-eQTLs
+22.74% done, 5,917,147 cis-eQTLs
+23.30% done, 5,976,416 cis-eQTLs
+23.87% done, 6,069,948 cis-eQTLs
+24.43% done, 6,207,922 cis-eQTLs
+25.00% done, 6,343,272 cis-eQTLs
+25.56% done, 6,502,248 cis-eQTLs
+26.12% done, 6,631,699 cis-eQTLs
+26.69% done, 6,785,376 cis-eQTLs
+27.25% done, 6,892,248 cis-eQTLs
+27.29% done, 6,942,885 cis-eQTLs
+27.86% done, 7,041,743 cis-eQTLs
+28.42% done, 7,154,480 cis-eQTLs
+28.99% done, 7,220,192 cis-eQTLs
+29.55% done, 7,305,423 cis-eQTLs
+30.12% done, 7,506,300 cis-eQTLs
+30.68% done, 7,617,517 cis-eQTLs
+31.25% done, 7,925,007 cis-eQTLs
+31.81% done, 8,041,842 cis-eQTLs
+32.37% done, 8,095,886 cis-eQTLs
+32.94% done, 8,164,752 cis-eQTLs
+33.50% done, 8,330,927 cis-eQTLs
+34.07% done, 8,584,720 cis-eQTLs
+34.63% done, 8,712,193 cis-eQTLs
+35.20% done, 8,758,079 cis-eQTLs
+35.24% done, 8,823,636 cis-eQTLs
+35.80% done, 9,015,292 cis-eQTLs
+36.37% done, 9,301,711 cis-eQTLs
+36.93% done, 9,458,071 cis-eQTLs
+37.50% done, 9,559,472 cis-eQTLs
+38.06% done, 9,641,305 cis-eQTLs
+38.62% done, 9,758,839 cis-eQTLs
+39.19% done, 9,794,224 cis-eQTLs
+39.75% done, 9,932,028 cis-eQTLs
+40.32% done, 10,020,656 cis-eQTLs
+40.88% done, 10,109,418 cis-eQTLs
+41.45% done, 10,154,188 cis-eQTLs
+42.01% done, 10,233,417 cis-eQTLs
+42.58% done, 10,309,344 cis-eQTLs
+43.14% done, 10,363,615 cis-eQTLs
+43.71% done, 10,496,928 cis-eQTLs
+44.27% done, 10,568,314 cis-eQTLs
+44.84% done, 10,610,044 cis-eQTLs
+45.40% done, 10,737,471 cis-eQTLs
+45.97% done, 10,772,561 cis-eQTLs
+46.00% done, 10,825,149 cis-eQTLs
+46.57% done, 10,996,431 cis-eQTLs
+47.13% done, 11,107,062 cis-eQTLs
+47.70% done, 11,184,407 cis-eQTLs
+48.26% done, 11,269,381 cis-eQTLs
+48.83% done, 11,493,652 cis-eQTLs
+49.39% done, 11,645,549 cis-eQTLs
+49.96% done, 11,760,173 cis-eQTLs
+50.52% done, 11,954,265 cis-eQTLs
+51.09% done, 12,017,701 cis-eQTLs
+51.65% done, 12,665,851 cis-eQTLs
+52.22% done, 12,960,273 cis-eQTLs
+52.78% done, 13,044,304 cis-eQTLs
+53.35% done, 13,087,084 cis-eQTLs
+53.38% done, 13,098,391 cis-eQTLs
+53.95% done, 13,176,354 cis-eQTLs
+54.51% done, 13,268,128 cis-eQTLs
+55.08% done, 13,360,074 cis-eQTLs
+55.64% done, 13,473,921 cis-eQTLs
+56.21% done, 13,607,413 cis-eQTLs
+56.77% done, 13,721,706 cis-eQTLs
+57.34% done, 13,956,707 cis-eQTLs
+57.90% done, 14,038,020 cis-eQTLs
+58.47% done, 14,218,204 cis-eQTLs
+59.03% done, 14,352,865 cis-eQTLs
+59.60% done, 14,511,026 cis-eQTLs
+60.16% done, 14,657,383 cis-eQTLs
+60.73% done, 14,926,918 cis-eQTLs
+61.29% done, 15,038,328 cis-eQTLs
+61.86% done, 15,182,245 cis-eQTLs
+62.42% done, 15,189,258 cis-eQTLs
+62.46% done, 15,353,541 cis-eQTLs
+63.02% done, 15,527,802 cis-eQTLs
+63.59% done, 15,624,009 cis-eQTLs
+64.15% done, 15,850,662 cis-eQTLs
+64.72% done, 15,963,879 cis-eQTLs
+65.28% done, 16,145,743 cis-eQTLs
+65.85% done, 16,297,458 cis-eQTLs
+66.41% done, 16,467,012 cis-eQTLs
+66.45% done, 16,510,932 cis-eQTLs
+67.01% done, 16,665,186 cis-eQTLs
+67.58% done, 16,770,726 cis-eQTLs
+68.14% done, 16,851,158 cis-eQTLs
+68.71% done, 16,960,044 cis-eQTLs
+69.27% done, 17,079,798 cis-eQTLs
+69.84% done, 17,157,009 cis-eQTLs
+70.40% done, 17,265,091 cis-eQTLs
+70.97% done, 17,825,169 cis-eQTLs
+71.53% done, 18,231,729 cis-eQTLs
+72.10% done, 18,327,620 cis-eQTLs
+72.13% done, 18,651,618 cis-eQTLs
+72.70% done, 19,175,792 cis-eQTLs
+73.26% done, 19,478,317 cis-eQTLs
+73.83% done, 19,593,991 cis-eQTLs
+74.39% done, 19,680,528 cis-eQTLs
+74.96% done, 19,834,218 cis-eQTLs
+75.52% done, 20,140,243 cis-eQTLs
+75.56% done, 20,326,387 cis-eQTLs
+76.12% done, 20,441,738 cis-eQTLs
+76.69% done, 20,514,715 cis-eQTLs
+77.25% done, 20,764,029 cis-eQTLs
+77.82% done, 20,961,441 cis-eQTLs
+78.38% done, 21,221,977 cis-eQTLs
+78.95% done, 21,383,444 cis-eQTLs
+79.51% done, 21,535,229 cis-eQTLs
+80.08% done, 21,876,462 cis-eQTLs
+80.64% done, 22,039,334 cis-eQTLs
+81.21% done, 22,128,092 cis-eQTLs
+81.25% done, 22,141,722 cis-eQTLs
+81.81% done, 22,384,278 cis-eQTLs
+82.37% done, 22,631,980 cis-eQTLs
+82.94% done, 22,851,993 cis-eQTLs
+83.50% done, 23,143,940 cis-eQTLs
+84.07% done, 23,340,092 cis-eQTLs
+84.63% done, 23,654,208 cis-eQTLs
+85.20% done, 23,816,300 cis-eQTLs
+85.76% done, 23,939,673 cis-eQTLs
+86.33% done, 24,013,268 cis-eQTLs
+86.37% done, 24,053,110 cis-eQTLs
+86.93% done, 24,151,814 cis-eQTLs
+87.50% done, 24,168,183 cis-eQTLs
+88.06% done, 24,220,861 cis-eQTLs
+88.62% done, 24,291,130 cis-eQTLs
+89.19% done, 24,411,122 cis-eQTLs
+89.75% done, 24,644,394 cis-eQTLs
+90.32% done, 24,728,579 cis-eQTLs
+90.88% done, 24,915,482 cis-eQTLs
+91.45% done, 25,178,345 cis-eQTLs
+92.01% done, 25,316,918 cis-eQTLs
+92.58% done, 25,886,846 cis-eQTLs
+93.14% done, 26,002,495 cis-eQTLs
+93.18% done, 26,051,332 cis-eQTLs
+93.75% done, 26,341,437 cis-eQTLs
+94.31% done, 26,515,287 cis-eQTLs
+94.87% done, 26,755,935 cis-eQTLs
+95.44% done, 26,999,516 cis-eQTLs
+96.00% done, 27,426,434 cis-eQTLs
+96.57% done, 27,774,710 cis-eQTLs
+96.61% done, 27,794,617 cis-eQTLs
+97.17% done, 28,131,895 cis-eQTLs
+97.74% done, 28,402,782 cis-eQTLs
+98.30% done, 28,823,416 cis-eQTLs
+98.87% done, 29,085,054 cis-eQTLs
+99.43% done, 29,358,819 cis-eQTLs
+100.00% done, 29,359,031 cis-eQTLs
+Task finished in 25470.114 seconds
+
+2021-09-01 01:10:05 Annotate and Save
+[1] "Reproducibility information:"
+[1] "2021-09-01 01:40:32 EDT"
+      user     system    elapsed 
+112693.090   8071.988 120766.915 
+─ Session info ───────────────────────────────────────────────────────────────────────────────────────────────────────
+ setting  value                                 
+ version  R version 4.0.4 RC (2021-02-08 r79975)
+ os       CentOS Linux 7 (Core)                 
+ system   x86_64, linux-gnu                     
+ ui       X11                                   
+ language (EN)                                  
+ collate  en_US.UTF-8                           
+ ctype    en_US.UTF-8                           
+ tz       US/Eastern                            
+ date     2021-09-01                            
+
+─ Packages ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+ package              * version  date       lib source                                   
+ annotate               1.68.0   2020-10-27 [2] Bioconductor                             
+ AnnotationDbi          1.52.0   2020-10-27 [2] Bioconductor                             
+ askpass                1.1      2019-01-13 [2] CRAN (R 4.0.3)                           
+ assertthat             0.2.1    2019-03-21 [2] CRAN (R 4.0.3)                           
+ backports              1.2.1    2020-12-09 [1] CRAN (R 4.0.4)                           
+ base64enc              0.1-3    2015-07-28 [2] CRAN (R 4.0.3)                           
+ Biobase              * 2.50.0   2020-10-27 [2] Bioconductor                             
+ BiocFileCache          1.14.0   2020-10-27 [2] Bioconductor                             
+ BiocGenerics         * 0.36.1   2021-04-16 [2] Bioconductor                             
+ BiocParallel         * 1.24.1   2020-11-06 [2] Bioconductor                             
+ biomaRt                2.46.3   2021-02-09 [2] Bioconductor                             
+ Biostrings             2.58.0   2020-10-27 [2] Bioconductor                             
+ bit                    4.0.4    2020-08-04 [2] CRAN (R 4.0.3)                           
+ bit64                  4.0.5    2020-08-30 [2] CRAN (R 4.0.3)                           
+ bitops                 1.0-7    2021-04-24 [2] CRAN (R 4.0.4)                           
+ blob                   1.2.1    2020-01-20 [2] CRAN (R 4.0.3)                           
+ BSgenome               1.58.0   2020-10-27 [2] Bioconductor                             
+ bumphunter             1.32.0   2020-10-27 [2] Bioconductor                             
+ cachem                 1.0.4    2021-02-13 [2] CRAN (R 4.0.4)                           
+ checkmate              2.0.0    2020-02-06 [2] CRAN (R 4.0.3)                           
+ cli                    2.5.0    2021-04-26 [1] CRAN (R 4.0.4)                           
+ cluster                2.1.2    2021-04-17 [3] CRAN (R 4.0.4)                           
+ codetools              0.2-18   2020-11-04 [3] CRAN (R 4.0.4)                           
+ colorspace             2.0-0    2020-11-11 [2] CRAN (R 4.0.3)                           
+ crayon                 1.4.1    2021-02-08 [2] CRAN (R 4.0.3)                           
+ curl                   4.3      2019-12-02 [2] CRAN (R 4.0.3)                           
+ data.table             1.14.0   2021-02-21 [2] CRAN (R 4.0.4)                           
+ DBI                    1.1.1    2021-01-15 [2] CRAN (R 4.0.3)                           
+ dbplyr                 2.1.1    2021-04-06 [2] CRAN (R 4.0.4)                           
+ DelayedArray           0.16.3   2021-03-24 [2] Bioconductor                             
+ derfinder              1.24.2   2020-12-18 [2] Bioconductor                             
+ derfinderHelper        1.24.1   2020-12-18 [2] Bioconductor                             
+ digest                 0.6.27   2020-10-24 [1] CRAN (R 4.0.3)                           
+ doRNG                  1.8.2    2020-01-27 [2] CRAN (R 4.0.3)                           
+ downloader             0.4      2015-07-09 [2] CRAN (R 4.0.3)                           
+ dplyr                  1.0.5    2021-03-05 [1] CRAN (R 4.0.4)                           
+ edgeR                  3.32.1   2021-01-14 [2] Bioconductor                             
+ ellipsis               0.3.2    2021-04-29 [2] CRAN (R 4.0.4)                           
+ fansi                  0.4.2    2021-01-15 [2] CRAN (R 4.0.3)                           
+ fastmap                1.1.0    2021-01-25 [2] CRAN (R 4.0.3)                           
+ foreach                1.5.1    2020-10-15 [2] CRAN (R 4.0.3)                           
+ foreign                0.8-81   2020-12-22 [3] CRAN (R 4.0.4)                           
+ Formula                1.2-4    2020-10-16 [2] CRAN (R 4.0.3)                           
+ genefilter           * 1.72.1   2021-01-21 [2] Bioconductor                             
+ generics               0.1.0    2020-10-31 [2] CRAN (R 4.0.3)                           
+ GenomeInfoDb         * 1.26.7   2021-04-08 [2] Bioconductor                             
+ GenomeInfoDbData       1.2.4    2020-11-30 [2] Bioconductor                             
+ GenomicAlignments      1.26.0   2020-10-27 [2] Bioconductor                             
+ GenomicFeatures        1.42.3   2021-04-01 [2] Bioconductor                             
+ GenomicFiles           1.26.0   2020-10-27 [2] Bioconductor                             
+ GenomicRanges        * 1.42.0   2020-10-27 [2] Bioconductor                             
+ GEOquery               2.58.0   2020-10-27 [2] Bioconductor                             
+ ggplot2                3.3.3    2020-12-30 [2] CRAN (R 4.0.3)                           
+ glue                   1.4.2    2020-08-27 [1] CRAN (R 4.0.3)                           
+ googledrive            1.0.1    2020-05-05 [1] CRAN (R 4.0.3)                           
+ gridExtra              2.3      2017-09-09 [2] CRAN (R 4.0.3)                           
+ gtable                 0.3.0    2019-03-25 [2] CRAN (R 4.0.3)                           
+ here                 * 1.0.1    2020-12-13 [1] CRAN (R 4.0.3)                           
+ Hmisc                  4.5-0    2021-02-28 [2] CRAN (R 4.0.4)                           
+ hms                    1.0.0    2021-01-13 [2] CRAN (R 4.0.3)                           
+ htmlTable              2.1.0    2020-09-16 [2] CRAN (R 4.0.3)                           
+ htmltools              0.5.1.1  2021-01-22 [1] CRAN (R 4.0.4)                           
+ htmlwidgets            1.5.3    2020-12-10 [2] CRAN (R 4.0.3)                           
+ httr                   1.4.2    2020-07-20 [1] CRAN (R 4.0.3)                           
+ IRanges              * 2.24.1   2020-12-12 [1] Bioconductor                             
+ iterators              1.0.13   2020-10-15 [2] CRAN (R 4.0.3)                           
+ jaffelab             * 0.99.30  2020-11-02 [1] Github (LieberInstitute/jaffelab@42637ff)
+ jpeg                   0.1-8.1  2019-10-24 [2] CRAN (R 4.0.3)                           
+ jsonlite               1.7.2    2020-12-09 [1] CRAN (R 4.0.3)                           
+ knitr                  1.33     2021-04-24 [1] CRAN (R 4.0.4)                           
+ lattice                0.20-41  2020-04-02 [3] CRAN (R 4.0.4)                           
+ latticeExtra           0.6-29   2019-12-19 [2] CRAN (R 4.0.3)                           
+ lifecycle              1.0.0    2021-02-15 [1] CRAN (R 4.0.4)                           
+ limma                  3.46.0   2020-10-27 [2] Bioconductor                             
+ locfit                 1.5-9.4  2020-03-25 [2] CRAN (R 4.0.3)                           
+ magrittr               2.0.1    2020-11-17 [2] CRAN (R 4.0.3)                           
+ Matrix                 1.3-2    2021-01-06 [3] CRAN (R 4.0.4)                           
+ MatrixEQTL           * 2.3      2019-12-22 [1] CRAN (R 4.0.3)                           
+ MatrixGenerics       * 1.2.1    2021-01-30 [2] Bioconductor                             
+ matrixStats          * 0.58.0   2021-01-29 [2] CRAN (R 4.0.3)                           
+ memoise                2.0.0    2021-01-26 [2] CRAN (R 4.0.3)                           
+ mgcv                 * 1.8-35   2021-04-18 [3] CRAN (R 4.0.4)                           
+ munsell                0.5.0    2018-06-12 [2] CRAN (R 4.0.3)                           
+ nlme                 * 3.1-152  2021-02-04 [3] CRAN (R 4.0.4)                           
+ nnet                   7.3-15   2021-01-24 [3] CRAN (R 4.0.4)                           
+ openssl                1.4.4    2021-04-30 [1] CRAN (R 4.0.4)                           
+ pillar                 1.6.0    2021-04-13 [1] CRAN (R 4.0.4)                           
+ pkgconfig              2.0.3    2019-09-22 [2] CRAN (R 4.0.3)                           
+ plyr                   1.8.6    2020-03-03 [2] CRAN (R 4.0.3)                           
+ png                    0.1-7    2013-12-03 [2] CRAN (R 4.0.3)                           
+ prettyunits            1.1.1    2020-01-24 [2] CRAN (R 4.0.3)                           
+ progress               1.2.2    2019-05-16 [2] CRAN (R 4.0.3)                           
+ purrr                  0.3.4    2020-04-17 [1] CRAN (R 4.0.3)                           
+ qvalue                 2.22.0   2020-10-27 [2] Bioconductor                             
+ R6                     2.5.0    2020-10-28 [1] CRAN (R 4.0.3)                           
+ rafalib              * 1.0.0    2015-08-09 [1] CRAN (R 4.0.3)                           
+ rappdirs               0.3.3    2021-01-31 [2] CRAN (R 4.0.3)                           
+ RColorBrewer           1.1-2    2014-12-07 [2] CRAN (R 4.0.3)                           
+ Rcpp                   1.0.6    2021-01-15 [1] CRAN (R 4.0.3)                           
+ RCurl                  1.98-1.3 2021-03-16 [2] CRAN (R 4.0.4)                           
+ readr                  1.4.0    2020-10-05 [2] CRAN (R 4.0.3)                           
+ recount                1.16.1   2020-12-18 [2] Bioconductor                             
+ rentrez                1.2.3    2020-11-10 [2] CRAN (R 4.0.3)                           
+ reshape2               1.4.4    2020-04-09 [2] CRAN (R 4.0.3)                           
+ rlang                  0.4.11   2021-04-30 [1] CRAN (R 4.0.4)                           
+ rngtools               1.5      2020-01-23 [2] CRAN (R 4.0.3)                           
+ rpart                  4.1-15   2019-04-12 [3] CRAN (R 4.0.4)                           
+ rprojroot              2.0.2    2020-11-15 [2] CRAN (R 4.0.3)                           
+ Rsamtools              2.6.0    2020-10-27 [2] Bioconductor                             
+ RSQLite                2.2.7    2021-04-22 [2] CRAN (R 4.0.4)                           
+ rstudioapi             0.13     2020-11-12 [2] CRAN (R 4.0.3)                           
+ rtracklayer            1.50.0   2020-10-27 [2] Bioconductor                             
+ S4Vectors            * 0.28.1   2020-12-09 [2] Bioconductor                             
+ scales                 1.1.1    2020-05-11 [2] CRAN (R 4.0.3)                           
+ segmented              1.3-4    2021-04-22 [1] CRAN (R 4.0.4)                           
+ sessioninfo          * 1.1.1    2018-11-05 [2] CRAN (R 4.0.3)                           
+ stringi                1.5.3    2020-09-09 [1] CRAN (R 4.0.3)                           
+ stringr                1.4.0    2019-02-10 [2] CRAN (R 4.0.3)                           
+ SummarizedExperiment * 1.20.0   2020-10-27 [2] Bioconductor                             
+ survival               3.2-9    2021-03-14 [3] CRAN (R 4.0.4)                           
+ sva                  * 3.38.0   2020-10-27 [2] Bioconductor                             
+ tibble                 3.1.1    2021-04-18 [1] CRAN (R 4.0.4)                           
+ tidyr                  1.1.3    2021-03-03 [2] CRAN (R 4.0.4)                           
+ tidyselect             1.1.1    2021-04-30 [2] CRAN (R 4.0.4)                           
+ utf8                   1.2.1    2021-03-12 [2] CRAN (R 4.0.4)                           
+ VariantAnnotation      1.36.0   2020-10-27 [2] Bioconductor                             
+ vctrs                  0.3.8    2021-04-29 [1] CRAN (R 4.0.4)                           
+ withr                  2.4.2    2021-04-18 [1] CRAN (R 4.0.4)                           
+ xfun                   0.22     2021-03-11 [1] CRAN (R 4.0.4)                           
+ XML                    3.99-0.6 2021-03-16 [2] CRAN (R 4.0.4)                           
+ xml2                   1.3.2    2020-04-23 [2] CRAN (R 4.0.3)                           
+ xtable                 1.8-4    2019-04-21 [2] CRAN (R 4.0.3)                           
+ XVector                0.30.0   2020-10-27 [2] Bioconductor                             
+ zlibbioc               1.36.0   2020-10-27 [2] Bioconductor                             
+
+[1] /users/lhuuki/R/4.0.x
+[2] /jhpce/shared/jhpce/core/conda/miniconda3-4.6.14/envs/svnR-4.0.x/R/4.0.x/lib64/R/site-library
+[3] /jhpce/shared/jhpce/core/conda/miniconda3-4.6.14/envs/svnR-4.0.x/R/4.0.x/lib64/R/library
 **** Job ends ****
-Tue Sep 29 12:55:19 EDT 2020
+Wed Sep  1 01:40:58 EDT 2021

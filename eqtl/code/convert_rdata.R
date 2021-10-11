@@ -22,8 +22,7 @@ rse_gene_split <- map(regions, ~rse_gene[,rse_gene$BrainRegion == .x])
 samples_split <- map(rse_gene_split, colnames)
 
 #### Covariate Data ####
-pcs <- map(features[1], function(f_name) map(regions, ~get(load(here("eqtl", "data", "featuresPCs", paste0(f_name, "PCs", .x, ".rda"))))))
-
+pcs <- map(features, function(f_name) map(regions, ~get(load(here("eqtl", "data", "featuresPCs", paste0(f_name, "PCs", .x, ".rda"))))))
 corner(pcs$gene$amyg)
 
 covar_format <- function(data, rn){
@@ -34,17 +33,12 @@ covar_format <- function(data, rn){
   return(data)
 }
 
-covars <- map2(pcs,features[1],
+covars <- map2(pcs,features,
                 function(pc, feat){
                   pmap(list(rse = rse_gene_split, region = regions, pc = pc), function(rse, region, pc){
                     message(paste(feat, region))
                     ## Phenodata
                     pd <- as.data.frame(colData(rse)[,c("PrimaryDx", "Sex", paste0("snpPC", 1:5))])
-                    # pd <- as.data.frame(pd) %>% 
-                    #   mutate(PrimaryDx = as.character(case_when(PrimaryDx == "Control"~0,
-                    #                         PrimaryDx == "Bipolar"~1,
-                    #                         TRUE~2)),
-                    #          Sex = as.character(as.integer(Sex == "F")))
                     pd <- model.matrix(~PrimaryDx + Sex + snpPC1 + snpPC2 + snpPC3 + snpPC4 + snpPC5, data = pd)[,2:9]
                     pd <- covar_format(pd, rse$genoSample)
 
@@ -53,7 +47,7 @@ covars <- map2(pcs,features[1],
                     ##bind and save
                     covars <- rbind(pd, pc)
                     write.table(covars,
-                                file= here("eqtl","data","covariates_txt", paste0("covariates_",feat,"_",region,"_mm.txt")),
+                                file= here("eqtl","data","covariates_txt", paste0("covariates_",feat,"_",region,".txt")),
                                 sep = "\t", quote = FALSE, row.names = FALSE)
                     return(covars)
                   })
@@ -101,7 +95,6 @@ map(vcf_fn, ~paste("plink --make-bed --output-chr chrM --vcf", .x, "--out", gsub
 map2(bed, risk_vcf_split, ~all(colnames(.x[,5:ncol(.x)]) == colnames(.y)))
 map2(bed, covars, ~all(colnames(.x[,5:ncol(.x)]) == colnames(.y[[1]][,2:ncol(.y[[1]])])))
 
-vcf_test <- readVcf("../data/risk_snps/LIBD_maf01_gwas_BPD_Amygdala.vcf.gz")
 
 ## prep interaction csv
 walk2(rse_gene_split, regions, function(rse, region){

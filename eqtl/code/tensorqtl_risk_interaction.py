@@ -9,13 +9,13 @@ out_path = "../data/tensorQTL_out/nominal_bpd_risk/"
 for region in ["Amygdala", "sACC"]:
     plink, express, covar, prefix = my_tensorqtl_run.get_input_paths("gene", region)
     genotype_df, variant_df, phenotype_df_filter, phenotype_pos_df_filter, covariates_df = my_tensorqtl_run.load_data(plink, express, covar)
-    covar = covar.replace(".txt","_mm.txt")
+
     cell_fraction = pd.read_csv("../data/interaction/cell_fraction_"+ region +".csv", index_col = 0)
     
     for cell_type in cell_fraction.columns:
         tag = 'gene_' + region +'_' + cell_type 
         print(tag)
-        ##out_path_ct = out_path + tag + "/"
+        
         cf_interaction = pd.Series(cell_fraction[cell_type])
         
         nominal_out = cis.map_nominal(genotype_df, variant_df, phenotype_df_filter, phenotype_pos_df_filter,
@@ -23,5 +23,7 @@ for region in ["Amygdala", "sACC"]:
         interaction_s = cf_interaction, maf_threshold_interaction=0, group_s=None, window=500000, 
         run_eigenmt=True, write_top = False)
         
-        ##nominal_out.to_csv('../data/tensorQTL_out/nominal_bpd_risk/' + tag + ".csv")
-        nominal_out.to_csv('../data/tensorQTL_out/nominal_bpd_risk/' + tag + "_mm.csv")
+        nominal_out.to_csv('../data/tensorQTL_out/nominal_bpd_risk/' + tag + ".csv")
+    
+    print("DONE " + region)
+
