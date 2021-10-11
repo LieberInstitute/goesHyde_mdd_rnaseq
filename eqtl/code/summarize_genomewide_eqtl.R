@@ -6,8 +6,12 @@ library(ggforce)
 library(sessioninfo)
 library(here)
 
-source("utils.R")
+source(here("eqtl","code","utils.R"))
 load(here("data","MDD_colors.Rdata"), verbose = TRUE)
+
+#### load expression data ####
+load(here("exprs_cutoff", "rse_gene.Rdata"), verbose = TRUE)
+rd <- as.data.frame(rowData(rse_gene)) %>% select(gencodeID, Symbol)
 
 #### genomewide results ####
 ## load tables
@@ -31,19 +35,51 @@ map_int(geneEqtl_tensor, ~.x %>% filter(FDR < 0.05) %>% nrow())
 # amyg sacc 
 # 2060 2092 
 map_int(geneEqtl_tensor, ~.x %>% filter(FDR < 0.01) %>% nrow())
+# amyg sacc 
+# 1322 1350
 
-## matrixEQTL out
+#### matrixEQTL out ####
 load(here("eqtl", "data", "matrixEQTL_out", "matrixEqtl_output_amyg_genomewide_gene_annotate.rda"), verbose = TRUE)
 geneEqtl_matrix <- geneEqtl
 table(geneEqtl_matrix$FDR < 0.01)
 # FALSE     TRUE 
 # 10602310  1574482 
 
+## N snps
+length(unique(geneEqtl_matrix$snps))
+# [1] 4826322
+length(unique(geneEqtl_tensor$amyg$variant_id))
+# [1] 15767
+length(intersect(unique(geneEqtl_matrix$snps), unique(geneEqtl_tensor$amyg$variant_id)))
+# [1] 9079
 
+## N genes
+nrow(rse_gene)
+# [1] 25212
+length(unique(geneEqtl_matrix$gene))
+# [1] 24470
+length(unique(geneEqtl_tensor$amyg$gencodeID))
+# [1] 24241
+length(intersect(geneEqtl_matrix$gene, geneEqtl_tensor$amyg$gencodeID))
+# [1] 24039
+
+## p-vals
+summary(geneEqtl_tensor$amyg$pval_beta)
+# Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+# 0.0000  0.1374  0.4250  0.4293  0.6982  0.9982 
+summary(geneEqtl_matrix$pvalue)
+# Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+# 0.000000 0.005343 0.030638 0.036567 0.063498 0.100000 
+
+## match up
 geneEqtl_methods <- geneEqtl_tensor$amyg %>%
-  select(snps = variant_id, gene = phenotype_id, statistic_tensor = slope, pval_beta) %>%
+  select(snps = variant_id, gene = gencodeID, statistic_tensor = slope, pval_beta) %>%
   mutate(FDR_tensor = p.adjust(pval_beta, 'fdr')) %>%
-  inner_join(as_tibble(geneEqtl_matrix) %>% rename(statistic_matrix = statistic, FDR_matrix = FDR))
+  inner_join(as_tibble(geneEqtl_matrix) %>% 
+               rename(statistic_matrix = statistic, FDR_matrix = FDR))
+
+nrow(geneEqtl_methods)
+# [1] 5371
 
 method_scater <- geneEqtl_methods %>%
   ggplot(aes(FDR_matrix, FDR_tensor)) +
@@ -64,9 +100,6 @@ length(signif_snps)
 # 4,688 SNPs are significant
 cat(signif_snps, file = here("eqtl","data","tensorQTL_out","significant_snps.txt"), sep = "\n")
 
-#### load expression data ####
-load(here("exprs_cutoff", "rse_gene.Rdata"), verbose = TRUE)
-rd <- as.data.frame(rowData(rse_gene)) %>% select(gencodeID, Symbol)
 
 ## build model
 pd <- colData(rse_gene) %>% as.data.frame()
