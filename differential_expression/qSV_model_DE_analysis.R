@@ -15,6 +15,8 @@ library(dplyr)
 ##### Load rse data, examine ####
 #to see more column
 options("width"=200)
+rm(list=ls())
+ls()
 
 #load objects
 load(here('exprs_cutoff','rse_gene.Rdata'), verbose=TRUE)
@@ -53,7 +55,24 @@ summary(pd$AgeDeath)
 # Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
 # 17.37   34.62   47.21   46.58   55.86   95.27 
 
+
+### added 10_12_21
+
+
+index <- rse_gene$PrimaryDx %in% c("Control", "MDD")
+rse_gene <- rse_gene[, index]
+dim(rse_gene)
+
 load(here("differential_expression","data","qSV_mat.Rdata"), verbose = TRUE)
+
+qSV_mat <- qSV_mat[index, ] 
+rse_gene$PrimaryDx <- droplevels(rse_gene$PrimaryDx)
+table(rse_gene$PrimaryDx)
+
+rse_gene$PrimaryDx <- relevel(rse_gene$PrimaryDx, "Control")
+
+
+table(modSep[,2])
 
 # model w/o interaction to subset by region
 modSep = model.matrix(~PrimaryDx + AgeDeath + Sex  + 
@@ -97,8 +116,16 @@ colnames(eBGene_sACC$coefficient)
 outGene_sACC = topTable(eBGene_sACC,coef=("PrimaryDxControl"),
 	p.value = 1, number=nrow(rse_gene))
 
+colnames(outGene_sACC)
+
+outGene_sACC_BD = topTable(eBGene_sACC,coef=("PrimaryDxBipolar"),
+	p.value = 1, number=nrow(rse_gene))
+
+
 sum(outGene_sACC$adj.P.Val < 0.05)
 #237
+
+sum(outGene_sACC_BD$adj.P.Val < 0.05)
 
 head(
 topTable(eBGene_sACC,coef=("PrimaryDxControl"), p.value = 0.05, number=nrow(rse_gene))[, c("Symbol", "gene_type", "meanExprs","logFC", "t", "P.Value", "adj.P.Val")]
@@ -109,6 +136,7 @@ outGene_sACC %>% filter(Symbol == "DUSP6")
 outGene_sACC = outGene_sACC[rownames(rse_gene),]
 
 ## significance levels EXTRACT INDIVIDUAL COMPARISON P-VALUES THAT ARE NOT IN TOP TABLE
+#col 2 and 3 are PrimaryDxControl PrimaryDxBipolar
 pvalMat = as.matrix(eBGene_sACC$p.value)[,2:3]
 
 ### check top p-values
@@ -124,7 +152,6 @@ outGene_sACC = cbind(outGene_sACC,cbind(pvalMat, qvalMat))
 head(outGene_sACC)
 sum(outGene_sACC$q_PrimaryDxControl < 0.05)
 
-
 # 656
 print("Gene_sACC")
 sum(outGene_sACC$q_PrimaryDxControl < 0.05)
@@ -136,6 +163,9 @@ sum(outGene_sACC$q_PrimaryDxBipolar < 0.05)
 # [1] 218
 sum(outGene_sACC$q_PrimaryDxBipolar < 0.01)
 # [1] 55
+
+write.csv(outGene_sACC, file = "outGene_sACC_101221.csv")
+write.csv(outGene_sACC_BD, file = "outGene_sACC_BD_101221.csv")
 
 
 ##### Amygdala ######
@@ -153,7 +183,13 @@ eBGene_Amyg = eBayes(fitGene_Amyg)
 outGene_Amyg = topTable(eBGene_Amyg,coef="PrimaryDxControl",
 	p.value = 1,number=nrow(rse_gene))
 
+
+outGene_Amyg_BD = topTable(eBGene_sACC,coef=("PrimaryDxBipolar"),
+	p.value = 1, number=nrow(rse_gene))
+
+
 sum(outGene_Amyg$adj.P.Val < 0.05)
+sum(outGene_Amyg_BD$adj.P.Val < 0.05)
 #6
 
 head(
@@ -186,6 +222,13 @@ sum(outGene_Amyg$q_PrimaryDxBipolar < 0.05)
 # [1] 103
 sum(outGene_Amyg$q_PrimaryDxBipolar < 0.01)
 # [1] 53
+
+
+write.csv(outGene_Amyg, file = "outGene_amyg_101221.csv")
+write.csv(outGene_Amyg_BD, file = "outGene_amyg_BD_101221.csv")
+
+
+
 
 save(eBGene_Amyg, outGene_Amyg, eBGene_sACC, outGene_sACC, file= here("differential_expression","data","qSVA_MDD_gene_DEresults_083121.rda"))
 
