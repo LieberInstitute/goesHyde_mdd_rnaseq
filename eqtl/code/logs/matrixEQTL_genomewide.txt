@@ -1,0 +1,548 @@
+Adding LIBD modules
+Loading git
+Loading LIBD module for git-status-size/github
+Loading LIBD module for git-lfs/2.8.0
+Loading LIBD module for rmate/1.5.9
+Loading LIBD module for ruby/2.6.4p104
+Loading conda_R/4.1
+**** Job starts ****
+Thu Oct  7 11:22:35 EDT 2021
+**** JHPCE info ****
+User: lhuuki
+Job id: 7174171
+Job name: matrixEQTL_genomewide
+Hostname: compute-122.cm.cluster
+Task id: undefined
+Unloading conda_R/4.1
+Loading conda_R/4.0.x
+
+The following have been reloaded with a version change:
+  1) conda_R/4.1 => conda_R/4.0.x
+
+
+Currently Loaded Modules:
+  1) matlab/R2019a     6) COMMUNITY_CENTOS7_DEFAULT_ENV  11) ruby/2.6.4p104
+  2) stata/17          7) JHPCE_CENTOS7_DEFAULT_ENV      12) rmate/1.5.9
+  3) JHPCE_tools/1.0   8) git-status-size/github         13) conda/3-4.6.14
+  4) sge/8.1.9         9) git/2.28.0                     14) conda_R/4.0.x
+  5) gcc/4.4.7        10) git-lfs/2.8.0
+
+ 
+
+WARNING: ignoring environment value of R_HOME
+Loading required package: MatrixGenerics
+Loading required package: matrixStats
+
+Attaching package: ‘MatrixGenerics’
+
+The following objects are masked from ‘package:matrixStats’:
+
+    colAlls, colAnyNAs, colAnys, colAvgsPerRowSet, colCollapse,
+    colCounts, colCummaxs, colCummins, colCumprods, colCumsums,
+    colDiffs, colIQRDiffs, colIQRs, colLogSumExps, colMadDiffs,
+    colMads, colMaxs, colMeans2, colMedians, colMins, colOrderStats,
+    colProds, colQuantiles, colRanges, colRanks, colSdDiffs, colSds,
+    colSums2, colTabulates, colVarDiffs, colVars, colWeightedMads,
+    colWeightedMeans, colWeightedMedians, colWeightedSds,
+    colWeightedVars, rowAlls, rowAnyNAs, rowAnys, rowAvgsPerColSet,
+    rowCollapse, rowCounts, rowCummaxs, rowCummins, rowCumprods,
+    rowCumsums, rowDiffs, rowIQRDiffs, rowIQRs, rowLogSumExps,
+    rowMadDiffs, rowMads, rowMaxs, rowMeans2, rowMedians, rowMins,
+    rowOrderStats, rowProds, rowQuantiles, rowRanges, rowRanks,
+    rowSdDiffs, rowSds, rowSums2, rowTabulates, rowVarDiffs, rowVars,
+    rowWeightedMads, rowWeightedMeans, rowWeightedMedians,
+    rowWeightedSds, rowWeightedVars
+
+Loading required package: GenomicRanges
+Loading required package: stats4
+Loading required package: BiocGenerics
+Loading required package: parallel
+
+Attaching package: ‘BiocGenerics’
+
+The following objects are masked from ‘package:parallel’:
+
+    clusterApply, clusterApplyLB, clusterCall, clusterEvalQ,
+    clusterExport, clusterMap, parApply, parCapply, parLapply,
+    parLapplyLB, parRapply, parSapply, parSapplyLB
+
+The following objects are masked from ‘package:stats’:
+
+    IQR, mad, sd, var, xtabs
+
+The following objects are masked from ‘package:base’:
+
+    anyDuplicated, append, as.data.frame, basename, cbind, colnames,
+    dirname, do.call, duplicated, eval, evalq, Filter, Find, get, grep,
+    grepl, intersect, is.unsorted, lapply, Map, mapply, match, mget,
+    order, paste, pmax, pmax.int, pmin, pmin.int, Position, rank,
+    rbind, Reduce, rownames, sapply, setdiff, sort, table, tapply,
+    union, unique, unsplit, which.max, which.min
+
+Loading required package: S4Vectors
+
+Attaching package: ‘S4Vectors’
+
+The following object is masked from ‘package:base’:
+
+    expand.grid
+
+Loading required package: IRanges
+Loading required package: GenomeInfoDb
+Loading required package: Biobase
+Welcome to Bioconductor
+
+    Vignettes contain introductory material; view with
+    'browseVignettes()'. To cite Bioconductor, see
+    'citation("Biobase")', and for packages 'citation("pkgname")'.
+
+
+Attaching package: ‘Biobase’
+
+The following object is masked from ‘package:MatrixGenerics’:
+
+    rowMedians
+
+The following objects are masked from ‘package:matrixStats’:
+
+    anyMissing, rowMedians
+
+Loading required package: rafalib
+Loading required package: mgcv
+Loading required package: nlme
+
+Attaching package: ‘nlme’
+
+The following object is masked from ‘package:IRanges’:
+
+    collapse
+
+This is mgcv 1.8-35. For overview type 'help("mgcv-package")'.
+Loading required package: genefilter
+
+Attaching package: ‘genefilter’
+
+The following objects are masked from ‘package:MatrixGenerics’:
+
+    rowSds, rowVars
+
+The following objects are masked from ‘package:matrixStats’:
+
+    rowSds, rowVars
+
+Loading required package: BiocParallel
+here() starts at /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq
+Loading required package: Rsamtools
+Loading required package: Biostrings
+Loading required package: XVector
+
+Attaching package: ‘Biostrings’
+
+The following object is masked from ‘package:base’:
+
+    strsplit
+
+
+Attaching package: ‘VariantAnnotation’
+
+The following object is masked from ‘package:base’:
+
+    tabulate
+
+Loading objects:
+  rse_gene
+[1] 25212   540
+Loading objects:
+  mds
+  snp
+  snpMap
+  CHR                SNP (C)M   POS COUNTED   ALT     Type newRef newCount
+1   1 chr1:11171:CCTTG:C    0 11171       C CCTTG Deletion   CTTG        -
+2   1     chr1:48824:T:C    0 48824       C     T      SNV      T        C
+3   1     chr1:54490:G:A    0 54490       A     G      SNV      G        A
+4   1     chr1:60351:A:G    0 60351       G     A      SNV      A        G
+5   1     chr1:64931:G:A    0 64931       A     G      SNV      G        A
+6   1     chr1:80346:C:G    0 80346       G     C      SNV      C        G
+                name  rsNumGuess chr_hg38 pos_hg38
+1 chr1:11171:CCTTG:C        <NA>     chr1    11171
+2     chr1:48824:T:C        <NA>     chr1    48824
+3        rs141149254 rs141149254     chr1    54490
+4         rs62637817  rs62637817     chr1    60351
+5         rs62639104  rs62639104     chr1    64931
+6        rs376665626 rs376665626     chr1    80346
+  Br1204 Br1225 Br1279 Br1304 Br1316 Br1355
+1      0      0      0      0      0      0
+2      0      0      0      0      0      0
+3      1      0      2      1      0      0
+4      0      0      0      0      0      0
+5      0      0      0      0      0      0
+6      0      0      0      0      0      0
+[1] 8401829     595
+has_pos
+  FALSE    TRUE 
+  86635 8315194 
+[1] 8315194     595
+[1] TRUE
+[1] TRUE
+[1] TRUE
+2021-10-07 11:27:11 Get statistical model
+[1] "(Intercept)"      "PrimaryDxBipolar" "PrimaryDxMDD"     "SexM"            
+[5] "snpPC1"           "snpPC2"           "snpPC3"           "snpPC4"          
+[9] "snpPC5"          
+2021-10-07 11:27:11 Create SlicedData
+2021-10-07 11:30:12 Get rpkm values
+Setting options('download.file.method.GEOquery'='auto')
+Setting options('GEOquery.inmemory.gpl'=FALSE)
+2021-10-07 11:30:13 Load PCA
+Loading objects:
+  PCs
+2021-10-07 11:30:14 EQTLs
+Matching data files and location files
+25212 of 25212 genes matched
+8315194 of 8315194 SNPs matched
+
+Task finished in 2.361 seconds
+Reordering SNPs
+Task finished in 92.397 seconds
+Reordering genes
+Task finished in 4.761 seconds
+Processing covariates
+Task finished in 0.004 seconds
+Processing gene expression data (imputation, residualization)
+Task finished in 0.892 seconds
+Creating output file(s)
+Task finished in 0.08 seconds
+Performing eQTL analysis
+ 0.09% done, 117,702 cis-eQTLs
+ 0.69% done, 234,932 cis-eQTLs
+ 1.29% done, 366,052 cis-eQTLs
+ 1.89% done, 418,744 cis-eQTLs
+ 2.49% done, 470,351 cis-eQTLs
+ 3.09% done, 525,952 cis-eQTLs
+ 3.69% done, 635,936 cis-eQTLs
+ 4.29% done, 744,775 cis-eQTLs
+ 4.89% done, 842,406 cis-eQTLs
+ 5.48% done, 885,613 cis-eQTLs
+ 6.08% done, 955,437 cis-eQTLs
+ 6.68% done, 1,054,731 cis-eQTLs
+ 7.28% done, 1,145,298 cis-eQTLs
+ 7.88% done, 1,165,130 cis-eQTLs
+ 8.48% done, 1,215,364 cis-eQTLs
+ 9.08% done, 1,266,818 cis-eQTLs
+ 9.68% done, 1,322,642 cis-eQTLs
+10.27% done, 1,402,348 cis-eQTLs
+10.87% done, 1,447,432 cis-eQTLs
+11.47% done, 1,496,336 cis-eQTLs
+12.07% done, 1,534,009 cis-eQTLs
+12.67% done, 1,593,759 cis-eQTLs
+13.27% done, 1,635,444 cis-eQTLs
+13.87% done, 1,670,361 cis-eQTLs
+14.47% done, 1,716,388 cis-eQTLs
+15.06% done, 1,749,425 cis-eQTLs
+15.66% done, 1,841,398 cis-eQTLs
+16.26% done, 1,863,620 cis-eQTLs
+16.86% done, 1,911,072 cis-eQTLs
+17.46% done, 1,945,865 cis-eQTLs
+18.06% done, 2,022,105 cis-eQTLs
+18.66% done, 2,077,496 cis-eQTLs
+19.26% done, 2,171,057 cis-eQTLs
+19.86% done, 2,190,102 cis-eQTLs
+19.96% done, 2,239,195 cis-eQTLs
+20.55% done, 2,297,257 cis-eQTLs
+21.15% done, 2,370,282 cis-eQTLs
+21.75% done, 2,456,234 cis-eQTLs
+22.35% done, 2,498,692 cis-eQTLs
+22.95% done, 2,535,305 cis-eQTLs
+23.55% done, 2,561,442 cis-eQTLs
+24.15% done, 2,603,892 cis-eQTLs
+24.75% done, 2,639,329 cis-eQTLs
+25.34% done, 2,688,827 cis-eQTLs
+25.94% done, 2,741,175 cis-eQTLs
+26.54% done, 2,793,867 cis-eQTLs
+27.14% done, 2,863,626 cis-eQTLs
+27.74% done, 2,885,730 cis-eQTLs
+28.34% done, 2,915,606 cis-eQTLs
+28.94% done, 2,940,556 cis-eQTLs
+29.54% done, 2,975,799 cis-eQTLs
+30.13% done, 3,052,537 cis-eQTLs
+30.73% done, 3,101,985 cis-eQTLs
+31.33% done, 3,265,377 cis-eQTLs
+31.93% done, 3,309,033 cis-eQTLs
+32.53% done, 3,340,329 cis-eQTLs
+33.13% done, 3,382,413 cis-eQTLs
+33.73% done, 3,487,419 cis-eQTLs
+34.33% done, 3,569,832 cis-eQTLs
+34.93% done, 3,633,731 cis-eQTLs
+35.52% done, 3,664,074 cis-eQTLs
+36.12% done, 3,733,938 cis-eQTLs
+36.72% done, 3,875,798 cis-eQTLs
+37.32% done, 3,916,307 cis-eQTLs
+37.92% done, 3,934,607 cis-eQTLs
+38.52% done, 4,002,782 cis-eQTLs
+39.12% done, 4,016,986 cis-eQTLs
+39.72% done, 4,052,062 cis-eQTLs
+40.31% done, 4,087,824 cis-eQTLs
+40.91% done, 4,126,974 cis-eQTLs
+41.51% done, 4,144,234 cis-eQTLs
+42.11% done, 4,178,316 cis-eQTLs
+42.71% done, 4,201,017 cis-eQTLs
+43.31% done, 4,222,552 cis-eQTLs
+43.91% done, 4,275,715 cis-eQTLs
+44.51% done, 4,320,392 cis-eQTLs
+45.10% done, 4,350,760 cis-eQTLs
+45.70% done, 4,401,812 cis-eQTLs
+46.30% done, 4,455,966 cis-eQTLs
+46.90% done, 4,502,419 cis-eQTLs
+47.50% done, 4,531,532 cis-eQTLs
+48.10% done, 4,566,293 cis-eQTLs
+48.70% done, 4,593,313 cis-eQTLs
+48.80% done, 4,660,954 cis-eQTLs
+49.40% done, 4,711,559 cis-eQTLs
+50.00% done, 4,743,780 cis-eQTLs
+50.59% done, 4,836,582 cis-eQTLs
+51.19% done, 4,872,355 cis-eQTLs
+51.79% done, 5,372,729 cis-eQTLs
+52.39% done, 5,517,671 cis-eQTLs
+52.99% done, 5,551,527 cis-eQTLs
+53.59% done, 5,585,571 cis-eQTLs
+54.19% done, 5,620,809 cis-eQTLs
+54.79% done, 5,679,507 cis-eQTLs
+55.38% done, 5,732,402 cis-eQTLs
+55.98% done, 5,802,742 cis-eQTLs
+56.58% done, 5,855,444 cis-eQTLs
+57.18% done, 5,955,145 cis-eQTLs
+57.78% done, 5,994,285 cis-eQTLs
+58.38% done, 6,085,693 cis-eQTLs
+58.98% done, 6,157,988 cis-eQTLs
+59.58% done, 6,268,374 cis-eQTLs
+60.17% done, 6,325,022 cis-eQTLs
+60.77% done, 6,419,475 cis-eQTLs
+61.37% done, 6,467,603 cis-eQTLs
+61.97% done, 6,553,023 cis-eQTLs
+62.57% done, 6,633,896 cis-eQTLs
+63.17% done, 6,710,898 cis-eQTLs
+63.77% done, 6,769,636 cis-eQTLs
+64.37% done, 6,851,654 cis-eQTLs
+64.97% done, 6,906,305 cis-eQTLs
+65.56% done, 6,954,049 cis-eQTLs
+66.16% done, 7,055,144 cis-eQTLs
+66.76% done, 7,130,093 cis-eQTLs
+67.36% done, 7,175,521 cis-eQTLs
+67.96% done, 7,206,920 cis-eQTLs
+68.56% done, 7,221,203 cis-eQTLs
+68.66% done, 7,237,573 cis-eQTLs
+69.26% done, 7,283,465 cis-eQTLs
+69.86% done, 7,306,366 cis-eQTLs
+70.45% done, 7,326,264 cis-eQTLs
+71.05% done, 7,512,168 cis-eQTLs
+71.65% done, 7,740,195 cis-eQTLs
+72.25% done, 7,923,184 cis-eQTLs
+72.85% done, 8,156,221 cis-eQTLs
+73.45% done, 8,259,227 cis-eQTLs
+74.05% done, 8,302,237 cis-eQTLs
+74.65% done, 8,351,355 cis-eQTLs
+75.24% done, 8,503,518 cis-eQTLs
+75.84% done, 8,613,349 cis-eQTLs
+76.44% done, 8,668,503 cis-eQTLs
+77.04% done, 8,729,234 cis-eQTLs
+77.64% done, 8,817,652 cis-eQTLs
+78.24% done, 8,976,597 cis-eQTLs
+78.84% done, 9,040,424 cis-eQTLs
+79.44% done, 9,116,169 cis-eQTLs
+80.03% done, 9,241,075 cis-eQTLs
+80.63% done, 9,306,846 cis-eQTLs
+81.23% done, 9,348,394 cis-eQTLs
+81.83% done, 9,446,853 cis-eQTLs
+82.43% done, 9,543,729 cis-eQTLs
+83.03% done, 9,673,085 cis-eQTLs
+83.63% done, 9,793,638 cis-eQTLs
+83.73% done, 9,800,863 cis-eQTLs
+84.33% done, 9,887,987 cis-eQTLs
+84.93% done, 10,015,158 cis-eQTLs
+85.52% done, 10,088,677 cis-eQTLs
+86.12% done, 10,150,486 cis-eQTLs
+86.72% done, 10,206,327 cis-eQTLs
+87.32% done, 10,232,854 cis-eQTLs
+87.92% done, 10,255,397 cis-eQTLs
+88.52% done, 10,271,166 cis-eQTLs
+89.12% done, 10,308,998 cis-eQTLs
+89.72% done, 10,392,081 cis-eQTLs
+90.31% done, 10,436,029 cis-eQTLs
+90.91% done, 10,510,022 cis-eQTLs
+91.51% done, 10,618,928 cis-eQTLs
+92.11% done, 10,666,923 cis-eQTLs
+92.71% done, 10,872,809 cis-eQTLs
+93.31% done, 10,951,836 cis-eQTLs
+93.91% done, 11,060,491 cis-eQTLs
+94.51% done, 11,147,357 cis-eQTLs
+95.10% done, 11,263,243 cis-eQTLs
+95.70% done, 11,416,277 cis-eQTLs
+96.30% done, 11,575,170 cis-eQTLs
+96.90% done, 11,701,368 cis-eQTLs
+97.50% done, 11,771,803 cis-eQTLs
+98.10% done, 11,874,067 cis-eQTLs
+98.70% done, 12,017,366 cis-eQTLs
+99.30% done, 12,099,453 cis-eQTLs
+99.40% done, 12,159,352 cis-eQTLs
+100.00% done, 12,176,792 cis-eQTLs
+Task finished in 17339.388 seconds
+
+2021-10-07 16:21:45 Annotate and Save
+[1] "Reproducibility information:"
+[1] "2021-10-07 16:22:48 EDT"
+     user    system   elapsed 
+17005.267   993.868 18012.373 
+─ Session info ───────────────────────────────────────────────────────────────────────────────────────────────────────
+ setting  value                                 
+ version  R version 4.0.4 RC (2021-02-08 r79975)
+ os       CentOS Linux 7 (Core)                 
+ system   x86_64, linux-gnu                     
+ ui       X11                                   
+ language (EN)                                  
+ collate  en_US.UTF-8                           
+ ctype    en_US.UTF-8                           
+ tz       US/Eastern                            
+ date     2021-10-07                            
+
+─ Packages ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+ package              * version  date       lib source                                   
+ annotate               1.68.0   2020-10-27 [2] Bioconductor                             
+ AnnotationDbi          1.52.0   2020-10-27 [2] Bioconductor                             
+ askpass                1.1      2019-01-13 [2] CRAN (R 4.0.3)                           
+ assertthat             0.2.1    2019-03-21 [2] CRAN (R 4.0.3)                           
+ backports              1.2.1    2020-12-09 [1] CRAN (R 4.0.4)                           
+ base64enc              0.1-3    2015-07-28 [2] CRAN (R 4.0.3)                           
+ Biobase              * 2.50.0   2020-10-27 [2] Bioconductor                             
+ BiocFileCache          1.14.0   2020-10-27 [2] Bioconductor                             
+ BiocGenerics         * 0.36.1   2021-04-16 [2] Bioconductor                             
+ BiocParallel         * 1.24.1   2020-11-06 [2] Bioconductor                             
+ biomaRt                2.46.3   2021-02-09 [2] Bioconductor                             
+ Biostrings           * 2.58.0   2020-10-27 [2] Bioconductor                             
+ bit                    4.0.4    2020-08-04 [2] CRAN (R 4.0.3)                           
+ bit64                  4.0.5    2020-08-30 [2] CRAN (R 4.0.3)                           
+ bitops                 1.0-7    2021-04-24 [2] CRAN (R 4.0.4)                           
+ blob                   1.2.1    2020-01-20 [2] CRAN (R 4.0.3)                           
+ BSgenome               1.58.0   2020-10-27 [2] Bioconductor                             
+ bumphunter             1.32.0   2020-10-27 [2] Bioconductor                             
+ cachem                 1.0.4    2021-02-13 [2] CRAN (R 4.0.4)                           
+ checkmate              2.0.0    2020-02-06 [2] CRAN (R 4.0.3)                           
+ cli                    2.5.0    2021-04-26 [1] CRAN (R 4.0.4)                           
+ cluster                2.1.2    2021-04-17 [3] CRAN (R 4.0.4)                           
+ codetools              0.2-18   2020-11-04 [3] CRAN (R 4.0.4)                           
+ colorspace             2.0-0    2020-11-11 [2] CRAN (R 4.0.3)                           
+ crayon                 1.4.1    2021-02-08 [2] CRAN (R 4.0.3)                           
+ curl                   4.3      2019-12-02 [2] CRAN (R 4.0.3)                           
+ data.table             1.14.0   2021-02-21 [2] CRAN (R 4.0.4)                           
+ DBI                    1.1.1    2021-01-15 [2] CRAN (R 4.0.3)                           
+ dbplyr                 2.1.1    2021-04-06 [2] CRAN (R 4.0.4)                           
+ DelayedArray           0.16.3   2021-03-24 [2] Bioconductor                             
+ derfinder              1.24.2   2020-12-18 [2] Bioconductor                             
+ derfinderHelper        1.24.1   2020-12-18 [2] Bioconductor                             
+ digest                 0.6.27   2020-10-24 [1] CRAN (R 4.0.3)                           
+ doRNG                  1.8.2    2020-01-27 [2] CRAN (R 4.0.3)                           
+ downloader             0.4      2015-07-09 [2] CRAN (R 4.0.3)                           
+ dplyr                  1.0.5    2021-03-05 [1] CRAN (R 4.0.4)                           
+ edgeR                  3.32.1   2021-01-14 [2] Bioconductor                             
+ ellipsis               0.3.2    2021-04-29 [2] CRAN (R 4.0.4)                           
+ fansi                  0.4.2    2021-01-15 [2] CRAN (R 4.0.3)                           
+ fastmap                1.1.0    2021-01-25 [2] CRAN (R 4.0.3)                           
+ foreach                1.5.1    2020-10-15 [2] CRAN (R 4.0.3)                           
+ foreign                0.8-81   2020-12-22 [3] CRAN (R 4.0.4)                           
+ Formula                1.2-4    2020-10-16 [2] CRAN (R 4.0.3)                           
+ genefilter           * 1.72.1   2021-01-21 [2] Bioconductor                             
+ generics               0.1.0    2020-10-31 [2] CRAN (R 4.0.3)                           
+ GenomeInfoDb         * 1.26.7   2021-04-08 [2] Bioconductor                             
+ GenomeInfoDbData       1.2.4    2020-11-30 [2] Bioconductor                             
+ GenomicAlignments      1.26.0   2020-10-27 [2] Bioconductor                             
+ GenomicFeatures        1.42.3   2021-04-01 [2] Bioconductor                             
+ GenomicFiles           1.26.0   2020-10-27 [2] Bioconductor                             
+ GenomicRanges        * 1.42.0   2020-10-27 [2] Bioconductor                             
+ GEOquery               2.58.0   2020-10-27 [2] Bioconductor                             
+ ggplot2                3.3.3    2020-12-30 [2] CRAN (R 4.0.3)                           
+ glue                   1.4.2    2020-08-27 [1] CRAN (R 4.0.3)                           
+ googledrive            1.0.1    2020-05-05 [1] CRAN (R 4.0.3)                           
+ gridExtra              2.3      2017-09-09 [2] CRAN (R 4.0.3)                           
+ gtable                 0.3.0    2019-03-25 [2] CRAN (R 4.0.3)                           
+ here                 * 1.0.1    2020-12-13 [1] CRAN (R 4.0.3)                           
+ Hmisc                  4.5-0    2021-02-28 [2] CRAN (R 4.0.4)                           
+ hms                    1.0.0    2021-01-13 [2] CRAN (R 4.0.3)                           
+ htmlTable              2.1.0    2020-09-16 [2] CRAN (R 4.0.3)                           
+ htmltools              0.5.1.1  2021-01-22 [1] CRAN (R 4.0.4)                           
+ htmlwidgets            1.5.3    2020-12-10 [2] CRAN (R 4.0.3)                           
+ httr                   1.4.2    2020-07-20 [1] CRAN (R 4.0.3)                           
+ IRanges              * 2.24.1   2020-12-12 [1] Bioconductor                             
+ iterators              1.0.13   2020-10-15 [2] CRAN (R 4.0.3)                           
+ jaffelab             * 0.99.30  2020-11-02 [1] Github (LieberInstitute/jaffelab@42637ff)
+ jpeg                   0.1-8.1  2019-10-24 [2] CRAN (R 4.0.3)                           
+ jsonlite               1.7.2    2020-12-09 [1] CRAN (R 4.0.3)                           
+ knitr                  1.33     2021-04-24 [1] CRAN (R 4.0.4)                           
+ lattice                0.20-41  2020-04-02 [3] CRAN (R 4.0.4)                           
+ latticeExtra           0.6-29   2019-12-19 [2] CRAN (R 4.0.3)                           
+ lifecycle              1.0.0    2021-02-15 [1] CRAN (R 4.0.4)                           
+ limma                  3.46.0   2020-10-27 [2] Bioconductor                             
+ locfit                 1.5-9.4  2020-03-25 [2] CRAN (R 4.0.3)                           
+ magrittr               2.0.1    2020-11-17 [2] CRAN (R 4.0.3)                           
+ Matrix                 1.3-2    2021-01-06 [3] CRAN (R 4.0.4)                           
+ MatrixEQTL           * 2.3      2019-12-22 [1] CRAN (R 4.0.3)                           
+ MatrixGenerics       * 1.2.1    2021-01-30 [2] Bioconductor                             
+ matrixStats          * 0.58.0   2021-01-29 [2] CRAN (R 4.0.3)                           
+ memoise                2.0.0    2021-01-26 [2] CRAN (R 4.0.3)                           
+ mgcv                 * 1.8-35   2021-04-18 [3] CRAN (R 4.0.4)                           
+ munsell                0.5.0    2018-06-12 [2] CRAN (R 4.0.3)                           
+ nlme                 * 3.1-152  2021-02-04 [3] CRAN (R 4.0.4)                           
+ nnet                   7.3-15   2021-01-24 [3] CRAN (R 4.0.4)                           
+ openssl                1.4.4    2021-04-30 [1] CRAN (R 4.0.4)                           
+ pillar                 1.6.0    2021-04-13 [1] CRAN (R 4.0.4)                           
+ pkgconfig              2.0.3    2019-09-22 [2] CRAN (R 4.0.3)                           
+ plyr                   1.8.6    2020-03-03 [2] CRAN (R 4.0.3)                           
+ png                    0.1-7    2013-12-03 [2] CRAN (R 4.0.3)                           
+ prettyunits            1.1.1    2020-01-24 [2] CRAN (R 4.0.3)                           
+ progress               1.2.2    2019-05-16 [2] CRAN (R 4.0.3)                           
+ purrr                  0.3.4    2020-04-17 [1] CRAN (R 4.0.3)                           
+ qvalue                 2.22.0   2020-10-27 [2] Bioconductor                             
+ R6                     2.5.0    2020-10-28 [1] CRAN (R 4.0.3)                           
+ rafalib              * 1.0.0    2015-08-09 [1] CRAN (R 4.0.3)                           
+ rappdirs               0.3.3    2021-01-31 [2] CRAN (R 4.0.3)                           
+ RColorBrewer           1.1-2    2014-12-07 [2] CRAN (R 4.0.3)                           
+ Rcpp                   1.0.6    2021-01-15 [1] CRAN (R 4.0.3)                           
+ RCurl                  1.98-1.3 2021-03-16 [2] CRAN (R 4.0.4)                           
+ readr                  1.4.0    2020-10-05 [2] CRAN (R 4.0.3)                           
+ recount                1.16.1   2020-12-18 [2] Bioconductor                             
+ rentrez                1.2.3    2020-11-10 [2] CRAN (R 4.0.3)                           
+ reshape2               1.4.4    2020-04-09 [2] CRAN (R 4.0.3)                           
+ rlang                  0.4.11   2021-04-30 [1] CRAN (R 4.0.4)                           
+ rngtools               1.5      2020-01-23 [2] CRAN (R 4.0.3)                           
+ rpart                  4.1-15   2019-04-12 [3] CRAN (R 4.0.4)                           
+ rprojroot              2.0.2    2020-11-15 [2] CRAN (R 4.0.3)                           
+ Rsamtools            * 2.6.0    2020-10-27 [2] Bioconductor                             
+ RSQLite                2.2.7    2021-04-22 [2] CRAN (R 4.0.4)                           
+ rstudioapi             0.13     2020-11-12 [2] CRAN (R 4.0.3)                           
+ rtracklayer            1.50.0   2020-10-27 [2] Bioconductor                             
+ S4Vectors            * 0.28.1   2020-12-09 [2] Bioconductor                             
+ scales                 1.1.1    2020-05-11 [2] CRAN (R 4.0.3)                           
+ segmented              1.3-4    2021-04-22 [1] CRAN (R 4.0.4)                           
+ sessioninfo          * 1.1.1    2018-11-05 [2] CRAN (R 4.0.3)                           
+ stringi                1.5.3    2020-09-09 [1] CRAN (R 4.0.3)                           
+ stringr                1.4.0    2019-02-10 [2] CRAN (R 4.0.3)                           
+ SummarizedExperiment * 1.20.0   2020-10-27 [2] Bioconductor                             
+ survival               3.2-9    2021-03-14 [3] CRAN (R 4.0.4)                           
+ sva                  * 3.38.0   2020-10-27 [2] Bioconductor                             
+ tibble                 3.1.1    2021-04-18 [1] CRAN (R 4.0.4)                           
+ tidyr                  1.1.3    2021-03-03 [2] CRAN (R 4.0.4)                           
+ tidyselect             1.1.1    2021-04-30 [2] CRAN (R 4.0.4)                           
+ utf8                   1.2.1    2021-03-12 [2] CRAN (R 4.0.4)                           
+ VariantAnnotation    * 1.36.0   2020-10-27 [2] Bioconductor                             
+ vctrs                  0.3.8    2021-04-29 [1] CRAN (R 4.0.4)                           
+ withr                  2.4.2    2021-04-18 [1] CRAN (R 4.0.4)                           
+ xfun                   0.22     2021-03-11 [1] CRAN (R 4.0.4)                           
+ XML                    3.99-0.6 2021-03-16 [2] CRAN (R 4.0.4)                           
+ xml2                   1.3.2    2020-04-23 [2] CRAN (R 4.0.3)                           
+ xtable                 1.8-4    2019-04-21 [2] CRAN (R 4.0.3)                           
+ XVector              * 0.30.0   2020-10-27 [2] Bioconductor                             
+ zlibbioc               1.36.0   2020-10-27 [2] Bioconductor                             
+
+[1] /users/lhuuki/R/4.0.x
+[2] /jhpce/shared/jhpce/core/conda/miniconda3-4.6.14/envs/svnR-4.0.x/R/4.0.x/lib64/R/site-library
+[3] /jhpce/shared/jhpce/core/conda/miniconda3-4.6.14/envs/svnR-4.0.x/R/4.0.x/lib64/R/library
+**** Job ends ****
+Thu Oct  7 16:22:57 EDT 2021

@@ -1,0 +1,50 @@
+Adding LIBD modules
+Loading git
+Loading LIBD module for git-status-size/github
+Loading LIBD module for git-lfs/2.8.0
+Loading LIBD module for rmate/1.5.9
+Loading LIBD module for ruby/2.6.4p104
+Loading conda_R/4.1
+**** Job starts ****
+Thu Sep 16 11:35:25 EDT 2021
+**** JHPCE info ****
+User: lhuuki
+Job id: 6907398
+Job name: run_plink
+Hostname: compute-070.cm.cluster
+Task id: undefined
+Loading LIBD module for plink/1.90b6.6
+
+Currently Loaded Modules:
+  1) matlab/R2019a     6) COMMUNITY_CENTOS7_DEFAULT_ENV  11) ruby/2.6.4p104
+  2) stata/17          7) JHPCE_CENTOS7_DEFAULT_ENV      12) rmate/1.5.9
+  3) JHPCE_tools/1.0   8) git-status-size/github         13) conda/3-4.6.14
+  4) sge/8.1.9         9) git/2.28.0                     14) conda_R/4.1
+  5) gcc/4.4.7        10) git-lfs/2.8.0                  15) plink/1.90b6.6
+
+ 
+
+PLINK v1.90b6.6 64-bit (10 Oct 2018)           www.cog-genomics.org/plink/1.9/
+(C) 2005-2018 Shaun Purcell, Christopher Chang   GNU General Public License v3
+Logging to LIBD_maf01_gwas_BPD.log.
+Options in effect:
+  --make-bed
+  --out LIBD_maf01_gwas_BPD
+  --vcf LIBD_maf01_gwas_BPD.vcf.gz
+
+483725 MB RAM detected; reserving 241862 MB for main workspace.
+Allocated 7660 MB successfully, after larger attempt(s) failed.
+--vcf: LIBD_maf01_gwas_BPD-temporary.bed + LIBD_maf01_gwas_BPD-temporary.bim +
+LIBD_maf01_gwas_BPD-temporary.fam written.
+67 variants loaded from .bim file.
+616 people (0 males, 0 females, 616 ambiguous) loaded from .fam.
+Ambiguous sex IDs written to LIBD_maf01_gwas_BPD.nosex .
+Using 1 thread (no multithreaded calculations invoked).
+Before main variant filters, 616 founders and 0 nonfounders present.
+Calculating allele frequencies... 0%1%2%3%4%5%6%7%8%9%10%11%12%13%14%15%16%17%18%19%20%21%22%23%24%25%26%27%28%29%30%31%32%33%34%35%36%37%38%39%40%41%42%43%44%45%46%47%48%49%50%51%52%53%54%55%56%57%58%59%60%61%62%63%64%65%66%67%68%69%70%71%72%73%74%75%76%77%78%79%80%81%82%83%84%85%86%87%88%89%90%91%92%93%94%95%96%97%98%99% done.
+67 variants and 616 people pass filters and QC.
+Note: No phenotypes present.
+--make-bed to LIBD_maf01_gwas_BPD.bed + LIBD_maf01_gwas_BPD.bim +
+LIBD_maf01_gwas_BPD.fam ... 0%0%1%2%4%5%7%8%10%11%13%14%16%17%19%20%22%23%25%26%28%29%31%32%34%35%37%38%40%41%43%44%46%47%49%50%52%53%55%56%58%59%61%62%64%65%67%68%70%71%73%74%76%77%79%80%82%83%85%86%88%89%91%92%94%95%97%98%done.
+**** Job ends ****
+Thu Sep 16 11:35:26 EDT 2021
