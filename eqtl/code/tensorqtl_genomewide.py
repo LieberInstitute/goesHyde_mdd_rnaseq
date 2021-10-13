@@ -11,6 +11,12 @@ for region in ["Amygdala", "sACC"]:
     plink = "/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/genotype_data/mdd_bpd/maf01/mdd_bpd_maf01"
     genotype_df, variant_df, phenotype_df_filter, phenotype_pos_df_filter, covariates_df = my_tensorqtl_run.load_data(plink, expres, covar)
     
+    ## Check dimensions
+    print("Variant.df shape: ")
+    variant_df.shape
+    genotype_df.shape[0] == phenotype_df_filter.shape[1]
+    
+    
     cis_out = cis.map_cis(genotype_df, variant_df, phenotype_df_filter, phenotype_pos_df_filter, covariates_df=covariates_df,
                 group_s=None, maf_threshold=0, beta_approx=True, nperm=10000,
                 window=500000, random_tiebreak=False, logger=None, seed=None,
