@@ -1,6 +1,6 @@
 #!/bin/bash
 #$ -cwd
-#$ -l bluejay,mem_free=50G,h_vmem=50G,h_fsize=100G
+#$ -l bluejay,mem_free=100G,h_vmem=100G,h_fsize=100G
 #$ -N tensorqtl_genomewide_nominal
 #$ -o logs/tensorqtl_genomewide_nominal.txt
 #$ -e logs/tensorqtl_genomewide_nominal.txt
@@ -22,6 +22,8 @@ echo "Task id: ${SGE_TASK_ID}"
 module list
 
 ## Edit with your job command
+conda activate hello
+echo "Hello!"
 python tensorqtl_genomewide_nominal.py
 
 echo "**** Job ends ****"
