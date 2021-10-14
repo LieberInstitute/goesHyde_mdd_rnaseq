@@ -105,7 +105,7 @@ dge_sACC = calcNormFactors(dge_sACC)
 ### borrows information for
 vGene_sACC = voom(dge_sACC,mod_sACC, plot=FALSE)
 
-### limma commads
+### limma commad
 fitGene_sACC = lmFit(vGene_sACC)
 eBGene_sACC = eBayes(fitGene_sACC)
 #### need to know  what went into model (modssep) -- case-control and  BP control
@@ -113,22 +113,16 @@ eBGene_sACC = eBayes(fitGene_sACC)
 
 colnames(eBGene_sACC$coefficient)
 
-outGene_sACC = topTable(eBGene_sACC,coef=("PrimaryDxControl"),
+outGene_sACC = topTable(eBGene_sACC,coef=("PrimaryDxMDD"),
 	p.value = 1, number=nrow(rse_gene))
 
 colnames(outGene_sACC)
 
-outGene_sACC_BD = topTable(eBGene_sACC,coef=("PrimaryDxBipolar"),
-	p.value = 1, number=nrow(rse_gene))
-
-
 sum(outGene_sACC$adj.P.Val < 0.05)
 #237
 
-sum(outGene_sACC_BD$adj.P.Val < 0.05)
-
 head(
-topTable(eBGene_sACC,coef=("PrimaryDxControl"), p.value = 0.05, number=nrow(rse_gene))[, c("Symbol", "gene_type", "meanExprs","logFC", "t", "P.Value", "adj.P.Val")]
+topTable(eBGene_sACC,coef=("PrimaryDxMDD"), p.value = 0.05, number=nrow(rse_gene))[, c("Symbol", "gene_type", "meanExprs","logFC", "t", "P.Value", "adj.P.Val")]
 , n = 30L)
 outGene_sACC %>% filter(Symbol == "DUSP6")
 
@@ -141,7 +135,7 @@ pvalMat = as.matrix(eBGene_sACC$p.value)[,2:3]
 
 ### check top p-values
 
-head(pvalMat[order(pvalMat[,"PrimaryDxControl"]), ])
+head(pvalMat[order(pvalMat[,"ç"]), ])
 
 qvalMat = pvalMat
 qvalMat[,1:2] = p.adjust(pvalMat[,1:2],method="fdr")
@@ -150,14 +144,10 @@ colnames(qvalMat) = paste0("q_",colnames(qvalMat))
 
 outGene_sACC = cbind(outGene_sACC,cbind(pvalMat, qvalMat))
 head(outGene_sACC)
-sum(outGene_sACC$q_PrimaryDxControl < 0.05)
+sum(outGene_sACC$q_PrimaryDxMDD < 0.05)
 
 # 656
 print("Gene_sACC")
-sum(outGene_sACC$q_PrimaryDxControl < 0.05)
-# [1] 656
-sum(outGene_sACC$q_PrimaryDxControl < 0.01)
-# [1] 205
 
 sum(outGene_sACC$q_PrimaryDxBipolar < 0.05)
 # [1] 218
@@ -180,7 +170,7 @@ eBGene_Amyg = eBayes(fitGene_Amyg)
 #outGene_Amyg = topTable(eBGene_Amyg,coef=2:3,
 #	p.value = 1,number=nrow(rse_gene))
 
-outGene_Amyg = topTable(eBGene_Amyg,coef="PrimaryDxControl",
+outGene_Amyg = topTable(eBGene_Amyg,coef="PrimaryDxMDD",
 	p.value = 1,number=nrow(rse_gene))
 
 
@@ -190,10 +180,10 @@ outGene_Amyg_BD = topTable(eBGene_sACC,coef=("PrimaryDxBipolar"),
 
 sum(outGene_Amyg$adj.P.Val < 0.05)
 sum(outGene_Amyg_BD$adj.P.Val < 0.05)
-#6
+
 
 head(
-topTable(eBGene_Amyg,coef=("PrimaryDxControl"), p.value = 0.05, number=nrow(rse_gene))[, c("Symbol", "gene_type", "meanExprs","logFC", "t", "P.Value", "adj.P.Val")]
+topTable(eBGene_Amyg,coef=("PrimaryDxMDD"), p.value = 0.05, number=nrow(rse_gene))[, c("Symbol", "gene_type", "meanExprs","logFC", "t", "P.Value", "adj.P.Val")]
 , n = 30L)
 
 outGene_Amyg %>% filter(Symbol == "FUS")
