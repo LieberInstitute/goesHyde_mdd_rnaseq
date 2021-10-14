@@ -33,20 +33,24 @@ def load_data(plink_prefix_path, expression_bed, covariates_file, add_chr = Fals
     ## Fix chr names (maybe fix in plink?)
     if add_chr:
         print("Adding 'chr' to genotype positions")
-        variant_df.chrom = "chr" + variant_df.chrom
-        variant_df.replace("chr23", "chrX")
+        variant_df.chrom = [s.split(':')[0] for s in list(variant_df.index)]
 
     # Filter expression to chrom in snp data
-    my_chrom = set(variant_df.chrom)
-    chrom_filter = phenotype_pos_df.chr.isin(my_chrom)
-    print("Chromosomes present in geno: " + str(len(my_chrom)))
-
-    phenotype_df_filter = phenotype_df[chrom_filter]
-    phenotype_pos_df_filter = phenotype_pos_df[chrom_filter]
+    variant_chrom = set(variant_df.chrom)
+    express_chrom = set(phenotype_pos_df.chr)
     
-    print("filter to " + str(phenotype_df_filter.shape[0]) + "/" + str(phenotype_df.shape[0]) + " features")
+    if express_chrom - variant_chrom:
+        print("Excluding phenotypes from these chromosomes:")
+        print(express_chrom - variant_chrom)
     
-    return(genotype_df, variant_df, phenotype_df_filter, phenotype_pos_df_filter, covariates_df)
+        chrom_filter = phenotype_pos_df.chr.isin(variant_chrom)
+        print("Phenotypes with chr in variants: " )
+        print(chrom_filter.value_counts())
+    
+        phenotype_df = phenotype_df[chrom_filter]
+        phenotype_pos = phenotype_pos_df[chrom_filter]
+    
+    return(genotype_df, variant_df, phenotype_df, phenotype_pos_df, covariates_df)
     
 def get_input_paths(feature, region):
     plink_prefix_path = "../data/risk_snps/LIBD_maf01_gwas_BPD_" + region
