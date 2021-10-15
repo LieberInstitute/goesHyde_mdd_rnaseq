@@ -1,0 +1,133 @@
+Adding LIBD modules
+Loading git
+Loading LIBD module for git-status-size/github
+Loading LIBD module for git-lfs/2.8.0
+Loading LIBD module for rmate/1.5.9
+Loading LIBD module for ruby/2.6.4p104
+Loading conda_R/4.1
+**** Job starts ****
+Thu Oct 14 16:40:27 EDT 2021
+**** JHPCE info ****
+User: lhuuki
+Job id: 7272228
+Job name: tensorqtl_genomewide_nominal_argv
+Hostname: compute-095.cm.cluster
+Task id: 2
+
+Currently Loaded Modules:
+  1) matlab/R2019a     6) COMMUNITY_CENTOS7_DEFAULT_ENV  11) ruby/2.6.4p104
+  2) stata/17          7) JHPCE_CENTOS7_DEFAULT_ENV      12) rmate/1.5.9
+  3) JHPCE_tools/1.0   8) git-status-size/github         13) conda/3-4.6.14
+  4) sge/8.1.9         9) git/2.28.0                     14) conda_R/4.1
+  5) gcc/4.4.7        10) git-lfs/2.8.0
+
+ 
+
+Processing pair gene_sACC
+Warning: 'rfunc' cannot be imported. R and the 'rpy2' Python package are needed.
+PyTorch 1.9.0+cu102
+Pandas 1.3.3
+FEATURE = gene
+REGION = sACC
+Reading Expression files: ../data/expression_bed/gene_sACC.bed.gz
+Phenotype dimensions:
+(25212, 551)
+....................
+Reading Plink files: /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/genotype_data/mdd_bpd/maf01/mdd_bpd_maf01
+Mapping files:   0%|          | 0/3 [00:00<?, ?it/s]Mapping files:  33%|███▎      | 1/3 [00:19<00:39, 19.78s/it]Mapping files:  67%|██████▋   | 2/3 [00:21<00:09,  9.42s/it]Mapping files: 100%|██████████| 3/3 [00:28<00:00,  8.25s/it]Mapping files: 100%|██████████| 3/3 [00:28<00:00,  9.60s/it]
+/users/lhuuki/.local/lib/python3.9/site-packages/tensorqtl/core.py:52: UserWarning: torch.qr is deprecated in favor of torch.linalg.qr and will be removed in a future PyTorch release.
+The boolean parameter 'some' has been replaced with a string parameter 'mode'.
+Q, R = torch.qr(A, some)
+should be replaced with
+Q, R = torch.linalg.qr(A, 'reduced' if some else 'complete') (Triggered internally at  /pytorch/aten/src/ATen/native/BatchLinearAlgebra.cpp:1940.)
+  self.Q_t, _ = torch.qr(C_t - C_t.mean(0))
+Loading Genotypes...Genotype dimensions:(11031865, 616)
+Adding 'chr' to genotype positions
+Excluding phenotypes from these chromosomes:
+{'chrY', 'chrM'}
+Phenotypes with chr in variants: 
+True     25132
+False       80
+Name: chr, dtype: int64
+Saving output to: /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/eqtl/data/tensorQTL_out/cis_genomewide_nominal/gene_sACC
+cis-QTL mapping: nominal associations for all variant-phenotype pairs
+  * 551 samples
+  * 25132 phenotypes
+  * 41 covariates
+  * 11031865 variants
+  * checking phenotypes: 1000/25132  * checking phenotypes: 2000/25132  * checking phenotypes: 3000/25132  * checking phenotypes: 4000/25132  * checking phenotypes: 5000/25132  * checking phenotypes: 6000/25132  * checking phenotypes: 7000/25132  * checking phenotypes: 8000/25132  * checking phenotypes: 9000/25132  * checking phenotypes: 10000/25132  * checking phenotypes: 11000/25132  * checking phenotypes: 12000/25132  * checking phenotypes: 13000/25132  * checking phenotypes: 14000/25132  * checking phenotypes: 15000/25132  * checking phenotypes: 16000/25132  * checking phenotypes: 17000/25132  * checking phenotypes: 18000/25132  * checking phenotypes: 19000/25132  * checking phenotypes: 20000/25132  * checking phenotypes: 21000/25132  * checking phenotypes: 22000/25132  * checking phenotypes: 23000/25132  * checking phenotypes: 24000/25132  * checking phenotypes: 25000/25132  * checking phenotypes: 25132/25132
+    ** dropping 47 phenotypes without variants in cis-window
+  * Computing associations
+    Mapping chromosome chr1
+    time elapsed: 4.36 min
+    * writing output
+    Mapping chromosome chr2
+    time elapsed: 7.83 min
+    * writing output
+    Mapping chromosome chr3
+    time elapsed: 10.75 min
+    * writing output
+    Mapping chromosome chr4
+    time elapsed: 13.01 min
+    * writing output
+    Mapping chromosome chr5
+    time elapsed: 15.51 min
+    * writing output
+    Mapping chromosome chr6
+    time elapsed: 18.97 min
+    * writing output
+    Mapping chromosome chr7
+    time elapsed: 21.58 min
+    * writing output
+    Mapping chromosome chr8
+    time elapsed: 23.67 min
+    * writing output
+    Mapping chromosome chr9
+    time elapsed: 25.74 min
+    * writing output
+    Mapping chromosome chr10
+    time elapsed: 27.91 min
+    * writing output
+    Mapping chromosome chr11
+    time elapsed: 30.56 min
+    * writing output
+    Mapping chromosome chr12
+    time elapsed: 33.43 min
+    * writing output
+    Mapping chromosome chr13
+    time elapsed: 34.70 min
+    * writing output
+    Mapping chromosome chr14
+    time elapsed: 36.86 min
+    * writing output
+    Mapping chromosome chr15
+    time elapsed: 38.88 min
+    * writing output
+    Mapping chromosome chr16
+    time elapsed: 41.32 min
+    * writing output
+    Mapping chromosome chr17
+    time elapsed: 44.19 min
+    * writing output
+    Mapping chromosome chr18
+    time elapsed: 45.34 min
+    * writing output
+    Mapping chromosome chr19
+    time elapsed: 48.88 min
+    * writing output
+    Mapping chromosome chr20
+    time elapsed: 50.35 min
+    * writing output
+    Mapping chromosome chr21
+    time elapsed: 51.02 min
+    * writing output
+    Mapping chromosome chr22
+    time elapsed: 52.30 min
+    * writing output
+    Mapping chromosome chrX
+    time elapsed: 53.27 min
+    * writing output
+done.
+ DONE !
+**** Job ends ****
+Thu Oct 14 17:36:45 EDT 2021

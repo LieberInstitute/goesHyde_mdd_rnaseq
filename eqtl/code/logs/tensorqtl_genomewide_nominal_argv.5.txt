@@ -1,0 +1,79 @@
+Adding LIBD modules
+Loading git
+Loading LIBD module for git-status-size/github
+Loading LIBD module for git-lfs/2.8.0
+Loading LIBD module for rmate/1.5.9
+Loading LIBD module for ruby/2.6.4p104
+Loading conda_R/4.1
+**** Job starts ****
+Thu Oct 14 17:39:33 EDT 2021
+**** JHPCE info ****
+User: lhuuki
+Job id: 7272228
+Job name: tensorqtl_genomewide_nominal_argv
+Hostname: compute-099.cm.cluster
+Task id: 5
+
+Currently Loaded Modules:
+  1) matlab/R2019a     6) COMMUNITY_CENTOS7_DEFAULT_ENV  11) ruby/2.6.4p104
+  2) stata/17          7) JHPCE_CENTOS7_DEFAULT_ENV      12) rmate/1.5.9
+  3) JHPCE_tools/1.0   8) git-status-size/github         13) conda/3-4.6.14
+  4) sge/8.1.9         9) git/2.28.0                     14) conda_R/4.1
+  5) gcc/4.4.7        10) git-lfs/2.8.0
+
+ 
+
+Processing pair jxn_Amygdala
+Warning: 'rfunc' cannot be imported. R and the 'rpy2' Python package are needed.
+PyTorch 1.9.0+cu102
+Pandas 1.3.3
+FEATURE = jxn
+REGION = Amygdala
+Reading Expression files: ../data/expression_bed/jxn_Amygdala.bed.gz
+Phenotype dimensions:
+(305558, 540)
+....................
+Reading Plink files: /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/genotype_data/mdd_bpd/maf01/mdd_bpd_maf01
+Mapping files:   0%|          | 0/3 [00:00<?, ?it/s]Mapping files:  33%|███▎      | 1/3 [00:19<00:38, 19.02s/it]Mapping files:  67%|██████▋   | 2/3 [00:20<00:08,  8.80s/it]Mapping files: 100%|██████████| 3/3 [00:27<00:00,  7.99s/it]Mapping files: 100%|██████████| 3/3 [00:27<00:00,  9.23s/it]
+/users/lhuuki/.local/lib/python3.9/site-packages/tensorqtl/core.py:52: UserWarning: torch.qr is deprecated in favor of torch.linalg.qr and will be removed in a future PyTorch release.
+The boolean parameter 'some' has been replaced with a string parameter 'mode'.
+Q, R = torch.qr(A, some)
+should be replaced with
+Q, R = torch.linalg.qr(A, 'reduced' if some else 'complete') (Triggered internally at  /pytorch/aten/src/ATen/native/BatchLinearAlgebra.cpp:1940.)
+  self.Q_t, _ = torch.qr(C_t - C_t.mean(0))
+Loading Genotypes...Genotype dimensions:(11031865, 616)
+Adding 'chr' to genotype positions
+Excluding phenotypes from these chromosomes:
+{'chrM', 'chrY'}
+Phenotypes with chr in variants: 
+True     304125
+False      1433
+Name: chr, dtype: int64
+**** STARTING tensorQTL ****
+Saving output to: /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/eqtl/data/tensorQTL_out/cis_genomewide_nominal/jxn_Amygdala
+cis-QTL mapping: nominal associations for all variant-phenotype pairs
+  * 540 samples
+  * 304125 phenotypes
+  * 59 covariates
+  * 11031865 variants
+    ** dropping 1 constant phenotypes
+Traceback (most recent call last):
+  File "/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/eqtl/code/tensorqtl_genomewide_nominal_argv.py", line 25, in <module>
+    cis.map_nominal(genotype_df, variant_df, phenotype_df, phenotype_pos_df, prefix = tag, covariates_df= covariates_df,
+  File "/users/lhuuki/.local/lib/python3.9/site-packages/tensorqtl/cis.py", line 193, in map_nominal
+    igc = genotypeio.InputGeneratorCis(genotype_df, variant_df, phenotype_df, phenotype_pos_df, group_s=group_s, window=window)
+  File "/users/lhuuki/.local/lib/python3.9/site-packages/tensorqtl/genotypeio.py", line 365, in __init__
+    self.phenotype_pos_df = self.phenotype_pos_df.loc[~m]
+  File "/users/lhuuki/.local/lib/python3.9/site-packages/pandas/core/indexing.py", line 931, in __getitem__
+    return self._getitem_axis(maybe_callable, axis=axis)
+  File "/users/lhuuki/.local/lib/python3.9/site-packages/pandas/core/indexing.py", line 1144, in _getitem_axis
+    return self._getbool_axis(key, axis=axis)
+  File "/users/lhuuki/.local/lib/python3.9/site-packages/pandas/core/indexing.py", line 948, in _getbool_axis
+    key = check_bool_indexer(labels, key)
+  File "/users/lhuuki/.local/lib/python3.9/site-packages/pandas/core/indexing.py", line 2401, in check_bool_indexer
+    return check_array_indexer(index, result)
+  File "/users/lhuuki/.local/lib/python3.9/site-packages/pandas/core/indexers.py", line 561, in check_array_indexer
+    raise IndexError(
+IndexError: Boolean index has wrong length: 304125 instead of 305558
+**** Job ends ****
+Thu Oct 14 17:43:02 EDT 2021
