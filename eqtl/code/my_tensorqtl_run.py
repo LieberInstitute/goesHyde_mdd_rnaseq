@@ -53,10 +53,9 @@ def load_data(plink_prefix_path, expression_bed, covariates_file, add_chr = Fals
     return(genotype_df, variant_df, phenotype_df, phenotype_pos_df, covariates_df)
     
 def get_input_paths(feature, region):
-    plink_prefix_path = "../data/risk_snps/LIBD_maf01_gwas_BPD_" + region
     expression_bed = '../data/expression_bed/' + feature + '_' + region + '.bed.gz'
     covariates_file = '../data/covariates_txt/covariates_' + feature + '_' + region + '.txt'
-    return plink_prefix_path, expression_bed, covariates_file
+    return expression_bed, covariates_file
 
 
 
