@@ -1,0 +1,17 @@
+PLINK v1.90b6.6 64-bit (10 Oct 2018)
+Options in effect:
+  --make-bed
+  --out mdd_bpd_maf01
+  --vcf mdd_bpd_01.vcf.gz
+
+Hostname: compute-079.cm.cluster
+Working directory: /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/eqtl/data/risk_snps
+Start time: Fri Sep 17 14:23:34 2021
+
+Random number seed: 1631903014
+128890 MB RAM detected; reserving 64445 MB for main workspace.
+Allocated 48333 MB successfully, after larger attempt(s) failed.
+Error: Failed to open mdd_bpd_01.vcf.gz. (--vcf expects a complete filename;
+did you forget '.vcf' at the end?)
+
+End time: Fri Sep 17 14:23:34 2021

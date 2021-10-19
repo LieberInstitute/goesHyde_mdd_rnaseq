@@ -1,0 +1,43 @@
+Adding LIBD modules
+Loading git
+Loading LIBD module for git-status-size/github
+Loading LIBD module for git-lfs/2.8.0
+Loading LIBD module for rmate/1.5.9
+Loading LIBD module for ruby/2.6.4p104
+Loading conda_R/4.1
+**** Job starts ****
+Mon Oct 18 21:41:49 EDT 2021
+**** JHPCE info ****
+User: lhuuki
+Job id: 7293344
+Job name: tensorqtl_genomewide_nominal_argv
+Hostname: compute-098.cm.cluster
+Task id: 4
+
+Currently Loaded Modules:
+  1) matlab/R2019a     6) COMMUNITY_CENTOS7_DEFAULT_ENV  11) ruby/2.6.4p104
+  2) stata/17          7) JHPCE_CENTOS7_DEFAULT_ENV      12) rmate/1.5.9
+  3) JHPCE_tools/1.0   8) git-status-size/github         13) conda/3-4.6.14
+  4) sge/8.1.9         9) git/2.28.0                     14) conda_R/4.1
+  5) gcc/4.4.7        10) git-lfs/2.8.0
+
+ 
+
+Processing pair: jxn_sACC
+Warning: 'rfunc' cannot be imported. R and the 'rpy2' Python package are needed.
+PyTorch 1.9.0+cu102
+Pandas 1.3.3
+FEATURE = jxn
+REGION = sACC
+Reading Expression files: ../data/expression_bed/jxn_sACC.bed.gz
+Phenotype dimensions:
+(305558, 551)
+....................
+Reading Plink files: /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/genotype_data/mdd_bpd/maf01/mdd_bpd_maf01
+Mapping files:   0%|          | 0/3 [00:00<?, ?it/s]Mapping files:  33%|███▎      | 1/3 [08:20<16:40, 500.29s/it]Mapping files:  67%|██████▋   | 2/3 [09:06<03:53, 233.28s/it]Mapping files: 100%|██████████| 3/3 [10:20<00:00, 160.67s/it]Mapping files: 100%|██████████| 3/3 [10:20<00:00, 206.98s/it]
+/users/lhuuki/.local/lib/python3.9/site-packages/tensorqtl/core.py:52: UserWarning: torch.qr is deprecated in favor of torch.linalg.qr and will be removed in a future PyTorch release.
+The boolean parameter 'some' has been replaced with a string parameter 'mode'.
+Q, R = torch.qr(A, some)
+should be replaced with
+Q, R = torch.linalg.qr(A, 'reduced' if some else 'complete') (Triggered internally at  /pytorch/aten/src/ATen/native/BatchLinearAlgebra.cpp:1940.)
+  self.Q_t, _ = torch.qr(C_t - C_t.mean(0))
