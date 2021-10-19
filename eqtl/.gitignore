@@ -1,0 +1,5 @@
+data/risk_snps/LIBD_maf01_gwas_BPD*
+data/expression_bed/*
+data/signif_snps/*
+data/tensorQTL_out/*
+*.vcf.gz
