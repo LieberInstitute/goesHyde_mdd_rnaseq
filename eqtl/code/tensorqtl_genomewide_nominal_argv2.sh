@@ -1,7 +1,7 @@
 #!/bin/bash
 #$ -cwd
 #$ -l bluejay,mem_free=100G,h_vmem=100G,h_fsize=100G
-#$ -pe local 4
+#$ -pe local 1
 #$ -N tensorqtl_genomewide_nominal_argv
 #$ -o logs/tensorqtl_genomewide_nominal_argv2.$TASK_ID.txt
 #$ -e logs/tensorqtl_genomewide_nominal_argv2.$TASK_ID.txt
