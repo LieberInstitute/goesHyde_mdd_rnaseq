@@ -48,7 +48,7 @@ def load_data(plink_prefix_path, expression_bed, covariates_file, add_chr = Fals
         print(chrom_filter.value_counts())
     
         phenotype_df = phenotype_df[chrom_filter]
-        phenotype_pos = phenotype_pos_df[chrom_filter]
+        phenotype_pos_df = phenotype_pos_df[chrom_filter]
     
     return(genotype_df, variant_df, phenotype_df, phenotype_pos_df, covariates_df)
     
