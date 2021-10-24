@@ -41,9 +41,14 @@ table(rse_gene$PrimaryDx)
 rse_gene$Dx <- droplevels(rse_gene$PrimaryDx)
 cov_rse$Dx <- droplevels(cov_rse$PrimaryDx)
 
+rse_gene$Dx<-relevel(rse_gene$Dx, "Control")
+rse_gene$Dx <- relevel(rse_gene$Dx, "Control")
+
 table(rse_gene$Dx)
-# MDD Control
-# 463     387
+
+#Control     MDD 
+#    387     459 
+
 
 ## add ancestry
 #no need -- already in new rse_object
