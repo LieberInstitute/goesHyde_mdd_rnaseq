@@ -10,13 +10,11 @@ library(devtools)
 library(edgeR)
 library(sessioninfo)
 library(here)
-library(dplyr)
+library(tidyverse)
 
 ##### Load rse data, examine ####
 #to see more column
 options("width"=200)
-rm(list=ls())
-ls()
 
 #load objects
 load(here('exprs_cutoff','rse_gene.Rdata'), verbose=TRUE)
@@ -55,47 +53,58 @@ summary(pd$AgeDeath)
 # Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
 # 17.37   34.62   47.21   46.58   55.86   95.27 
 
+#### Split By Dx  & Region ####
+dx_index <- splitit(pd$PrimaryDx)
+## Combine MDD + Control & BPD + Control
+dx_index_combo = list(MDD = c(dx_index$MDD, dx_index$Control),
+                      BPD = c(dx_index$Bipolar, dx_index$Control))
 
-### added 10_12_21
+rse_gene_split <- map(list(amyg = "Amygdala", sacc = "sACC"), function(region){
+  rse_r <- rse_gene[,rse_gene$BrainRegion == region]
+  rse_d <- map(list(MDD = "MDD", BPD = "Bipolar"), function(dx){
+    rse_r <- rse_r[,rse_r$PrimaryDx == dx | rse_r$PrimaryDx == "Control"]
+    ## fix levels
+    rse_r$PrimaryDx <- droplevels(rse_r$PrimaryDx)
+    rse_r$PrimaryDx <- relevel(rse_r$PrimaryDx, "Control")
+    return(rse_r)
+    })
+  return(rse_d)
+})
 
+map(rse_gene_split, ~map_int(.x, ncol))
+# $amyg
+# MDD BPD 
+# 418 309 
+# 
+# $sacc
+# MDD BPD 
+# 428 323 
 
-index <- rse_gene$PrimaryDx %in% c("Control", "MDD")
-rse_gene <- rse_gene[, index]
-dim(rse_gene)
-
+# qSV_mat
 load(here("differential_expression","data","qSV_mat.Rdata"), verbose = TRUE)
 
-qSV_mat <- qSV_mat[index, ] 
-rse_gene$PrimaryDx <- droplevels(rse_gene$PrimaryDx)
-table(rse_gene$PrimaryDx)
+# # model w/o interaction to subset by region
+# modSep = model.matrix(~PrimaryDx + AgeDeath + Sex  + 
+#                         snpPC1 + snpPC2 + snpPC3 + snpPC4 + snpPC5 +
+#                         mitoRate + rRNA_rate +totalAssignedGene + RIN + ERCCsumLogErr, 
+#                       data=colData(rse_gene))
 
-rse_gene$PrimaryDx <- relevel(rse_gene$PrimaryDx, "Control")
+modSep <- map(rse_gene_split, function(rse_region){
+  map(rse_region, function(rse_dx){
+    qSV_split <- qSV_mat[colnames(rse_dx),]
+    mod <- model.matrix(~PrimaryDx + AgeDeath + Sex  + 
+                    snpPC1 + snpPC2 + snpPC3 + snpPC4 + snpPC5 +
+                    mitoRate + rRNA_rate +totalAssignedGene + RIN + ERCCsumLogErr, 
+                  data=colData(rse_dx))
+    mod <- cbind(mod, qSV_split)
+    return(mod)
+  })
+})
 
-
-table(modSep[,2])
-
-# model w/o interaction to subset by region
-modSep = model.matrix(~PrimaryDx + AgeDeath + Sex  + 
-                        snpPC1 + snpPC2 + snpPC3 + snpPC4 + snpPC5 +
-                        mitoRate + rRNA_rate +totalAssignedGene + RIN + ERCCsumLogErr, 
-                      data=colData(rse_gene))
-
-colnames(modSep)
-# [1] "(Intercept)"       "PrimaryDxControl"  "PrimaryDxBipolar"  "AgeDeath"          "SexM"             
-# [6] "snpPC1"            "snpPC2"            "snpPC3"            "snpPC4"            "snpPC5"           
-# [11] "mitoRate"          "rRNA_rate"         "totalAssignedGene" "RIN"               "ERCCsumLogErr" 
-
-#### split back by region ####
-## both
-sACC_Index = which(colData(rse_gene)$BrainRegion == "sACC")
-mod_sACC = cbind(modSep[sACC_Index,], qSV_mat[sACC_Index, ])
-dim(mod_sACC)
-Amyg_Index = which(colData(rse_gene)$BrainRegion == "Amygdala")
-mod_Amyg = cbind(modSep[Amyg_Index,], qSV_mat[Amyg_Index, ])
-dim(mod_Amyg)
+map(modSep, ~map(.x, head))
 
 ## Save Models
-save(modSep, mod_Amyg, mod_sACC, file = here("differential_expression","data","differental_models.Rdata"))
+save(modSep, file = here("differential_expression","data","differental_models.Rdata"))
 
 #### Gene ####
 ## sACC
