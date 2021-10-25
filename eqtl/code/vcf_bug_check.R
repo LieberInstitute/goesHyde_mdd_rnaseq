@@ -49,6 +49,8 @@ writeVcf(risk_vcf_good ,here("eqtl","data","risk_snps","LIBD_maf01_gwas_BPD.vcf"
 
 ## table has GRCh38 annotations get SNPids to subset
 mdd_snps <- read.delim(here("eqtl", "data", "risk_snps", "PGC_depression_genome-wide_significant_makers.txt"))
+dim(mdd_snps)
+# [1] 4625    9
 head(mdd_snps)
 # chr       bp markername a1 a2   freq   logor stderrlogor         p
 # 1   1 17795514  rs4141983  T  C 0.6740  0.0264      0.0046 9.692e-09
@@ -63,4 +65,17 @@ mdd_snps <- mdd_snps %>%
 
 cat(mdd_snps$snpID, file = here("eqtl", "data", "risk_snps","MDD_risk_snps.txt"), sep = "\n")
 
+## not all SNPs present
+risk_vcf <- readVcf(here("eqtl","data","risk_snps","LIBD_maf01_gwas_MDD.vcf.gz"))
+dim(risk_vcf)
+# [1] 2152  616
+nrow(risk_vcf)/nrow(mdd_snps)
+# [1] 0.4652973
+table(mdd_snps$snpID %in% rownames(risk_vcf))
+# FALSE  TRUE 
+# 2473  2152 
 
+## But No Unexpected SNPs
+table(rownames(risk_vcf) %in% mdd_snps$snpID)
+# TRUE 
+# 2152
