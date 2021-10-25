@@ -32,8 +32,8 @@ rownames(snp) <- rownames(snpMap) <- snpMap$SNP
 ## filter snps w/ no HG38 pos
 has_pos <- !is.na(snpMap$pos_hg38)
 table(has_pos)
-# FALSE    TRUE 
-# 92045 8800015 
+# FALSE    TRUE
+# 92045 8800015
 
 snpMap <- snpMap[has_pos, ]
 snp <- snp[has_pos, ]
@@ -55,7 +55,7 @@ snp <- snp[, pd$BrNum]
 # rownames(mds) <- colnames(snp) <- pd$RNum
 # snpMap$maf <- rowSums(snp, na.rm = TRUE) / (2 * rowSums(!is.na(snp)))
 # summary(snpMap$maf)
-# Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+# Min.  1st Qu.   Median     Mean  3rd Qu.     Max.
 # 0.005556 0.037963 0.124074 0.171798 0.288889 0.515741
 
 ######################
@@ -89,7 +89,7 @@ geneRpkm <- recount::getRPKM(rse_gene, "Length")
 #### Load PCA ####
 message(Sys.time(), " Load PCA")
 
-load(here("eqtl", "data", "featuresPCs","genePCsAmygdala.rda"), verbose = TRUE)
+load(here("eqtl", "data", "featuresPCs", "genePCsAmygdala.rda"), verbose = TRUE)
 covsGene <- SlicedData$new(t(cbind(mod[, -1], PCs)))
 
 
@@ -125,7 +125,7 @@ message(Sys.time(), " Annotate and Save")
 # extract
 geneEqtl <- meGene$cis$eqtls
 
-## add gene annotation info 
+## add gene annotation info
 geneEqtl$Symbol <- rowRanges(rse_gene)$Symbol[match(geneEqtl$gene, rownames(rse_gene))]
 geneEqtl$EnsemblGeneID <- rowRanges(rse_gene)$ensemblID[match(geneEqtl$gene, rownames(rse_gene))]
 geneEqtl$Type <- "Gene"
@@ -133,8 +133,7 @@ geneEqtl$Class <- "InGen" # in gencode
 geneEqtl <- DataFrame(geneEqtl)
 # geneEqtl$gene_type = rowRanges(rse_gene)$gene_type[match(geneEqtl$gene, rownames(rse_gene))]
 
-save(geneEqtl, file = here("eqtl", "data", "matrixEQTL_out", "matrixEqtl_output_amyg_genomewide_gene_annotate.rda")
-)
+save(geneEqtl, file = here("eqtl", "data", "matrixEQTL_out", "matrixEqtl_output_amyg_genomewide_gene_annotate.rda"))
 # sgejobs::job_single("matrixEQTL_genomewide", memory = "150G",create_shell = TRUE, command = "Rscript matrixEQTL_genomewide.R")
 
 ## Reproducibility information
