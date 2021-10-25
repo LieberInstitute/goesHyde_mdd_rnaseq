@@ -1,6 +1,6 @@
 #!/bin/bash
 #$ -cwd
-#$ -l bluejay,mem_free=10G,h_vmem=10G,h_fsize=100G
+#$ -l bluejay,mem_free=50G,h_vmem=50G,h_fsize=100G
 #$ -N tensorqtl_risk_interaction
 #$ -o logs/tensorqtl_risk_interaction_MDD.txt
 #$ -e logs/tensorqtl_risk_interaction_MDD.txt

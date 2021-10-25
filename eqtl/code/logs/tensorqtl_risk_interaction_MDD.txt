@@ -1,0 +1,91 @@
+Adding LIBD modules
+Loading git
+Loading LIBD module for git-status-size/github
+Loading LIBD module for git-lfs/2.8.0
+Loading LIBD module for rmate/1.5.9
+Loading LIBD module for ruby/2.6.4p104
+Loading conda_R/4.1
+**** Job starts ****
+Mon Oct 25 12:59:43 EDT 2021
+**** JHPCE info ****
+User: lhuuki
+Job id: 7381312
+Job name: tensorqtl_risk_interaction
+Hostname: compute-094.cm.cluster
+Task id: undefined
+
+Currently Loaded Modules:
+  1) matlab/R2019a     6) COMMUNITY_CENTOS7_DEFAULT_ENV  11) ruby/2.6.4p104
+  2) stata/17          7) JHPCE_CENTOS7_DEFAULT_ENV      12) rmate/1.5.9
+  3) JHPCE_tools/1.0   8) git-status-size/github         13) conda/3-4.6.14
+  4) sge/8.1.9         9) git/2.28.0                     14) conda_R/4.1
+  5) gcc/4.4.7        10) git-lfs/2.8.0
+
+ 
+
+Warning: 'rfunc' cannot be imported. R and the 'rpy2' Python package are needed.
+PyTorch 1.9.0+cu102
+Pandas 1.3.3
+Reading Expression files: ../data/expression_bed/gene_sACC.bed.gz
+Phenotype dimensions:
+(25212, 551)
+....................
+Reading Plink files: ../data/risk_snps/LIBD_maf01_gwas_MDD
+Mapping files:   0%|          | 0/3 [00:00<?, ?it/s]Mapping files: 100%|██████████| 3/3 [00:00<00:00, 20.24it/s]Mapping files: 100%|██████████| 3/3 [00:00<00:00, 20.00it/s]
+/users/lhuuki/.local/lib/python3.9/site-packages/tensorqtl/core.py:52: UserWarning: torch.qr is deprecated in favor of torch.linalg.qr and will be removed in a future PyTorch release.
+The boolean parameter 'some' has been replaced with a string parameter 'mode'.
+Q, R = torch.qr(A, some)
+should be replaced with
+Q, R = torch.linalg.qr(A, 'reduced' if some else 'complete') (Triggered internally at  /pytorch/aten/src/ATen/native/BatchLinearAlgebra.cpp:1940.)
+  self.Q_t, _ = torch.qr(C_t - C_t.mean(0))
+Loading Genotypes...Genotype dimensions:(2152, 616)
+Adding 'chr' to genotype positions
+Excluding phenotypes from these chromosomes:
+{'chrY', 'chr17', 'chrM', 'chr4', 'chr22', 'chr19', 'chr21', 'chrX', 'chr8'}
+Phenotypes with chr in variants: 
+True     18571
+False     6641
+Name: chr, dtype: int64
+gene_sACC_Astro
+cis-QTL mapping: nominal associations for all variant-phenotype pairs
+  * 551 samples
+  * 18571 phenotypes
+  * 41 covariates
+  * 2152 variants
+  * including interaction term
+  * checking phenotypes: 1000/18571  * checking phenotypes: 2000/18571  * checking phenotypes: 3000/18571  * checking phenotypes: 4000/18571  * checking phenotypes: 5000/18571  * checking phenotypes: 6000/18571  * checking phenotypes: 7000/18571  * checking phenotypes: 8000/18571  * checking phenotypes: 9000/18571  * checking phenotypes: 10000/18571  * checking phenotypes: 11000/18571  * checking phenotypes: 12000/18571  * checking phenotypes: 13000/18571  * checking phenotypes: 14000/18571  * checking phenotypes: 15000/18571  * checking phenotypes: 16000/18571  * checking phenotypes: 17000/18571  * checking phenotypes: 18000/18571  * checking phenotypes: 18571/18571
+    ** dropping 17965 phenotypes without variants in cis-window
+  * Computing associations
+    Mapping chromosome chr1
+    processing phenotype 1/606    processing phenotype 2/606    processing phenotype 3/606    processing phenotype 4/606    processing phenotype 5/606    processing phenotype 6/606    processing phenotype 7/606    processing phenotype 8/606/users/lhuuki/.local/lib/python3.9/site-packages/tensorqtl/eigenmt.py:107: UserWarning: torch.symeig is deprecated in favor of torch.linalg.eigh and will be removed in a future PyTorch release.
+The default behavior has changed from using the upper triangular portion of the matrix by default to using the lower triangular portion.
+L, _ = torch.symeig(A, upper=upper)
+should be replaced with
+L = torch.linalg.eigvalsh(A, UPLO='U' if upper else 'L')
+and
+L, V = torch.symeig(A, eigenvectors=True)
+should be replaced with
+L, V = torch.linalg.eigh(A, UPLO='U' if upper else 'L') (Triggered internally at  /pytorch/aten/src/ATen/native/BatchLinearAlgebra.cpp:2500.)
+  eigenvalues0_t,_ = torch.symeig(shrunk_cor0_t, eigenvectors=False)
+    processing phenotype 9/606    processing phenotype 10/606    processing phenotype 11/606    processing phenotype 12/606    processing phenotype 13/606    processing phenotype 14/606    processing phenotype 15/606    processing phenotype 16/606    processing phenotype 17/606    processing phenotype 18/606    processing phenotype 19/606    processing phenotype 20/606    processing phenotype 21/606    processing phenotype 22/606    processing phenotype 23/606    processing phenotype 24/606    processing phenotype 25/606    processing phenotype 26/606    processing phenotype 27/606    processing phenotype 28/606    processing phenotype 29/606    processing phenotype 30/606    processing phenotype 31/606    processing phenotype 32/606    processing phenotype 33/606    processing phenotype 34/606    processing phenotype 35/606    processing phenotype 36/606    processing phenotype 37/606    processing phenotype 38/606    processing phenotype 39/606    processing phenotype 40/606    processing phenotype 41/606    processing phenotype 42/606    processing phenotype 43/606    processing phenotype 44/606    processing phenotype 45/606    processing phenotype 46/606    processing phenotype 47/606    processing phenotype 48/606    processing phenotype 49/606    processing phenotype 50/606    processing phenotype 51/606    processing phenotype 52/606    time elapsed: 0.01 min
+    * writing output
+    Mapping chromosome chr2
+    processing phenotype 53/606    processing phenotype 54/606    processing phenotype 55/606    processing phenotype 56/606    processing phenotype 57/606    processing phenotype 58/606    processing phenotype 59/606    processing phenotype 60/606    processing phenotype 61/606    processing phenotype 62/606    processing phenotype 63/606    processing phenotype 64/606    processing phenotype 65/606    time elapsed: 0.01 min
+    * writing output
+    Mapping chromosome chr3
+    processing phenotype 66/606    processing phenotype 67/606    processing phenotype 68/606    processing phenotype 69/606    processing phenotype 70/606    processing phenotype 71/606    processing phenotype 72/606    processing phenotype 73/606    processing phenotype 74/606    processing phenotype 75/606    processing phenotype 76/606    processing phenotype 77/606    processing phenotype 78/606    processing phenotype 79/606    processing phenotype 80/606    processing phenotype 81/606    processing phenotype 82/606    processing phenotype 83/606    processing phenotype 84/606    processing phenotype 85/606    processing phenotype 86/606    processing phenotype 87/606    processing phenotype 88/606    processing phenotype 89/606    processing phenotype 90/606    processing phenotype 91/606    processing phenotype 92/606    processing phenotype 93/606    processing phenotype 94/606    processing phenotype 95/606    processing phenotype 96/606    processing phenotype 97/606    processing phenotype 98/606    processing phenotype 99/606    processing phenotype 100/606    processing phenotype 101/606    processing phenotype 102/606    processing phenotype 103/606    processing phenotype 104/606    processing phenotype 105/606    processing phenotype 106/606    processing phenotype 107/606    processing phenotype 108/606    processing phenotype 109/606    processing phenotype 110/606    processing phenotype 111/606    processing phenotype 112/606    processing phenotype 113/606    processing phenotype 114/606    processing phenotype 115/606    processing phenotype 116/606    processing phenotype 117/606    processing phenotype 118/606    processing phenotype 119/606    processing phenotype 120/606    processing phenotype 121/606    processing phenotype 122/606    processing phenotype 123/606    processing phenotype 124/606    processing phenotype 125/606    processing phenotype 126/606    processing phenotype 127/606    processing phenotype 128/606    processing phenotype 129/606    processing phenotype 130/606    processing phenotype 131/606    processing phenotype 132/606    processing phenotype 133/606    processing phenotype 134/606    processing phenotype 135/606    processing phenotype 136/606    processing phenotype 137/606    processing phenotype 138/606    processing phenotype 139/606    processing phenotype 140/606    processing phenotype 141/606    time elapsed: 0.01 min
+    * writing output
+    Mapping chromosome chr5
+    processing phenotype 142/606    processing phenotype 143/606    processing phenotype 144/606    processing phenotype 145/606    processing phenotype 146/606    processing phenotype 147/606    processing phenotype 148/606    processing phenotype 149/606    processing phenotype 150/606    processing phenotype 151/606    processing phenotype 152/606    processing phenotype 153/606    processing phenotype 154/606    processing phenotype 155/606    time elapsed: 0.01 min
+    * writing output
+    Mapping chromosome chr6
+    processing phenotype 156/606    processing phenotype 157/606    processing phenotype 158/606    processing phenotype 159/606    processing phenotype 160/606    processing phenotype 161/606    processing phenotype 162/606    processing phenotype 163/606    processing phenotype 164/606    processing phenotype 165/606    processing phenotype 166/606Traceback (most recent call last):
+  File "/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/eqtl/code/tensorqtl_risk_interaction_MDD.py", line 22, in <module>
+    nominal_out = cis.map_nominal(genotype_df, variant_df, phenotype_df, phenotype_pos_df,
+  File "/users/lhuuki/.local/lib/python3.9/site-packages/tensorqtl/cis.py", line 278, in map_nominal
+    top_s['tests_emt'] = eigenmt.compute_tests(genotypes_t, var_thresh=0.99, variant_window=200)
+  File "/users/lhuuki/.local/lib/python3.9/site-packages/tensorqtl/eigenmt.py", line 107, in compute_tests
+    eigenvalues0_t,_ = torch.symeig(shrunk_cor0_t, eigenvectors=False)
+RuntimeError: symeig_cpu: the algorithm failed to converge; 72 off-diagonal elements of an intermediate tridiagonal form did not converge to zero.
+**** Job ends ****
+Mon Oct 25 13:00:02 EDT 2021
