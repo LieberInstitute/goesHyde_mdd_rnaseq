@@ -2,7 +2,6 @@ import my_tensorqtl_run
 from tensorqtl import cis
 import sys
 import pandas as pd
-from glob import glob
 
 pair = sys.argv[1].split("_")
 feature = pair[0]
@@ -11,7 +10,7 @@ region = pair[1]
 print("FEATURE = " + feature)
 print("REGION = " + region)
 
-plink, expres, covar = my_tensorqtl_run.get_input_paths(feature, region)
+expres, covar = my_tensorqtl_run.get_input_paths(feature, region)
 
 prefix = '/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/eqtl/data/tensorQTL_out/cis_genomewide_nominal'
 plink = "/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/genotype_data/mdd_bpd/maf01/mdd_bpd_maf01"
