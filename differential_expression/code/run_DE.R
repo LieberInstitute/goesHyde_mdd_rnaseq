@@ -1,25 +1,36 @@
 
-run_DE <- function(rse, model, run_voom = TRUE, save_eBayes = FALSE, coef = c("PrimaryDxControl","PrimaryDxBipolar")){
+run_DE <- function(rse, model, run_voom = TRUE, save_eBayes = FALSE, coef){
   
   ## limma
   eBayes_out = get_eBayes(rse = rse, model = model, run_voom = run_voom)
   
   #### because of more than 1 component, computing F statistics instead of t=-statistics
   # message("Calc top tables - coefficents:", paste(coef, collpase = " "))
-  message("coef in eBayes: ", all(coef %in% colnames(eBayes_out$coefficients)))
+  if(all(is.character(coef))){
+    message("Character coef in eBayes: ", all(coef %in% colnames(eBayes_out$coefficients)))
+  }else{
+    message("Index coef: ", colnames(eBayes_out$design)[[coef]])
+    coef <- colnames(eBayes_out$design)[[coef]]
+  }
   
-  topTable_out = topTable(eBayes_out, coef=coef,
-                          p.value = 1, number=nrow(rse), sort.by = "none")
-
-  ## significance levels EXTRACT INDIVIDUAL COMPARISON P-VALUES THAT ARE NOT IN TOP TABLE
-  pvalMat = as.matrix(eBayes_out$p.value)[,coef]
+  topTable_out = topTable(eBayes_out, coef=coef, number=Inf , sort.by = "none")
   
-  qvalMat = pvalMat
-  qvalMat[,1:2] = p.adjust(pvalMat[,1:2],method="fdr")
-  colnames(pvalMat) = paste0("P_",colnames(pvalMat))
-  colnames(qvalMat) = paste0("q_",colnames(qvalMat))
-  
-  topTable_out = cbind(topTable_out,cbind(pvalMat, qvalMat))
+  if(length(coef == 1)){
+    message("1 coef, Return t-stats")
+    topTable_out[,paste0("q_", coef)] <- p.adjust(topTable_out$P.Value, 'fdr')
+    
+  } else {
+    message("Multiple coef, Return F-stat")
+    ## significance levels EXTRACT INDIVIDUAL COMPARISON P-VALUES THAT ARE NOT IN TOP TABLE
+    pvalMat = as.matrix(eBayes_out$p.value)[,coef]
+    qvalMat = pvalMat
+    qvalMat[,1:2] = p.adjust(pvalMat[,1:2],method="fdr")
+    colnames(pvalMat) = paste0("P_",colnames(pvalMat))
+    colnames(qvalMat) = paste0("q_",colnames(qvalMat))
+    
+    topTable_out = cbind(topTable_out,cbind(pvalMat, qvalMat))
+    
+  }
   
   ## print summary
   n_pVal <- report_top_pVal(topTable_out = topTable_out, cols = paste0("q_", coef))
@@ -61,7 +72,7 @@ get_eBayes <- function(rse, model, run_voom = TRUE){
 
 report_top_pVal <- function(topTable_out, cols){
   
-  tt_values <- topTable_out[,cols]
+  tt_values <- topTable_out[,cols, drop = FALSE]
   cutoffs <- list(0.05, 0.01)
   names(cutoffs) <- paste("< ", cutoffs)
   n_sig <- map(cutoffs, ~colSums(tt_values < .x))

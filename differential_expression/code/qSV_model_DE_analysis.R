@@ -54,22 +54,23 @@ summary(pd$AgeDeath)
 # 17.37   34.62   47.21   46.58   55.86   95.27 
 
 #### Split By Dx  & Region ####
-dx_index <- splitit(pd$PrimaryDx)
-## Combine MDD + Control & BPD + Control
-dx_index_combo = list(MDD = c(dx_index$MDD, dx_index$Control),
-                      BPD = c(dx_index$Bipolar, dx_index$Control))
 
-rse_gene_split <- map(list(amyg = "Amygdala", sacc = "sACC"), function(region){
-  rse_r <- rse_gene[,rse_gene$BrainRegion == region]
-  rse_d <- map(list(MDD = "MDD", BPD = "Bipolar"), function(dx){
-    rse_r <- rse_r[,rse_r$PrimaryDx == dx | rse_r$PrimaryDx == "Control"]
-    ## fix levels
-    rse_r$PrimaryDx <- droplevels(rse_r$PrimaryDx)
-    rse_r$PrimaryDx <- relevel(rse_r$PrimaryDx, "Control")
-    return(rse_r)
+split_samples <- function(rse){
+  rse_split <- map(list(amyg = "Amygdala", sacc = "sACC"), function(region){
+    rse_r <- rse[,rse$BrainRegion == region]
+    rse_d <- map(list(MDD = "MDD", BPD = "Bipolar"), function(dx){
+      rse_r <- rse_r[,rse_r$PrimaryDx == dx | rse_r$PrimaryDx == "Control"]
+      ## fix levels
+      rse_r$PrimaryDx <- droplevels(rse_r$PrimaryDx)
+      rse_r$PrimaryDx <- relevel(rse_r$PrimaryDx, "Control")
+      return(rse_r)
     })
-  return(rse_d)
-})
+    return(rse_d)
+  })
+  return(rse_split)
+}
+
+rse_gene_split <- split_samples(rse_gene)
 
 map(rse_gene_split, ~map_int(.x, ncol))
 # $amyg
@@ -80,14 +81,13 @@ map(rse_gene_split, ~map_int(.x, ncol))
 # MDD BPD 
 # 428 323 
 
+rse_exon_split <- split_samples(rse_exon)
+rse_jxn_split <- split_samples(rse_jxn)
+rse_tx_split <- split_samples(rse_tx)
+
+#### Define Models ####
 # qSV_mat
 load(here("differential_expression","data","qSV_mat.Rdata"), verbose = TRUE)
-
-# # model w/o interaction to subset by region
-# modSep = model.matrix(~PrimaryDx + AgeDeath + Sex  + 
-#                         snpPC1 + snpPC2 + snpPC3 + snpPC4 + snpPC5 +
-#                         mitoRate + rRNA_rate +totalAssignedGene + RIN + ERCCsumLogErr, 
-#                       data=colData(rse_gene))
 
 modSep <- map(rse_gene_split, function(rse_region){
   map(rse_region, function(rse_dx){
@@ -103,383 +103,47 @@ modSep <- map(rse_gene_split, function(rse_region){
 
 map(modSep, ~map(.x, head))
 
+## Add cell fractions to model
+modSep_cf <- map2(rse_gene_split, modSep, function(rse_region, mod_region){
+  map2(rse_region, mod_region, ~cbind(.y, colData(.x)[,c("Astro", "Endo", "Macro", "Micro", "Mural", "Oligo", "OPC", "Tcell", "Excit")]))
+})
+
+map(modSep_cf, ~map(.x, head))
+
 ## Save Models
-save(modSep, file = here("differential_expression","data","differental_models.Rdata"))
-
-#### Gene ####
-## sACC
-dge_sACC = DGEList(counts = assays(rse_gene[,sACC_Index])$counts,
-	genes = rowData(rse_gene))
-dge_sACC = calcNormFactors(dge_sACC)
-### borrows information for
-vGene_sACC = voom(dge_sACC,mod_sACC, plot=FALSE)
-
-### limma commad
-fitGene_sACC = lmFit(vGene_sACC)
-eBGene_sACC = eBayes(fitGene_sACC)
-#### need to know  what went into model (modssep) -- case-control and  BP control
-#### because of more than 1 component, computing F statistics instead of t=-statistics
-
-colnames(eBGene_sACC$coefficient)
-
-outGene_sACC = topTable(eBGene_sACC,coef=("PrimaryDxMDD"),
-	p.value = 1, number=nrow(rse_gene))
-
-colnames(outGene_sACC)
-
-sum(outGene_sACC$adj.P.Val < 0.05)
-#237
-
-head(
-topTable(eBGene_sACC,coef=("PrimaryDxMDD"), p.value = 0.05, number=nrow(rse_gene))[, c("Symbol", "gene_type", "meanExprs","logFC", "t", "P.Value", "adj.P.Val")]
-, n = 30L)
-outGene_sACC %>% filter(Symbol == "DUSP6")
-
-#### reorderoing based on genes in rse_gene
-outGene_sACC = outGene_sACC[rownames(rse_gene),]
-
-## significance levels EXTRACT INDIVIDUAL COMPARISON P-VALUES THAT ARE NOT IN TOP TABLE
-#col 2 and 3 are PrimaryDxControl PrimaryDxBipolar
-pvalMat = as.matrix(eBGene_sACC$p.value)[,2:3]
-
-### check top p-values
-
-head(pvalMat[order(pvalMat[,"ç"]), ])
-
-qvalMat = pvalMat
-qvalMat[,1:2] = p.adjust(pvalMat[,1:2],method="fdr")
-colnames(pvalMat) = paste0("P_",colnames(pvalMat))
-colnames(qvalMat) = paste0("q_",colnames(qvalMat))
-
-outGene_sACC = cbind(outGene_sACC,cbind(pvalMat, qvalMat))
-head(outGene_sACC)
-sum(outGene_sACC$q_PrimaryDxMDD < 0.05)
-
-# 656
-print("Gene_sACC")
-
-sum(outGene_sACC$q_PrimaryDxBipolar < 0.05)
-# [1] 218
-sum(outGene_sACC$q_PrimaryDxBipolar < 0.01)
-# [1] 55
-
-write.csv(outGene_sACC, file = "outGene_sACC_101221.csv")
-write.csv(outGene_sACC_BD, file = "outGene_sACC_BD_101221.csv")
-
-
-##### Amygdala ######
-dge_Amyg = DGEList(counts = assays(rse_gene[,Amyg_Index])$counts,
-	genes = rowData(rse_gene))
-dge_Amyg = calcNormFactors(dge_Amyg)
-vGene_Amyg = voom(dge_Amyg,mod_Amyg, plot=FALSE)
-
-fitGene_Amyg = lmFit(vGene_Amyg)
-eBGene_Amyg = eBayes(fitGene_Amyg)
-
-#outGene_Amyg = topTable(eBGene_Amyg,coef=2:3,
-#	p.value = 1,number=nrow(rse_gene))
-
-outGene_Amyg = topTable(eBGene_Amyg,coef="PrimaryDxMDD",
-	p.value = 1,number=nrow(rse_gene))
-
-
-outGene_Amyg_BD = topTable(eBGene_sACC,coef=("PrimaryDxBipolar"),
-	p.value = 1, number=nrow(rse_gene))
-
-
-sum(outGene_Amyg$adj.P.Val < 0.05)
-sum(outGene_Amyg_BD$adj.P.Val < 0.05)
-
-
-head(
-topTable(eBGene_Amyg,coef=("PrimaryDxMDD"), p.value = 0.05, number=nrow(rse_gene))[, c("Symbol", "gene_type", "meanExprs","logFC", "t", "P.Value", "adj.P.Val")]
-, n = 30L)
-
-outGene_Amyg %>% filter(Symbol == "FUS")
-outGene_sACC %>% filter(Symbol == "FUS")
-
-
-outGene_Amyg = outGene_Amyg[rownames(rse_gene),]
-
-## significance levels
-pvalMat = as.matrix(eBGene_Amyg$p.value)[,2:3]
-qvalMat = pvalMat
-qvalMat[,1:2] = p.adjust(pvalMat[,1:2],method="fdr")
-colnames(pvalMat) = paste0("P_",colnames(pvalMat))
-colnames(qvalMat) = paste0("q_",colnames(qvalMat))
-
-outGene_Amyg = cbind(outGene_Amyg,cbind(pvalMat, qvalMat))
-sum(outGene_Amyg$q_PrimaryDxControl < 0.05)
-# 94
-print("Gene_Amyg")
-sum(outGene_Amyg$q_PrimaryDxControl < 0.05)
-# [1] 94
-sum(outGene_Amyg$q_PrimaryDxControl < 0.01)
-# [1] 31
-
-sum(outGene_Amyg$q_PrimaryDxBipolar < 0.05)
-# [1] 103
-sum(outGene_Amyg$q_PrimaryDxBipolar < 0.01)
-# [1] 53
-
-
-write.csv(outGene_Amyg, file = "outGene_amyg_101221.csv")
-write.csv(outGene_Amyg_BD, file = "outGene_amyg_BD_101221.csv")
-
-
-
-
-save(eBGene_Amyg, outGene_Amyg, eBGene_sACC, outGene_sACC, file= here("differential_expression","data","qSVA_MDD_gene_DEresults_083121.rda"))
-
-load(here("differential_expression","data","qSVA_MDD_gene_DEresults.rda"), verbose = TRUE)
-
-
-#### Exon ####
-## sACC 
-dge_sACC = DGEList(counts = assays(rse_exon[,sACC_Index])$counts,
-	genes = rowData(rse_exon))
-dge_sACC = calcNormFactors(dge_sACC)
-vGene_sACC = voom(dge_sACC,mod_sACC, plot=FALSE)
-
-fitGene_sACC = lmFit(vGene_sACC)
-eBGene_sACC = eBayes(fitGene_sACC)
-outExon_sACC = topTable(eBGene_sACC,coef=2:3,
-	p.value = 1,number=nrow(rse_exon))
-outExon_sACC = outExon_sACC[rownames(rse_exon),]
-
-## significance levels
-pvalMat = as.matrix(eBGene_sACC$p.value)[,2:3]
-qvalMat = pvalMat
-qvalMat[,1:2] = p.adjust(pvalMat[,1:2],method="fdr")
-colnames(pvalMat) = paste0("P_",colnames(pvalMat))
-colnames(qvalMat) = paste0("q_",colnames(qvalMat))
-
-outExon_sACC = cbind(outExon_sACC,cbind(pvalMat, qvalMat))
-sum(outExon_sACC$q_PrimaryDxControl < 0.05)
-# 3776
-
-print("Exon_sACC")
-sum(outExon_sACC$q_PrimaryDxControl < 0.05)
-# [1] 3776
-sum(outExon_sACC$q_PrimaryDxControl < 0.01)
-# [1] 938
-length(unique(outExon_sACC[which(outExon_sACC$q_PrimaryDxControl < 0.05),]$ensemblID))
-# [1] 1358
-
-sum(outExon_sACC$q_PrimaryDxBipolar < 0.05)
-# [1] 2045
-sum(outExon_sACC$q_PrimaryDxBipolar < 0.01)
-# [1] 427
-length(unique(outExon_sACC[which(outExon_sACC$q_PrimaryDxBipolar < 0.05),]$ensemblID))
-# [1] 844
-
-
-## Amygdala
-dge_Amyg = DGEList(counts = assays(rse_exon[,Amyg_Index])$counts,
-	genes = rowData(rse_exon))
-dge_Amyg = calcNormFactors(dge_Amyg)
-vGene_Amyg = voom(dge_Amyg,mod_Amyg, plot=FALSE)
-
-fitGene_Amyg = lmFit(vGene_Amyg)
-eBGene_Amyg = eBayes(fitGene_Amyg)
-outExon_Amyg = topTable(eBGene_Amyg,coef=2:3,
-	p.value = 1,number=nrow(rse_exon))
-outExon_Amyg = outExon_Amyg[rownames(rse_exon),]
-
-## significance levels
-pvalMat = as.matrix(eBGene_Amyg$p.value)[,2:3]
-qvalMat = pvalMat
-qvalMat[,1:2] = p.adjust(pvalMat[,1:2],method="fdr")
-colnames(pvalMat) = paste0("P_",colnames(pvalMat))
-colnames(qvalMat) = paste0("q_",colnames(qvalMat))
-
-outExon_Amyg = cbind(outExon_Amyg,cbind(pvalMat, qvalMat))
-sum(outExon_Amyg$q_PrimaryDxControl < 0.05)
-# 1219
-print("Exon_Amyg")
-
-sum(outExon_Amyg$q_PrimaryDxControl < 0.05)
-# [1] 1219
-sum(outExon_Amyg$q_PrimaryDxControl < 0.01)
-# [1] 315
-length(unique(outExon_Amyg[which(outExon_Amyg$q_PrimaryDxControl < 0.05),]$ensemblID))
-# [1] 520
-
-sum(outExon_Amyg$q_PrimaryDxBipolar < 0.05)
-# [1] 2102
-sum(outExon_Amyg$q_PrimaryDxBipolar < 0.01)
-# [1] 612
-length(unique(outExon_Amyg[which(outExon_Amyg$q_PrimaryDxBipolar < 0.05),]$ensemblID))
-# [1] 837
-
-save(outExon_Amyg, outExon_sACC, file=here("differential_expression","data","qSVA_MDD_exon_DEresults.rda"))
-
-#### Jxn ####
-## sAC
-dge_sACC = DGEList(counts = assays(rse_jxn[,sACC_Index])$counts,
-	genes = rowData(rse_jxn))
-dge_sACC = calcNormFactors(dge_sACC)
-vGene_sACC = voom(dge_sACC,mod_sACC, plot=FALSE)
-
-fitGene_sACC = lmFit(vGene_sACC)
-eBGene_sACC = eBayes(fitGene_sACC)
-outJxn_sACC = topTable(eBGene_sACC,coef=2:3,
-	p.value = 1,number=nrow(rse_jxn))
-outJxn_sACC = outJxn_sACC[rownames(rse_jxn),]
-
-## significance levels
-pvalMat = as.matrix(eBGene_sACC$p.value)[,2:3]
-qvalMat = pvalMat
-qvalMat[,1:2] = p.adjust(pvalMat[,1:2],method="fdr")
-colnames(pvalMat) = paste0("P_",colnames(pvalMat))
-colnames(qvalMat) = paste0("q_",colnames(qvalMat))
-
-outJxn_sACC = cbind(outJxn_sACC,cbind(pvalMat, qvalMat))
-sum(outJxn_sACC$q_PrimaryDxControl < 0.05)
-# 1331
-
-## Amygdala
-dge_Amyg = DGEList(counts = assays(rse_jxn[,Amyg_Index])$counts,
-	genes = rowData(rse_jxn))
-dge_Amyg = calcNormFactors(dge_Amyg)
-vGene_Amyg = voom(dge_Amyg,mod_Amyg, plot=FALSE)
-
-fitGene_Amyg = lmFit(vGene_Amyg)
-eBGene_Amyg = eBayes(fitGene_Amyg)
-outJxn_Amyg = topTable(eBGene_Amyg,coef=2:3,
-	p.value = 1,number=nrow(rse_jxn))
-outJxn_Amyg = outJxn_Amyg[rownames(rse_jxn),]
-
-## significance levels
-pvalMat = as.matrix(eBGene_Amyg$p.value)[,2:3]
-qvalMat = pvalMat
-qvalMat[,1:2] = p.adjust(pvalMat[,1:2],method="fdr")
-colnames(pvalMat) = paste0("P_",colnames(pvalMat))
-colnames(qvalMat) = paste0("q_",colnames(qvalMat))
-
-outJxn_Amyg = cbind(outJxn_Amyg,cbind(pvalMat, qvalMat))
-sum(outJxn_Amyg$q_PrimaryDxControl < 0.05)
-# 529
-
-
-## remove novel
-outJxn_sACC_anno = outJxn_sACC[which(outJxn_sACC$Class != "Novel"),]
-outJxn_Amyg_anno = outJxn_Amyg[which(outJxn_Amyg$Class != "Novel"),]
-
-print("Jxn_sACC")
-
-## sACC
-sum(outJxn_sACC_anno$q_PrimaryDxControl < 0.05)
-# [1] 1113
-sum(outJxn_sACC_anno$q_PrimaryDxControl < 0.01)
-# [1] 487
-length(unique(outJxn_sACC_anno[which(outJxn_sACC_anno$q_PrimaryDxControl < 0.05),]$newGeneID))
-# [1] 714
-
-sum(outJxn_sACC_anno$q_PrimaryDxBipolar < 0.05)
-# [1] 686
-sum(outJxn_sACC_anno$q_PrimaryDxBipolar < 0.01)
-# [1] 249
-length(unique(outJxn_sACC_anno[which(outJxn_sACC_anno$q_PrimaryDxBipolar < 0.05),]$newGeneID))
-# [1] 481
-
-
-print("Jxn_Amyg")
-
-## AMYG
-sum(outJxn_Amyg_anno$q_PrimaryDxControl < 0.05)
-# [1] 361
-sum(outJxn_Amyg_anno$q_PrimaryDxControl < 0.01)
-# [1] 121
-length(unique(outJxn_Amyg_anno[which(outJxn_Amyg_anno$q_PrimaryDxControl < 0.05),]$newGeneID))
-# [1] 258
-
-sum(outJxn_Amyg_anno$q_PrimaryDxBipolar < 0.05)
-# [1] 647
-sum(outJxn_Amyg_anno$q_PrimaryDxBipolar < 0.01)
-# [1] 233
-length(unique(outJxn_Amyg_anno[which(outJxn_Amyg_anno$q_PrimaryDxBipolar < 0.05),]$newGeneID))
-# [1] 468
-
-
-save(outJxn_Amyg,outJxn_Amyg_anno, outJxn_sACC,outJxn_sACC_anno, file=here("differential_expression","data","qSVA_MDD_jxn_DEresults.rda"))
-
-#### Tx ####
-## we do not use voom  which  required count data
-
-txExprs = log2(assays(rse_tx)$tpm + 1)
-
-## sACC
-fitGene_sACC = lmFit(txExprs[,sACC_Index], mod_sACC)
-eBGene_sACC = eBayes(fitGene_sACC)
-outTx_sACC = topTable(eBGene_sACC,coef=2:3,
-	p.value = 1,number=nrow(rse_tx))
-outTx_sACC = outTx_sACC[rownames(rse_tx),]
-
-## significance levels
-pvalMat = as.matrix(eBGene_sACC$p.value)[,2:3]
-qvalMat = pvalMat
-qvalMat[,1:2] = p.adjust(pvalMat[,1:2],method="fdr")
-colnames(pvalMat) = paste0("P_",colnames(pvalMat))
-colnames(qvalMat) = paste0("q_",colnames(qvalMat))
-
-outTx_sACC = cbind(rowData(rse_tx)[,c(5:8)],outTx_sACC,cbind(pvalMat, qvalMat))
-sum(outTx_sACC$q_PrimaryDxControl < 0.05)
-# 1457
-
-print("Tx_sACC")
-
-sum(outTx_sACC$q_PrimaryDxControl < 0.05)
-# [1] 1457
-sum(outTx_sACC$q_PrimaryDxControl < 0.01)
-# [1] 386
-length(unique(outTx_sACC[which(outTx_sACC$q_PrimaryDxControl < 0.05),]$gene_id))
-# [1] 1384
-
-sum(outTx_sACC$q_PrimaryDxBipolar < 0.05)
-# [1] 783
-sum(outTx_sACC$q_PrimaryDxBipolar < 0.01)
-# [1] 216
-length(unique(outTx_sACC[which(outTx_sACC$q_PrimaryDxBipolar < 0.05),]$gene_id))
-# [1] 761
-
-## Amygdala
-fitGene_Amyg = lmFit(txExprs[,Amyg_Index], mod_Amyg)
-eBGene_Amyg = eBayes(fitGene_Amyg)
-outTx_Amyg = topTable(eBGene_Amyg,coef=2:3,
-	p.value = 1,number=nrow(rse_tx))
-outTx_Amyg = outTx_Amyg[rownames(rse_tx),]
-
-## significance levels
-pvalMat = as.matrix(eBGene_Amyg$p.value)[,2:3]
-qvalMat = pvalMat
-qvalMat[,1:2] = p.adjust(pvalMat[,1:2],method="fdr")
-colnames(pvalMat) = paste0("P_",colnames(pvalMat))
-colnames(qvalMat) = paste0("q_",colnames(qvalMat))
-
-outTx_Amyg = cbind(rowData(rse_tx)[,c(5:8)],outTx_Amyg,cbind(pvalMat, qvalMat))
-sum(outTx_Amyg$q_PrimaryDxControl < 0.05)
-# 2101
-
-print("Tx_Amyg")
-
-
-sum(outTx_Amyg$q_PrimaryDxControl < 0.05)
-# [1] 2101
-sum(outTx_Amyg$q_PrimaryDxControl < 0.01)
-# [1] 521
-length(unique(outTx_Amyg[which(outTx_Amyg$q_PrimaryDxControl < 0.05),]$gene_id))
-# [1] 1947
-
-sum(outTx_Amyg$q_PrimaryDxBipolar < 0.05)
-# [1] 2297
-sum(outTx_Amyg$q_PrimaryDxBipolar < 0.01)
-# [1] 616
-length(unique(outTx_Amyg[which(outTx_Amyg$q_PrimaryDxBipolar < 0.05),]$gene_id))
-# [1] 2135
-
-save(outTx_Amyg, outTx_sACC, file="qSVA_MDD_tx_DEresults.rda")
-
+save(modSep, modSep_cf, file = here("differential_expression","data","differental_models.Rdata"))
+
+#### RUN DE ####
+source(here("differential_expression","code","run_DE.R"))
+
+## Gene ##
+
+run_DE_models <- function(rse_split, model_list = list(sep = modSep, sep_cf = modSep_cf), run_voom = TRUE, csv_prefix){
+  map2(model_list, names(model_list), function(mod, mod_name){
+    pmap(list(rse = rse_split, mod = mod, region_name = names(rse_split)),
+         function(rse, mod, region_name){
+           message("Running ", mod_name, " ", region_name, ' DE:')
+           outDE<- map2(rse, mod, ~run_DE(rse = .x, model = .y, coef = 2, run_voom = run_voom))
+           
+           map2(outDE, names(outDE),
+                ~write_csv(.x, file = here("differential_expression","data","DE_csv",
+                                                            paste0(csv_prefix,"_",region_name,"_",mod_name,"_",.y,".csv"))))
+           return(outDE)
+         })
+  })
+}
+
+outGene <- run_DE_models(rse_gene_split, csv_prefix = "qSVA_MDD_gene")
+save(outGene, file = here("differential_expression","data","qSVA_MDD_gene_DEresults.rda"))
+
+outExon <- run_DE_models(rse_exon_split, csv_prefix = "qSVA_MDD_exon")
+save(outExon, file = here("differential_expression","data","qSVA_MDD_exon_DEresults.rda"))
+
+outJxn <- run_DE_models(rse_jxn_split, csv_prefix = "qSVA_MDD_jxn")
+save(outJxn, file = here("differential_expression","data","qSVA_MDD_jxn_DEresults.rda"))
+
+outTx <- run_DE_models(rse_tx_split, run_voom = FALSE, csv_prefix = "qSVA_MDD_tx")
+save(outTx, here("differential_expression","data","qSVA_MDD_tx_DEresults.rda"))
 
 #sgejobs::job_single('qSV_model_DE_analysis', create_shell = TRUE, memory = '80G', command = "Rscript qSV_model_DE_analysis.R")
 
