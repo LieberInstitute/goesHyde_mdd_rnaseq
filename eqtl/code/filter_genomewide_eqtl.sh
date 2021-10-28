@@ -1,6 +1,6 @@
 #!/bin/bash
 #$ -cwd
-#$ -l mem_free=100G,h_vmem=100G,h_fsize=100G
+#$ -l mem_free=400G,h_vmem=400G,h_fsize=100G
 #$ -N filter_genomewide_eqtl
 #$ -o logs/filter_genomewide_eqtl.txt
 #$ -e logs/filter_genomewide_eqtl.txt
