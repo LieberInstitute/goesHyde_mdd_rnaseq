@@ -53,8 +53,34 @@ summary(pd$AgeDeath)
 # Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
 # 17.37   34.62   47.21   46.58   55.86   95.27 
 
-#### Split By Dx  & Region ####
+#### Standardize rowData ####
+Reduce(intersect, map(list(rse_gene, rse_exon, rse_jxn, rse_tx), ~colnames(rowData(.x))))
+# [1] "meanExprs"    "passExprsCut"
 
+## Add common_feature_id, common_gene_symbol, common_gene_ID
+rowData(rse_gene)$common_feature_id <- rowData(rse_gene)$gencodeID
+rowData(rse_gene)$common_gene_symbol <- rowData(rse_gene)$Symbol
+rowData(rse_gene)$common_gene_id <- rowData(rse_gene)$gencodeID
+
+rowData(rse_exon)$common_feature_id <- rowData(rse_exon)$exon_gencodeID
+rowData(rse_exon)$common_gene_symbol <- rowData(rse_exon)$Symbol
+rowData(rse_exon)$common_gene_id <- rowData(rse_exon)$gencodeID
+
+rowData(rse_jxn)$common_feature_id <- rownames(rse_jxn)
+rowData(rse_jxn)$common_gene_symbol <- rowData(rse_jxn)$Symbol
+rowData(rse_jxn)$common_gene_id <- rowData(rse_jxn)$gencodeGeneID
+rowData(rse_jxn)$gencodeTx <- lapply(rowData(rse_jxn)$gencodeTx, toString)
+
+map(head(rowData(rse_jxn)$gencodeTx), ~paste(.x, collapse = ";"))
+  
+rowData(rse_tx)$common_feature_id <- rowData(rse_tx)$transcript_id
+rowData(rse_tx)$common_gene_symbol <- rowData(rse_tx)$gene_name
+rowData(rse_tx)$common_gene_id <- rowData(rse_tx)$gene_id
+
+Reduce(intersect, map(list(rse_gene, rse_exon, rse_jxn, rse_tx), ~colnames(rowData(.x))))
+# [1] "meanExprs"          "passExprsCut"       "common_feature_id"  "common_gene_symbol" "common_gene_id"
+
+#### Split By Dx  & Region ####
 split_samples <- function(rse){
   rse_split <- map(list(amyg = "Amygdala", sacc = "sACC"), function(region){
     rse_r <- rse[,rse$BrainRegion == region]
@@ -101,14 +127,14 @@ modSep <- map(rse_gene_split, function(rse_region){
   })
 })
 
-map(modSep, ~map(.x, head))
+# map(modSep, ~map(.x, head))
 
 ## Add cell fractions to model
 modSep_cf <- map2(rse_gene_split, modSep, function(rse_region, mod_region){
   map2(rse_region, mod_region, ~cbind(.y, colData(.x)[,c("Astro", "Endo", "Macro", "Micro", "Mural", "Oligo", "OPC", "Tcell", "Excit")]))
 })
 
-map(modSep_cf, ~map(.x, head))
+# map(modSep_cf, ~map(.x, head))
 
 ## Save Models
 save(modSep, modSep_cf, file = here("differential_expression","data","differental_models.Rdata"))
@@ -125,6 +151,7 @@ run_DE_models <- function(rse_split, model_list = list(sep = modSep, sep_cf = mo
            message("Running ", mod_name, " ", region_name, ' DE:')
            outDE<- map2(rse, mod, ~run_DE(rse = .x, model = .y, coef = 2, run_voom = run_voom))
            
+           message("Writing csv files")
            map2(outDE, names(outDE),
                 ~write_csv(.x, file = here("differential_expression","data","DE_csv",
                                                             paste0(csv_prefix,"_",region_name,"_",mod_name,"_",.y,".csv"))))
@@ -133,15 +160,19 @@ run_DE_models <- function(rse_split, model_list = list(sep = modSep, sep_cf = mo
   })
 }
 
+message("\n####  GENE  ####")
 outGene <- run_DE_models(rse_gene_split, csv_prefix = "qSVA_MDD_gene")
 save(outGene, file = here("differential_expression","data","qSVA_MDD_gene_DEresults.rda"))
 
+message("\n####  EXON  ####")
 outExon <- run_DE_models(rse_exon_split, csv_prefix = "qSVA_MDD_exon")
 save(outExon, file = here("differential_expression","data","qSVA_MDD_exon_DEresults.rda"))
 
+message("\n####  JXN  ####")
 outJxn <- run_DE_models(rse_jxn_split, csv_prefix = "qSVA_MDD_jxn")
 save(outJxn, file = here("differential_expression","data","qSVA_MDD_jxn_DEresults.rda"))
 
+message("\n####  TX  ####")
 outTx <- run_DE_models(rse_tx_split, run_voom = FALSE, csv_prefix = "qSVA_MDD_tx")
 save(outTx, here("differential_expression","data","qSVA_MDD_tx_DEresults.rda"))
 
