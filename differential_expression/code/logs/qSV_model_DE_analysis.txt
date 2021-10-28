@@ -1,0 +1,383 @@
+Adding LIBD modules
+Loading git
+Loading LIBD module for git-status-size/github
+Loading LIBD module for git-lfs/2.8.0
+Loading LIBD module for rmate/1.5.9
+Loading LIBD module for ruby/2.6.4p104
+Loading conda_R/4.1
+**** Job starts ****
+Thu Oct 28 14:26:59 EDT 2021
+**** JHPCE info ****
+User: lhuuki
+Job id: 7402964
+Job name: qSV_model_DE_analysis
+Hostname: compute-116.cm.cluster
+Task id: undefined
+Unloading conda_R/4.1
+Loading conda_R/4.0.x
+
+The following have been reloaded with a version change:
+  1) conda_R/4.1 => conda_R/4.0.x
+
+
+Currently Loaded Modules:
+  1) matlab/R2019a     6) COMMUNITY_CENTOS7_DEFAULT_ENV  11) ruby/2.6.4p104
+  2) stata/17          7) JHPCE_CENTOS7_DEFAULT_ENV      12) rmate/1.5.9
+  3) JHPCE_tools/1.0   8) git-status-size/github         13) conda/3-4.6.14
+  4) sge/8.1.9         9) git/2.28.0                     14) conda_R/4.0.x
+  5) gcc/4.4.7        10) git-lfs/2.8.0
+
+ 
+
+WARNING: ignoring environment value of R_HOME
+Loading required package: rafalib
+Loading required package: MatrixGenerics
+Loading required package: matrixStats
+
+Attaching package: ‘MatrixGenerics’
+
+The following objects are masked from ‘package:matrixStats’:
+
+    colAlls, colAnyNAs, colAnys, colAvgsPerRowSet, colCollapse,
+    colCounts, colCummaxs, colCummins, colCumprods, colCumsums,
+    colDiffs, colIQRDiffs, colIQRs, colLogSumExps, colMadDiffs,
+    colMads, colMaxs, colMeans2, colMedians, colMins, colOrderStats,
+    colProds, colQuantiles, colRanges, colRanks, colSdDiffs, colSds,
+    colSums2, colTabulates, colVarDiffs, colVars, colWeightedMads,
+    colWeightedMeans, colWeightedMedians, colWeightedSds,
+    colWeightedVars, rowAlls, rowAnyNAs, rowAnys, rowAvgsPerColSet,
+    rowCollapse, rowCounts, rowCummaxs, rowCummins, rowCumprods,
+    rowCumsums, rowDiffs, rowIQRDiffs, rowIQRs, rowLogSumExps,
+    rowMadDiffs, rowMads, rowMaxs, rowMeans2, rowMedians, rowMins,
+    rowOrderStats, rowProds, rowQuantiles, rowRanges, rowRanks,
+    rowSdDiffs, rowSds, rowSums2, rowTabulates, rowVarDiffs, rowVars,
+    rowWeightedMads, rowWeightedMeans, rowWeightedMedians,
+    rowWeightedSds, rowWeightedVars
+
+Loading required package: GenomicRanges
+Loading required package: stats4
+Loading required package: BiocGenerics
+Loading required package: parallel
+
+Attaching package: ‘BiocGenerics’
+
+The following objects are masked from ‘package:parallel’:
+
+    clusterApply, clusterApplyLB, clusterCall, clusterEvalQ,
+    clusterExport, clusterMap, parApply, parCapply, parLapply,
+    parLapplyLB, parRapply, parSapply, parSapplyLB
+
+The following objects are masked from ‘package:stats’:
+
+    IQR, mad, sd, var, xtabs
+
+The following objects are masked from ‘package:base’:
+
+    anyDuplicated, append, as.data.frame, basename, cbind, colnames,
+    dirname, do.call, duplicated, eval, evalq, Filter, Find, get, grep,
+    grepl, intersect, is.unsorted, lapply, Map, mapply, match, mget,
+    order, paste, pmax, pmax.int, pmin, pmin.int, Position, rank,
+    rbind, Reduce, rownames, sapply, setdiff, sort, table, tapply,
+    union, unique, unsplit, which.max, which.min
+
+Loading required package: S4Vectors
+
+Attaching package: ‘S4Vectors’
+
+The following object is masked from ‘package:base’:
+
+    expand.grid
+
+Loading required package: IRanges
+Loading required package: GenomeInfoDb
+Loading required package: Biobase
+Welcome to Bioconductor
+
+    Vignettes contain introductory material; view with
+    'browseVignettes()'. To cite Bioconductor, see
+    'citation("Biobase")', and for packages 'citation("pkgname")'.
+
+
+Attaching package: ‘Biobase’
+
+The following object is masked from ‘package:MatrixGenerics’:
+
+    rowMedians
+
+The following objects are masked from ‘package:matrixStats’:
+
+    anyMissing, rowMedians
+
+Loading required package: mgcv
+Loading required package: nlme
+
+Attaching package: ‘nlme’
+
+The following object is masked from ‘package:IRanges’:
+
+    collapse
+
+This is mgcv 1.8-35. For overview type 'help("mgcv-package")'.
+Loading required package: genefilter
+
+Attaching package: ‘genefilter’
+
+The following objects are masked from ‘package:MatrixGenerics’:
+
+    rowSds, rowVars
+
+The following objects are masked from ‘package:matrixStats’:
+
+    rowSds, rowVars
+
+Loading required package: BiocParallel
+Loading required package: usethis
+
+Attaching package: ‘devtools’
+
+The following object is masked from ‘package:rafalib’:
+
+    install_bioc
+
+Loading required package: limma
+
+Attaching package: ‘limma’
+
+The following object is masked from ‘package:BiocGenerics’:
+
+    plotMA
+
+here() starts at /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq
+── Attaching packages ─────────────────────────────────────── tidyverse 1.3.1 ──
+✔ ggplot2 3.3.3     ✔ purrr   0.3.4
+✔ tibble  3.1.1     ✔ dplyr   1.0.5
+✔ tidyr   1.1.3     ✔ stringr 1.4.0
+✔ readr   1.4.0     ✔ forcats 0.5.1
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::collapse()   masks nlme::collapse(), IRanges::collapse()
+✖ dplyr::combine()    masks Biobase::combine(), BiocGenerics::combine()
+✖ dplyr::count()      masks matrixStats::count()
+✖ dplyr::desc()       masks IRanges::desc()
+✖ tidyr::expand()     masks S4Vectors::expand()
+✖ dplyr::filter()     masks stats::filter()
+✖ dplyr::first()      masks S4Vectors::first()
+✖ dplyr::lag()        masks stats::lag()
+✖ ggplot2::Position() masks BiocGenerics::Position(), base::Position()
+✖ purrr::reduce()     masks GenomicRanges::reduce(), IRanges::reduce()
+✖ dplyr::rename()     masks S4Vectors::rename()
+✖ dplyr::slice()      masks IRanges::slice()
+✖ readr::spec()       masks genefilter::spec()
+Loading objects:
+  rse_gene
+Loading objects:
+  rse_exon
+Loading objects:
+  rse_jxn
+Loading objects:
+  rse_tx
+
+psychENCODE_MDD  psychENCODE_BP 
+            588             503 
+
+Amygdala     sACC 
+     540      551 
+          
+             F   M
+  Amygdala 160 380
+  sACC     167 384
+                 
+                  MDD Control Bipolar
+  psychENCODE_MDD 459     129       0
+  psychENCODE_BP    0     258     245
+          
+           MDD Control Bipolar
+  Amygdala 231     187     122
+  sACC     228     200     123
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+  17.37   34.62   47.21   46.58   55.86   95.27 
+[1] "meanExprs"    "passExprsCut"
+[[1]]
+[1] ""
+
+[[2]]
+[1] ""
+
+[[3]]
+[1] ""
+
+[[4]]
+[1] ""
+
+[[5]]
+[1] ""
+
+[[6]]
+[1] ""
+
+[1] "meanExprs"          "passExprsCut"       "common_feature_id"  "common_gene_symbol" "common_gene_id"    
+$amyg
+MDD BPD 
+418 309 
+
+$sacc
+MDD BPD 
+428 323 
+
+Loading objects:
+  qSV_mat
+
+####  GENE  ####
+Running sep amyg DE:
+Calc Norm Factors: 2021-10-28 14:28:22
+Limma: 2021-10-28 14:28:42
+eBayes: 2021-10-28 14:29:11
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       3       0
+Calc Norm Factors: 2021-10-28 14:29:12
+Limma: 2021-10-28 14:29:29
+eBayes: 2021-10-28 14:29:52
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar      82       6
+Writing csv files
+Running sep sacc DE:
+Calc Norm Factors: 2021-10-28 14:29:54
+Limma: 2021-10-28 14:30:12
+eBayes: 2021-10-28 14:30:46
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD     392      88
+Calc Norm Factors: 2021-10-28 14:30:47
+Limma: 2021-10-28 14:31:01
+eBayes: 2021-10-28 14:31:25
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar     326      31
+Writing csv files
+Running sep_cf amyg DE:
+Calc Norm Factors: 2021-10-28 14:31:27
+Limma: 2021-10-28 14:31:46
+eBayes: 2021-10-28 14:32:30
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       4       0
+Calc Norm Factors: 2021-10-28 14:32:30
+Limma: 2021-10-28 14:32:45
+eBayes: 2021-10-28 14:33:19
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar      12       1
+Writing csv files
+Running sep_cf sacc DE:
+Calc Norm Factors: 2021-10-28 14:33:21
+Limma: 2021-10-28 14:33:40
+eBayes: 2021-10-28 14:34:25
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD      95      10
+Calc Norm Factors: 2021-10-28 14:34:26
+Limma: 2021-10-28 14:34:41
+eBayes: 2021-10-28 14:35:16
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar      21       1
+Writing csv files
+
+####  EXON  ####
+Running sep amyg DE:
+Calc Norm Factors: 2021-10-28 14:35:22
+Limma: 2021-10-28 14:42:20
+eBayes: 2021-10-28 14:50:36
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       4       0
+Calc Norm Factors: 2021-10-28 14:50:50
+Limma: 2021-10-28 14:56:10
+eBayes: 2021-10-28 15:02:30
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar     159      50
+Writing csv files
+Running sep sacc DE:
+Calc Norm Factors: 2021-10-28 15:02:58
+Limma: 2021-10-28 15:10:09
+eBayes: 2021-10-28 15:18:41
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD     430      20
+Calc Norm Factors: 2021-10-28 15:18:54
+Limma: 2021-10-28 15:24:17
+eBayes: 2021-10-28 15:30:49
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar     119      26
+Writing csv files
+Running sep_cf amyg DE:
+Calc Norm Factors: 2021-10-28 15:31:17
+Limma: 2021-10-28 15:38:27
+eBayes: 2021-10-28 15:49:58
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+Calc Norm Factors: 2021-10-28 15:50:14
+Limma: 2021-10-28 15:55:24
+eBayes: 2021-10-28 16:03:50
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar      44       0
+Writing csv files
+Running sep_cf sacc DE:
+Calc Norm Factors: 2021-10-28 16:04:20
+Limma: 2021-10-28 16:12:04
+eBayes: 2021-10-28 16:23:43
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD      20       0
+Calc Norm Factors: 2021-10-28 16:24:00
+Limma: 2021-10-28 16:29:23
+eBayes: 2021-10-28 16:37:58
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       5       0
+Writing csv files
+
+####  JXN  ####
+Running sep amyg DE:
+Calc Norm Factors: 2021-10-28 16:39:34
+Limma: 2021-10-28 16:43:42
+eBayes: 2021-10-28 16:49:44
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD      47      26
+Calc Norm Factors: 2021-10-28 16:49:54
+Limma: 2021-10-28 16:53:00
+eBayes: 2021-10-28 16:57:31
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar      23      10
+Writing csv files
+Error in stream_delim_(df, file, ..., bom = bom, quote_escape = quote_escape,  : 
+  Don't know how to handle vector of type list in column 'gencodeTx'.
+Calls: run_DE_models ... write_csv -> write_delim -> stream_delim -> stream_delim_
+Execution halted
+**** Job ends ****
+Thu Oct 28 16:57:43 EDT 2021
