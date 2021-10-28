@@ -1,6 +1,6 @@
 #!/bin/bash
 #$ -cwd
-#$ -l bluejay,mem_free=3G,h_vmem=3G,h_fsize=100G
+#$ -l mem_free=50G,h_vmem=50G,h_fsize=100G
 #$ -pe local 8
 #$ -N run_wgcna_combined
 #$ -o logs/run_wgcna_combined.txt

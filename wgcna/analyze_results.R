@@ -12,6 +12,8 @@ library(RColorBrewer)
 library(sessioninfo)
 library(here)
 
+rm(list = ls())
+
 
 capabilities()
 
@@ -27,7 +29,15 @@ rse_gene <- rse_gene[, rse_gene$PrimaryDx %in% c("Control", "MDD")]
 cov_rse <- cov_rse[, cov_rse$PrimaryDx %in% c("Control", "MDD")]
 
 rse_gene$Dx <- droplevels(rse_gene$PrimaryDx)
-cov_rse$Dx <- droplevels(cov_rse$PrimaryDx)
+cov_rse$Dx <- droplevels(rse_gene$PrimaryDx)
+
+rse_gene$Dx<-relevel(rse_gene$Dx, "Control")
+rse_gene$Dx <- relevel(rse_gene$Dx, "Control")
+
+table(rse_gene$Dx)
+
+#Control     MDD 
+#    387     459 
 
 ## add ancestry
 #load("../genotype_data/goesHyde_bipolarMdd_Genotypes_n588_mds.rda", verbose = TRUE)
@@ -49,9 +59,9 @@ assays(rse_gene)$rpkm = recount::getRPKM(rse_gene, 'Length')
 ##### from run_wgcna_coombinedR script this was the model used for wgcna 
 colnames(modQsva)
 
- #[1] "(Intercept)"               "DxControl"
+ #[1] "(Intercept)"               "DxMDD"
  #[3] "BrainRegionsACC"           "AgeDeath"
- #[5] "DxControl:BrainRegionsACC" "SexM"
+ #[5] "DxMDD:BrainRegionsACC" "SexM"
  #[7] "snpPC1"                    "snpPC2"
  #[9] "snpPC3"                    "mitoRate"
 #[11] "rRNA_rate"                 "totalAssignedGene"
@@ -70,10 +80,12 @@ colnames(modQsva)
 ## clean expression
 geneExprs = log2(recount::getRPKM(rse_gene, "Length")+1)
 
+
+load("modQsva.rda", verbose = TRUE)
 ### regress out after variable 5 (protect 1,2,3,4, 5)
 geneExprsClean = cleaningY(geneExprs, modQsva, P=5)
 
-load(here('wgcna', 'geneExprsClean'), verbose = TRUE)
+#load(here('wgcna', 'geneExprsClean'), verbose = TRUE)
           
           ##### Load rse data, examine ####
 
@@ -91,27 +103,33 @@ modJoint = model.matrix(~Dx*BrainRegion + AgeDeath + Sex + snpPC1 + snpPC2 + snp
 ## counts from degrafation into log2 scale
 degExprs = log2(assays(cov_rse)$count+1)
 ##SVA command
-k = sva::num.sv(degExprs, modJoint)
+#k = sva::num.sv(degExprs, modJoint)
+#unclear why above command gives error
+k = num.sv(degExprs, modJoint)
+
 print(k) # 22
 ### compute principal components from degratation matrix , keep 22 
 qSV_mat = prcomp(t(degExprs))$x[,1:k]
 
 colnames(modJoint)
-# [1] "(Intercept)"               "DxControl"
+# [1] "(Intercept)"               "DxMDD"
 # [3] "BrainRegionsACC"           "AgeDeath"
 # [5] "SexM"                      "snpPC1"
 # [7] "snpPC2"                    "snpPC3"
 # [9] "mitoRate"                  "rRNA_rate"
 #[11] "totalAssignedGene"         "RIN"
-#[13] "ERCCsumLogErr"             "DxControl:BrainRegionsACC"
+#[13] "ERCCsumLogErr"             "DxMDD:BrainRegionsACC"
 
 modQsva = cbind(modJoint[,c(1:4,14,5:13)], qSV_mat)
 
 colnames(modQsva)
 
-# [1] "(Intercept)"               "DxControl"
+save(modQsva, file = "modQsva.rda")
+load("modQsva.rda", verbose = TRUE)
+
+# [1] "(Intercept)"               "DxMDD"
 #  [3] "BrainRegionsACC"           "AgeDeath"
-#  [5] "DxControl:BrainRegionsACC" "SexM"
+#  [5] "DxMDD:BrainRegionsACC" "SexM"
 #  [7] "snpPC1"                    "snpPC2"
 #  [9] "snpPC3"                    "mitoRate"
 # [11] "rRNA_rate"                 "totalAssignedGene"
@@ -145,7 +163,7 @@ load("rdas/constructed_network_signed_bicor.rda", verbose=TRUE)
 ### added code to create dendogram from WGCNA Tutorial
 mergedColors = labels2colors(net$colors)
 
-pdf("dendrogram_092321.pdf")
+pdf("dendrogram_102521.pdf")
 
 plotDendroAndColors(net$dendrograms[[1]], mergedColors[net$blockGenes[[1]]],
 "Module colors",
@@ -165,32 +183,11 @@ colorDat = colorDat[!duplicated(colorDat$num),]
 colorDat$numGenes = table(net$colors)[as.character(colorDat$num)]
 
 dim(colorDat)
-# [1] 18  4
+# [1] 17  4
 ### WILL CHANGE WITH AGE PROTECTED
 colorDat
 
-#  old                  num          col Label numGenes
-# ENSG00000227232.5    0         grey   ME0    15381
-# ENSG00000228794.8    1    turquoise   ME1     2777
-# ENSG00000225630.1    2         blue   ME2     1720
-# ENSG00000162572.19   3        brown   ME3     1626
-# ENSG00000176022.4    4       yellow   ME4      820
-# ENSG00000142609.17   5        green   ME5      686
-# ENSG00000142583.17   6          red   ME6      564
-# ENSG00000107404.18   7        black   ME7      310
-# ENSG00000196581.10   8         pink   ME8      222
-# ENSG00000162576.16   9      magenta   ME9      199
-# ENSG00000070886.11  10       purple  ME10      192
-# ENSG00000162545.5   11  greenyellow  ME11      159
-# ENSG00000158286.12  12          tan  ME12      134
-# ENSG00000088280.18  13       salmon  ME13      108
-# ENSG00000077254.14  14         cyan  ME14       97
-# ENSG00000187634.11  15 midnightblue  ME15       97
-# ENSG00000179546.4   16    lightcyan  ME16       64
-# ENSG00000117155.16  17       grey60  ME17       56
-# >
-
-17 4
+#17 4
 #                    num          col Label numGenes
 # ENSG00000227232.5    0         grey   ME0    15157
 # ENSG00000228794.8    1    turquoise   ME1     2859
@@ -223,9 +220,8 @@ univ = as.character(univ[!is.na(univ)])
 go = compareCluster(gList, univ = univ,
 	OrgDb = "org.Hs.eg.db", ont = "ALL",
 	readable = TRUE, pvalueCutoff = 1, qvalueCutoff = 1)
-save(go, file = "rdas/go_enrichment_MDD_Control_wgcna.rda")
+save(go, file = "rdas/go_enrichment_MDD_Control_102511_wgcna.rda")
 ######
-
 #### split genes with enselble ID 
 gList = split(rowData(rse_gene)$ensemblID, 
 	factor(net$colorsLab,levels = colorDat$col))
@@ -235,13 +231,14 @@ univ = as.character(univ[!is.na(univ)])
 
 
 goDf = as.data.frame(go)
-## below specific for bipolar classes 
+## below specific for MDD classes 
 #goCheck = goDf[goDf$Cluster %in% c("red", "pink", "magenta", "royalblue") &
 ### changed to include nominally significant categories for the association with depression
-goCheck = goDf[goDf$Cluster %in% c("grey60", "yellow", "black", "pink", "salmon", "blue", "grey", "cyan", "turquoise", "red") &
-	goDf$qvalue < 0.05,]
+goCheck = goDf[goDf$Cluster %in% c("lightcyan", "pink") & goDf$qvalue < 0.05,]
 goCheck  =goCheck[order(goCheck$pvalue),]
-write.csv(goCheck, file = "go_enrichment_MDD_Control_wgcna_three_TEST_CandidateModules.csv")
+write.csv(goCheck, file = "go_enrichment_MDD_Control_wgcna_CandidateModules.csv")
+
+
 ##############
 ## associate eigengenes with brain region
 m = modQsva[,1:5] # this is what was protected
@@ -300,47 +297,26 @@ print_effect <- function(x) { signif(cbind(x, FDR = p.adjust(x$pvalue, 'fdr')), 
 print_effect(MDDEffect)
 
 
+#updated102521
+#                  slope      se  df      t   pvalue     FDR
+# grey          0.002900 0.00339 680  0.856 0.393000 0.51300
+# turquoise     0.001590 0.00167 781  0.948 0.343000 0.48600
+# blue          0.002910 0.00174 834  1.670 0.095000 0.21500
+# brown         0.000536 0.00332 830  0.161 0.872000 0.91100
+# yellow       -0.005440 0.00332 743 -1.640 0.101000 0.21500
+# green         0.006430 0.00324 831  1.980 0.047500 0.13500
+# red          -0.004450 0.00322 806 -1.380 0.167000 0.28100
+# black         0.007840 0.00324 818  2.420 0.015700 0.08880
+# pink         -0.011300 0.00333 721 -3.380 0.000761 0.00973
+# magenta       0.006820 0.00315 818  2.170 0.030600 0.10900
+# purple       -0.001850 0.00330 787 -0.560 0.575000 0.65200
+# greenyellow  -0.000341 0.00306 836 -0.111 0.911000 0.91100
+# tan           0.006670 0.00310 648  2.150 0.032000 0.10900
+# salmon       -0.002490 0.00337 828 -0.739 0.460000 0.55900
+# cyan         -0.004310 0.00322 802 -1.340 0.182000 0.28100
+# midnightblue -0.004400 0.00285 838 -1.540 0.123000 0.23300
+# lightcyan     0.010900 0.00335 774  3.260 0.001140 0.00973
 
-###updated_092321
-#                  slope      se  df      t  pvalue     FDR
-# grey         -0.002900 0.00339 680 -0.856 0.39200 0.51300
-# turquoise    -0.001590 0.00167 781 -0.948 0.34300 0.48600
-# blue         -0.002910 0.00174 834 -1.670 0.09490 0.21500
-# brown        -0.000536 0.00332 830 -0.161 0.87200 0.91100
-# yellow        0.005440 0.00332 743  1.640 0.10100 0.21500
-# green        -0.006430 0.00324 831 -1.990 0.04750 0.13500
-# red           0.004450 0.00322 806  1.380 0.16700 0.28100
-# black        -0.007840 0.00324 818 -2.420 0.01570 0.08880
-# pink          0.011300 0.00333 721  3.380 0.00076 0.00973
-# magenta      -0.006820 0.00315 818 -2.170 0.03060 0.10900
-# purple        0.001850 0.00330 787  0.560 0.57500 0.65200
-# greenyellow   0.000341 0.00306 836  0.111 0.91100 0.91100
-# tan          -0.006670 0.00310 648 -2.150 0.03200 0.10900
-# salmon        0.002490 0.00337 828  0.739 0.46000 0.55800
-# cyan          0.004310 0.00322 802  1.340 0.18200 0.28100
-# midnightblue  0.004400 0.00285 838  1.540 0.12300 0.23300
-# lightcyan    -0.010900 0.00335 774 -3.260 0.00114 0.00973
-
-
-#updated092321
-#                 slope      se  df      t    pvalue       FDR
-# grey         -0.00107 0.00210 405  -0.51  6.10e-01  6.10e-01
-# turquoise     0.05960 0.00129 409  46.10 7.13e-164 1.21e-162
-# blue         -0.06100 0.00155 419 -39.20 2.05e-142 1.75e-141
-# brown         0.00577 0.00292 420   1.98  4.85e-02  5.15e-02
-# yellow        0.00657 0.00241 385   2.72  6.74e-03  7.64e-03
-# green        -0.02090 0.00286 401  -7.29  1.66e-12  3.14e-12
-# red           0.02230 0.00266 389   8.39  8.99e-16  1.91e-15
-# black        -0.02440 0.00275 400  -8.88  2.35e-17  5.70e-17
-# pink         -0.00716 0.00230 393  -3.11  2.00e-03  2.43e-03
-# magenta       0.02600 0.00269 387   9.70  4.74e-20  1.34e-19
-# purple        0.01230 0.00258 418   4.78  2.45e-06  3.79e-06
-# greenyellow  -0.02920 0.00276 418 -10.60  2.14e-23  7.27e-23
-# tan          -0.02790 0.00178 401 -15.70  1.43e-43  8.10e-43
-# salmon        0.01300 0.00294 422   4.41  1.31e-05  1.85e-05
-# cyan          0.01400 0.00261 415   5.34  1.55e-07  2.64e-07
-# midnightblue -0.03810 0.00260 431 -14.70  8.24e-40  3.50e-39
-# lightcyan     0.01170 0.00265 348   4.40  1.42e-05  1.85e-05
 
 
 #signif(ageEffect, 3)
@@ -520,7 +496,7 @@ mat = matrix(c(5,198, 128, 13894 -5 - 198-128), nr=2)
 chisq.test(mat)
 getOR(mat)
 
-magmaSig = magma[which(magma$P_JOINT
+#magmaSig = magma[which(magma$P_JOINT
 ## line up
 mm = match(rowData(rse_gene)$Symbol, magma$SYMBOL)
 magGenes = split(magma$SYMBOL[mm], net$colorsLab)
@@ -528,55 +504,74 @@ magGenes = split(magma$SYMBOL[mm], net$colorsLab)
 
 
 #####extract genes in module for visualization 
+#c("lightcyan", "pink") 
 
-TOM <- get(load("rdas/wgcna_signed_TOM-block.1.RData"))
+
+load("rdas/wgcna_signed_TOM-block.1.RData", verbose = TRUE)
 TOM.mat = as.matrix(TOM)
 
 #TOM = TOMsimilarityFromExpr(t(geneExprsClean), power = 10)
 
 dim(TOM.mat)    
+
+## clean expression
+geneExprs = log2(recount::getRPKM(rse_gene, "Length")+1)
+
+### regress out after variable 5 (protect 1,2,3,4, 5)
+geneExprsClean = cleaningY(geneExprs, modQsva, P=5)
+
+
+
 # choose module
 module = "lightcyan"
+
+module = "pink"
+
 # get list of genes
 
-load("/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/wgcna/geneExprsClean.rda", verbose = TRUE)
 dim(geneExprsClean)
 probes = rownames(geneExprsClean)
-
+#ensembl ids
 length(probes)
+
 #25212
 
 
 inModule = (net$colorsLab==module)
-
 modProbes = probes[inModule]
 # Select the corresponding Topological Overlap
 modTOM = TOM.mat[inModule, inModule]
 
-kIN=softConnectivity(t(geneExprsClean))[, ]
-
-Error in softConnectivity(t(geneExprsClean))[, modProbes] : 
-  incorrect number of dimensions
-> 
-
-selectHubs = (rank (-kIN) 
-vis = exportNetworkToVisANT(modTOM[selectHubs,selectHubs],
-file=paste("VisANTInput-", module, "-top30.txt", sep=""),
-weighted=TRUE, threshold = 0, probeToGene=
-data.frame((GeneAnnotation)$substanceBXH,GeneAnnotation$gene_symbol))
-
-names(colData(rse_gene))
-
-    
 dimnames(modTOM) = list(modProbes, modProbes)
-# Export the network into an edge list file VisANT can read
-vis = exportNetworkToVisANT(modTOM,
-file = paste("VisANTInput-", module, ".txt", sep=""),
+
+kIN=softConnectivity(t(geneExprsClean[modProbes, ]))
+
+selectHubs = (rank (-kIN))
+
+vis = exportNetworkToVisANT(modTOM[selectHubs,selectHubs],
+file=paste("VisANTInput-", module, "-top.txt", sep=""),
+weighted=TRUE, 
+threshold = 0, 
+probeToGene= data.frame(rowRanges(rse_gene)$gencodeID, rowRanges(rse_gene)$Symbol) )
+
+
+#### cytoscape###### 
+
+cyt = exportNetworkToCytoscape(modTOM,
+edgeFile = paste("CytoscapeInput-edges-", paste(module, collapse="-"), ".txt", sep=""),
+nodeFile = paste("CytoscapeInput-nodes-", paste(module, collapse="-"), ".txt", sep=""),
 weighted = TRUE,
-threshold = 0)
+threshold = 0.02, 
+nodeNames = modProbes,
+altNodeNames = modGenes)
 
 
-probeToGene = data.frame(annot$substanceBXH, annot$gene_symbol) )
+nodeAttr = moduleColors[inModule])
+
+
+
+
+
 
 ## Reproducibility information
 print('Reproducibility information:')

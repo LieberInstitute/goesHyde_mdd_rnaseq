@@ -12,3 +12,16 @@ genotype_data_old
 qc_checks/plotly/*
 trash/*
 deconvolution/plots/*
+*.bed
+*.bim
+*.fam
+*.log
+*.nosex
+twas*/*.RData
+twas*/logs
+twas*/*gene
+test
+## looks like errors?
+prs
+## should be deleted
+plink2
