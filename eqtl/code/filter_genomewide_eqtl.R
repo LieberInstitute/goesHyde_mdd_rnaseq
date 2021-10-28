@@ -24,18 +24,17 @@ read_adj_filter <- function(parquet_files, cutoff = 0.01){
   return(eqtl_out)
 }
 
-
+parquet_files <- parquet_files[2]
 eqtl_out_filtered <- map2(parquet_files, names(parquet_files), function(parq_feat, names_feat){
 
   map2(parq_feat, names(parq_feat), function(parq_region, names_region){
     
     message(paste("Reading:",names_feat, names_region, "- "),Sys.time())
     
-    # eqtl_out_filtered <- read_adj_filter(parquet_files = parq_region[1])
-    return(here("eqtl", "data", "tensorQTL_out","cis_genomewide_nominal",
-         paste0(names_feat, "_",names_region,"_FDR01.csv")))
-    # write_csv(eqtl_out_filtered, file = here("eqtl", "data", "tensorQTL_out","cis_genomewide_nominal",
-    #                                          paste0(names_feat, "_",names_region,"_FDR01.csv")))
+    eqtl_out_filtered <- read_adj_filter(parquet_files = parq_region)
+
+    write_csv(eqtl_out_filtered, file = here("eqtl", "data", "tensorQTL_out","cis_genomewide_nominal",
+                                             paste0(names_feat, "_",names_region,"_FDR01.csv")))
   })
 })
 
