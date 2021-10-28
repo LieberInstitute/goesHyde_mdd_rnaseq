@@ -3,7 +3,6 @@ library(VariantAnnotation)
 library(tidyverse)
 library(jaffelab)
 library(ggforce)
-library(miniparquet)
 library(sessioninfo)
 library(here)
 
@@ -48,9 +47,6 @@ map_int(geneEqtl_tensor, ~ .x %>%
 #### map_nominal results####
 nominal_dir <- here("eqtl", "data", "tensorQTL_out", "gene_Amygdala_cis_genomewide_nominal")
 parquet_files <- list.files(nominal_dir, full.names = TRUE)
-
-geneEqtl_nominal <- do.call("rbind", map(parquet_files, parquet_read)) %>%
-    mutate(FDR_nominal = p.adjust(pval_nominal, "fdr"))
 
 dim(geneEqtl_nominal)
 # [1] 91717646        10
