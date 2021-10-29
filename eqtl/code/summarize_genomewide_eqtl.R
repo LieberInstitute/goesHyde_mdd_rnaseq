@@ -9,9 +9,33 @@ library(here)
 source(here("eqtl", "code", "utils.R"))
 load(here("data", "MDD_colors.Rdata"), verbose = TRUE)
 
+summarize_eqtl <- function(eqtl_df){
+    eqtl_stats <- list(n_snp_feature_pairs = nrow(eqtl_df),
+                       n_snps = length(unique(eqtl_df$variant_id)),
+                       n_features = length(unique(eqtl_df$phenotype_id)))
+    return(eqtl_stats)
+}
+
+
 #### load expression data ####
 load(here("exprs_cutoff", "rse_gene.Rdata"), verbose = TRUE)
 rd <- as.data.frame(rowData(rse_gene)) %>% select(gencodeID, Symbol)
+
+features <- c("gene", "exon", "jxn", "tx")
+names(features) <- features
+regions <- c(amyg = "Amygdala", sacc = "sACC")
+
+#### cis genomewide results ####
+cis_files <- list.files(here("eqtl", "data", "tensorQTL_out", "cis_genomewide_nominal"),
+                        pattern = ".csv", full.names = TRUE)
+names(cis_files) <- gsub("_FDR01.csv","",basename(cis_files))
+
+cisEqtl_tensor <- map(cis_files, read.csv)
+count_summary <- map_dfr(cisEqtl_tensor, summarize_eqtl) %>%
+    add_column(combo = names(cis_files), .before = "n_snp_feature_pairs") %>%
+    separate(combo, into = c("feature", "region"))
+
+write.csv(count_summary, file = here("eqtl", "data", "summary", "cis_genomewide_FDR01.csv"))
 
 #### genomewide results ####
 ## load tables
