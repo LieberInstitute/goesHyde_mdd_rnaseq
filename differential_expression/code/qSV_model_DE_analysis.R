@@ -69,9 +69,7 @@ rowData(rse_exon)$common_gene_id <- rowData(rse_exon)$gencodeID
 rowData(rse_jxn)$common_feature_id <- rownames(rse_jxn)
 rowData(rse_jxn)$common_gene_symbol <- rowData(rse_jxn)$Symbol
 rowData(rse_jxn)$common_gene_id <- rowData(rse_jxn)$gencodeGeneID
-rowData(rse_jxn)$gencodeTx <- lapply(rowData(rse_jxn)$gencodeTx, toString)
-
-map(head(rowData(rse_jxn)$gencodeTx), ~paste(.x, collapse = ";"))
+rowData(rse_jxn)$gencodeTx <- unlist(lapply(rowData(rse_jxn)$gencodeTx, toString))
   
 rowData(rse_tx)$common_feature_id <- rowData(rse_tx)$transcript_id
 rowData(rse_tx)$common_gene_symbol <- rowData(rse_tx)$gene_name
@@ -142,8 +140,6 @@ save(modSep, modSep_cf, file = here("differential_expression","data","differenta
 #### RUN DE ####
 source(here("differential_expression","code","run_DE.R"))
 
-## Gene ##
-
 run_DE_models <- function(rse_split, model_list = list(sep = modSep, sep_cf = modSep_cf), run_voom = TRUE, csv_prefix){
   map2(model_list, names(model_list), function(mod, mod_name){
     pmap(list(rse = rse_split, mod = mod, region_name = names(rse_split)),
@@ -160,13 +156,13 @@ run_DE_models <- function(rse_split, model_list = list(sep = modSep, sep_cf = mo
   })
 }
 
-message("\n####  GENE  ####")
-outGene <- run_DE_models(rse_gene_split, csv_prefix = "qSVA_MDD_gene")
-save(outGene, file = here("differential_expression","data","qSVA_MDD_gene_DEresults.rda"))
-
-message("\n####  EXON  ####")
-outExon <- run_DE_models(rse_exon_split, csv_prefix = "qSVA_MDD_exon")
-save(outExon, file = here("differential_expression","data","qSVA_MDD_exon_DEresults.rda"))
+# message("\n####  GENE  ####")
+# outGene <- run_DE_models(rse_gene_split, csv_prefix = "qSVA_MDD_gene")
+# save(outGene, file = here("differential_expression","data","qSVA_MDD_gene_DEresults.rda"))
+# 
+# message("\n####  EXON  ####")
+# outExon <- run_DE_models(rse_exon_split, csv_prefix = "qSVA_MDD_exon")
+# save(outExon, file = here("differential_expression","data","qSVA_MDD_exon_DEresults.rda"))
 
 message("\n####  JXN  ####")
 outJxn <- run_DE_models(rse_jxn_split, csv_prefix = "qSVA_MDD_jxn")
