@@ -25,3 +25,7 @@ test
 prs
 ## should be deleted
 plink2
+data/*.vcf*
+twas_mdd/trash/*
+eqtl/genomewide/*.pdf
+eqtl/genomewide/plots/*
