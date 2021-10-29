@@ -26,14 +26,14 @@ module load conda_R/4.0.x
 module list
 
 # relative path for FILELIST
-FILELIST=$(echo "/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/twas_both/sACC_gene/input_ids.txt")
+FILELIST=$(echo "/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/twas_mdd/sACC_gene/input_ids.txt")
 
 ## File id and feature name
 FEATURENUM=$(awk 'BEGIN {FS="\t"} {print $1}' ${FILELIST} | awk "NR==${SGE_TASK_ID}")
 FEATUREID=$(awk 'BEGIN {FS="\t"} {print $2}' ${FILELIST} | awk "NR==${SGE_TASK_ID}")
 
 ## Define files
-FILTBIM="/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/twas_both/sACC_gene/bim_files/sACC_gene_${FEATURENUM}/filtered_snps_sACC_gene_${FEATURENUM}"
+FILTBIM="/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/twas_mdd/sACC_gene/bim_files/sACC_gene_${FEATURENUM}/filtered_snps_sACC_gene_${FEATURENUM}"
 TMPFILES="tmp_files/gene_${FEATURENUM}"
 OUTFILES="out_files/gene_${FEATURENUM}"
 

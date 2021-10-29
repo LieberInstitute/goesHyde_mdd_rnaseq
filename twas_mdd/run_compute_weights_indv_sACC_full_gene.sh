@@ -21,7 +21,7 @@ mkdir -p sACC_gene/tmp_files
 mkdir -p sACC_gene/out_files
 
 # For GEMMA
-ln -s /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/twas_both/sACC_gene/ sACC_gene/output
+ln -s /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/twas_mdd/sACC_gene/ sACC_gene/output
 
 ## For running the main script
 qsub compute_weights_indv_sACC_full_gene.sh
