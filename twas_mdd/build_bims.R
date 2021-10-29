@@ -130,7 +130,7 @@ load_rse <- function(feat, reg) {
     
     message(paste(Sys.time(), 'cleaning expression'))
     assays(rse) <- List('raw_expr' = assays(rse)$raw_expr,
-                        'clean_expr' = cleaningY(log2(assays(rse)$raw_expr + 1), mod, P = 3))
+                        'clean_expr' = cleaningY(log2(assays(rse)$raw_expr + 1), mod, P = 2))
     
     ## Regress out effects. If we had a diagnosis variable (Dx), we would use it
     ## first, then use P = 2 in cleaningY()
