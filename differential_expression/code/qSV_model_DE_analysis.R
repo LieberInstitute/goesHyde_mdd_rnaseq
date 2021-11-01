@@ -164,13 +164,13 @@ run_DE_models <- function(rse_split, model_list = list(sep = modSep, sep_cf = mo
 # outExon <- run_DE_models(rse_exon_split, csv_prefix = "qSVA_MDD_exon")
 # save(outExon, file = here("differential_expression","data","qSVA_MDD_exon_DEresults.rda"))
 
-message("\n####  JXN  ####")
-outJxn <- run_DE_models(rse_jxn_split, csv_prefix = "qSVA_MDD_jxn")
-save(outJxn, file = here("differential_expression","data","qSVA_MDD_jxn_DEresults.rda"))
+# message("\n####  JXN  ####")
+# outJxn <- run_DE_models(rse_jxn_split, csv_prefix = "qSVA_MDD_jxn")
+# save(outJxn, file = here("differential_expression","data","qSVA_MDD_jxn_DEresults.rda"))
 
 message("\n####  TX  ####")
 outTx <- run_DE_models(rse_tx_split, run_voom = FALSE, csv_prefix = "qSVA_MDD_tx")
-save(outTx, here("differential_expression","data","qSVA_MDD_tx_DEresults.rda"))
+save(outTx, file = here("differential_expression","data","qSVA_MDD_tx_DEresults.rda"))
 
 #sgejobs::job_single('qSV_model_DE_analysis', create_shell = TRUE, memory = '80G', command = "Rscript qSV_model_DE_analysis.R")
 
