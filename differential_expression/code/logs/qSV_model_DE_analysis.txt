@@ -6,12 +6,12 @@ Loading LIBD module for rmate/1.5.9
 Loading LIBD module for ruby/2.6.4p104
 Loading conda_R/4.1
 **** Job starts ****
-Thu Oct 28 14:26:59 EDT 2021
+Fri Oct 29 13:34:54 EDT 2021
 **** JHPCE info ****
 User: lhuuki
-Job id: 7402964
+Job id: 7413271
 Job name: qSV_model_DE_analysis
-Hostname: compute-116.cm.cluster
+Hostname: compute-113.cm.cluster
 Task id: undefined
 Unloading conda_R/4.1
 Loading conda_R/4.0.x
@@ -196,24 +196,6 @@ Amygdala     sACC
    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
   17.37   34.62   47.21   46.58   55.86   95.27 
 [1] "meanExprs"    "passExprsCut"
-[[1]]
-[1] ""
-
-[[2]]
-[1] ""
-
-[[3]]
-[1] ""
-
-[[4]]
-[1] ""
-
-[[5]]
-[1] ""
-
-[[6]]
-[1] ""
-
 [1] "meanExprs"          "passExprsCut"       "common_feature_id"  "common_gene_symbol" "common_gene_id"    
 $amyg
 MDD BPD 
@@ -226,158 +208,136 @@ MDD BPD
 Loading objects:
   qSV_mat
 
-####  GENE  ####
-Running sep amyg DE:
-Calc Norm Factors: 2021-10-28 14:28:22
-Limma: 2021-10-28 14:28:42
-eBayes: 2021-10-28 14:29:11
-Index coef: PrimaryDxMDD
-1 coef, Return t-stats
-               <  0.05 <  0.01
-q_PrimaryDxMDD       3       0
-Calc Norm Factors: 2021-10-28 14:29:12
-Limma: 2021-10-28 14:29:29
-eBayes: 2021-10-28 14:29:52
-Index coef: PrimaryDxBipolar
-1 coef, Return t-stats
-                   <  0.05 <  0.01
-q_PrimaryDxBipolar      82       6
-Writing csv files
-Running sep sacc DE:
-Calc Norm Factors: 2021-10-28 14:29:54
-Limma: 2021-10-28 14:30:12
-eBayes: 2021-10-28 14:30:46
-Index coef: PrimaryDxMDD
-1 coef, Return t-stats
-               <  0.05 <  0.01
-q_PrimaryDxMDD     392      88
-Calc Norm Factors: 2021-10-28 14:30:47
-Limma: 2021-10-28 14:31:01
-eBayes: 2021-10-28 14:31:25
-Index coef: PrimaryDxBipolar
-1 coef, Return t-stats
-                   <  0.05 <  0.01
-q_PrimaryDxBipolar     326      31
-Writing csv files
-Running sep_cf amyg DE:
-Calc Norm Factors: 2021-10-28 14:31:27
-Limma: 2021-10-28 14:31:46
-eBayes: 2021-10-28 14:32:30
-Index coef: PrimaryDxMDD
-1 coef, Return t-stats
-               <  0.05 <  0.01
-q_PrimaryDxMDD       4       0
-Calc Norm Factors: 2021-10-28 14:32:30
-Limma: 2021-10-28 14:32:45
-eBayes: 2021-10-28 14:33:19
-Index coef: PrimaryDxBipolar
-1 coef, Return t-stats
-                   <  0.05 <  0.01
-q_PrimaryDxBipolar      12       1
-Writing csv files
-Running sep_cf sacc DE:
-Calc Norm Factors: 2021-10-28 14:33:21
-Limma: 2021-10-28 14:33:40
-eBayes: 2021-10-28 14:34:25
-Index coef: PrimaryDxMDD
-1 coef, Return t-stats
-               <  0.05 <  0.01
-q_PrimaryDxMDD      95      10
-Calc Norm Factors: 2021-10-28 14:34:26
-Limma: 2021-10-28 14:34:41
-eBayes: 2021-10-28 14:35:16
-Index coef: PrimaryDxBipolar
-1 coef, Return t-stats
-                   <  0.05 <  0.01
-q_PrimaryDxBipolar      21       1
-Writing csv files
-
-####  EXON  ####
-Running sep amyg DE:
-Calc Norm Factors: 2021-10-28 14:35:22
-Limma: 2021-10-28 14:42:20
-eBayes: 2021-10-28 14:50:36
-Index coef: PrimaryDxMDD
-1 coef, Return t-stats
-               <  0.05 <  0.01
-q_PrimaryDxMDD       4       0
-Calc Norm Factors: 2021-10-28 14:50:50
-Limma: 2021-10-28 14:56:10
-eBayes: 2021-10-28 15:02:30
-Index coef: PrimaryDxBipolar
-1 coef, Return t-stats
-                   <  0.05 <  0.01
-q_PrimaryDxBipolar     159      50
-Writing csv files
-Running sep sacc DE:
-Calc Norm Factors: 2021-10-28 15:02:58
-Limma: 2021-10-28 15:10:09
-eBayes: 2021-10-28 15:18:41
-Index coef: PrimaryDxMDD
-1 coef, Return t-stats
-               <  0.05 <  0.01
-q_PrimaryDxMDD     430      20
-Calc Norm Factors: 2021-10-28 15:18:54
-Limma: 2021-10-28 15:24:17
-eBayes: 2021-10-28 15:30:49
-Index coef: PrimaryDxBipolar
-1 coef, Return t-stats
-                   <  0.05 <  0.01
-q_PrimaryDxBipolar     119      26
-Writing csv files
-Running sep_cf amyg DE:
-Calc Norm Factors: 2021-10-28 15:31:17
-Limma: 2021-10-28 15:38:27
-eBayes: 2021-10-28 15:49:58
-Index coef: PrimaryDxMDD
-1 coef, Return t-stats
-               <  0.05 <  0.01
-q_PrimaryDxMDD       0       0
-Calc Norm Factors: 2021-10-28 15:50:14
-Limma: 2021-10-28 15:55:24
-eBayes: 2021-10-28 16:03:50
-Index coef: PrimaryDxBipolar
-1 coef, Return t-stats
-                   <  0.05 <  0.01
-q_PrimaryDxBipolar      44       0
-Writing csv files
-Running sep_cf sacc DE:
-Calc Norm Factors: 2021-10-28 16:04:20
-Limma: 2021-10-28 16:12:04
-eBayes: 2021-10-28 16:23:43
-Index coef: PrimaryDxMDD
-1 coef, Return t-stats
-               <  0.05 <  0.01
-q_PrimaryDxMDD      20       0
-Calc Norm Factors: 2021-10-28 16:24:00
-Limma: 2021-10-28 16:29:23
-eBayes: 2021-10-28 16:37:58
-Index coef: PrimaryDxBipolar
-1 coef, Return t-stats
-                   <  0.05 <  0.01
-q_PrimaryDxBipolar       5       0
-Writing csv files
-
 ####  JXN  ####
 Running sep amyg DE:
-Calc Norm Factors: 2021-10-28 16:39:34
-Limma: 2021-10-28 16:43:42
-eBayes: 2021-10-28 16:49:44
+Calc Norm Factors: 2021-10-29 13:36:30
+Limma: 2021-10-29 13:41:11
+eBayes: 2021-10-29 13:48:09
 Index coef: PrimaryDxMDD
 1 coef, Return t-stats
                <  0.05 <  0.01
 q_PrimaryDxMDD      47      26
-Calc Norm Factors: 2021-10-28 16:49:54
-Limma: 2021-10-28 16:53:00
-eBayes: 2021-10-28 16:57:31
+Calc Norm Factors: 2021-10-29 13:48:20
+Limma: 2021-10-29 13:51:51
+eBayes: 2021-10-29 13:57:11
 Index coef: PrimaryDxBipolar
 1 coef, Return t-stats
                    <  0.05 <  0.01
 q_PrimaryDxBipolar      23      10
 Writing csv files
-Error in stream_delim_(df, file, ..., bom = bom, quote_escape = quote_escape,  : 
-  Don't know how to handle vector of type list in column 'gencodeTx'.
-Calls: run_DE_models ... write_csv -> write_delim -> stream_delim -> stream_delim_
+Running sep sacc DE:
+Calc Norm Factors: 2021-10-29 13:57:32
+Limma: 2021-10-29 14:02:29
+eBayes: 2021-10-29 14:09:41
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD     470     234
+Calc Norm Factors: 2021-10-29 14:10:11
+Limma: 2021-10-29 14:13:54
+eBayes: 2021-10-29 14:19:26
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar      NA      NA
+Writing csv files
+Running sep_cf amyg DE:
+Calc Norm Factors: 2021-10-29 14:19:55
+Limma: 2021-10-29 14:24:42
+eBayes: 2021-10-29 14:34:32
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD      47      34
+Calc Norm Factors: 2021-10-29 14:34:46
+Limma: 2021-10-29 14:38:21
+eBayes: 2021-10-29 14:45:44
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar      16      11
+Writing csv files
+Running sep_cf sacc DE:
+Calc Norm Factors: 2021-10-29 14:46:07
+Limma: 2021-10-29 14:51:10
+eBayes: 2021-10-29 15:01:15
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD     409     193
+Calc Norm Factors: 2021-10-29 15:01:53
+Limma: 2021-10-29 15:05:42
+eBayes: 2021-10-29 15:13:24
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar      37      24
+Writing csv files
+Warning messages:
+1: Partial NA coefficients for 3 probe(s) 
+2: Partial NA coefficients for 1 probe(s) 
+3: Partial NA coefficients for 5 probe(s) 
+4: Partial NA coefficients for 1 probe(s) 
+
+####  TX  ####
+Running sep amyg DE:
+Limma: 2021-10-29 15:15:10
+eBayes: 2021-10-29 15:15:17
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD      66       3
+Limma: 2021-10-29 15:15:21
+eBayes: 2021-10-29 15:15:27
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       7       0
+Writing csv files
+Running sep sacc DE:
+Limma: 2021-10-29 15:15:32
+eBayes: 2021-10-29 15:15:39
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD      43       2
+Limma: 2021-10-29 15:15:43
+eBayes: 2021-10-29 15:15:49
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar      18       0
+Writing csv files
+Running sep_cf amyg DE:
+Limma: 2021-10-29 15:15:54
+eBayes: 2021-10-29 15:16:03
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       9       0
+Limma: 2021-10-29 15:16:08
+eBayes: 2021-10-29 15:16:15
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+Writing csv files
+Running sep_cf sacc DE:
+Limma: 2021-10-29 15:16:20
+eBayes: 2021-10-29 15:16:29
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD      26       0
+Limma: 2021-10-29 15:16:34
+eBayes: 2021-10-29 15:16:40
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       1       0
+Writing csv files
+Error in save(outTx, here("differential_expression", "data", "qSVA_MDD_tx_DEresults.rda")) : 
+  object ‘here("differential_expression", "data", "qSVA_MDD_tx_DEresults.rda")’ not found
 Execution halted
 **** Job ends ****
-Thu Oct 28 16:57:43 EDT 2021
+Fri Oct 29 15:16:48 EDT 2021
