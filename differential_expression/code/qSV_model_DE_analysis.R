@@ -170,6 +170,10 @@ run_DE_models <- function(rse_split, model_list = list(sep = modSep, sep_cf = mo
 
 message("\n####  TX  ####")
 outTx <- run_DE_models(rse_tx_split, run_voom = FALSE, csv_prefix = "qSVA_MDD_tx")
+##need to add rowData 
+rd_tx <- rowData(rse_tx)[,c("common_feature_id","common_gene_symbol","common_gene_id")]
+outTx <- map_depth(outTx, 3, ~cbind(.x, rd_tx[rownames(.x),]))
+# map_depth(outTx, 3, head)
 save(outTx, file = here("differential_expression","data","qSVA_MDD_tx_DEresults.rda"))
 
 #sgejobs::job_single('qSV_model_DE_analysis', create_shell = TRUE, memory = '80G', command = "Rscript qSV_model_DE_analysis.R")
