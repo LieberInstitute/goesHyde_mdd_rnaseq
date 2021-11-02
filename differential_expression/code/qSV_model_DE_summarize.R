@@ -5,6 +5,7 @@ library(tidyverse)
 library(sessioninfo)
 library(here)
 library(EnhancedVolcano)
+library(UpSetR)
 
 #### Load Data ####
 data_type <- c("gene","exon","jxn","tx")
@@ -53,11 +54,45 @@ model_counts <- summarize_DE(outGene, "Gene")  %>%
 write_csv(model_counts, here("differential_expression","data","model_counts.csv"))
 
 ##### Overlap Between Models ####
+map(list(outGene, outExon, outJxn, outTx), ~head(.x$sep$amyg$MDD))
+
+get_signif_genes <- function(outFeature){
+  feature_genes <- map(outFeature, function(outModel){
+    model_genes <- map(outModel, function(outRegion){
+      region_genes <- map(outRegion, ~.x$common_gene_id[.x$adj.P.Val < 0.05])
+    })
+  })
+  return(feature_genes)
+}
+signifGene <- get_signif_genes(outGene)
+
+flatten(flatten(signifGene))
+
+map(signifGene$sep, ~length(intersect(.x$MDD, .x$BPD)))
+map(signifGene,function(mod) map(mod, ~length(intersect(.x$MDD, .x$BPD))))
 
 #### Volcano Plots ####
 
 pdf(here("differential_expression","plots","qSV_model_volcano.pdf"))
-walk2(outGene, names(outGene))
+map2(list(outGene, outExon, outJxn, outTx), c("Gene", "Exon", "Jxn", "Tx"), function(featOut, featName){
+  map2(featOut, names(featOut), function(modelOut, modelName){
+    map2(modelOut, names(modelOut), function(regionOut, regionName){
+      map2(regionOut, names(regionOut),
+           ~EnhancedVolcano(.x,
+                            pCutoff = 0.05,
+                            y = "adj.P.Val",
+                            x = "logFC",
+                            lab = .x$Symbol,
+                            title = paste(featName,"-", regionName),
+                            subtitle = paste(modelName, "model,", .y,"vs. Control"))
+      )
+    })
+  })
+})
+
+dev.off()
+
+
 
 
 
