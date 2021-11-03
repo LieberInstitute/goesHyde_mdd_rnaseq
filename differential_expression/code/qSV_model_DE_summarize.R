@@ -21,15 +21,16 @@ load(paths$tx, verbose = TRUE)
 allOut <- list(gene = outGene, exon = outExon, jxn = outJxn, tx = outTx)
 
 #### Summarize Counts ####
-get_signif <- function(outFeature, colname = "common_feature_id", cutoff = 0.05){
-      signif <- unique(outFeature[[colname]][outFeature$adj.P.Val < cutoff])
+get_signif <- function(outFeature, colname = "common_feature_id", cutoff = 0.05, return_unique = FALSE){
+      signif <- outFeature[[colname]][outFeature$adj.P.Val < cutoff]
+      if(return_unique) signif <- unique(signif)
       signif <- signif[!is.na(signif)]
       return(signif)
 }
 
 ## Extract lists
 signifFeat <- map_depth(allOut, 4, get_signif)
-signifGene <- map_depth(allOut, 4, get_signif, colname = "common_gene_id")
+signifGene <- map_depth(allOut, 4, get_signif, colname = "common_gene_id", return_unique = TRUE)
 signifFC <- map_depth(allOut, 4, get_signif, colname = "logFC")
 
 ## Summarize counts
@@ -95,17 +96,17 @@ pdf(here("differential_expression","plots",paste0("upset_jxn.pdf")))
 upset(fromList(signifFeat_flat$jxn), order.by = "freq", nset = 8)
 dev.off()
 
-# pdf(here("differential_expression","plots",paste0("upset_tx.pdf")))
-# upset(fromList(signifFeat_flat$tx), order.by = "freq")
-# dev.off()
+pdf(here("differential_expression","plots",paste0("upset_tx.pdf")))
+upset(fromList(signifFeat_flat$tx), order.by = "freq", nset = 8)
+dev.off()
 
 signifGene_flat <- my_flatten(signifGene)
 pdf(here("differential_expression","plots",paste0("upset_ALL.pdf")))
-upset(fromList(signifGene_flat), order.by = "freq", nset = 24)
+upset(fromList(signifGene_flat), order.by = "freq", nset = sum(model_counts$n_genes != 0))
 dev.off()
 
 ## Compare Model Intersects
-signifGene_model <- map(signifGene, function(sg) map(transpose(sg), transpose))
+signifFeat_model <- map(signifFeat, function(sg) map(transpose(sg), transpose))
 
 get_venn_values <- function(my_sets){
   my_values <- c(length(setdiff(my_sets[[1]], my_sets[[2]])),
@@ -116,7 +117,7 @@ get_venn_values <- function(my_sets){
   return(my_values)
 }
 
-model_venn_values <- as.data.frame(map(signifGene_model, function(sg) map(sg, ~map(.x, get_venn_values)))) %>%
+model_venn_values <- as.data.frame(map(signifFeat_model, function(sg) map(sg, ~map(.x, get_venn_values)))) %>%
   t() %>% as.data.frame() %>%
   rownames_to_column("cat") %>%
   pivot_longer(!cat)
@@ -125,9 +126,12 @@ model_venn_values$name <- factor(model_venn_values$name,  levels = c("sep", "Int
 
 model_venn_tiles <- ggplot(model_venn_values, aes(x = name, y = cat, fill = value)) +
   geom_tile(color = "lightgrey") +
-  geom_text(aes(label = value), color = "white")
+  geom_text(aes(label = value), color = "white") +
+  labs(x = "n features", y = NULL)
   
 ggsave(model_venn_tiles, filename = here("differential_expression","plots", "model_venn_tiles.png"))
+
+## Compare Dx or Region?
 
 #### Volcano Plots ####
 
