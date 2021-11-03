@@ -29,3 +29,5 @@ data/*.vcf*
 twas_mdd/trash/*
 eqtl/genomewide/*.pdf
 eqtl/genomewide/plots/*
+differential_expression/plots/qSV_model_volcano.pdf
+
