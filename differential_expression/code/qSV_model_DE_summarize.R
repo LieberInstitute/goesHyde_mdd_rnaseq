@@ -32,6 +32,7 @@ get_signif <- function(outFeature, colname = "common_feature_id", cutoff = 0.05,
 signifFeat <- map_depth(allOut, 4, get_signif)
 signifGene <- map_depth(allOut, 4, get_signif, colname = "common_gene_id", return_unique = TRUE)
 signifFC <- map_depth(allOut, 4, get_signif, colname = "logFC")
+signifSymb <- map_depth(allOut, 4, get_signif, colname = "common_gene_symbol")
 
 ## Summarize counts
 signifFeat_n <- map_depth(signifFeat, 4, length) %>%
@@ -58,11 +59,20 @@ signifGene_n_down <- map_depth(signifFC, 4, ~sum(.x < 0)) %>%
   as.data.frame() %>%
   rename(Down = V1)
 
-model_counts <- do.call("cbind",list(signifFeat_n, signifGene_n, signifGene_n_up, signifGene_n_down)) %>%
+signifSymbol <- map_depth(signifSymb, 4, ~paste(unique(.x)[order(unique(.x))], collapse = ", ")) %>%
+  as.data.frame() %>%
+  t() %>%
+  as.data.frame() %>%
+  rename(Genes = V1)
+
+model_counts <- do.call("cbind",list(signifFeat_n, signifGene_n, signifGene_n_up, signifGene_n_down, signifSymbol)) %>%
   rownames_to_column("data") %>%
   separate(data, into = c("Feature", "Model", "Region", "Dx"), sep = "\\.")
 
 write_csv(model_counts, here("differential_expression","data","model_counts.csv"))
+
+
+signifSymb
 
 ##### Overlap Between Models ####
 my_flatten <- function (x, use.names = TRUE, classes = "ANY") 
@@ -105,6 +115,7 @@ pdf(here("differential_expression","plots",paste0("upset_ALL.pdf")))
 upset(fromList(signifGene_flat), order.by = "freq", nset = sum(model_counts$n_genes != 0))
 dev.off()
 
+#### Model vs. Model ####
 ## Compare Model Intersects
 signifFeat_model <- map(signifFeat, function(sg) map(transpose(sg), transpose))
 
@@ -131,6 +142,48 @@ model_venn_tiles <- ggplot(model_venn_values, aes(x = name, y = cat, fill = valu
   
 ggsave(model_venn_tiles, filename = here("differential_expression","plots", "model_venn_tiles.png"))
 
+## Graph t-stats
+allOut_model <- map(allOut, function(x) map(transpose(x), transpose))
+names(allOut_model$gene$amyg$MDD)
+
+head(do.call("cbind", allOut_model$gene$amyg$MDD))
+
+allOut_model_compare <- map_depth(allOut_model, 3, do.call, what = "cbind")
+
+sig_colors <- c(RColorBrewer::brewer.pal(3, "Set1"),"dark grey")
+names(sig_colors) <- c("sig_Both", "sig_no-deconvo", "sig_deconvo", "None")
+
+model_compare_plot <- function(model_df, title){
+
+  t_cor <- model_df %>%
+    summarize(cor = cor(sep.t, sep_cf.t, method = "spearman")) %>%
+    mutate(cor_anno = paste0("rho==", format(round(cor, 2), nsmall = 2)))
+  
+  model_df <- model_df %>% 
+    mutate(Signif = case_when(sep.adj.P.Val < 0.05 & sep_cf.adj.P.Val < 0.05 ~"sig_Both",
+                              sep.adj.P.Val < 0.05 ~ "sig_no-deconvo",
+                              sep_cf.adj.P.Val < 0.05 ~ "sig_deconvo",
+                              TRUE ~ "None"))
+  
+  model_plot <- ggplot(model_df, aes(x = sep.t, y = sep_cf.t, color = Signif)) +
+    geom_point(alpha = 0.5, size = 0.5) +
+    labs(x = "t-stats DE Model", y = "t-stats DE Model with Cell Fractions", 
+         title = title, subtitle = t_cor$cor_anno) +
+    scale_color_manual(values = sig_colors)+
+    theme_bw()
+  
+  message(title)  
+  print(model_plot)
+}
+
+pdf(here("differential_expression","plots","qSV_model_scatter.pdf"))
+walk2(allOut_model_compare, names(allOut_model_compare), function(feat_df, feat_name){
+  walk2(feat_df, names(feat_df), function(region_df, region_name){
+    walk2(region_df, names(region_df), ~model_compare_plot(.x, title = paste(feat_name, region_name,.y,"vs. Control")))
+  })
+})
+dev.off()
+
 ## Compare Dx or Region?
 
 #### Volcano Plots ####
@@ -154,8 +207,13 @@ map2(allOut, c("Gene", "Exon", "Jxn", "Tx"), function(featOut, featName){
 
 dev.off()
 
+#### Boxplots ####
 
+# ranks_to_check <- c(1:50, 201:250, 401:450, 601:650, 801:850, 1001:1050)
+ranks_to_check <- c(1:50)
+length(ranks_to_check)
 
-
-
+outGene_test <- outGene$sep$amyg$MDD %>%
+  arrange(adj.P.Val) %>%
+  mutate(row_num = row_number())
 
