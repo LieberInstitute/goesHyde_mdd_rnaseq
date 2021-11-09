@@ -6,6 +6,7 @@ library(sessioninfo)
 library(here)
 library(EnhancedVolcano)
 library(UpSetR)
+library(VariantAnnotation)
 
 #### Load Data ####
 data_type <- c("gene","exon","jxn","tx")
@@ -19,6 +20,19 @@ load(paths$jxn, verbose = TRUE)
 load(paths$tx, verbose = TRUE)
 
 allOut <- list(gene = outGene, exon = outExon, jxn = outJxn, tx = outTx)
+
+## Annotate Risk allels ##
+load(here('exprs_cutoff','rse_gene.Rdata'), verbose=TRUE)
+risk_vcf <- readVcf(here("eqtl", "data", "risk_snps", "LIBD_maf01_gwas_MDD.vcf.gz"))
+mdd_snps <- read.delim(here("eqtl", "data", "risk_snps", "PGC_depression_genome-wide_significant_makers.txt"))
+
+# risk_gr <- rowRanges(risk_vcf)
+risk_gr <- GRanges(seqnames = paste0("chr", mdd_snps$chr), IRanges(mdd_snps$bp, width = 1), feature_id = mdd_snps$markername)
+## genes 1KB from risk snp
+oo <- findOverlaps(risk_gr, rowRanges(rse_gene), maxgap = 100000)
+risk_genes <- unique(rowRanges(rse_gene)[subjectHits(oo),])
+length(risk_genes$gencodeID)
+##127
 
 #### Summarize Counts ####
 get_signif <- function(outFeature, colname = "common_feature_id", cutoff = 0.05, return_unique = FALSE){
@@ -47,6 +61,12 @@ signifGene_n <- map_depth(signifGene, 4, length) %>%
   as.data.frame() %>%
   rename(n_genes = V1)
 
+signifRiskGene_n <- map_depth(signifGene, 4, ~sum(.x %in% risk_genes$gencodeID)) %>%
+  as.data.frame() %>%
+  t() %>%
+  as.data.frame() %>%
+  rename(n_risk_genes = V1)
+
 signifGene_n_up <- map_depth(signifFC, 4, ~sum(.x > 0)) %>%
   as.data.frame() %>%
   t() %>%
@@ -65,9 +85,17 @@ signifSymbol <- map_depth(signifSymb, 4, ~paste(unique(.x)[order(unique(.x))], c
   as.data.frame() %>%
   rename(Genes = V1)
 
-model_counts <- do.call("cbind",list(signifFeat_n, signifGene_n, signifGene_n_up, signifGene_n_down, signifSymbol)) %>%
+signifRiskSymbol <- map_depth(signifSymb, 4, ~paste(unique(.x[.x %in% risk_genes$Symbol]), collapse = ", ")) %>%
+  as.data.frame() %>%
+  t() %>%
+  as.data.frame() %>%
+  rename(RiskGenes = V1)
+
+model_counts <- do.call("cbind",list(signifFeat_n, signifGene_n, signifGene_n_up, signifGene_n_down,signifRiskGene_n, signifRiskSymbol, signifSymbol)) %>%
   rownames_to_column("data") %>%
   separate(data, into = c("Feature", "Model", "Region", "Dx"), sep = "\\.")
+
+model_counts[,1:10]
 
 write_csv(model_counts, here("differential_expression","data","model_counts.csv"))
 
