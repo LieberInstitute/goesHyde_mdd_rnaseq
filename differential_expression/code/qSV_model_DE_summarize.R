@@ -138,6 +138,14 @@ pdf(here("differential_expression","plots",paste0("upset_tx.pdf")))
 upset(fromList(signifFeat_flat$tx), order.by = "freq", nset = 8)
 dev.off()
 
+
+##only sep
+walk2(signifFeat, names(signifFeat), function(sf, name){
+  pdf(here("differential_expression","plots",paste0("upset_",name,"_sep",".pdf")))
+  print(upset(fromList(my_flatten(sf$sep)), order.by = "freq", nset = 4))
+  dev.off()
+})
+
 signifGene_flat <- my_flatten(signifGene)
 pdf(here("differential_expression","plots",paste0("upset_ALL.pdf")))
 upset(fromList(signifGene_flat), order.by = "freq", nset = sum(model_counts$n_genes != 0))
@@ -145,7 +153,10 @@ dev.off()
 
 #### Model vs. Model ####
 ## Compare Model Intersects
+# names(signifFeat$gene$sep$amyg$MDD)
 signifFeat_model <- map(signifFeat, function(sg) map(transpose(sg), transpose))
+signifFeat_region <- map(signifFeat, function(sg) map(sg, transpose))
+# names(signifFeat_region$gene$sep$MDD)
 
 get_venn_values <- function(my_sets){
   my_values <- c(length(setdiff(my_sets[[1]], my_sets[[2]])),
@@ -159,16 +170,37 @@ get_venn_values <- function(my_sets){
 model_venn_values <- as.data.frame(map(signifFeat_model, function(sg) map(sg, ~map(.x, get_venn_values)))) %>%
   t() %>% as.data.frame() %>%
   rownames_to_column("cat") %>%
-  pivot_longer(!cat)
+  pivot_longer(!cat)%>%
+  separate(cat, into = c("Feature", "Region", "Dx"), sep = "\\.")
 
+model_venn_values$Feature <- factor(model_venn_values$Feature, levels = c("gene", "exon", "jxn", "tx"))
 model_venn_values$name <- factor(model_venn_values$name,  levels = c("sep", "Intersect", "sep_cf"))
 
-model_venn_tiles <- ggplot(model_venn_values, aes(x = name, y = cat, fill = value)) +
+model_venn_tiles <- ggplot(model_venn_values, aes(x = name, y = Feature, fill = value)) +
   geom_tile(color = "lightgrey") +
   geom_text(aes(label = value), color = "white") +
-  labs(x = "n features", y = NULL)
+  labs(x = NULL, y = NULL)+
+  facet_grid(Region~Dx)
   
-ggsave(model_venn_tiles, filename = here("differential_expression","plots", "model_venn_tiles.png"))
+ggsave(model_venn_tiles, filename = here("differential_expression","plots", "venn_tiles_models.png"))
+
+## Region venn values
+region_venn_values <- as.data.frame(map(signifFeat_region, function(sg) map(sg, ~map(.x, get_venn_values)))) %>%
+  t() %>% as.data.frame() %>%
+  rownames_to_column("cat") %>%
+  pivot_longer(!cat) %>%
+  separate(cat, into = c("Feature", "Model", "Dx"), sep = "\\.")
+
+region_venn_values$Feature <- factor(region_venn_values$Feature, levels = c("gene", "exon", "jxn", "tx"))
+
+region_venn_tiles <- ggplot(region_venn_values, aes(x = name, y = Feature, fill = value)) +
+  geom_tile(color = "lightgrey") +
+  geom_text(aes(label = value), color = "white") +
+  labs(x = NULL, y = NULL) +
+  facet_grid(Model~Dx)
+
+ggsave(region_venn_tiles, filename = here("differential_expression","plots", "venn_tiles_region.png"))
+
 
 ## Graph t-stats
 allOut_model <- map(allOut, function(x) map(transpose(x), transpose))
