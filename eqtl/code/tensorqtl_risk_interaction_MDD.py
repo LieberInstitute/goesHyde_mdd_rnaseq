@@ -6,7 +6,7 @@ import pandas as pd
 
 out_path = "../data/tensorQTL_out/nominal_mdd_risk/"
 
-for region in ["sACC"]:
+for region in ["Amygdala", "sACC"]:
     express, covar = my_tensorqtl_run.get_input_paths("gene", region)
     plink = "../data/risk_snps/LIBD_maf01_gwas_MDD"
     genotype_df, variant_df, phenotype_df, phenotype_pos_df, covariates_df = my_tensorqtl_run.load_data(plink, express, covar, add_chr = True)
@@ -22,9 +22,9 @@ for region in ["sACC"]:
         nominal_out = cis.map_nominal(genotype_df, variant_df, phenotype_df, phenotype_pos_df,
         prefix = tag, covariates_df=covariates_df, output_dir= out_path + "parquet_data/", 
         interaction_s = cf_interaction, maf_threshold_interaction=0, group_s=None, window=500000, 
-        run_eigenmt=True, write_top = False)
+        run_eigenmt=False, write_top = False)
         
-        nominal_out.to_csv(outpath + tag + ".csv")
+        nominal_out.to_csv(out_path + tag + ".csv")
     
     print("DONE " + region)
 
