@@ -16,192 +16,56 @@ summarize_eqtl <- function(eqtl_df){
     return(eqtl_stats)
 }
 
-
 #### load expression data ####
 load(here("exprs_cutoff", "rse_gene.Rdata"), verbose = TRUE)
+load(here("exprs_cutoff", "rse_exon.Rdata"), verbose = TRUE)
+load(here("exprs_cutoff", "rse_jxn.Rdata"), verbose = TRUE)
+load(here("exprs_cutoff", "rse_tx.Rdata"), verbose = TRUE)
+
 rd <- as.data.frame(rowData(rse_gene)) %>% select(gencodeID, Symbol)
 
 features <- c("gene", "exon", "jxn", "tx")
 names(features) <- features
 regions <- c(amyg = "Amygdala", sacc = "sACC")
 
-#### cis genomewide results ####
-cis_files <- list.files(here("eqtl", "data", "tensorQTL_out", "cis_genomewide_nominal"),
-                        pattern = ".csv", full.names = TRUE)
-names(cis_files) <- gsub("_FDR01.csv","",basename(cis_files))
-
-cisEqtl_tensor <- map(cis_files, read.csv)
-count_summary <- map_dfr(cisEqtl_tensor, summarize_eqtl) %>%
-    add_column(combo = names(cis_files), .before = "n_snp_feature_pairs") %>%
-    separate(combo, into = c("feature", "region"))
-
-write.csv(count_summary, file = here("eqtl", "data", "summary", "cis_genomewide_FDR01.csv"))
-
 #### genomewide results ####
 ## load tables
-geneEqtl_tensor <- map(c(amyg = "Amygdala", sacc = "sACC"), ~ read.csv(here("eqtl", "data", "tensorQTL_out", paste0("gene_", .x, "_cis_genomewide.csv"))) %>%
-    mutate(FDR = p.adjust(pval_beta, "fdr")) %>%
+eqtl_tensor <- map(features[1], function(f){
+    eqtl <- map(c(amyg = "amyg", sacc = "sacc"), 
+                ~ read.csv(here("eqtl", "data", "tensorQTL_out", "cis_genomewide_nominal", paste0(f, "_", .x, "_FDR01.csv"))) %>%
     rename(gencodeID = phenotype_id))
-head(geneEqtl_tensor$amyg)
-summary(geneEqtl_tensor$amyg$tss_distance)
+    return(eqtl)
+    })
 
-#### Compare Direct and Beta ####
-## recommended on http://fastqtl.sourceforge.net/ on in "Permutation pass in Cis" page: "Checking that the Experiment Went Well"
-p_val_check <- map(geneEqtl_tensor, ~ ggplot(.x, aes(pval_perm, pval_beta)) +
-    geom_point(size = 0.5, alpha = 0.5) +
-    geom_abline(color = "red"))
+head(eqtl_tensor$gene$amyg)
+summary(eqtl_tensor$gene$amyg$tss_distance)
+summary(eqtl_tensor$gene$amyg$FDR)
+summary(eqtl_tensor$tx$sacc$tss_distance)
 
-walk2(p_val_check, names(p_val_check), ~ ggsave(.x, filename = here("eqtl", "plots", paste0("gene_genomewide_pval_check_", .y, ".png"))))
+map_depth(eqtl_tensor, 2, nrow)
 
-## top EQTLs
-map(geneEqtl_tensor, ~ .x %>%
-    arrange(FDR) %>%
-    head())
-map_int(geneEqtl_tensor, ~ .x %>%
-    filter(FDR < 0.05) %>%
-    nrow())
-# amyg sacc
-# 2060 2092
-map_int(geneEqtl_tensor, ~ .x %>%
-    filter(FDR < 0.01) %>%
-    nrow())
-# amyg sacc
-# 1322 1350
-
-#### map_nominal results####
-nominal_dir <- here("eqtl", "data", "tensorQTL_out", "gene_Amygdala_cis_genomewide_nominal")
-parquet_files <- list.files(nominal_dir, full.names = TRUE)
-
-dim(geneEqtl_nominal)
-# [1] 91717646        10
-length(unique(geneEqtl_nominal$variant_id))
-# [1] 9736432
-table(geneEqtl_nominal$FDR_nominal < 0.05)
-# FALSE     TRUE
-# 81048381   946823
-
-## save out results < 0.01
-geneEqtl_nominal_filter <- geneEqtl_nominal %>% filter(pval_nominal < 0.01)
-dim(geneEqtl_nominal_filter)
-# [1] 2428478      10
-write_csv(geneEqtl_nominal_filter, file = paste0(nominal_dir, ".csv"))
-
-#### matrixEQTL out ####
-load(here("eqtl", "data", "matrixEQTL_out", "matrixEqtl_output_amyg_genomewide_gene_annotate.rda"), verbose = TRUE)
-geneEqtl_matrix <- geneEqtl
-table(geneEqtl_matrix$FDR < 0.01)
-# FALSE     TRUE
-# 10602310  1574482
-
-## N snps
-length(unique(geneEqtl_matrix$snps))
-# [1] 4826322
-length(unique(geneEqtl_tensor$amyg$variant_id))
-# [1] 15767
-length(intersect(geneEqtl_matrix$snps, geneEqtl_tensor$amyg$variant_id))
-# [1] 9079
-
-## N genes
-nrow(rse_gene)
-# [1] 25212
-length(unique(geneEqtl_matrix$gene))
-# [1] 24470
-length(unique(geneEqtl_tensor$amyg$gencodeID))
-# [1] 24241
-length(intersect(geneEqtl_matrix$gene, geneEqtl_tensor$amyg$gencodeID))
-# [1] 24039
-
-## p-vals
-summary(geneEqtl_tensor$amyg$pval_beta)
-# Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
-# 0.0000  0.1374  0.4250  0.4293  0.6982  0.9982
-summary(geneEqtl_matrix$pvalue)
-# Min.  1st Qu.   Median     Mean  3rd Qu.     Max.
-# 0.000000 0.005343 0.030638 0.036567 0.063498 0.100000
-summary(geneEqtl_matrix$FDR)
-# Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
-# 0.0000  0.1322  0.3789  0.3323  0.5235  0.6184
-
-## match up
-geneEqtl_methods <- geneEqtl_tensor$amyg %>%
-    select(snps = variant_id, gene = gencodeID, statistic_tensor = slope, pval_beta) %>%
-    mutate(FDR_tensor = p.adjust(pval_beta, "fdr")) %>%
-    inner_join(as_tibble(geneEqtl_matrix) %>%
-        rename(statistic_matrix = statistic, FDR_matrix = FDR))
-
-nrow(geneEqtl_methods)
-# [1] 5371
-
-method_scater <- geneEqtl_methods %>%
-    ggplot(aes(FDR_matrix, FDR_tensor)) +
-    geom_point(size = 0.5, alpha = 0.5) +
-    geom_hline(yintercept = 0.05, color = "red") +
-    geom_vline(xintercept = 0.05, color = "blue")
-
-ggsave(method_scater, filename = here("eqtl", "plots", "compare_methods_genomewide.png"))
-
-with(geneEqtl_methods, table(FDR_matrix < 0.05, FDR_tensor < 0.05))
-#       FALSE TRUE
-# FALSE  2382    0
-# TRUE   2196  793
-
-## matchup w/ nominal
-geneEqtl_methods_nominal <- geneEqtl_nominal %>%
-    select(snps = variant_id, gene = phenotype_id, slope_tensor = slope, pval_nominal, FDR_nominal) %>%
-    inner_join(as_tibble(geneEqtl_matrix) %>%
-        rename(statistic_matrix = statistic, FDR_matrix = FDR, pval_matrix = pvalue)) %>%
-    mutate(
-        log10_FDR_matrix = -log10(FDR_matrix),
-        log10_FDR_nominal = -log10(FDR_nominal)
-    )
-
-dim(geneEqtl_methods_nominal)
-# [1] 8539512      13
-
-method_density_nom <- geneEqtl_methods_nominal %>%
-    ggplot(aes(log10_FDR_matrix, log10_FDR_nominal)) +
-    geom_point(size = 0.01, alpha = 0.1) +
-    geom_abline(color = "red") +
-    theme_bw() +
-    labs(x = "-log10(FDR matrixEQTL)", y = "-log10(FDR tensorQTL nominal)")
-
-ggsave(method_density_nom, filename = here("eqtl", "plots", "compare_methods_genomewide_nom.png"))
-
-with(geneEqtl_methods_nominal, table("nom" = FDR_nominal < 0.01, "matrix" = FDR_matrix < 0.01))
-#         FALSE    TRUE
-# FALSE 7015864 1176873
-# TRUE    15681  331094
-
-## list significant SNPs to make subset VCF ####
-map(genomewide, ~ .x %>% count(pval_perm < 0.01))
-genomewide_signif <- do.call("rbind", map(genomewide, ~ .x %>% filter(pval_perm < 0.05)))
-
-signif_snps <- unique(genomewide_signif$variant_id)
-length(signif_snps)
-# 4,688 SNPs are significant
-cat(signif_snps, file = here("eqtl", "data", "tensorQTL_out", "significant_snps.txt"), sep = "\n")
-
-
+#### get residual expression ####
 ## build model
 pd <- colData(rse_gene) %>% as.data.frame()
 mod <- model.matrix(~ PrimaryDx + Sex + snpPC1 + snpPC2 + snpPC3 + snpPC4 + snpPC5, data = pd)
 colnames(mod)
 
-## get residual expression
-gene_resid_expres_split <- map(splitit(rse_gene$BrainRegion), ~ get_resid_expres(rse_gene[, .x], mod[.x, ]))
-map(gene_resid_expres_split, dim)
+resid_expres_split <- map(c(gene = rse_gene, exon = rse_exon, jxn = rse_jxn, tx = rse_tx)[1], function(rse) map(splitit(rse$BrainRegion), ~ get_resid_expres(rse[, .x], mod[.x, ])))
+map_depth(resid_expres_split, 2, dim)
 
-gene_resid_expres_split_long <- map(gene_resid_expres_split, ~ .x %>%
-    as.data.frame() %>%
-    rownames_to_column("gencodeID") %>%
-    pivot_longer(!gencodeID, names_to = "genoSample", values_to = "expression"))
+resid_expres_split_long <- map_depth(resid_expres_split, 2, 
+                                     ~ .x %>%
+                                         as.data.frame() %>%
+                                         rownames_to_column("gencodeID") %>%
+                                         pivot_longer(!gencodeID, names_to = "genoSample", values_to = "expression"))
+map_depth(resid_expres_split_long, 2, nrow)
 
 ## get phenotype data
 pd <- as.data.frame(colData(rse_gene))
 genoDx <- pd %>%
     select(genoSample, PrimaryDx) %>%
     unique()
-dim(genoDx)
+head(genoDx)
 
 #### Load VCF ####
 signif_vcf <- readVcf(here("eqtl", "data", "signif_snps", "LIBD_Brain_merged_maf_005_topmed_051120_mdd_signif.vcf.gz"))
@@ -227,48 +91,95 @@ geno_long <- as.data.frame(geno(signif_vcf)$GT) %>%
     )
 
 #### Filter and Annotate eQTL ####
-geneEqtl_tensor_anno <- map(geneEqtl_tensor, function(e) {
+names(eqtl_tensor)
+eqtl_tensor_anno <- map_depth(eqtl_tensor, 2, function(e) {
     e_anno <- e %>%
-        filter(FDR < 0.01) %>%
-        arrange(FDR) %>%
+        arrange(FDR)  %>%
         left_join(rd) %>%
         left_join(rs_id) %>%
         mutate(
-            eqtl = paste0(row_number(), ". ", gencodeID, " - ", variant_id),
+            eqtl = paste0(str_pad(row_number(), 4), ". ", gencodeID, " - ", variant_id),
             eqtl_anno = paste("Gene:", Symbol, "\nSNP:", RS, "\nFDR= ", scales::scientific(FDR, didgits = 3))
         ) %>%
-        slice(1:10)
+        slice(c(1:10, 501:510, 1001:1010))
 
     e_anno$eqtl <- factor(e_anno$eqtl)
     e_anno$eqtl <- fct_reorder(e_anno$eqtl, e_anno$FDR, min)
 
     return(e_anno)
 })
+map_depth(eqtl_tensor_anno, 2, head)
+map_depth(eqtl_tensor_anno, 2, nrow)
+eqtl_tensor_anno$gene$amyg
 
-
-express_geno_cf <- map2(
-    geneEqtl_tensor_anno, gene_resid_expres_split_long,
-    ~ .x %>%
-        left_join(geno_long, by = "variant_id") %>%
-        left_join(.y, by = c("gencodeID", "genoSample")) %>%
-        left_join(genoDx, by = "genoSample")
+express_geno <- map2(
+    eqtl_tensor_anno, resid_expres_split_long, function(eqtl, expres){
+        map2(eqtl, expres, ~ .x %>%
+                 inner_join(geno_long, by = "variant_id") %>%
+                 inner_join(.y, by = c("gencodeID", "genoSample")) %>%
+                 left_join(genoDx, by = "genoSample"))
+    }
 )
 
-map(express_geno_cf, head)
+eqtl_tensor_anno$gene$amyg %>% head()
+resid_expres_split_long$gene$Amygdala %>% head()
+
+map_depth(express_geno_cf,2, head)
+express_geno_cf$gene$amyg %>%
+    count(eqtl)
 
 genomewide_box <- map2(
-    express_geno_cf, geneEqtl_tensor_anno,
-    ~ ggplot(.x, aes(x = Genotype, y = expression)) +
-        geom_boxplot(aes(fill = PrimaryDx)) +
-        facet_wrap(~eqtl, nrow = 2) +
-        scale_fill_manual(values = mdd_Dx_colors) +
-        geom_text(
-            data = .y,
-            aes(label = eqtl_anno),
-            x = -Inf, y = Inf, vjust = "inward", hjust = "inward", size = 3, nudge_y = -0.1
-        ) +
-        theme_bw() +
-        coord_cartesian(clip = "off")
+    express_geno_cf, eqtl_tensor_anno, function(express_geno, anno){
+        map2(express_geno, anno, ~ ggplot(.x, aes(x = Genotype, y = expression)) +
+                 geom_boxplot(aes(fill = PrimaryDx)) +
+                 facet_wrap(~eqtl, nrow = 2) +
+                 scale_fill_manual(values = mdd_Dx_colors) +
+                 geom_text(
+                     data = .y,
+                     aes(label = eqtl_anno),
+                     x = -Inf, y = Inf, vjust = "inward", hjust = "inward", size = 3, nudge_y = -0.1
+                 ) +
+                 theme_bw() +
+                 coord_cartesian(clip = "off"))
+    }
 )
 
 walk2(genomewide_box, names(genomewide_box), ~ ggsave(.x, filename = here("eqtl", "plots", paste0("gene_genomewide_boxplot_", .y, ".png")), width = 12))
+
+pwalk(
+    list(expres = express_geno_cf, anno = eqtl_tensor_anno, feat_name = names(express_geno_cf)), function(expres, anno, feat_name){
+        pwalk(
+            list(expres2 = expres, anno2 = anno, region_name = names(expres)), function(expres2, anno2, region_name){
+                label = paste0(feat_name, "_", region_name)
+                message(label)
+                
+                eqtl_box <- ggplot(expres2, aes(x = Genotype, y = expression)) +
+                    geom_boxplot(aes(fill = PrimaryDx)) +
+                    scale_fill_manual(values = mdd_Dx_colors) +
+                    geom_text(
+                        data = anno2,
+                        aes(label = eqtl_anno),
+                        x = -Inf, y = Inf, vjust = "inward", hjust = "inward", size = 3, nudge_y = -0.1
+                    ) +
+                    theme_bw() +
+                    coord_cartesian(clip = "off")
+        
+        required_n_pages <- n_pages(eqtl_box + facet_wrap_paginate(~ eqtl, scales = "free", nrow = 2, ncol = 2))
+        message(required_n_pages)
+        
+        pdf(here("eqtl", "plots", paste0("eqtl_genomewide_", label, ".pdf")), width = 10)
+        for (i in 1:required_n_pages) {
+            print( eqtl_box +
+                      facet_wrap_paginate(~ eqtl, scales = "free", nrow = 2, ncol = 2, page = i)
+                  # +
+                  #     geom_text(
+                  #         data = anno2,
+                  #         aes(label = eqtl_anno), x = -Inf, y = Inf, vjust = "inward", hjust = "inward", size = 3
+                  #     )
+                  )
+        }
+        dev.off()
+        
+            })
+})
+
