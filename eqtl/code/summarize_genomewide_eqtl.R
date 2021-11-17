@@ -63,9 +63,18 @@ eqtl_tensor_top <- map_depth(eqtl_tensor, 2, ~.x %>% arrange(FDR) %>% head(1500)
 pd <- colData(rse_gene) %>% as.data.frame()
 mod <- model.matrix(~ PrimaryDx + Sex + snpPC1 + snpPC2 + snpPC3 + snpPC4 + snpPC5, data = pd)
 colnames(mod)
+if(!file.exists(here("eqtl", "data", "plot_data", "residual_expres.Rdata"))){
+    resid_expres_split <- map2(c(gene = rse_gene, exon = rse_exon, jxn = rse_jxn, tx = rse_tx), features, function(rse, name){
+        message(name, " ",  Sys.time())
+        resid <- map(splitit(rse$BrainRegion), ~ get_resid_expres(rse[, .x], mod[.x, ]), tpm = name == "tx")
+        return(resid)
+    } )
+    save(resid_expres_split, file = here("eqtl", "data", "plot_data", "residual_expres.Rdata"))
+} else(
+    load(here("eqtl", "data", "plot_data", "residual_expres.Rdata"), verbose = TRUE)
+)
 
-# resid_expres_split <- map(c(gene = rse_gene), function(rse) map(splitit(rse$BrainRegion), ~ get_resid_expres(rse[, .x], mod[.x, ])))
-resid_expres_split <- map(c(gene = rse_gene, exon = rse_exon, jxn = rse_jxn, tx = rse_tx), function(rse) map(splitit(rse$BrainRegion), ~ get_resid_expres(rse[, .x], mod[.x, ])))
+
 map_depth(resid_expres_split, 2, dim)
 
 resid_expres_split_long <- map_depth(resid_expres_split, 2, 
