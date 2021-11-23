@@ -20,22 +20,20 @@ load(here("data","degradation_rse_MDDseq_BiPSeq_BothRegions.Rdata"), verbose = T
 ##### get qSVs ####
 modJoint = model.matrix(~PrimaryDx*BrainRegion + AgeDeath + Sex + 
                           snpPC1 + snpPC2 + snpPC3 + snpPC4 + snpPC5 +
-                          mitoRate + rRNA_rate + totalAssignedGene + RIN + ERCCsumLogErr,
+                          mitoRate + rRNA_rate + totalAssignedGene + RIN + abs(ERCCsumLogErr),
                         data=colData(rse_gene))
 colnames(modJoint)
 
-#  [1] "(Intercept)"                      "PrimaryDxControl"
-#  [3] "PrimaryDxBipolar"                 "BrainRegionsACC"
-#  [5] "AgeDeath"                         "SexM"
-#  [7] "snpPC1"                           "snpPC2"
-#  [9] "snpPC3"                           "mitoRate"
-# [11] "rRNA_rate"                        "totalAssignedGene"
-# [13] "RIN"                              "PrimaryDxControl:BrainRegionsACC"
-# [15] "PrimaryDxBipolar:BrainRegionsACC"
+# [1] "(Intercept)"                      "PrimaryDxControl"                 "PrimaryDxBipolar"                
+# [4] "BrainRegionsACC"                  "AgeDeath"                         "SexM"                            
+# [7] "snpPC1"                           "snpPC2"                           "snpPC3"                          
+# [10] "snpPC4"                           "snpPC5"                           "mitoRate"                        
+# [13] "rRNA_rate"                        "totalAssignedGene"                "RIN"                             
+# [16] "abs(ERCCsumLogErr)"               "PrimaryDxControl:BrainRegionsACC" "PrimaryDxBipolar:BrainRegionsACC"
 
 modJoint_deconvo = model.matrix(~PrimaryDx*BrainRegion + AgeDeath + Sex + 
                           snpPC1 + snpPC2 + snpPC3 + snpPC4 + snpPC5 +
-                          mitoRate + rRNA_rate + totalAssignedGene + RIN + ERCCsumLogErr +
+                          mitoRate + rRNA_rate + totalAssignedGene + RIN + abs(ERCCsumLogErr) +
                           Astro + Endo + Macro + Micro + Mural + Oligo + OPC + Tcell + Excit,
                         data=colData(rse_gene))
 
@@ -50,17 +48,29 @@ colnames(modJoint_deconvo)
 # [22] "Oligo"                            "OPC"                              "Tcell"                           
 # [25] "Excit"                            "PrimaryDxControl:BrainRegionsACC" "PrimaryDxBipolar:BrainRegionsACC"
 
+modExp = model.matrix(~PrimaryDx*BrainRegion + AgeDeath + Sex + 
+                        snpPC1 + snpPC2 + snpPC3 + snpPC4 + snpPC5 +
+                        mitoRate*Experiment + rRNA_rate*Experiment + 
+                        totalAssignedGene*Experiment + RIN*Experiment + 
+                        abs(ERCCsumLogErr)*Experiment,
+                      data=colData(rse_gene))
+colnames(modExp)
+
 ## Save Models
 save(modJoint, modJoint_deconvo, file = here("differential_expression","data","differental_modJoint.Rdata"))
 
 degExprs = log2(assays(cov_rse)$count+1)
 k = num.sv(degExprs, modJoint)
 message("k=", k)
-# k=26
+# k=25
 
 k_deconvo = num.sv(degExprs, modJoint_deconvo)
 message("k deconvo = ", k_deconvo)
-# k deconvo = 26
+# k deconvo = 25
+
+k_exp = num.sv(degExprs, modExp)
+message("k Experiment = ", k_exp)
+# k Experiment = 26
 
 qSV_mat = prcomp(t(degExprs))$x[,1:k]
 
