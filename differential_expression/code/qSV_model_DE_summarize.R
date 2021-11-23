@@ -32,7 +32,7 @@ risk_gr <- GRanges(seqnames = paste0("chr", mdd_snps$chr), IRanges(mdd_snps$bp, 
 oo <- findOverlaps(risk_gr, rowRanges(rse_gene), maxgap = 100000)
 risk_genes <- unique(rowRanges(rse_gene)[subjectHits(oo),])
 length(risk_genes$gencodeID)
-##127
+##356
 
 #### Summarize Counts ####
 get_signif <- function(outFeature, colname = "common_feature_id", cutoff = 0.05, return_unique = FALSE){
@@ -95,12 +95,34 @@ model_counts <- do.call("cbind",list(signifFeat_n, signifGene_n, signifGene_n_up
   rownames_to_column("data") %>%
   separate(data, into = c("Feature", "Model", "Region", "Dx"), sep = "\\.")
 
-model_counts[,1:10]
+model_counts[,1:9]
 
 write_csv(model_counts, here("differential_expression","data","model_counts.csv"))
 
+## test heatmaps
+library(pheatmap)
 
-signifSymb
+summary_pheat <- function(count){
+  
+  heat_data <- model_counts %>%
+    mutate(name = paste(Model, Region, Dx)) %>%
+    dplyr::select(all_of(c("name", "Feature", count))) %>%
+    pivot_wider(names_from = "Feature", values_from = count) %>%
+    column_to_rownames("name") 
+  
+  png(here("differential_expression","plots",paste0("heat_",count,".png")), height = 1000, width = 800)
+  pheatmap(heat_data,
+           cluster_rows = FALSE,
+           cluster_cols = FALSE,
+           display_numbers = TRUE,
+           number_format = "%i",
+           fontsize = 20,
+           gaps_row = c(4, 8, 12),
+           main = count)
+  dev.off()
+}
+
+map(c("n_genes", "n_features", "Up", "Down", "risk_gene"), summary_pheat)
 
 ##### Overlap Between Models ####
 my_flatten <- function (x, use.names = TRUE, classes = "ANY") 
@@ -189,7 +211,8 @@ region_venn_values <- as.data.frame(map(signifFeat_region, function(sg) map(sg, 
   t() %>% as.data.frame() %>%
   rownames_to_column("cat") %>%
   pivot_longer(!cat) %>%
-  separate(cat, into = c("Feature", "Model", "Dx"), sep = "\\.")
+  separate(cat, into = c("Feature", "Model", "Dx"), sep = "\\.") %>%
+  dplyr::filter(grepl("sep", Model))
 
 region_venn_values$Feature <- factor(region_venn_values$Feature, levels = c("gene", "exon", "jxn", "tx"))
 
