@@ -129,9 +129,9 @@ modSep <- map(rse_gene_split, function(rse_region){
 modExp <- map(rse_gene_split, function(rse_region){
   map(rse_region, function(rse_dx){
     qSV_split <- qSV_mat[colnames(rse_dx),]
-    mod <- model.matrix(~PrimaryDx + AgeDeath + Sex  + 
+    mod <- model.matrix(~PrimaryDx + AgeDeath + Sex + Experiment +
                           snpPC1 + snpPC2 + snpPC3 + snpPC4 + snpPC5 +
-                          mitoRate*Experiment + rRNA_rate*Experiment +totalAssignedGene*Experiment + RIN*Experiment + abs(ERCCsumLogErr)*Experiment, 
+                          mitoRate + rRNA_rate +totalAssignedGene + RIN + abs(ERCCsumLogErr), 
                         data=colData(rse_dx))
     mod <- cbind(mod, qSV_split)
     return(mod)
