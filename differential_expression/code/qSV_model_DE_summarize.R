@@ -1,12 +1,12 @@
 library(jaffelab)
 library(SummarizedExperiment)
-library(VennDiagram)
 library(tidyverse)
 library(sessioninfo)
 library(here)
 library(EnhancedVolcano)
 library(UpSetR)
 library(VariantAnnotation)
+library(pheatmap)
 
 #### Load Data ####
 data_type <- c("gene","exon","jxn","tx")
@@ -23,12 +23,13 @@ allOut <- list(gene = outGene, exon = outExon, jxn = outJxn, tx = outTx)
 
 ## Annotate Risk allels ##
 load(here('exprs_cutoff','rse_gene.Rdata'), verbose=TRUE)
+table(rse_gene$PrimaryDx, rse_gene$Experiment)
+table(rse_gene$PrimaryDx, rse_gene$Experiment, rse_gene$BrainRegion)
 risk_vcf <- readVcf(here("eqtl", "data", "risk_snps", "LIBD_maf01_gwas_MDD.vcf.gz"))
 mdd_snps <- read.delim(here("eqtl", "data", "risk_snps", "PGC_depression_genome-wide_significant_makers.txt"))
 
-# risk_gr <- rowRanges(risk_vcf)
+## find genes 1KB from risk snp
 risk_gr <- GRanges(seqnames = paste0("chr", mdd_snps$chr), IRanges(mdd_snps$bp, width = 1), feature_id = mdd_snps$markername)
-## genes 1KB from risk snp
 oo <- findOverlaps(risk_gr, rowRanges(rse_gene), maxgap = 100000)
 risk_genes <- unique(rowRanges(rse_gene)[subjectHits(oo),])
 length(risk_genes$gencodeID)
@@ -100,8 +101,6 @@ model_counts[,1:9]
 write_csv(model_counts, here("differential_expression","data","model_counts.csv"))
 
 ## test heatmaps
-library(pheatmap)
-
 summary_pheat <- function(count){
   
   heat_data <- model_counts %>%
@@ -122,7 +121,7 @@ summary_pheat <- function(count){
   dev.off()
 }
 
-map(c("n_genes", "n_features", "Up", "Down", "risk_gene"), summary_pheat)
+map(c("n_genes", "n_features", "Up", "Down", "n_risk_genes"), summary_pheat)
 
 ##### Overlap Between Models ####
 my_flatten <- function (x, use.names = TRUE, classes = "ANY") 
@@ -211,8 +210,9 @@ region_venn_values <- as.data.frame(map(signifFeat_region, function(sg) map(sg, 
   t() %>% as.data.frame() %>%
   rownames_to_column("cat") %>%
   pivot_longer(!cat) %>%
-  separate(cat, into = c("Feature", "Model", "Dx"), sep = "\\.") %>%
-  dplyr::filter(grepl("sep", Model))
+  separate(cat, into = c("Feature", "Model", "Dx"), sep = "\\.") 
+# %>%
+#   dplyr::filter(grepl("sep", Model))
 
 region_venn_values$Feature <- factor(region_venn_values$Feature, levels = c("gene", "exon", "jxn", "tx"))
 
@@ -299,4 +299,14 @@ length(ranks_to_check)
 outGene_test <- outGene$sep$amyg$MDD %>%
   arrange(adj.P.Val) %>%
   mutate(row_num = row_number())
+
+
+#sgejobs::job_single('qSV_model_DE_summarize', queue = 'bluejay', create_shell = TRUE, memory = '80G', command = "Rscript qSV_model_DE_summarize.R")
+
+## Reproducibility information
+print('Reproducibility information:')
+Sys.time()
+proc.time()
+options(width = 120)
+session_info()
 
