@@ -6,12 +6,12 @@ Loading LIBD module for rmate/1.5.9
 Loading LIBD module for ruby/2.6.4p104
 Loading conda_R/4.1
 **** Job starts ****
-Mon Nov 22 13:32:22 EST 2021
+Fri Dec  3 11:52:14 EST 2021
 **** JHPCE info ****
 User: lhuuki
-Job id: 7872951
+Job id: 7920162
 Job name: qSV_model_DE_analysis
-Hostname: compute-116.cm.cluster
+Hostname: compute-121.cm.cluster
 Task id: undefined
 Unloading conda_R/4.1
 Loading conda_R/4.1.x
@@ -145,7 +145,7 @@ here() starts at /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq
 ✔ ggplot2 3.3.5     ✔ purrr   0.3.4
 ✔ tibble  3.1.6     ✔ dplyr   1.0.7
 ✔ tidyr   1.1.4     ✔ stringr 1.4.0
-✔ readr   2.1.0     ✔ forcats 0.5.1
+✔ readr   2.1.1     ✔ forcats 0.5.1
 ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
 ✖ dplyr::collapse()   masks nlme::collapse(), IRanges::collapse()
 ✖ dplyr::combine()    masks Biobase::combine(), BiocGenerics::combine()
@@ -200,594 +200,224 @@ MDD BPD
 
 Loading objects:
   qSV_mat
-$amyg
-$amyg$MDD
-                       (Intercept) PrimaryDxMDD AgeDeath SexM      snpPC1      snpPC2      snpPC3       snpPC4      snpPC5   mitoRate ExperimentpsychENCODE_BP    rRNA_rate totalAssignedGene RIN
-R13950_psychENCODE_MDD           1            0    18.41    1 0.006127960 -0.00297122 -0.00568833 -0.001105490  0.00628775 0.02722180                        0 2.088753e-05         0.5027182 7.7
-R13978_psychENCODE_MDD           1            0    31.54    1 0.002266450 -0.00220592 -0.00364736 -0.016080000  0.00213696 0.02699984                        0 1.962467e-04         0.4964806 7.7
-R14015_psychENCODE_MDD           1            0    54.43    1 0.002282970 -0.00382690  0.00310295  0.003852890 -0.01534740 0.02290194                        0 1.512075e-04         0.4970797 8.1
-R14031_psychENCODE_MDD           1            0    40.08    1 0.005183430  0.00445958  0.00368865  0.002974640  0.00548825 0.02534453                        0 2.304242e-04         0.4445579 7.9
-R14179_psychENCODE_MDD           1            0    28.57    1 0.003424450 -0.00199719 -0.00105026 -0.000658147 -0.01348160 0.02034263                        0 6.161568e-05         0.4880644 7.6
-R17480_psychENCODE_MDD           1            0    27.48    1 0.000335574 -0.00351127  0.00162443 -0.003889290  0.00369594 0.02389470                        0 9.657372e-05         0.4402527 8.5
-                       abs(ERCCsumLogErr) mitoRate:ExperimentpsychENCODE_BP ExperimentpsychENCODE_BP:rRNA_rate ExperimentpsychENCODE_BP:totalAssignedGene ExperimentpsychENCODE_BP:RIN
-R13950_psychENCODE_MDD          17.716623                                 0                                  0                                          0                            0
-R13978_psychENCODE_MDD           9.316009                                 0                                  0                                          0                            0
-R14015_psychENCODE_MDD           8.784121                                 0                                  0                                          0                            0
-R14031_psychENCODE_MDD           5.007816                                 0                                  0                                          0                            0
-R14179_psychENCODE_MDD          13.744511                                 0                                  0                                          0                            0
-R17480_psychENCODE_MDD          13.329312                                 0                                  0                                          0                            0
-                       ExperimentpsychENCODE_BP:abs(ERCCsumLogErr)        PC1        PC2         PC3         PC4        PC5        PC6        PC7        PC8       PC9       PC10       PC11       PC12
-R13950_psychENCODE_MDD                                           0 -18.407183 -0.7347888  -2.7884858  1.19537102  3.3454463 -1.4699297  0.3764781 -1.4549596 -3.287085  1.4163367  1.2297760  0.1222488
-R13978_psychENCODE_MDD                                           0 -14.545603  2.4626731  -0.6538529 -0.91081451  0.2975670  4.6027478  0.6134149 -0.4075968 -1.238766  2.0915448  0.5306992  0.6957511
-R14015_psychENCODE_MDD                                           0 -18.001564  1.5477687  -3.3761859  3.37751570 -2.2152767  4.7244807 -0.9167814 -0.1158092  1.734184  0.8062840  0.2902774 -0.1942824
-R14031_psychENCODE_MDD                                           0 -15.605657 -1.5511965  -2.3737727  1.07479038 -4.0090707  3.5713156  2.1662353  1.1507667 -0.397288  1.4339427 -0.3206144 -1.2871065
-R14179_psychENCODE_MDD                                           0 -16.986914 -3.1068594 -11.5158829  2.74494654  4.7056749  2.4020312 -1.1746718 -1.6416219  2.698973 -1.2588367  0.1976743 -1.5819073
-R17480_psychENCODE_MDD                                           0  -5.556827  3.7987083  -5.5052311  0.03667666  0.1526495  0.7104281  0.8101962 -1.0024720  0.835762 -0.3552477 -1.1032093 -1.8175387
-                              PC13        PC14       PC15       PC16       PC17       PC18        PC19       PC20        PC21       PC22         PC23        PC24        PC25       PC26
-R13950_psychENCODE_MDD -0.02063015 -0.09960341 -0.2838259 -0.6216369  0.7946658 -0.2394755 -0.41460978 -0.2377692  0.65970100  0.4659118  0.235847726  0.17476979  0.11885833 -0.3283660
-R13978_psychENCODE_MDD  0.88943260 -1.58140612 -1.4506372 -1.1299619 -0.6050432  0.7026211  0.39100182  0.2840876  0.38733634 -2.3364934  0.008524396  0.49075628  1.04718128  0.4787713
-R14015_psychENCODE_MDD  0.67538938 -0.74865066 -1.0547044 -0.5054712  0.7536363 -0.1696842  1.29885534 -0.8053447 -0.75136741 -1.3879734 -1.304059866 -0.47568591 -0.03278018 -0.8782053
-R14031_psychENCODE_MDD -0.12721982  0.27965458  0.5781003 -0.7251437  1.4569353  0.3288573 -0.03623782 -0.2140286  0.08855403 -1.4668266 -1.595248577  0.74958181  1.57472728 -0.3876463
-R14179_psychENCODE_MDD  2.09675040  0.78707723  0.5460215 -1.1728514  0.2068248 -1.3756186 -0.70919340  1.7069484 -2.06285277  0.8395101 -0.704842582  0.03568315 -0.08179798  1.4100891
-R17480_psychENCODE_MDD  2.02095032  1.32276896 -1.3142879  0.9503299  1.9900494 -0.2682917 -0.42317827 -0.3055955  0.91422545 -1.2569070  0.888709599  0.98523662 -0.13792025 -0.6284363
-
-$amyg$BPD
-                       (Intercept) PrimaryDxBipolar AgeDeath SexM      snpPC1      snpPC2      snpPC3       snpPC4      snpPC5   mitoRate ExperimentpsychENCODE_BP    rRNA_rate totalAssignedGene RIN
-R13950_psychENCODE_MDD           1                0    18.41    1 0.006127960 -0.00297122 -0.00568833 -0.001105490  0.00628775 0.02722180                        0 2.088753e-05         0.5027182 7.7
-R13978_psychENCODE_MDD           1                0    31.54    1 0.002266450 -0.00220592 -0.00364736 -0.016080000  0.00213696 0.02699984                        0 1.962467e-04         0.4964806 7.7
-R14015_psychENCODE_MDD           1                0    54.43    1 0.002282970 -0.00382690  0.00310295  0.003852890 -0.01534740 0.02290194                        0 1.512075e-04         0.4970797 8.1
-R14031_psychENCODE_MDD           1                0    40.08    1 0.005183430  0.00445958  0.00368865  0.002974640  0.00548825 0.02534453                        0 2.304242e-04         0.4445579 7.9
-R14179_psychENCODE_MDD           1                0    28.57    1 0.003424450 -0.00199719 -0.00105026 -0.000658147 -0.01348160 0.02034263                        0 6.161568e-05         0.4880644 7.6
-R17480_psychENCODE_MDD           1                0    27.48    1 0.000335574 -0.00351127  0.00162443 -0.003889290  0.00369594 0.02389470                        0 9.657372e-05         0.4402527 8.5
-                       abs(ERCCsumLogErr) mitoRate:ExperimentpsychENCODE_BP ExperimentpsychENCODE_BP:rRNA_rate ExperimentpsychENCODE_BP:totalAssignedGene ExperimentpsychENCODE_BP:RIN
-R13950_psychENCODE_MDD          17.716623                                 0                                  0                                          0                            0
-R13978_psychENCODE_MDD           9.316009                                 0                                  0                                          0                            0
-R14015_psychENCODE_MDD           8.784121                                 0                                  0                                          0                            0
-R14031_psychENCODE_MDD           5.007816                                 0                                  0                                          0                            0
-R14179_psychENCODE_MDD          13.744511                                 0                                  0                                          0                            0
-R17480_psychENCODE_MDD          13.329312                                 0                                  0                                          0                            0
-                       ExperimentpsychENCODE_BP:abs(ERCCsumLogErr)        PC1        PC2         PC3         PC4        PC5        PC6        PC7        PC8       PC9       PC10       PC11       PC12
-R13950_psychENCODE_MDD                                           0 -18.407183 -0.7347888  -2.7884858  1.19537102  3.3454463 -1.4699297  0.3764781 -1.4549596 -3.287085  1.4163367  1.2297760  0.1222488
-R13978_psychENCODE_MDD                                           0 -14.545603  2.4626731  -0.6538529 -0.91081451  0.2975670  4.6027478  0.6134149 -0.4075968 -1.238766  2.0915448  0.5306992  0.6957511
-R14015_psychENCODE_MDD                                           0 -18.001564  1.5477687  -3.3761859  3.37751570 -2.2152767  4.7244807 -0.9167814 -0.1158092  1.734184  0.8062840  0.2902774 -0.1942824
-R14031_psychENCODE_MDD                                           0 -15.605657 -1.5511965  -2.3737727  1.07479038 -4.0090707  3.5713156  2.1662353  1.1507667 -0.397288  1.4339427 -0.3206144 -1.2871065
-R14179_psychENCODE_MDD                                           0 -16.986914 -3.1068594 -11.5158829  2.74494654  4.7056749  2.4020312 -1.1746718 -1.6416219  2.698973 -1.2588367  0.1976743 -1.5819073
-R17480_psychENCODE_MDD                                           0  -5.556827  3.7987083  -5.5052311  0.03667666  0.1526495  0.7104281  0.8101962 -1.0024720  0.835762 -0.3552477 -1.1032093 -1.8175387
-                              PC13        PC14       PC15       PC16       PC17       PC18        PC19       PC20        PC21       PC22         PC23        PC24        PC25       PC26
-R13950_psychENCODE_MDD -0.02063015 -0.09960341 -0.2838259 -0.6216369  0.7946658 -0.2394755 -0.41460978 -0.2377692  0.65970100  0.4659118  0.235847726  0.17476979  0.11885833 -0.3283660
-R13978_psychENCODE_MDD  0.88943260 -1.58140612 -1.4506372 -1.1299619 -0.6050432  0.7026211  0.39100182  0.2840876  0.38733634 -2.3364934  0.008524396  0.49075628  1.04718128  0.4787713
-R14015_psychENCODE_MDD  0.67538938 -0.74865066 -1.0547044 -0.5054712  0.7536363 -0.1696842  1.29885534 -0.8053447 -0.75136741 -1.3879734 -1.304059866 -0.47568591 -0.03278018 -0.8782053
-R14031_psychENCODE_MDD -0.12721982  0.27965458  0.5781003 -0.7251437  1.4569353  0.3288573 -0.03623782 -0.2140286  0.08855403 -1.4668266 -1.595248577  0.74958181  1.57472728 -0.3876463
-R14179_psychENCODE_MDD  2.09675040  0.78707723  0.5460215 -1.1728514  0.2068248 -1.3756186 -0.70919340  1.7069484 -2.06285277  0.8395101 -0.704842582  0.03568315 -0.08179798  1.4100891
-R17480_psychENCODE_MDD  2.02095032  1.32276896 -1.3142879  0.9503299  1.9900494 -0.2682917 -0.42317827 -0.3055955  0.91422545 -1.2569070  0.888709599  0.98523662 -0.13792025 -0.6284363
-
-
-$sacc
-$sacc$MDD
-                       (Intercept) PrimaryDxMDD AgeDeath SexM       snpPC1       snpPC2      snpPC3      snpPC4       snpPC5   mitoRate ExperimentpsychENCODE_BP    rRNA_rate totalAssignedGene RIN
-R14149_psychENCODE_MDD           1            0    58.57    1  0.004902440 -2.85008e-03  0.00471369  0.00187767 -0.015239400 0.02674667                        0 2.460858e-05         0.4723640 7.8
-R14152_psychENCODE_MDD           1            0    27.48    1  0.000335574 -3.51127e-03  0.00162443 -0.00388929  0.003695940 0.02325644                        0 1.425850e-04         0.3964531 7.4
-R14153_psychENCODE_MDD           1            0    49.17    1  0.002355650  2.56520e-03 -0.00431496 -0.00396801  0.013953300 0.02106080                        0 7.544417e-05         0.4564605 7.7
-R14178_psychENCODE_MDD           1            0    28.35    1 -0.003527340  2.52586e-04  0.00876943  0.00184929  0.003137080 0.03107047                        0 1.116292e-04         0.4301785 7.2
-R14218_psychENCODE_MDD           1            0    18.77    1  0.002141790 -6.78427e-05 -0.01431610 -0.01032000  0.000169591 0.03445213                        0 1.649918e-04         0.3617616 6.5
-R17489_psychENCODE_MDD           1            0    32.67    1 -0.047379800  2.01053e-03  0.01357000 -0.00558390  0.003735750 0.01596223                        0 5.136120e-05         0.4250358 9.1
-                       abs(ERCCsumLogErr) mitoRate:ExperimentpsychENCODE_BP ExperimentpsychENCODE_BP:rRNA_rate ExperimentpsychENCODE_BP:totalAssignedGene ExperimentpsychENCODE_BP:RIN
-R14149_psychENCODE_MDD          22.373652                                 0                                  0                                          0                            0
-R14152_psychENCODE_MDD           7.930784                                 0                                  0                                          0                            0
-R14153_psychENCODE_MDD          14.544412                                 0                                  0                                          0                            0
-R14178_psychENCODE_MDD          28.217387                                 0                                  0                                          0                            0
-R14218_psychENCODE_MDD          20.434808                                 0                                  0                                          0                            0
-R17489_psychENCODE_MDD          17.220119                                 0                                  0                                          0                            0
-                       ExperimentpsychENCODE_BP:abs(ERCCsumLogErr)        PC1        PC2        PC3       PC4        PC5       PC6       PC7        PC8        PC9        PC10         PC11       PC12
-R14149_psychENCODE_MDD                                           0 -11.154473  0.8957217  4.4811355 -1.450038  2.8546741 -3.284201 1.1100357 -1.6480360 -0.1766366 -1.07304181 -0.008087808  1.0258957
-R14152_psychENCODE_MDD                                           0   6.729709 -4.1488755  5.3841452 -3.322184 -2.3770785  2.969827 1.4848762  0.6208017 -0.0888386  0.02707717 -0.182302798 -1.7811892
-R14153_psychENCODE_MDD                                           0 -17.018851 -3.4986078  4.0778604 -1.192916 -3.1106648 -1.136287 3.0813477 -0.7440107  1.0678975 -0.07845290  0.413646520 -0.1756329
-R14178_psychENCODE_MDD                                           0 -11.706750 -5.4922556  4.3689843 -1.961798 -2.5212104 -0.981230 0.9241143  0.9809150  1.5203431  0.85761210  0.257287216  0.8733769
-R14218_psychENCODE_MDD                                           0  18.684973 -1.2968814 -0.2702799 -5.000630  0.6677388 -2.379799 2.9315850  0.1750291 -0.4772758  0.87830510  0.531884564 -1.1095463
-R17489_psychENCODE_MDD                                           0  -4.459150  0.3500723 -0.8564258  2.976807  0.4575149  2.043788 3.2184262  2.0433045  0.1760910  1.17793582  0.009052299 -0.5136159
-                              PC13       PC14        PC15      PC16       PC17       PC18        PC19       PC20       PC21        PC22       PC23       PC24       PC25        PC26
-R14149_psychENCODE_MDD -0.21572310  1.1047191 -0.44442784 0.6363831 -0.5031188 -1.1137370  0.02575267  0.7695400  0.2582977 -1.09023588  1.1210223  0.6231138 -0.2121208 -1.38382130
-R14152_psychENCODE_MDD  0.75296561 -0.8306376 -0.04193853 1.0389808  2.0932338  0.2743089 -0.52794745  0.1483340  0.3827553  0.47537124 -0.8534562  0.5585705 -1.7734577  0.09375044
-R14153_psychENCODE_MDD -0.82506821 -0.1331143  0.28563714 0.2500506 -0.9004411 -1.6682374 -0.31215094  0.8551094 -0.0820946 -0.16455359  0.0868986 -0.1509707  0.6418680 -0.38010549
-R14178_psychENCODE_MDD  0.06866494 -0.5724164 -0.19445843 0.5870487 -0.2540624  0.4519482 -0.89927791  0.8451344 -0.7586252 -0.13599527 -0.6335039 -0.5478424  0.5556217  0.32921566
-R14218_psychENCODE_MDD  4.16876272 -1.3133682  0.43906326 0.7607021  0.5781711 -2.0116820  1.17965993  1.3547677 -0.5501576 -0.09000606 -0.8800584 -0.7808077  0.6675544  0.40138853
-R17489_psychENCODE_MDD -0.56349874 -1.8672687  0.26542589 0.3690769 -0.3375735  0.6343182 -0.53600875 -1.6814871  0.4402720  0.35968322 -1.1016626 -1.9689055 -0.4501203  0.43282173
-
-$sacc$BPD
-                       (Intercept) PrimaryDxBipolar AgeDeath SexM       snpPC1       snpPC2      snpPC3      snpPC4       snpPC5   mitoRate ExperimentpsychENCODE_BP    rRNA_rate totalAssignedGene RIN
-R14149_psychENCODE_MDD           1                0    58.57    1  0.004902440 -2.85008e-03  0.00471369  0.00187767 -0.015239400 0.02674667                        0 2.460858e-05         0.4723640 7.8
-R14152_psychENCODE_MDD           1                0    27.48    1  0.000335574 -3.51127e-03  0.00162443 -0.00388929  0.003695940 0.02325644                        0 1.425850e-04         0.3964531 7.4
-R14153_psychENCODE_MDD           1                0    49.17    1  0.002355650  2.56520e-03 -0.00431496 -0.00396801  0.013953300 0.02106080                        0 7.544417e-05         0.4564605 7.7
-R14178_psychENCODE_MDD           1                0    28.35    1 -0.003527340  2.52586e-04  0.00876943  0.00184929  0.003137080 0.03107047                        0 1.116292e-04         0.4301785 7.2
-R14218_psychENCODE_MDD           1                0    18.77    1  0.002141790 -6.78427e-05 -0.01431610 -0.01032000  0.000169591 0.03445213                        0 1.649918e-04         0.3617616 6.5
-R17489_psychENCODE_MDD           1                0    32.67    1 -0.047379800  2.01053e-03  0.01357000 -0.00558390  0.003735750 0.01596223                        0 5.136120e-05         0.4250358 9.1
-                       abs(ERCCsumLogErr) mitoRate:ExperimentpsychENCODE_BP ExperimentpsychENCODE_BP:rRNA_rate ExperimentpsychENCODE_BP:totalAssignedGene ExperimentpsychENCODE_BP:RIN
-R14149_psychENCODE_MDD          22.373652                                 0                                  0                                          0                            0
-R14152_psychENCODE_MDD           7.930784                                 0                                  0                                          0                            0
-R14153_psychENCODE_MDD          14.544412                                 0                                  0                                          0                            0
-R14178_psychENCODE_MDD          28.217387                                 0                                  0                                          0                            0
-R14218_psychENCODE_MDD          20.434808                                 0                                  0                                          0                            0
-R17489_psychENCODE_MDD          17.220119                                 0                                  0                                          0                            0
-                       ExperimentpsychENCODE_BP:abs(ERCCsumLogErr)        PC1        PC2        PC3       PC4        PC5       PC6       PC7        PC8        PC9        PC10         PC11       PC12
-R14149_psychENCODE_MDD                                           0 -11.154473  0.8957217  4.4811355 -1.450038  2.8546741 -3.284201 1.1100357 -1.6480360 -0.1766366 -1.07304181 -0.008087808  1.0258957
-R14152_psychENCODE_MDD                                           0   6.729709 -4.1488755  5.3841452 -3.322184 -2.3770785  2.969827 1.4848762  0.6208017 -0.0888386  0.02707717 -0.182302798 -1.7811892
-R14153_psychENCODE_MDD                                           0 -17.018851 -3.4986078  4.0778604 -1.192916 -3.1106648 -1.136287 3.0813477 -0.7440107  1.0678975 -0.07845290  0.413646520 -0.1756329
-R14178_psychENCODE_MDD                                           0 -11.706750 -5.4922556  4.3689843 -1.961798 -2.5212104 -0.981230 0.9241143  0.9809150  1.5203431  0.85761210  0.257287216  0.8733769
-R14218_psychENCODE_MDD                                           0  18.684973 -1.2968814 -0.2702799 -5.000630  0.6677388 -2.379799 2.9315850  0.1750291 -0.4772758  0.87830510  0.531884564 -1.1095463
-R17489_psychENCODE_MDD                                           0  -4.459150  0.3500723 -0.8564258  2.976807  0.4575149  2.043788 3.2184262  2.0433045  0.1760910  1.17793582  0.009052299 -0.5136159
-                              PC13       PC14        PC15      PC16       PC17       PC18        PC19       PC20       PC21        PC22       PC23       PC24       PC25        PC26
-R14149_psychENCODE_MDD -0.21572310  1.1047191 -0.44442784 0.6363831 -0.5031188 -1.1137370  0.02575267  0.7695400  0.2582977 -1.09023588  1.1210223  0.6231138 -0.2121208 -1.38382130
-R14152_psychENCODE_MDD  0.75296561 -0.8306376 -0.04193853 1.0389808  2.0932338  0.2743089 -0.52794745  0.1483340  0.3827553  0.47537124 -0.8534562  0.5585705 -1.7734577  0.09375044
-R14153_psychENCODE_MDD -0.82506821 -0.1331143  0.28563714 0.2500506 -0.9004411 -1.6682374 -0.31215094  0.8551094 -0.0820946 -0.16455359  0.0868986 -0.1509707  0.6418680 -0.38010549
-R14178_psychENCODE_MDD  0.06866494 -0.5724164 -0.19445843 0.5870487 -0.2540624  0.4519482 -0.89927791  0.8451344 -0.7586252 -0.13599527 -0.6335039 -0.5478424  0.5556217  0.32921566
-R14218_psychENCODE_MDD  4.16876272 -1.3133682  0.43906326 0.7607021  0.5781711 -2.0116820  1.17965993  1.3547677 -0.5501576 -0.09000606 -0.8800584 -0.7808077  0.6675544  0.40138853
-R17489_psychENCODE_MDD -0.56349874 -1.8672687  0.26542589 0.3690769 -0.3375735  0.6343182 -0.53600875 -1.6814871  0.4402720  0.35968322 -1.1016626 -1.9689055 -0.4501203  0.43282173
-
-
-$amyg
-$amyg$MDD
- [1] "(Intercept)"                                 "PrimaryDxMDD"                                "AgeDeath"                                    "SexM"                                       
- [5] "snpPC1"                                      "snpPC2"                                      "snpPC3"                                      "snpPC4"                                     
- [9] "snpPC5"                                      "mitoRate"                                    "ExperimentpsychENCODE_BP"                    "rRNA_rate"                                  
-[13] "totalAssignedGene"                           "RIN"                                         "abs(ERCCsumLogErr)"                          "mitoRate:ExperimentpsychENCODE_BP"          
-[17] "ExperimentpsychENCODE_BP:rRNA_rate"          "ExperimentpsychENCODE_BP:totalAssignedGene"  "ExperimentpsychENCODE_BP:RIN"                "ExperimentpsychENCODE_BP:abs(ERCCsumLogErr)"
-[21] "PC1"                                         "PC2"                                         "PC3"                                         "PC4"                                        
-[25] "PC5"                                         "PC6"                                         "PC7"                                         "PC8"                                        
-[29] "PC9"                                         "PC10"                                        "PC11"                                        "PC12"                                       
-[33] "PC13"                                        "PC14"                                        "PC15"                                        "PC16"                                       
-[37] "PC17"                                        "PC18"                                        "PC19"                                        "PC20"                                       
-[41] "PC21"                                        "PC22"                                        "PC23"                                        "PC24"                                       
-[45] "PC25"                                        "PC26"                                       
-
-$amyg$BPD
- [1] "(Intercept)"                                 "PrimaryDxBipolar"                            "AgeDeath"                                    "SexM"                                       
- [5] "snpPC1"                                      "snpPC2"                                      "snpPC3"                                      "snpPC4"                                     
- [9] "snpPC5"                                      "mitoRate"                                    "ExperimentpsychENCODE_BP"                    "rRNA_rate"                                  
-[13] "totalAssignedGene"                           "RIN"                                         "abs(ERCCsumLogErr)"                          "mitoRate:ExperimentpsychENCODE_BP"          
-[17] "ExperimentpsychENCODE_BP:rRNA_rate"          "ExperimentpsychENCODE_BP:totalAssignedGene"  "ExperimentpsychENCODE_BP:RIN"                "ExperimentpsychENCODE_BP:abs(ERCCsumLogErr)"
-[21] "PC1"                                         "PC2"                                         "PC3"                                         "PC4"                                        
-[25] "PC5"                                         "PC6"                                         "PC7"                                         "PC8"                                        
-[29] "PC9"                                         "PC10"                                        "PC11"                                        "PC12"                                       
-[33] "PC13"                                        "PC14"                                        "PC15"                                        "PC16"                                       
-[37] "PC17"                                        "PC18"                                        "PC19"                                        "PC20"                                       
-[41] "PC21"                                        "PC22"                                        "PC23"                                        "PC24"                                       
-[45] "PC25"                                        "PC26"                                       
-
-
-$sacc
-$sacc$MDD
- [1] "(Intercept)"                                 "PrimaryDxMDD"                                "AgeDeath"                                    "SexM"                                       
- [5] "snpPC1"                                      "snpPC2"                                      "snpPC3"                                      "snpPC4"                                     
- [9] "snpPC5"                                      "mitoRate"                                    "ExperimentpsychENCODE_BP"                    "rRNA_rate"                                  
-[13] "totalAssignedGene"                           "RIN"                                         "abs(ERCCsumLogErr)"                          "mitoRate:ExperimentpsychENCODE_BP"          
-[17] "ExperimentpsychENCODE_BP:rRNA_rate"          "ExperimentpsychENCODE_BP:totalAssignedGene"  "ExperimentpsychENCODE_BP:RIN"                "ExperimentpsychENCODE_BP:abs(ERCCsumLogErr)"
-[21] "PC1"                                         "PC2"                                         "PC3"                                         "PC4"                                        
-[25] "PC5"                                         "PC6"                                         "PC7"                                         "PC8"                                        
-[29] "PC9"                                         "PC10"                                        "PC11"                                        "PC12"                                       
-[33] "PC13"                                        "PC14"                                        "PC15"                                        "PC16"                                       
-[37] "PC17"                                        "PC18"                                        "PC19"                                        "PC20"                                       
-[41] "PC21"                                        "PC22"                                        "PC23"                                        "PC24"                                       
-[45] "PC25"                                        "PC26"                                       
-
-$sacc$BPD
- [1] "(Intercept)"                                 "PrimaryDxBipolar"                            "AgeDeath"                                    "SexM"                                       
- [5] "snpPC1"                                      "snpPC2"                                      "snpPC3"                                      "snpPC4"                                     
- [9] "snpPC5"                                      "mitoRate"                                    "ExperimentpsychENCODE_BP"                    "rRNA_rate"                                  
-[13] "totalAssignedGene"                           "RIN"                                         "abs(ERCCsumLogErr)"                          "mitoRate:ExperimentpsychENCODE_BP"          
-[17] "ExperimentpsychENCODE_BP:rRNA_rate"          "ExperimentpsychENCODE_BP:totalAssignedGene"  "ExperimentpsychENCODE_BP:RIN"                "ExperimentpsychENCODE_BP:abs(ERCCsumLogErr)"
-[21] "PC1"                                         "PC2"                                         "PC3"                                         "PC4"                                        
-[25] "PC5"                                         "PC6"                                         "PC7"                                         "PC8"                                        
-[29] "PC9"                                         "PC10"                                        "PC11"                                        "PC12"                                       
-[33] "PC13"                                        "PC14"                                        "PC15"                                        "PC16"                                       
-[37] "PC17"                                        "PC18"                                        "PC19"                                        "PC20"                                       
-[41] "PC21"                                        "PC22"                                        "PC23"                                        "PC24"                                       
-[45] "PC25"                                        "PC26"                                       
-
-
 
 ####  GENE  ####
 Running sep amyg DE:
-\nCalc Norm Factors: 2021-11-22 13:34:53
-\nLimma: 2021-11-22 13:35:19
-eBayes: 2021-11-22 13:36:05
+\nCalc Norm Factors: 2021-12-03 11:53:29
+\nLimma: 2021-12-03 11:53:45
+eBayes: 2021-12-03 11:54:08
 Index coef: PrimaryDxMDD
 1 coef, Return t-stats
                <  0.05 <  0.01
 q_PrimaryDxMDD      50       7
-\nCalc Norm Factors: 2021-11-22 13:36:06
-\nLimma: 2021-11-22 13:36:25
-eBayes: 2021-11-22 13:36:54
+\nCalc Norm Factors: 2021-12-03 11:54:09
+\nLimma: 2021-12-03 11:54:20
+eBayes: 2021-12-03 11:54:35
 Index coef: PrimaryDxBipolar
 1 coef, Return t-stats
                    <  0.05 <  0.01
 q_PrimaryDxBipolar     105       7
 Writing csv files
 Running sep sacc DE:
-\nCalc Norm Factors: 2021-11-22 13:36:58
-\nLimma: 2021-11-22 13:37:25
-eBayes: 2021-11-22 13:38:11
+\nCalc Norm Factors: 2021-12-03 11:54:39
+\nLimma: 2021-12-03 11:54:56
+eBayes: 2021-12-03 11:55:17
 Index coef: PrimaryDxMDD
 1 coef, Return t-stats
                <  0.05 <  0.01
 q_PrimaryDxMDD     779     214
-\nCalc Norm Factors: 2021-11-22 13:38:12
-\nLimma: 2021-11-22 13:38:33
-eBayes: 2021-11-22 13:39:02
+\nCalc Norm Factors: 2021-12-03 11:55:18
+\nLimma: 2021-12-03 11:55:30
+eBayes: 2021-12-03 11:55:47
 Index coef: PrimaryDxBipolar
 1 coef, Return t-stats
                    <  0.05 <  0.01
 q_PrimaryDxBipolar     252      26
 Writing csv files
 Running sep_cf amyg DE:
-\nCalc Norm Factors: 2021-11-22 13:39:04
-\nLimma: 2021-11-22 13:39:32
-eBayes: 2021-11-22 13:40:30
+\nCalc Norm Factors: 2021-12-03 11:55:49
+\nLimma: 2021-12-03 11:56:06
+eBayes: 2021-12-03 11:56:36
 Index coef: PrimaryDxMDD
 1 coef, Return t-stats
                <  0.05 <  0.01
 q_PrimaryDxMDD      74       3
-\nCalc Norm Factors: 2021-11-22 13:40:31
-\nLimma: 2021-11-22 13:40:49
-eBayes: 2021-11-22 13:41:31
+\nCalc Norm Factors: 2021-12-03 11:56:37
+\nLimma: 2021-12-03 11:56:49
+eBayes: 2021-12-03 11:57:12
 Index coef: PrimaryDxBipolar
 1 coef, Return t-stats
                    <  0.05 <  0.01
 q_PrimaryDxBipolar      22       1
 Writing csv files
 Running sep_cf sacc DE:
-\nCalc Norm Factors: 2021-11-22 13:41:33
-\nLimma: 2021-11-22 13:41:59
-eBayes: 2021-11-22 13:42:52
+\nCalc Norm Factors: 2021-12-03 11:57:14
+\nLimma: 2021-12-03 11:57:31
+eBayes: 2021-12-03 11:58:01
 Index coef: PrimaryDxMDD
 1 coef, Return t-stats
                <  0.05 <  0.01
 q_PrimaryDxMDD     432     105
-\nCalc Norm Factors: 2021-11-22 13:42:53
-\nLimma: 2021-11-22 13:43:11
-eBayes: 2021-11-22 13:43:50
+\nCalc Norm Factors: 2021-12-03 11:58:01
+\nLimma: 2021-12-03 11:58:14
+eBayes: 2021-12-03 11:58:38
 Index coef: PrimaryDxBipolar
 1 coef, Return t-stats
                    <  0.05 <  0.01
 q_PrimaryDxBipolar      11       3
 Writing csv files
-Running exp amyg DE:
-\nCalc Norm Factors: 2021-11-22 13:43:52
-\nLimma: 2021-11-22 13:44:16
-eBayes: 2021-11-22 13:45:03
-Index coef: PrimaryDxMDD
-1 coef, Return t-stats
-               <  0.05 <  0.01
-q_PrimaryDxMDD       0       0
-\nCalc Norm Factors: 2021-11-22 13:45:04
-\nLimma: 2021-11-22 13:45:20
-eBayes: 2021-11-22 13:45:53
-Index coef: PrimaryDxBipolar
-1 coef, Return t-stats
-                   <  0.05 <  0.01
-q_PrimaryDxBipolar      51       4
-Writing csv files
-Running exp sacc DE:
-\nCalc Norm Factors: 2021-11-22 13:45:55
-\nLimma: 2021-11-22 13:46:19
-eBayes: 2021-11-22 13:47:03
-Index coef: PrimaryDxMDD
-1 coef, Return t-stats
-               <  0.05 <  0.01
-q_PrimaryDxMDD     144      12
-\nCalc Norm Factors: 2021-11-22 13:47:04
-\nLimma: 2021-11-22 13:47:21
-eBayes: 2021-11-22 13:47:55
-Index coef: PrimaryDxBipolar
-1 coef, Return t-stats
-                   <  0.05 <  0.01
-q_PrimaryDxBipolar     227      26
-Writing csv files
-Running exp_cf amyg DE:
-\nCalc Norm Factors: 2021-11-22 13:47:57
-\nLimma: 2021-11-22 13:48:22
-eBayes: 2021-11-22 13:49:21
-Index coef: PrimaryDxMDD
-1 coef, Return t-stats
-               <  0.05 <  0.01
-q_PrimaryDxMDD       0       0
-\nCalc Norm Factors: 2021-11-22 13:49:22
-\nLimma: 2021-11-22 13:49:40
-eBayes: 2021-11-22 13:50:25
-Index coef: PrimaryDxBipolar
-1 coef, Return t-stats
-                   <  0.05 <  0.01
-q_PrimaryDxBipolar      11       1
-Writing csv files
-Running exp_cf sacc DE:
-\nCalc Norm Factors: 2021-11-22 13:50:26
-\nLimma: 2021-11-22 13:50:51
-eBayes: 2021-11-22 13:51:50
-Index coef: PrimaryDxMDD
-1 coef, Return t-stats
-               <  0.05 <  0.01
-q_PrimaryDxMDD      17       1
-\nCalc Norm Factors: 2021-11-22 13:51:51
-\nLimma: 2021-11-22 13:52:10
-eBayes: 2021-11-22 13:52:55
-Index coef: PrimaryDxBipolar
-1 coef, Return t-stats
-                   <  0.05 <  0.01
-q_PrimaryDxBipolar       9       1
-Writing csv files
 
 ####  EXON  ####
 Running sep amyg DE:
-\nCalc Norm Factors: 2021-11-22 13:53:04
-\nLimma: 2021-11-22 14:01:32
-eBayes: 2021-11-22 14:12:02
+\nCalc Norm Factors: 2021-12-03 11:58:42
+\nLimma: 2021-12-03 12:04:22
+eBayes: 2021-12-03 12:09:59
 Index coef: PrimaryDxMDD
 1 coef, Return t-stats
                <  0.05 <  0.01
 q_PrimaryDxMDD     344      17
-\nCalc Norm Factors: 2021-11-22 14:12:22
-\nLimma: 2021-11-22 14:18:52
-eBayes: 2021-11-22 14:26:01
+\nCalc Norm Factors: 2021-12-03 12:10:10
+\nLimma: 2021-12-03 12:14:23
+eBayes: 2021-12-03 12:18:41
 Index coef: PrimaryDxBipolar
 1 coef, Return t-stats
                    <  0.05 <  0.01
 q_PrimaryDxBipolar     210      44
 Writing csv files
 Running sep sacc DE:
-\nCalc Norm Factors: 2021-11-22 14:26:17
-\nLimma: 2021-11-22 14:34:30
-eBayes: 2021-11-22 14:44:17
+\nCalc Norm Factors: 2021-12-03 12:18:56
+\nLimma: 2021-12-03 12:24:51
+eBayes: 2021-12-03 12:30:46
 Index coef: PrimaryDxMDD
 1 coef, Return t-stats
                <  0.05 <  0.01
 q_PrimaryDxMDD    2551     419
-\nCalc Norm Factors: 2021-11-22 14:44:32
-\nLimma: 2021-11-22 14:50:38
-eBayes: 2021-11-22 14:57:59
+\nCalc Norm Factors: 2021-12-03 12:30:57
+\nLimma: 2021-12-03 12:35:25
+eBayes: 2021-12-03 12:40:05
 Index coef: PrimaryDxBipolar
 1 coef, Return t-stats
                    <  0.05 <  0.01
 q_PrimaryDxBipolar      89      11
 Writing csv files
 Running sep_cf amyg DE:
-\nCalc Norm Factors: 2021-11-22 14:58:16
-\nLimma: 2021-11-22 15:06:16
-eBayes: 2021-11-22 15:19:39
+\nCalc Norm Factors: 2021-12-03 12:40:20
+\nLimma: 2021-12-03 12:46:19
+eBayes: 2021-12-03 12:54:36
 Index coef: PrimaryDxMDD
 1 coef, Return t-stats
                <  0.05 <  0.01
 q_PrimaryDxMDD     299       0
-\nCalc Norm Factors: 2021-11-22 15:19:58
-\nLimma: 2021-11-22 15:25:58
-eBayes: 2021-11-22 15:36:26
+\nCalc Norm Factors: 2021-12-03 12:54:49
+\nLimma: 2021-12-03 12:59:10
+eBayes: 2021-12-03 13:05:26
 Index coef: PrimaryDxBipolar
 1 coef, Return t-stats
                    <  0.05 <  0.01
 q_PrimaryDxBipolar      64       1
 Writing csv files
 Running sep_cf sacc DE:
-\nCalc Norm Factors: 2021-11-22 15:36:47
-\nLimma: 2021-11-22 15:45:57
-eBayes: 2021-11-22 15:59:24
+\nCalc Norm Factors: 2021-12-03 13:05:44
+\nLimma: 2021-12-03 13:12:00
+eBayes: 2021-12-03 13:20:24
 Index coef: PrimaryDxMDD
 1 coef, Return t-stats
                <  0.05 <  0.01
 q_PrimaryDxMDD     998     132
-\nCalc Norm Factors: 2021-11-22 15:59:43
-\nLimma: 2021-11-22 16:05:55
-eBayes: 2021-11-22 16:17:20
+\nCalc Norm Factors: 2021-12-03 13:20:38
+\nLimma: 2021-12-03 13:25:17
+eBayes: 2021-12-03 13:31:36
 Index coef: PrimaryDxBipolar
 1 coef, Return t-stats
                    <  0.05 <  0.01
 q_PrimaryDxBipolar       4       0
 Writing csv files
-Running exp amyg DE:
-\nCalc Norm Factors: 2021-11-22 16:17:41
-\nLimma: 2021-11-22 16:26:17
-eBayes: 2021-11-22 16:40:23
-Index coef: PrimaryDxMDD
-1 coef, Return t-stats
-               <  0.05 <  0.01
-q_PrimaryDxMDD       0       0
-\nCalc Norm Factors: 2021-11-22 16:40:49
-\nLimma: 2021-11-22 16:49:10
-eBayes: 2021-11-22 17:00:40
-Index coef: PrimaryDxBipolar
-1 coef, Return t-stats
-                   <  0.05 <  0.01
-q_PrimaryDxBipolar     129      18
-Writing csv files
-Running exp sacc DE:
-\nCalc Norm Factors: 2021-11-22 17:01:00
-\nLimma: 2021-11-22 17:12:21
-eBayes: 2021-11-22 17:30:19
-Index coef: PrimaryDxMDD
-1 coef, Return t-stats
-               <  0.05 <  0.01
-q_PrimaryDxMDD       3       0
-\nCalc Norm Factors: 2021-11-22 17:30:46
-\nLimma: 2021-11-22 17:39:44
-eBayes: 2021-11-22 17:51:54
-Index coef: PrimaryDxBipolar
-1 coef, Return t-stats
-                   <  0.05 <  0.01
-q_PrimaryDxBipolar      87      20
-Writing csv files
-Running exp_cf amyg DE:
-\nCalc Norm Factors: 2021-11-22 17:52:22
-\nLimma: 2021-11-22 18:04:16
-eBayes: 2021-11-22 18:25:31
-Index coef: PrimaryDxMDD
-1 coef, Return t-stats
-               <  0.05 <  0.01
-q_PrimaryDxMDD       0       0
-\nCalc Norm Factors: 2021-11-22 18:26:02
-\nLimma: 2021-11-22 18:34:56
-eBayes: 2021-11-22 18:51:38
-Index coef: PrimaryDxBipolar
-1 coef, Return t-stats
-                   <  0.05 <  0.01
-q_PrimaryDxBipolar      25       0
-Writing csv files
-Running exp_cf sacc DE:
-\nCalc Norm Factors: 2021-11-22 18:52:16
-\nLimma: 2021-11-22 19:04:59
-eBayes: 2021-11-22 19:25:48
-Index coef: PrimaryDxMDD
-1 coef, Return t-stats
-               <  0.05 <  0.01
-q_PrimaryDxMDD       0       0
-\nCalc Norm Factors: 2021-11-22 19:26:22
-\nLimma: 2021-11-22 19:35:54
-eBayes: 2021-11-22 19:53:20
-Index coef: PrimaryDxBipolar
-1 coef, Return t-stats
-                   <  0.05 <  0.01
-q_PrimaryDxBipolar       2       2
-Writing csv files
 
 ####  JXN  ####
 Running sep amyg DE:
-\nCalc Norm Factors: 2021-11-22 19:57:03
-\nLimma: 2021-11-22 20:03:32
-eBayes: 2021-11-22 20:13:13
+\nCalc Norm Factors: 2021-12-03 13:32:35
+\nLimma: 2021-12-03 13:36:01
+eBayes: 2021-12-03 13:40:21
 Index coef: PrimaryDxMDD
 1 coef, Return t-stats
                <  0.05 <  0.01
 q_PrimaryDxMDD     186      96
-\nCalc Norm Factors: 2021-11-22 20:13:36
-\nLimma: 2021-11-22 20:19:29
-eBayes: 2021-11-22 20:27:28
+\nCalc Norm Factors: 2021-12-03 13:40:29
+\nLimma: 2021-12-03 13:43:03
+eBayes: 2021-12-03 13:46:21
 Index coef: PrimaryDxBipolar
 1 coef, Return t-stats
                    <  0.05 <  0.01
 q_PrimaryDxBipolar      16       8
 Writing csv files
 Running sep sacc DE:
-\nCalc Norm Factors: 2021-11-22 20:27:53
-\nLimma: 2021-11-22 20:35:06
-eBayes: 2021-11-22 20:45:05
+\nCalc Norm Factors: 2021-12-03 13:46:32
+\nLimma: 2021-12-03 13:50:11
+eBayes: 2021-12-03 13:54:41
 Index coef: PrimaryDxMDD
 1 coef, Return t-stats
                <  0.05 <  0.01
 q_PrimaryDxMDD    1128     481
-\nCalc Norm Factors: 2021-11-22 20:45:52
-\nLimma: 2021-11-22 20:51:57
-eBayes: 2021-11-22 21:00:34
+\nCalc Norm Factors: 2021-12-03 13:55:02
+\nLimma: 2021-12-03 13:57:48
+eBayes: 2021-12-03 14:01:18
 Index coef: PrimaryDxBipolar
 1 coef, Return t-stats
                    <  0.05 <  0.01
 q_PrimaryDxBipolar      36      18
 Writing csv files
 Running sep_cf amyg DE:
-\nCalc Norm Factors: 2021-11-22 21:01:33
-\nLimma: 2021-11-22 21:09:10
-eBayes: 2021-11-22 21:23:41
+\nCalc Norm Factors: 2021-12-03 14:01:43
+\nLimma: 2021-12-03 14:05:24
+eBayes: 2021-12-03 14:11:35
 Index coef: PrimaryDxMDD
 1 coef, Return t-stats
                <  0.05 <  0.01
 q_PrimaryDxMDD     207      96
-\nCalc Norm Factors: 2021-11-22 21:24:48
-\nLimma: 2021-11-22 21:30:10
-eBayes: 2021-11-22 21:40:24
+\nCalc Norm Factors: 2021-12-03 14:12:00
+\nLimma: 2021-12-03 14:14:40
+eBayes: 2021-12-03 14:19:31
 Index coef: PrimaryDxBipolar
 1 coef, Return t-stats
                    <  0.05 <  0.01
 q_PrimaryDxBipolar       7       5
 Writing csv files
 Running sep_cf sacc DE:
-\nCalc Norm Factors: 2021-11-22 21:41:26
-\nLimma: 2021-11-22 21:48:33
-eBayes: 2021-11-22 22:03:13
+\nCalc Norm Factors: 2021-12-03 14:20:01
+\nLimma: 2021-12-03 14:23:46
+eBayes: 2021-12-03 14:29:57
 Index coef: PrimaryDxMDD
 1 coef, Return t-stats
                <  0.05 <  0.01
 q_PrimaryDxMDD     824     397
-\nCalc Norm Factors: 2021-11-22 22:04:12
-\nLimma: 2021-11-22 22:10:11
-eBayes: 2021-11-22 22:21:01
+\nCalc Norm Factors: 2021-12-03 14:30:24
+\nLimma: 2021-12-03 14:33:15
+eBayes: 2021-12-03 14:38:04
 Index coef: PrimaryDxBipolar
 1 coef, Return t-stats
                    <  0.05 <  0.01
 q_PrimaryDxBipolar      33      22
 Writing csv files
-Running exp amyg DE:
-\nCalc Norm Factors: 2021-11-22 22:22:02
-\nLimma: 2021-11-22 22:29:00
-eBayes: 2021-11-22 22:40:50
-Index coef: PrimaryDxMDD
-1 coef, Return t-stats
-               <  0.05 <  0.01
-q_PrimaryDxMDD      33      26
-\nCalc Norm Factors: 2021-11-22 22:41:10
-\nLimma: 2021-11-22 22:46:32
-eBayes: 2021-11-22 22:56:08
-Index coef: PrimaryDxBipolar
-1 coef, Return t-stats
-                   <  0.05 <  0.01
-q_PrimaryDxBipolar      11       7
-Writing csv files
-Running exp sacc DE:
-\nCalc Norm Factors: 2021-11-22 22:57:01
-\nLimma: 2021-11-22 23:04:56
-eBayes: 2021-11-22 23:17:48
-Index coef: PrimaryDxMDD
-1 coef, Return t-stats
-               <  0.05 <  0.01
-q_PrimaryDxMDD     138      86
-\nCalc Norm Factors: 2021-11-22 23:18:40
-\nLimma: 2021-11-22 23:24:22
-eBayes: 2021-11-22 23:34:10
-Index coef: PrimaryDxBipolar
-1 coef, Return t-stats
-                   <  0.05 <  0.01
-q_PrimaryDxBipolar      25      11
-Writing csv files
-Running exp_cf amyg DE:
-\nCalc Norm Factors: 2021-11-22 23:35:06
-\nLimma: 2021-11-22 23:43:06
-eBayes: 2021-11-23 00:00:41
-Index coef: PrimaryDxMDD
-1 coef, Return t-stats
-               <  0.05 <  0.01
-q_PrimaryDxMDD      47      21
-\nCalc Norm Factors: 2021-11-23 00:01:07
-\nLimma: 2021-11-23 00:07:57
-eBayes: 2021-11-23 00:20:49
-Index coef: PrimaryDxBipolar
-1 coef, Return t-stats
-                   <  0.05 <  0.01
-q_PrimaryDxBipolar      14       5
-Writing csv files
-Running exp_cf sacc DE:
-\nCalc Norm Factors: 2021-11-23 00:21:54
-\nLimma: 2021-11-23 00:29:54
-eBayes: 2021-11-23 00:46:49
-Index coef: PrimaryDxMDD
-1 coef, Return t-stats
-               <  0.05 <  0.01
-q_PrimaryDxMDD     179     118
-\nCalc Norm Factors: 2021-11-23 00:47:58
-\nLimma: 2021-11-23 00:54:03
-eBayes: 2021-11-23 01:07:17
-Index coef: PrimaryDxBipolar
-1 coef, Return t-stats
-                   <  0.05 <  0.01
-q_PrimaryDxBipolar      35      21
-Writing csv files
-There were 12 warnings (use warnings() to see them)
+Warning messages:
+1: Partial NA coefficients for 2 probe(s) 
+2: Partial NA coefficients for 1 probe(s) 
+3: Partial NA coefficients for 1 probe(s) 
+4: Partial NA coefficients for 3 probe(s) 
+5: Partial NA coefficients for 5 probe(s) 
+6: Partial NA coefficients for 2 probe(s) 
 
 ####  TX  ####
 Running sep amyg DE:
 \nUsing tpm
-\nLimma: 2021-11-23 01:10:25
-eBayes: 2021-11-23 01:10:34
+\nLimma: 2021-12-03 14:39:04
+eBayes: 2021-12-03 14:39:08
 Index coef: PrimaryDxMDD
 1 coef, Return t-stats
                <  0.05 <  0.01
 q_PrimaryDxMDD     923     143
 \nUsing tpm
-\nLimma: 2021-11-23 01:10:41
-eBayes: 2021-11-23 01:10:48
+\nLimma: 2021-12-03 14:39:12
+eBayes: 2021-12-03 14:39:15
 Index coef: PrimaryDxBipolar
 1 coef, Return t-stats
                    <  0.05 <  0.01
@@ -795,15 +425,15 @@ q_PrimaryDxBipolar       4       2
 Writing csv files
 Running sep sacc DE:
 \nUsing tpm
-\nLimma: 2021-11-23 01:10:56
-eBayes: 2021-11-23 01:11:06
+\nLimma: 2021-12-03 14:39:21
+eBayes: 2021-12-03 14:39:25
 Index coef: PrimaryDxMDD
 1 coef, Return t-stats
                <  0.05 <  0.01
 q_PrimaryDxMDD     438      88
 \nUsing tpm
-\nLimma: 2021-11-23 01:11:13
-eBayes: 2021-11-23 01:11:20
+\nLimma: 2021-12-03 14:39:28
+eBayes: 2021-12-03 14:39:32
 Index coef: PrimaryDxBipolar
 1 coef, Return t-stats
                    <  0.05 <  0.01
@@ -811,15 +441,15 @@ q_PrimaryDxBipolar       8       0
 Writing csv files
 Running sep_cf amyg DE:
 \nUsing tpm
-\nLimma: 2021-11-23 01:11:30
-eBayes: 2021-11-23 01:11:41
+\nLimma: 2021-12-03 14:39:37
+eBayes: 2021-12-03 14:39:42
 Index coef: PrimaryDxMDD
 1 coef, Return t-stats
                <  0.05 <  0.01
 q_PrimaryDxMDD     292      31
 \nUsing tpm
-\nLimma: 2021-11-23 01:11:48
-eBayes: 2021-11-23 01:11:56
+\nLimma: 2021-12-03 14:39:46
+eBayes: 2021-12-03 14:39:50
 Index coef: PrimaryDxBipolar
 1 coef, Return t-stats
                    <  0.05 <  0.01
@@ -827,90 +457,26 @@ q_PrimaryDxBipolar       1       0
 Writing csv files
 Running sep_cf sacc DE:
 \nUsing tpm
-\nLimma: 2021-11-23 01:12:07
-eBayes: 2021-11-23 01:12:18
+\nLimma: 2021-12-03 14:39:56
+eBayes: 2021-12-03 14:40:01
 Index coef: PrimaryDxMDD
 1 coef, Return t-stats
                <  0.05 <  0.01
 q_PrimaryDxMDD     264      68
 \nUsing tpm
-\nLimma: 2021-11-23 01:12:26
-eBayes: 2021-11-23 01:12:34
+\nLimma: 2021-12-03 14:40:05
+eBayes: 2021-12-03 14:40:09
 Index coef: PrimaryDxBipolar
 1 coef, Return t-stats
                    <  0.05 <  0.01
 q_PrimaryDxBipolar       1       0
 Writing csv files
-Running exp amyg DE:
-\nUsing tpm
-\nLimma: 2021-11-23 01:12:45
-eBayes: 2021-11-23 01:12:56
-Index coef: PrimaryDxMDD
-1 coef, Return t-stats
-               <  0.05 <  0.01
-q_PrimaryDxMDD       7       2
-\nUsing tpm
-\nLimma: 2021-11-23 01:13:03
-eBayes: 2021-11-23 01:13:10
-Index coef: PrimaryDxBipolar
-1 coef, Return t-stats
-                   <  0.05 <  0.01
-q_PrimaryDxBipolar       5       0
-Writing csv files
-Running exp sacc DE:
-\nUsing tpm
-\nLimma: 2021-11-23 01:13:20
-eBayes: 2021-11-23 01:13:30
-Index coef: PrimaryDxMDD
-1 coef, Return t-stats
-               <  0.05 <  0.01
-q_PrimaryDxMDD       0       0
-\nUsing tpm
-\nLimma: 2021-11-23 01:13:38
-eBayes: 2021-11-23 01:13:46
-Index coef: PrimaryDxBipolar
-1 coef, Return t-stats
-                   <  0.05 <  0.01
-q_PrimaryDxBipolar       8       0
-Writing csv files
-Running exp_cf amyg DE:
-\nUsing tpm
-\nLimma: 2021-11-23 01:13:55
-eBayes: 2021-11-23 01:14:07
-Index coef: PrimaryDxMDD
-1 coef, Return t-stats
-               <  0.05 <  0.01
-q_PrimaryDxMDD       5       1
-\nUsing tpm
-\nLimma: 2021-11-23 01:14:15
-eBayes: 2021-11-23 01:14:23
-Index coef: PrimaryDxBipolar
-1 coef, Return t-stats
-                   <  0.05 <  0.01
-q_PrimaryDxBipolar       0       0
-Writing csv files
-Running exp_cf sacc DE:
-\nUsing tpm
-\nLimma: 2021-11-23 01:14:34
-eBayes: 2021-11-23 01:14:46
-Index coef: PrimaryDxMDD
-1 coef, Return t-stats
-               <  0.05 <  0.01
-q_PrimaryDxMDD       1       0
-\nUsing tpm
-\nLimma: 2021-11-23 01:14:54
-eBayes: 2021-11-23 01:15:03
-Index coef: PrimaryDxBipolar
-1 coef, Return t-stats
-                   <  0.05 <  0.01
-q_PrimaryDxBipolar       0       0
-Writing csv files
 [1] "Reproducibility information:"
-[1] "2021-11-23 01:15:27 EST"
+[1] "2021-12-03 14:40:17 EST"
      user    system   elapsed 
-37597.892  3317.943 42183.002 
+ 9647.795   447.248 10081.515 
 ─ Session info  ──────────────────────────────────────────────────────────────────────────────────────────────────────
- hash: closed mailbox with raised flag, pregnant woman: dark skin tone, grinning face with sweat
+ hash: woman: medium skin tone, red hair, handshake, no mobile phones
 
  setting  value
  version  R version 4.1.2 Patched (2021-11-04 r81138)
@@ -921,1002 +487,7 @@ Writing csv files
  collate  en_US.UTF-8
  ctype    en_US.UTF-8
  tz       US/Eastern
- date     2021-11-23
- pandoc   2.13 @ /jhpce/shared/jhpce/core/conda/miniconda3-4.6.14/envs/svnR-4.1.x/bin/pandoc
-
-─ Packages ───────────────────────────────────────────────────────────────────────────────────────────────────────────
- package              * version  date (UTC) lib source
- annotate               1.72.0   2021-10-26 [2] Bioconductor
- AnnotationDbi          1.56.2   2021-11-09 [2] Bioconductor
- assertthat             0.2.1    2019-03-21 [2] CRAN (R 4.1.0)
- backports              1.3.0    2021-10-27 [2] CRAN (R 4.1.2)
- Biobase              * 2.54.0   2021-10-26 [2] Bioconductor
- BiocGenerics         * 0.40.0   2021-10-26 [2] Bioconductor
- BiocParallel         * 1.28.1   2021-11-18 [2] Bioconductor
- Biostrings             2.62.0   2021-10-26 [2] Bioconductor
- bit                    4.0.4    2020-08-04 [2] CRAN (R 4.1.0)
- bit64                  4.0.5    2020-08-30 [2] CRAN (R 4.1.0)
- bitops                 1.0-7    2021-04-24 [2] CRAN (R 4.1.0)
- blob                   1.2.2    2021-07-23 [2] CRAN (R 4.1.0)
- broom                  0.7.10   2021-10-31 [2] CRAN (R 4.1.2)
- cachem                 1.0.6    2021-08-19 [2] CRAN (R 4.1.2)
- callr                  3.7.0    2021-04-20 [2] CRAN (R 4.1.0)
- cellranger             1.1.0    2016-07-27 [2] CRAN (R 4.1.0)
- cli                    3.1.0    2021-10-27 [2] CRAN (R 4.1.2)
- colorspace             2.0-2    2021-06-24 [2] CRAN (R 4.1.0)
- crayon                 1.4.2    2021-10-29 [2] CRAN (R 4.1.2)
- DBI                    1.1.1    2021-01-15 [2] CRAN (R 4.1.0)
- dbplyr                 2.1.1    2021-04-06 [2] CRAN (R 4.1.0)
- DelayedArray           0.20.0   2021-10-26 [2] Bioconductor
- desc                   1.4.0    2021-09-28 [2] CRAN (R 4.1.2)
- devtools             * 2.4.2    2021-06-07 [2] CRAN (R 4.1.0)
- dplyr                * 1.0.7    2021-06-18 [2] CRAN (R 4.1.0)
- edgeR                * 3.36.0   2021-10-26 [2] Bioconductor
- ellipsis               0.3.2    2021-04-29 [2] CRAN (R 4.1.0)
- fansi                  0.5.0    2021-05-25 [2] CRAN (R 4.1.0)
- fastmap                1.1.0    2021-01-25 [2] CRAN (R 4.1.0)
- forcats              * 0.5.1    2021-01-27 [2] CRAN (R 4.1.0)
- fs                     1.5.0    2020-07-31 [2] CRAN (R 4.1.0)
- gargle                 1.2.0    2021-07-02 [2] CRAN (R 4.1.0)
- genefilter           * 1.76.0   2021-10-26 [2] Bioconductor
- generics               0.1.1    2021-10-25 [2] CRAN (R 4.1.2)
- GenomeInfoDb         * 1.30.0   2021-10-26 [2] Bioconductor
- GenomeInfoDbData       1.2.7    2021-11-01 [2] Bioconductor
- GenomicRanges        * 1.46.1   2021-11-18 [2] Bioconductor
- ggplot2              * 3.3.5    2021-06-25 [2] CRAN (R 4.1.0)
- glue                   1.5.0    2021-11-07 [2] CRAN (R 4.1.2)
- googledrive            2.0.0    2021-07-08 [2] CRAN (R 4.1.0)
- gtable                 0.3.0    2019-03-25 [2] CRAN (R 4.1.0)
- haven                  2.4.3    2021-08-04 [2] CRAN (R 4.1.1)
- here                 * 1.0.1    2020-12-13 [2] CRAN (R 4.1.2)
- hms                    1.1.1    2021-09-26 [2] CRAN (R 4.1.2)
- httr                   1.4.2    2020-07-20 [2] CRAN (R 4.1.0)
- IRanges              * 2.28.0   2021-10-26 [2] Bioconductor
- jaffelab             * 0.99.31  2021-10-29 [1] Github (LieberInstitute/jaffelab@2cbd55a)
- jsonlite               1.7.2    2020-12-09 [2] CRAN (R 4.1.0)
- KEGGREST               1.34.0   2021-10-26 [2] Bioconductor
- lattice                0.20-45  2021-09-22 [3] CRAN (R 4.1.2)
- lifecycle              1.0.1    2021-09-24 [1] CRAN (R 4.1.1)
- limma                * 3.50.0   2021-10-26 [2] Bioconductor
- locfit                 1.5-9.4  2020-03-25 [2] CRAN (R 4.1.0)
- lubridate              1.8.0    2021-10-07 [2] CRAN (R 4.1.2)
- magrittr               2.0.1    2020-11-17 [2] CRAN (R 4.1.0)
- Matrix                 1.3-4    2021-06-01 [3] CRAN (R 4.1.2)
- MatrixGenerics       * 1.6.0    2021-10-26 [2] Bioconductor
- matrixStats          * 0.61.0   2021-09-17 [2] CRAN (R 4.1.2)
- memoise                2.0.0    2021-01-26 [2] CRAN (R 4.1.0)
- mgcv                 * 1.8-38   2021-10-06 [3] CRAN (R 4.1.2)
- modelr                 0.1.8    2020-05-19 [2] CRAN (R 4.1.0)
- munsell                0.5.0    2018-06-12 [2] CRAN (R 4.1.0)
- nlme                 * 3.1-153  2021-09-07 [3] CRAN (R 4.1.2)
- pillar                 1.6.4    2021-10-18 [1] CRAN (R 4.1.1)
- pkgbuild               1.2.0    2020-12-15 [2] CRAN (R 4.1.0)
- pkgconfig              2.0.3    2019-09-22 [2] CRAN (R 4.1.0)
- pkgload                1.2.3    2021-10-13 [2] CRAN (R 4.1.2)
- png                    0.1-7    2013-12-03 [2] CRAN (R 4.1.0)
- prettyunits            1.1.1    2020-01-24 [2] CRAN (R 4.1.0)
- processx               3.5.2    2021-04-30 [2] CRAN (R 4.1.0)
- ps                     1.6.0    2021-02-28 [2] CRAN (R 4.1.0)
- purrr                * 0.3.4    2020-04-17 [2] CRAN (R 4.1.0)
- R6                     2.5.1    2021-08-19 [1] CRAN (R 4.1.1)
- rafalib              * 1.0.0    2015-08-09 [1] CRAN (R 4.1.1)
- RColorBrewer           1.1-2    2014-12-07 [2] CRAN (R 4.1.0)
- Rcpp                   1.0.7    2021-07-07 [2] CRAN (R 4.1.0)
- RCurl                  1.98-1.5 2021-09-17 [2] CRAN (R 4.1.2)
- readr                * 2.1.0    2021-11-11 [2] CRAN (R 4.1.2)
- readxl               * 1.3.1    2019-03-13 [2] CRAN (R 4.1.0)
- remotes                2.4.1    2021-09-29 [2] CRAN (R 4.1.2)
- reprex                 2.0.1    2021-08-05 [2] CRAN (R 4.1.1)
- rlang                  0.4.12   2021-10-18 [2] CRAN (R 4.1.2)
- rprojroot              2.0.2    2020-11-15 [2] CRAN (R 4.1.0)
- RSQLite                2.2.8    2021-08-21 [2] CRAN (R 4.1.2)
- rstudioapi             0.13     2020-11-12 [2] CRAN (R 4.1.0)
- rvest                  1.0.2    2021-10-16 [2] CRAN (R 4.1.2)
- S4Vectors            * 0.32.2   2021-11-07 [2] Bioconductor
- scales                 1.1.1    2020-05-11 [2] CRAN (R 4.1.0)
- segmented              1.3-4    2021-04-22 [1] CRAN (R 4.1.1)
- sessioninfo          * 1.2.1    2021-11-02 [2] CRAN (R 4.1.2)
- stringi                1.7.5    2021-10-04 [2] CRAN (R 4.1.2)
- stringr              * 1.4.0    2019-02-10 [2] CRAN (R 4.1.0)
- SummarizedExperiment * 1.24.0   2021-10-26 [2] Bioconductor
- survival               3.2-13   2021-08-24 [3] CRAN (R 4.1.2)
- sva                  * 3.42.0   2021-10-26 [2] Bioconductor
- testthat               3.1.0    2021-10-04 [2] CRAN (R 4.1.2)
- tibble               * 3.1.6    2021-11-07 [2] CRAN (R 4.1.2)
- tidyr                * 1.1.4    2021-09-27 [2] CRAN (R 4.1.2)
- tidyselect             1.1.1    2021-04-30 [2] CRAN (R 4.1.0)
- tidyverse            * 1.3.1    2021-04-15 [2] CRAN (R 4.1.0)
- tzdb                   0.2.0    2021-10-27 [2] CRAN (R 4.1.2)
- usethis              * 2.1.3    2021-10-27 [2] CRAN (R 4.1.2)
- utf8                   1.2.2    2021-07-24 [2] CRAN (R 4.1.0)
- vctrs                  0.3.8    2021-04-29 [2] CRAN (R 4.1.0)
- vroom                  1.5.6    2021-11-10 [2] CRAN (R 4.1.2)
- withr                  2.4.2    2021-04-18 [2] CRAN (R 4.1.0)
- XML                    3.99-0.8 2021-09-17 [2] CRAN (R 4.1.2)
- xml2                   1.3.2    2020-04-23 [2] CRAN (R 4.1.0)
- xtable                 1.8-4    2019-04-21 [2] CRAN (R 4.1.0)
- XVector                0.34.0   2021-10-26 [2] Bioconductor
- zlibbioc               1.40.0   2021-10-26 [2] Bioconductor
-
- [1] /users/lhuuki/R/4.1.x
- [2] /jhpce/shared/jhpce/core/conda/miniconda3-4.6.14/envs/svnR-4.1.x/R/4.1.x/lib64/R/site-library
- [3] /jhpce/shared/jhpce/core/conda/miniconda3-4.6.14/envs/svnR-4.1.x/R/4.1.x/lib64/R/library
-
-──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-**** Job ends ****
-Tue Nov 23 01:15:50 EST 2021
-Adding LIBD modules
-Loading git
-Loading LIBD module for git-status-size/github
-Loading LIBD module for git-lfs/2.8.0
-Loading LIBD module for rmate/1.5.9
-Loading LIBD module for ruby/2.6.4p104
-Loading conda_R/4.1
-**** Job starts ****
-Mon Nov 29 12:03:15 EST 2021
-**** JHPCE info ****
-User: lhuuki
-Job id: 7879158
-Job name: qSV_model_DE_analysis
-Hostname: compute-067.cm.cluster
-Task id: undefined
-Unloading conda_R/4.1
-Loading conda_R/4.1.x
-
-The following have been reloaded with a version change:
-  1) conda_R/4.1 => conda_R/4.1.x
-
-
-Currently Loaded Modules:
-  1) matlab/R2019a     6) COMMUNITY_CENTOS7_DEFAULT_ENV  11) ruby/2.6.4p104
-  2) stata/17          7) JHPCE_CENTOS7_DEFAULT_ENV      12) rmate/1.5.9
-  3) JHPCE_tools/1.0   8) git-status-size/github         13) conda/3-4.6.14
-  4) sge/8.1.9         9) git/2.28.0                     14) conda_R/4.1.x
-  5) gcc/4.4.7        10) git-lfs/2.8.0
-
- 
-
-WARNING: ignoring environment value of R_HOME
-Loading required package: rafalib
-Loading required package: MatrixGenerics
-Loading required package: matrixStats
-
-Attaching package: ‘MatrixGenerics’
-
-The following objects are masked from ‘package:matrixStats’:
-
-    colAlls, colAnyNAs, colAnys, colAvgsPerRowSet, colCollapse,
-    colCounts, colCummaxs, colCummins, colCumprods, colCumsums,
-    colDiffs, colIQRDiffs, colIQRs, colLogSumExps, colMadDiffs,
-    colMads, colMaxs, colMeans2, colMedians, colMins, colOrderStats,
-    colProds, colQuantiles, colRanges, colRanks, colSdDiffs, colSds,
-    colSums2, colTabulates, colVarDiffs, colVars, colWeightedMads,
-    colWeightedMeans, colWeightedMedians, colWeightedSds,
-    colWeightedVars, rowAlls, rowAnyNAs, rowAnys, rowAvgsPerColSet,
-    rowCollapse, rowCounts, rowCummaxs, rowCummins, rowCumprods,
-    rowCumsums, rowDiffs, rowIQRDiffs, rowIQRs, rowLogSumExps,
-    rowMadDiffs, rowMads, rowMaxs, rowMeans2, rowMedians, rowMins,
-    rowOrderStats, rowProds, rowQuantiles, rowRanges, rowRanks,
-    rowSdDiffs, rowSds, rowSums2, rowTabulates, rowVarDiffs, rowVars,
-    rowWeightedMads, rowWeightedMeans, rowWeightedMedians,
-    rowWeightedSds, rowWeightedVars
-
-Loading required package: GenomicRanges
-Loading required package: stats4
-Loading required package: BiocGenerics
-
-Attaching package: ‘BiocGenerics’
-
-The following objects are masked from ‘package:stats’:
-
-    IQR, mad, sd, var, xtabs
-
-The following objects are masked from ‘package:base’:
-
-    anyDuplicated, append, as.data.frame, basename, cbind, colnames,
-    dirname, do.call, duplicated, eval, evalq, Filter, Find, get, grep,
-    grepl, intersect, is.unsorted, lapply, Map, mapply, match, mget,
-    order, paste, pmax, pmax.int, pmin, pmin.int, Position, rank,
-    rbind, Reduce, rownames, sapply, setdiff, sort, table, tapply,
-    union, unique, unsplit, which.max, which.min
-
-Loading required package: S4Vectors
-
-Attaching package: ‘S4Vectors’
-
-The following objects are masked from ‘package:base’:
-
-    expand.grid, I, unname
-
-Loading required package: IRanges
-Loading required package: GenomeInfoDb
-Loading required package: Biobase
-Welcome to Bioconductor
-
-    Vignettes contain introductory material; view with
-    'browseVignettes()'. To cite Bioconductor, see
-    'citation("Biobase")', and for packages 'citation("pkgname")'.
-
-
-Attaching package: ‘Biobase’
-
-The following object is masked from ‘package:MatrixGenerics’:
-
-    rowMedians
-
-The following objects are masked from ‘package:matrixStats’:
-
-    anyMissing, rowMedians
-
-Loading required package: mgcv
-Loading required package: nlme
-
-Attaching package: ‘nlme’
-
-The following object is masked from ‘package:IRanges’:
-
-    collapse
-
-This is mgcv 1.8-38. For overview type 'help("mgcv-package")'.
-Loading required package: genefilter
-
-Attaching package: ‘genefilter’
-
-The following objects are masked from ‘package:MatrixGenerics’:
-
-    rowSds, rowVars
-
-The following objects are masked from ‘package:matrixStats’:
-
-    rowSds, rowVars
-
-Loading required package: BiocParallel
-Loading required package: usethis
-
-Attaching package: ‘devtools’
-
-The following object is masked from ‘package:rafalib’:
-
-    install_bioc
-
-Loading required package: limma
-
-Attaching package: ‘limma’
-
-The following object is masked from ‘package:BiocGenerics’:
-
-    plotMA
-
-here() starts at /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq
-── Attaching packages ─────────────────────────────────────── tidyverse 1.3.1 ──
-✔ ggplot2 3.3.5     ✔ purrr   0.3.4
-✔ tibble  3.1.6     ✔ dplyr   1.0.7
-✔ tidyr   1.1.4     ✔ stringr 1.4.0
-✔ readr   2.1.0     ✔ forcats 0.5.1
-── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
-✖ dplyr::collapse()   masks nlme::collapse(), IRanges::collapse()
-✖ dplyr::combine()    masks Biobase::combine(), BiocGenerics::combine()
-✖ dplyr::count()      masks matrixStats::count()
-✖ dplyr::desc()       masks IRanges::desc()
-✖ tidyr::expand()     masks S4Vectors::expand()
-✖ dplyr::filter()     masks stats::filter()
-✖ dplyr::first()      masks S4Vectors::first()
-✖ dplyr::lag()        masks stats::lag()
-✖ ggplot2::Position() masks BiocGenerics::Position(), base::Position()
-✖ purrr::reduce()     masks GenomicRanges::reduce(), IRanges::reduce()
-✖ dplyr::rename()     masks S4Vectors::rename()
-✖ dplyr::slice()      masks IRanges::slice()
-✖ readr::spec()       masks genefilter::spec()
-Loading objects:
-  rse_gene
-Loading objects:
-  rse_exon
-Loading objects:
-  rse_jxn
-Loading objects:
-  rse_tx
-
-psychENCODE_MDD  psychENCODE_BP 
-            588             503 
-
-Amygdala     sACC 
-     540      551 
-          
-             F   M
-  Amygdala 160 380
-  sACC     167 384
-                 
-                  MDD Control Bipolar
-  psychENCODE_MDD 459     129       0
-  psychENCODE_BP    0     258     245
-          
-           MDD Control Bipolar
-  Amygdala 231     187     122
-  sACC     228     200     123
-   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-  17.37   34.62   47.21   46.58   55.86   95.27 
-[1] "meanExprs"    "passExprsCut"
-[1] "meanExprs"          "passExprsCut"       "common_feature_id"  "common_gene_symbol" "common_gene_id"    
-$amyg
-MDD BPD 
-418 309 
-
-$sacc
-MDD BPD 
-428 323 
-
-Loading objects:
-  qSV_mat
-$amyg
-$amyg$MDD
-                       (Intercept) PrimaryDxMDD AgeDeath SexM ExperimentpsychENCODE_BP      snpPC1      snpPC2      snpPC3       snpPC4      snpPC5   mitoRate    rRNA_rate totalAssignedGene RIN
-R13950_psychENCODE_MDD           1            0    18.41    1                        0 0.006127960 -0.00297122 -0.00568833 -0.001105490  0.00628775 0.02722180 2.088753e-05         0.5027182 7.7
-R13978_psychENCODE_MDD           1            0    31.54    1                        0 0.002266450 -0.00220592 -0.00364736 -0.016080000  0.00213696 0.02699984 1.962467e-04         0.4964806 7.7
-R14015_psychENCODE_MDD           1            0    54.43    1                        0 0.002282970 -0.00382690  0.00310295  0.003852890 -0.01534740 0.02290194 1.512075e-04         0.4970797 8.1
-R14031_psychENCODE_MDD           1            0    40.08    1                        0 0.005183430  0.00445958  0.00368865  0.002974640  0.00548825 0.02534453 2.304242e-04         0.4445579 7.9
-R14179_psychENCODE_MDD           1            0    28.57    1                        0 0.003424450 -0.00199719 -0.00105026 -0.000658147 -0.01348160 0.02034263 6.161568e-05         0.4880644 7.6
-R17480_psychENCODE_MDD           1            0    27.48    1                        0 0.000335574 -0.00351127  0.00162443 -0.003889290  0.00369594 0.02389470 9.657372e-05         0.4402527 8.5
-                       abs(ERCCsumLogErr)        PC1        PC2         PC3         PC4        PC5        PC6        PC7        PC8       PC9       PC10       PC11       PC12        PC13        PC14
-R13950_psychENCODE_MDD          17.716623 -18.407183 -0.7347888  -2.7884858  1.19537102  3.3454463 -1.4699297  0.3764781 -1.4549596 -3.287085  1.4163367  1.2297760  0.1222488 -0.02063015 -0.09960341
-R13978_psychENCODE_MDD           9.316009 -14.545603  2.4626731  -0.6538529 -0.91081451  0.2975670  4.6027478  0.6134149 -0.4075968 -1.238766  2.0915448  0.5306992  0.6957511  0.88943260 -1.58140612
-R14015_psychENCODE_MDD           8.784121 -18.001564  1.5477687  -3.3761859  3.37751570 -2.2152767  4.7244807 -0.9167814 -0.1158092  1.734184  0.8062840  0.2902774 -0.1942824  0.67538938 -0.74865066
-R14031_psychENCODE_MDD           5.007816 -15.605657 -1.5511965  -2.3737727  1.07479038 -4.0090707  3.5713156  2.1662353  1.1507667 -0.397288  1.4339427 -0.3206144 -1.2871065 -0.12721982  0.27965458
-R14179_psychENCODE_MDD          13.744511 -16.986914 -3.1068594 -11.5158829  2.74494654  4.7056749  2.4020312 -1.1746718 -1.6416219  2.698973 -1.2588367  0.1976743 -1.5819073  2.09675040  0.78707723
-R17480_psychENCODE_MDD          13.329312  -5.556827  3.7987083  -5.5052311  0.03667666  0.1526495  0.7104281  0.8101962 -1.0024720  0.835762 -0.3552477 -1.1032093 -1.8175387  2.02095032  1.32276896
-                             PC15       PC16       PC17       PC18        PC19       PC20        PC21       PC22         PC23        PC24        PC25       PC26
-R13950_psychENCODE_MDD -0.2838259 -0.6216369  0.7946658 -0.2394755 -0.41460978 -0.2377692  0.65970100  0.4659118  0.235847726  0.17476979  0.11885833 -0.3283660
-R13978_psychENCODE_MDD -1.4506372 -1.1299619 -0.6050432  0.7026211  0.39100182  0.2840876  0.38733634 -2.3364934  0.008524396  0.49075628  1.04718128  0.4787713
-R14015_psychENCODE_MDD -1.0547044 -0.5054712  0.7536363 -0.1696842  1.29885534 -0.8053447 -0.75136741 -1.3879734 -1.304059866 -0.47568591 -0.03278018 -0.8782053
-R14031_psychENCODE_MDD  0.5781003 -0.7251437  1.4569353  0.3288573 -0.03623782 -0.2140286  0.08855403 -1.4668266 -1.595248577  0.74958181  1.57472728 -0.3876463
-R14179_psychENCODE_MDD  0.5460215 -1.1728514  0.2068248 -1.3756186 -0.70919340  1.7069484 -2.06285277  0.8395101 -0.704842582  0.03568315 -0.08179798  1.4100891
-R17480_psychENCODE_MDD -1.3142879  0.9503299  1.9900494 -0.2682917 -0.42317827 -0.3055955  0.91422545 -1.2569070  0.888709599  0.98523662 -0.13792025 -0.6284363
-
-$amyg$BPD
-                       (Intercept) PrimaryDxBipolar AgeDeath SexM ExperimentpsychENCODE_BP      snpPC1      snpPC2      snpPC3       snpPC4      snpPC5   mitoRate    rRNA_rate totalAssignedGene RIN
-R13950_psychENCODE_MDD           1                0    18.41    1                        0 0.006127960 -0.00297122 -0.00568833 -0.001105490  0.00628775 0.02722180 2.088753e-05         0.5027182 7.7
-R13978_psychENCODE_MDD           1                0    31.54    1                        0 0.002266450 -0.00220592 -0.00364736 -0.016080000  0.00213696 0.02699984 1.962467e-04         0.4964806 7.7
-R14015_psychENCODE_MDD           1                0    54.43    1                        0 0.002282970 -0.00382690  0.00310295  0.003852890 -0.01534740 0.02290194 1.512075e-04         0.4970797 8.1
-R14031_psychENCODE_MDD           1                0    40.08    1                        0 0.005183430  0.00445958  0.00368865  0.002974640  0.00548825 0.02534453 2.304242e-04         0.4445579 7.9
-R14179_psychENCODE_MDD           1                0    28.57    1                        0 0.003424450 -0.00199719 -0.00105026 -0.000658147 -0.01348160 0.02034263 6.161568e-05         0.4880644 7.6
-R17480_psychENCODE_MDD           1                0    27.48    1                        0 0.000335574 -0.00351127  0.00162443 -0.003889290  0.00369594 0.02389470 9.657372e-05         0.4402527 8.5
-                       abs(ERCCsumLogErr)        PC1        PC2         PC3         PC4        PC5        PC6        PC7        PC8       PC9       PC10       PC11       PC12        PC13        PC14
-R13950_psychENCODE_MDD          17.716623 -18.407183 -0.7347888  -2.7884858  1.19537102  3.3454463 -1.4699297  0.3764781 -1.4549596 -3.287085  1.4163367  1.2297760  0.1222488 -0.02063015 -0.09960341
-R13978_psychENCODE_MDD           9.316009 -14.545603  2.4626731  -0.6538529 -0.91081451  0.2975670  4.6027478  0.6134149 -0.4075968 -1.238766  2.0915448  0.5306992  0.6957511  0.88943260 -1.58140612
-R14015_psychENCODE_MDD           8.784121 -18.001564  1.5477687  -3.3761859  3.37751570 -2.2152767  4.7244807 -0.9167814 -0.1158092  1.734184  0.8062840  0.2902774 -0.1942824  0.67538938 -0.74865066
-R14031_psychENCODE_MDD           5.007816 -15.605657 -1.5511965  -2.3737727  1.07479038 -4.0090707  3.5713156  2.1662353  1.1507667 -0.397288  1.4339427 -0.3206144 -1.2871065 -0.12721982  0.27965458
-R14179_psychENCODE_MDD          13.744511 -16.986914 -3.1068594 -11.5158829  2.74494654  4.7056749  2.4020312 -1.1746718 -1.6416219  2.698973 -1.2588367  0.1976743 -1.5819073  2.09675040  0.78707723
-R17480_psychENCODE_MDD          13.329312  -5.556827  3.7987083  -5.5052311  0.03667666  0.1526495  0.7104281  0.8101962 -1.0024720  0.835762 -0.3552477 -1.1032093 -1.8175387  2.02095032  1.32276896
-                             PC15       PC16       PC17       PC18        PC19       PC20        PC21       PC22         PC23        PC24        PC25       PC26
-R13950_psychENCODE_MDD -0.2838259 -0.6216369  0.7946658 -0.2394755 -0.41460978 -0.2377692  0.65970100  0.4659118  0.235847726  0.17476979  0.11885833 -0.3283660
-R13978_psychENCODE_MDD -1.4506372 -1.1299619 -0.6050432  0.7026211  0.39100182  0.2840876  0.38733634 -2.3364934  0.008524396  0.49075628  1.04718128  0.4787713
-R14015_psychENCODE_MDD -1.0547044 -0.5054712  0.7536363 -0.1696842  1.29885534 -0.8053447 -0.75136741 -1.3879734 -1.304059866 -0.47568591 -0.03278018 -0.8782053
-R14031_psychENCODE_MDD  0.5781003 -0.7251437  1.4569353  0.3288573 -0.03623782 -0.2140286  0.08855403 -1.4668266 -1.595248577  0.74958181  1.57472728 -0.3876463
-R14179_psychENCODE_MDD  0.5460215 -1.1728514  0.2068248 -1.3756186 -0.70919340  1.7069484 -2.06285277  0.8395101 -0.704842582  0.03568315 -0.08179798  1.4100891
-R17480_psychENCODE_MDD -1.3142879  0.9503299  1.9900494 -0.2682917 -0.42317827 -0.3055955  0.91422545 -1.2569070  0.888709599  0.98523662 -0.13792025 -0.6284363
-
-
-$sacc
-$sacc$MDD
-                       (Intercept) PrimaryDxMDD AgeDeath SexM ExperimentpsychENCODE_BP       snpPC1       snpPC2      snpPC3      snpPC4       snpPC5   mitoRate    rRNA_rate totalAssignedGene RIN
-R14149_psychENCODE_MDD           1            0    58.57    1                        0  0.004902440 -2.85008e-03  0.00471369  0.00187767 -0.015239400 0.02674667 2.460858e-05         0.4723640 7.8
-R14152_psychENCODE_MDD           1            0    27.48    1                        0  0.000335574 -3.51127e-03  0.00162443 -0.00388929  0.003695940 0.02325644 1.425850e-04         0.3964531 7.4
-R14153_psychENCODE_MDD           1            0    49.17    1                        0  0.002355650  2.56520e-03 -0.00431496 -0.00396801  0.013953300 0.02106080 7.544417e-05         0.4564605 7.7
-R14178_psychENCODE_MDD           1            0    28.35    1                        0 -0.003527340  2.52586e-04  0.00876943  0.00184929  0.003137080 0.03107047 1.116292e-04         0.4301785 7.2
-R14218_psychENCODE_MDD           1            0    18.77    1                        0  0.002141790 -6.78427e-05 -0.01431610 -0.01032000  0.000169591 0.03445213 1.649918e-04         0.3617616 6.5
-R17489_psychENCODE_MDD           1            0    32.67    1                        0 -0.047379800  2.01053e-03  0.01357000 -0.00558390  0.003735750 0.01596223 5.136120e-05         0.4250358 9.1
-                       abs(ERCCsumLogErr)        PC1        PC2        PC3       PC4        PC5       PC6       PC7        PC8        PC9        PC10         PC11       PC12        PC13       PC14
-R14149_psychENCODE_MDD          22.373652 -11.154473  0.8957217  4.4811355 -1.450038  2.8546741 -3.284201 1.1100357 -1.6480360 -0.1766366 -1.07304181 -0.008087808  1.0258957 -0.21572310  1.1047191
-R14152_psychENCODE_MDD           7.930784   6.729709 -4.1488755  5.3841452 -3.322184 -2.3770785  2.969827 1.4848762  0.6208017 -0.0888386  0.02707717 -0.182302798 -1.7811892  0.75296561 -0.8306376
-R14153_psychENCODE_MDD          14.544412 -17.018851 -3.4986078  4.0778604 -1.192916 -3.1106648 -1.136287 3.0813477 -0.7440107  1.0678975 -0.07845290  0.413646520 -0.1756329 -0.82506821 -0.1331143
-R14178_psychENCODE_MDD          28.217387 -11.706750 -5.4922556  4.3689843 -1.961798 -2.5212104 -0.981230 0.9241143  0.9809150  1.5203431  0.85761210  0.257287216  0.8733769  0.06866494 -0.5724164
-R14218_psychENCODE_MDD          20.434808  18.684973 -1.2968814 -0.2702799 -5.000630  0.6677388 -2.379799 2.9315850  0.1750291 -0.4772758  0.87830510  0.531884564 -1.1095463  4.16876272 -1.3133682
-R17489_psychENCODE_MDD          17.220119  -4.459150  0.3500723 -0.8564258  2.976807  0.4575149  2.043788 3.2184262  2.0433045  0.1760910  1.17793582  0.009052299 -0.5136159 -0.56349874 -1.8672687
-                              PC15      PC16       PC17       PC18        PC19       PC20       PC21        PC22       PC23       PC24       PC25        PC26
-R14149_psychENCODE_MDD -0.44442784 0.6363831 -0.5031188 -1.1137370  0.02575267  0.7695400  0.2582977 -1.09023588  1.1210223  0.6231138 -0.2121208 -1.38382130
-R14152_psychENCODE_MDD -0.04193853 1.0389808  2.0932338  0.2743089 -0.52794745  0.1483340  0.3827553  0.47537124 -0.8534562  0.5585705 -1.7734577  0.09375044
-R14153_psychENCODE_MDD  0.28563714 0.2500506 -0.9004411 -1.6682374 -0.31215094  0.8551094 -0.0820946 -0.16455359  0.0868986 -0.1509707  0.6418680 -0.38010549
-R14178_psychENCODE_MDD -0.19445843 0.5870487 -0.2540624  0.4519482 -0.89927791  0.8451344 -0.7586252 -0.13599527 -0.6335039 -0.5478424  0.5556217  0.32921566
-R14218_psychENCODE_MDD  0.43906326 0.7607021  0.5781711 -2.0116820  1.17965993  1.3547677 -0.5501576 -0.09000606 -0.8800584 -0.7808077  0.6675544  0.40138853
-R17489_psychENCODE_MDD  0.26542589 0.3690769 -0.3375735  0.6343182 -0.53600875 -1.6814871  0.4402720  0.35968322 -1.1016626 -1.9689055 -0.4501203  0.43282173
-
-$sacc$BPD
-                       (Intercept) PrimaryDxBipolar AgeDeath SexM ExperimentpsychENCODE_BP       snpPC1       snpPC2      snpPC3      snpPC4       snpPC5   mitoRate    rRNA_rate totalAssignedGene RIN
-R14149_psychENCODE_MDD           1                0    58.57    1                        0  0.004902440 -2.85008e-03  0.00471369  0.00187767 -0.015239400 0.02674667 2.460858e-05         0.4723640 7.8
-R14152_psychENCODE_MDD           1                0    27.48    1                        0  0.000335574 -3.51127e-03  0.00162443 -0.00388929  0.003695940 0.02325644 1.425850e-04         0.3964531 7.4
-R14153_psychENCODE_MDD           1                0    49.17    1                        0  0.002355650  2.56520e-03 -0.00431496 -0.00396801  0.013953300 0.02106080 7.544417e-05         0.4564605 7.7
-R14178_psychENCODE_MDD           1                0    28.35    1                        0 -0.003527340  2.52586e-04  0.00876943  0.00184929  0.003137080 0.03107047 1.116292e-04         0.4301785 7.2
-R14218_psychENCODE_MDD           1                0    18.77    1                        0  0.002141790 -6.78427e-05 -0.01431610 -0.01032000  0.000169591 0.03445213 1.649918e-04         0.3617616 6.5
-R17489_psychENCODE_MDD           1                0    32.67    1                        0 -0.047379800  2.01053e-03  0.01357000 -0.00558390  0.003735750 0.01596223 5.136120e-05         0.4250358 9.1
-                       abs(ERCCsumLogErr)        PC1        PC2        PC3       PC4        PC5       PC6       PC7        PC8        PC9        PC10         PC11       PC12        PC13       PC14
-R14149_psychENCODE_MDD          22.373652 -11.154473  0.8957217  4.4811355 -1.450038  2.8546741 -3.284201 1.1100357 -1.6480360 -0.1766366 -1.07304181 -0.008087808  1.0258957 -0.21572310  1.1047191
-R14152_psychENCODE_MDD           7.930784   6.729709 -4.1488755  5.3841452 -3.322184 -2.3770785  2.969827 1.4848762  0.6208017 -0.0888386  0.02707717 -0.182302798 -1.7811892  0.75296561 -0.8306376
-R14153_psychENCODE_MDD          14.544412 -17.018851 -3.4986078  4.0778604 -1.192916 -3.1106648 -1.136287 3.0813477 -0.7440107  1.0678975 -0.07845290  0.413646520 -0.1756329 -0.82506821 -0.1331143
-R14178_psychENCODE_MDD          28.217387 -11.706750 -5.4922556  4.3689843 -1.961798 -2.5212104 -0.981230 0.9241143  0.9809150  1.5203431  0.85761210  0.257287216  0.8733769  0.06866494 -0.5724164
-R14218_psychENCODE_MDD          20.434808  18.684973 -1.2968814 -0.2702799 -5.000630  0.6677388 -2.379799 2.9315850  0.1750291 -0.4772758  0.87830510  0.531884564 -1.1095463  4.16876272 -1.3133682
-R17489_psychENCODE_MDD          17.220119  -4.459150  0.3500723 -0.8564258  2.976807  0.4575149  2.043788 3.2184262  2.0433045  0.1760910  1.17793582  0.009052299 -0.5136159 -0.56349874 -1.8672687
-                              PC15      PC16       PC17       PC18        PC19       PC20       PC21        PC22       PC23       PC24       PC25        PC26
-R14149_psychENCODE_MDD -0.44442784 0.6363831 -0.5031188 -1.1137370  0.02575267  0.7695400  0.2582977 -1.09023588  1.1210223  0.6231138 -0.2121208 -1.38382130
-R14152_psychENCODE_MDD -0.04193853 1.0389808  2.0932338  0.2743089 -0.52794745  0.1483340  0.3827553  0.47537124 -0.8534562  0.5585705 -1.7734577  0.09375044
-R14153_psychENCODE_MDD  0.28563714 0.2500506 -0.9004411 -1.6682374 -0.31215094  0.8551094 -0.0820946 -0.16455359  0.0868986 -0.1509707  0.6418680 -0.38010549
-R14178_psychENCODE_MDD -0.19445843 0.5870487 -0.2540624  0.4519482 -0.89927791  0.8451344 -0.7586252 -0.13599527 -0.6335039 -0.5478424  0.5556217  0.32921566
-R14218_psychENCODE_MDD  0.43906326 0.7607021  0.5781711 -2.0116820  1.17965993  1.3547677 -0.5501576 -0.09000606 -0.8800584 -0.7808077  0.6675544  0.40138853
-R17489_psychENCODE_MDD  0.26542589 0.3690769 -0.3375735  0.6343182 -0.53600875 -1.6814871  0.4402720  0.35968322 -1.1016626 -1.9689055 -0.4501203  0.43282173
-
-
-$amyg
-$amyg$MDD
- [1] "(Intercept)"              "PrimaryDxMDD"             "AgeDeath"                 "SexM"                     "ExperimentpsychENCODE_BP" "snpPC1"                   "snpPC2"                  
- [8] "snpPC3"                   "snpPC4"                   "snpPC5"                   "mitoRate"                 "rRNA_rate"                "totalAssignedGene"        "RIN"                     
-[15] "abs(ERCCsumLogErr)"       "PC1"                      "PC2"                      "PC3"                      "PC4"                      "PC5"                      "PC6"                     
-[22] "PC7"                      "PC8"                      "PC9"                      "PC10"                     "PC11"                     "PC12"                     "PC13"                    
-[29] "PC14"                     "PC15"                     "PC16"                     "PC17"                     "PC18"                     "PC19"                     "PC20"                    
-[36] "PC21"                     "PC22"                     "PC23"                     "PC24"                     "PC25"                     "PC26"                    
-
-$amyg$BPD
- [1] "(Intercept)"              "PrimaryDxBipolar"         "AgeDeath"                 "SexM"                     "ExperimentpsychENCODE_BP" "snpPC1"                   "snpPC2"                  
- [8] "snpPC3"                   "snpPC4"                   "snpPC5"                   "mitoRate"                 "rRNA_rate"                "totalAssignedGene"        "RIN"                     
-[15] "abs(ERCCsumLogErr)"       "PC1"                      "PC2"                      "PC3"                      "PC4"                      "PC5"                      "PC6"                     
-[22] "PC7"                      "PC8"                      "PC9"                      "PC10"                     "PC11"                     "PC12"                     "PC13"                    
-[29] "PC14"                     "PC15"                     "PC16"                     "PC17"                     "PC18"                     "PC19"                     "PC20"                    
-[36] "PC21"                     "PC22"                     "PC23"                     "PC24"                     "PC25"                     "PC26"                    
-
-
-$sacc
-$sacc$MDD
- [1] "(Intercept)"              "PrimaryDxMDD"             "AgeDeath"                 "SexM"                     "ExperimentpsychENCODE_BP" "snpPC1"                   "snpPC2"                  
- [8] "snpPC3"                   "snpPC4"                   "snpPC5"                   "mitoRate"                 "rRNA_rate"                "totalAssignedGene"        "RIN"                     
-[15] "abs(ERCCsumLogErr)"       "PC1"                      "PC2"                      "PC3"                      "PC4"                      "PC5"                      "PC6"                     
-[22] "PC7"                      "PC8"                      "PC9"                      "PC10"                     "PC11"                     "PC12"                     "PC13"                    
-[29] "PC14"                     "PC15"                     "PC16"                     "PC17"                     "PC18"                     "PC19"                     "PC20"                    
-[36] "PC21"                     "PC22"                     "PC23"                     "PC24"                     "PC25"                     "PC26"                    
-
-$sacc$BPD
- [1] "(Intercept)"              "PrimaryDxBipolar"         "AgeDeath"                 "SexM"                     "ExperimentpsychENCODE_BP" "snpPC1"                   "snpPC2"                  
- [8] "snpPC3"                   "snpPC4"                   "snpPC5"                   "mitoRate"                 "rRNA_rate"                "totalAssignedGene"        "RIN"                     
-[15] "abs(ERCCsumLogErr)"       "PC1"                      "PC2"                      "PC3"                      "PC4"                      "PC5"                      "PC6"                     
-[22] "PC7"                      "PC8"                      "PC9"                      "PC10"                     "PC11"                     "PC12"                     "PC13"                    
-[29] "PC14"                     "PC15"                     "PC16"                     "PC17"                     "PC18"                     "PC19"                     "PC20"                    
-[36] "PC21"                     "PC22"                     "PC23"                     "PC24"                     "PC25"                     "PC26"                    
-
-
-
-####  GENE  ####
-Running sep amyg DE:
-\nCalc Norm Factors: 2021-11-29 12:05:56
-\nLimma: 2021-11-29 12:06:31
-eBayes: 2021-11-29 12:07:19
-Index coef: PrimaryDxMDD
-1 coef, Return t-stats
-               <  0.05 <  0.01
-q_PrimaryDxMDD      50       7
-\nCalc Norm Factors: 2021-11-29 12:07:21
-\nLimma: 2021-11-29 12:07:43
-eBayes: 2021-11-29 12:08:18
-Index coef: PrimaryDxBipolar
-1 coef, Return t-stats
-                   <  0.05 <  0.01
-q_PrimaryDxBipolar     105       7
-Writing csv files
-Running sep sacc DE:
-\nCalc Norm Factors: 2021-11-29 12:08:23
-\nLimma: 2021-11-29 12:08:57
-eBayes: 2021-11-29 12:09:44
-Index coef: PrimaryDxMDD
-1 coef, Return t-stats
-               <  0.05 <  0.01
-q_PrimaryDxMDD     779     214
-\nCalc Norm Factors: 2021-11-29 12:09:45
-\nLimma: 2021-11-29 12:10:10
-eBayes: 2021-11-29 12:10:49
-Index coef: PrimaryDxBipolar
-1 coef, Return t-stats
-                   <  0.05 <  0.01
-q_PrimaryDxBipolar     252      26
-Writing csv files
-Running sep_cf amyg DE:
-\nCalc Norm Factors: 2021-11-29 12:10:52
-\nLimma: 2021-11-29 12:11:26
-eBayes: 2021-11-29 12:12:40
-Index coef: PrimaryDxMDD
-1 coef, Return t-stats
-               <  0.05 <  0.01
-q_PrimaryDxMDD      74       3
-\nCalc Norm Factors: 2021-11-29 12:12:42
-\nLimma: 2021-11-29 12:13:11
-eBayes: 2021-11-29 12:14:13
-Index coef: PrimaryDxBipolar
-1 coef, Return t-stats
-                   <  0.05 <  0.01
-q_PrimaryDxBipolar      22       1
-Writing csv files
-Running sep_cf sacc DE:
-\nCalc Norm Factors: 2021-11-29 12:14:17
-\nLimma: 2021-11-29 12:14:59
-eBayes: 2021-11-29 12:16:19
-Index coef: PrimaryDxMDD
-1 coef, Return t-stats
-               <  0.05 <  0.01
-q_PrimaryDxMDD     432     105
-\nCalc Norm Factors: 2021-11-29 12:16:21
-\nLimma: 2021-11-29 12:16:52
-eBayes: 2021-11-29 12:17:56
-Index coef: PrimaryDxBipolar
-1 coef, Return t-stats
-                   <  0.05 <  0.01
-q_PrimaryDxBipolar      11       3
-Writing csv files
-Running exp amyg DE:
-\nCalc Norm Factors: 2021-11-29 12:18:00
-\nLimma: 2021-11-29 12:18:38
-eBayes: 2021-11-29 12:19:32
-Index coef: PrimaryDxMDD
-1 coef, Return t-stats
-               <  0.05 <  0.01
-q_PrimaryDxMDD       0       0
-\nCalc Norm Factors: 2021-11-29 12:19:34
-\nLimma: 2021-11-29 12:20:00
-eBayes: 2021-11-29 12:20:40
-Index coef: PrimaryDxBipolar
-1 coef, Return t-stats
-                   <  0.05 <  0.01
-q_PrimaryDxBipolar      48       4
-Writing csv files
-Running exp sacc DE:
-\nCalc Norm Factors: 2021-11-29 12:20:44
-\nLimma: 2021-11-29 12:21:19
-eBayes: 2021-11-29 12:22:13
-Index coef: PrimaryDxMDD
-1 coef, Return t-stats
-               <  0.05 <  0.01
-q_PrimaryDxMDD     133      13
-\nCalc Norm Factors: 2021-11-29 12:22:14
-\nLimma: 2021-11-29 12:22:41
-eBayes: 2021-11-29 12:23:22
-Index coef: PrimaryDxBipolar
-1 coef, Return t-stats
-                   <  0.05 <  0.01
-q_PrimaryDxBipolar     218      27
-Writing csv files
-Running exp_cf amyg DE:
-\nCalc Norm Factors: 2021-11-29 12:23:25
-\nLimma: 2021-11-29 12:23:58
-eBayes: 2021-11-29 12:25:04
-Index coef: PrimaryDxMDD
-1 coef, Return t-stats
-               <  0.05 <  0.01
-q_PrimaryDxMDD       0       0
-\nCalc Norm Factors: 2021-11-29 12:25:06
-\nLimma: 2021-11-29 12:25:30
-eBayes: 2021-11-29 12:26:22
-Index coef: PrimaryDxBipolar
-1 coef, Return t-stats
-                   <  0.05 <  0.01
-q_PrimaryDxBipolar       6       1
-Writing csv files
-Running exp_cf sacc DE:
-\nCalc Norm Factors: 2021-11-29 12:26:25
-\nLimma: 2021-11-29 12:26:59
-eBayes: 2021-11-29 12:28:06
-Index coef: PrimaryDxMDD
-1 coef, Return t-stats
-               <  0.05 <  0.01
-q_PrimaryDxMDD      30       0
-\nCalc Norm Factors: 2021-11-29 12:28:08
-\nLimma: 2021-11-29 12:28:34
-eBayes: 2021-11-29 12:29:32
-Index coef: PrimaryDxBipolar
-1 coef, Return t-stats
-                   <  0.05 <  0.01
-q_PrimaryDxBipolar      15       1
-Writing csv files
-
-####  EXON  ####
-Running sep amyg DE:
-\nCalc Norm Factors: 2021-11-29 12:29:45
-\nLimma: 2021-11-29 12:45:09
-eBayes: 2021-11-29 12:59:49
-Index coef: PrimaryDxMDD
-1 coef, Return t-stats
-               <  0.05 <  0.01
-q_PrimaryDxMDD     344      17
-\nCalc Norm Factors: 2021-11-29 13:00:22
-\nLimma: 2021-11-29 13:15:13
-eBayes: 2021-11-29 13:26:54
-Index coef: PrimaryDxBipolar
-1 coef, Return t-stats
-                   <  0.05 <  0.01
-q_PrimaryDxBipolar     210      44
-Writing csv files
-Running sep sacc DE:
-\nCalc Norm Factors: 2021-11-29 13:27:34
-\nLimma: 2021-11-29 13:47:40
-eBayes: 2021-11-29 14:03:15
-Index coef: PrimaryDxMDD
-1 coef, Return t-stats
-               <  0.05 <  0.01
-q_PrimaryDxMDD    2551     419
-\nCalc Norm Factors: 2021-11-29 14:03:41
-\nLimma: 2021-11-29 14:16:21
-eBayes: 2021-11-29 14:28:59
-Index coef: PrimaryDxBipolar
-1 coef, Return t-stats
-                   <  0.05 <  0.01
-q_PrimaryDxBipolar      89      11
-Writing csv files
-Running sep_cf amyg DE:
-\nCalc Norm Factors: 2021-11-29 14:29:35
-\nLimma: 2021-11-29 14:51:39
-eBayes: 2021-11-29 15:12:57
-Index coef: PrimaryDxMDD
-1 coef, Return t-stats
-               <  0.05 <  0.01
-q_PrimaryDxMDD     299       0
-\nCalc Norm Factors: 2021-11-29 15:13:30
-\nLimma: 2021-11-29 15:25:44
-eBayes: 2021-11-29 15:41:26
-Index coef: PrimaryDxBipolar
-1 coef, Return t-stats
-                   <  0.05 <  0.01
-q_PrimaryDxBipolar      64       1
-Writing csv files
-Running sep_cf sacc DE:
-\nCalc Norm Factors: 2021-11-29 15:42:07
-\nLimma: 2021-11-29 15:56:56
-eBayes: 2021-11-29 16:18:26
-Index coef: PrimaryDxMDD
-1 coef, Return t-stats
-               <  0.05 <  0.01
-q_PrimaryDxMDD     998     132
-\nCalc Norm Factors: 2021-11-29 16:19:01
-\nLimma: 2021-11-29 16:31:56
-eBayes: 2021-11-29 16:48:35
-Index coef: PrimaryDxBipolar
-1 coef, Return t-stats
-                   <  0.05 <  0.01
-q_PrimaryDxBipolar       4       0
-Writing csv files
-Running exp amyg DE:
-\nCalc Norm Factors: 2021-11-29 16:49:17
-\nLimma: 2021-11-29 17:04:20
-eBayes: 2021-11-29 17:19:29
-Index coef: PrimaryDxMDD
-1 coef, Return t-stats
-               <  0.05 <  0.01
-q_PrimaryDxMDD       0       0
-\nCalc Norm Factors: 2021-11-29 17:19:57
-\nLimma: 2021-11-29 17:32:00
-eBayes: 2021-11-29 17:43:50
-Index coef: PrimaryDxBipolar
-1 coef, Return t-stats
-                   <  0.05 <  0.01
-q_PrimaryDxBipolar     148      31
-Writing csv files
-Running exp sacc DE:
-\nCalc Norm Factors: 2021-11-29 17:44:28
-\nLimma: 2021-11-29 18:01:06
-eBayes: 2021-11-29 18:15:56
-Index coef: PrimaryDxMDD
-1 coef, Return t-stats
-               <  0.05 <  0.01
-q_PrimaryDxMDD       9       0
-\nCalc Norm Factors: 2021-11-29 18:16:20
-\nLimma: 2021-11-29 18:34:14
-eBayes: 2021-11-29 18:51:59
-Index coef: PrimaryDxBipolar
-1 coef, Return t-stats
-                   <  0.05 <  0.01
-q_PrimaryDxBipolar      75      19
-Writing csv files
-Running exp_cf amyg DE:
-\nCalc Norm Factors: 2021-11-29 18:52:45
-\nLimma: 2021-11-29 19:18:26
-eBayes: 2021-11-29 19:46:41
-Index coef: PrimaryDxMDD
-1 coef, Return t-stats
-               <  0.05 <  0.01
-q_PrimaryDxMDD       0       0
-\nCalc Norm Factors: 2021-11-29 19:47:27
-\nLimma: 2021-11-29 20:07:21
-eBayes: 2021-11-29 20:29:56
-Index coef: PrimaryDxBipolar
-1 coef, Return t-stats
-                   <  0.05 <  0.01
-q_PrimaryDxBipolar      42       0
-Writing csv files
-Running exp_cf sacc DE:
-\nCalc Norm Factors: 2021-11-29 20:30:39
-\nLimma: 2021-11-29 20:46:06
-eBayes: 2021-11-29 21:03:52
-Index coef: PrimaryDxMDD
-1 coef, Return t-stats
-               <  0.05 <  0.01
-q_PrimaryDxMDD       0       0
-\nCalc Norm Factors: 2021-11-29 21:04:24
-\nLimma: 2021-11-29 21:16:01
-eBayes: 2021-11-29 21:30:47
-Index coef: PrimaryDxBipolar
-1 coef, Return t-stats
-                   <  0.05 <  0.01
-q_PrimaryDxBipolar       2       0
-Writing csv files
-
-####  JXN  ####
-Running sep amyg DE:
-\nCalc Norm Factors: 2021-11-29 21:34:37
-\nLimma: 2021-11-29 21:42:57
-eBayes: 2021-11-29 21:56:29
-Index coef: PrimaryDxMDD
-1 coef, Return t-stats
-               <  0.05 <  0.01
-q_PrimaryDxMDD     186      96
-\nCalc Norm Factors: 2021-11-29 21:56:56
-\nLimma: 2021-11-29 22:06:22
-eBayes: 2021-11-29 22:15:52
-Index coef: PrimaryDxBipolar
-1 coef, Return t-stats
-                   <  0.05 <  0.01
-q_PrimaryDxBipolar      16       8
-Writing csv files
-Running sep sacc DE:
-\nCalc Norm Factors: 2021-11-29 22:16:25
-\nLimma: 2021-11-29 22:29:01
-eBayes: 2021-11-29 22:44:05
-Index coef: PrimaryDxMDD
-1 coef, Return t-stats
-               <  0.05 <  0.01
-q_PrimaryDxMDD    1128     481
-\nCalc Norm Factors: 2021-11-29 22:45:08
-\nLimma: 2021-11-29 22:55:30
-eBayes: 2021-11-29 23:06:53
-Index coef: PrimaryDxBipolar
-1 coef, Return t-stats
-                   <  0.05 <  0.01
-q_PrimaryDxBipolar      36      18
-Writing csv files
-Running sep_cf amyg DE:
-\nCalc Norm Factors: 2021-11-29 23:08:09
-\nLimma: 2021-11-29 23:22:31
-eBayes: 2021-11-29 23:38:46
-Index coef: PrimaryDxMDD
-1 coef, Return t-stats
-               <  0.05 <  0.01
-q_PrimaryDxMDD     207      96
-\nCalc Norm Factors: 2021-11-29 23:40:08
-\nLimma: 2021-11-29 23:51:24
-eBayes: 2021-11-30 00:02:40
-Index coef: PrimaryDxBipolar
-1 coef, Return t-stats
-                   <  0.05 <  0.01
-q_PrimaryDxBipolar       7       5
-Writing csv files
-Running sep_cf sacc DE:
-\nCalc Norm Factors: 2021-11-30 00:03:44
-\nLimma: 2021-11-30 00:12:36
-eBayes: 2021-11-30 00:27:54
-Index coef: PrimaryDxMDD
-1 coef, Return t-stats
-               <  0.05 <  0.01
-q_PrimaryDxMDD     824     397
-\nCalc Norm Factors: 2021-11-30 00:28:55
-\nLimma: 2021-11-30 00:35:49
-eBayes: 2021-11-30 00:48:06
-Index coef: PrimaryDxBipolar
-1 coef, Return t-stats
-                   <  0.05 <  0.01
-q_PrimaryDxBipolar      33      22
-Writing csv files
-Running exp amyg DE:
-\nCalc Norm Factors: 2021-11-30 00:49:21
-\nLimma: 2021-11-30 00:58:41
-eBayes: 2021-11-30 01:12:23
-Index coef: PrimaryDxMDD
-1 coef, Return t-stats
-               <  0.05 <  0.01
-q_PrimaryDxMDD      37      26
-\nCalc Norm Factors: 2021-11-30 01:13:02
-\nLimma: 2021-11-30 01:22:10
-eBayes: 2021-11-30 01:33:50
-Index coef: PrimaryDxBipolar
-1 coef, Return t-stats
-                   <  0.05 <  0.01
-q_PrimaryDxBipolar      17      12
-Writing csv files
-Running exp sacc DE:
-\nCalc Norm Factors: 2021-11-30 01:34:21
-\nLimma: 2021-11-30 01:46:41
-eBayes: 2021-11-30 02:00:57
-Index coef: PrimaryDxMDD
-1 coef, Return t-stats
-               <  0.05 <  0.01
-q_PrimaryDxMDD      NA      NA
-\nCalc Norm Factors: 2021-11-30 02:01:38
-\nLimma: 2021-11-30 02:11:04
-eBayes: 2021-11-30 02:22:56
-Index coef: PrimaryDxBipolar
-1 coef, Return t-stats
-                   <  0.05 <  0.01
-q_PrimaryDxBipolar      41      23
-Writing csv files
-Running exp_cf amyg DE:
-\nCalc Norm Factors: 2021-11-30 02:23:59
-\nLimma: 2021-11-30 02:35:53
-eBayes: 2021-11-30 02:55:01
-Index coef: PrimaryDxMDD
-1 coef, Return t-stats
-               <  0.05 <  0.01
-q_PrimaryDxMDD      42      32
-\nCalc Norm Factors: 2021-11-30 02:55:29
-\nLimma: 2021-11-30 03:04:42
-eBayes: 2021-11-30 03:20:01
-Index coef: PrimaryDxBipolar
-1 coef, Return t-stats
-                   <  0.05 <  0.01
-q_PrimaryDxBipolar      16       6
-Writing csv files
-Running exp_cf sacc DE:
-\nCalc Norm Factors: 2021-11-30 03:21:19
-\nLimma: 2021-11-30 03:34:08
-eBayes: 2021-11-30 03:53:56
-Index coef: PrimaryDxMDD
-1 coef, Return t-stats
-               <  0.05 <  0.01
-q_PrimaryDxMDD     217     134
-\nCalc Norm Factors: 2021-11-30 03:55:02
-\nLimma: 2021-11-30 04:04:08
-eBayes: 2021-11-30 04:15:53
-Index coef: PrimaryDxBipolar
-1 coef, Return t-stats
-                   <  0.05 <  0.01
-q_PrimaryDxBipolar      39      21
-Writing csv files
-There were 12 warnings (use warnings() to see them)
-
-####  TX  ####
-Running sep amyg DE:
-\nUsing tpm
-\nLimma: 2021-11-30 04:18:56
-eBayes: 2021-11-30 04:19:08
-Index coef: PrimaryDxMDD
-1 coef, Return t-stats
-               <  0.05 <  0.01
-q_PrimaryDxMDD     923     143
-\nUsing tpm
-\nLimma: 2021-11-30 04:19:15
-eBayes: 2021-11-30 04:19:23
-Index coef: PrimaryDxBipolar
-1 coef, Return t-stats
-                   <  0.05 <  0.01
-q_PrimaryDxBipolar       4       2
-Writing csv files
-Running sep sacc DE:
-\nUsing tpm
-\nLimma: 2021-11-30 04:19:32
-eBayes: 2021-11-30 04:19:43
-Index coef: PrimaryDxMDD
-1 coef, Return t-stats
-               <  0.05 <  0.01
-q_PrimaryDxMDD     438      88
-\nUsing tpm
-\nLimma: 2021-11-30 04:19:51
-eBayes: 2021-11-30 04:19:59
-Index coef: PrimaryDxBipolar
-1 coef, Return t-stats
-                   <  0.05 <  0.01
-q_PrimaryDxBipolar       8       0
-Writing csv files
-Running sep_cf amyg DE:
-\nUsing tpm
-\nLimma: 2021-11-30 04:20:09
-eBayes: 2021-11-30 04:20:23
-Index coef: PrimaryDxMDD
-1 coef, Return t-stats
-               <  0.05 <  0.01
-q_PrimaryDxMDD     292      31
-\nUsing tpm
-\nLimma: 2021-11-30 04:20:32
-eBayes: 2021-11-30 04:20:42
-Index coef: PrimaryDxBipolar
-1 coef, Return t-stats
-                   <  0.05 <  0.01
-q_PrimaryDxBipolar       1       0
-Writing csv files
-Running sep_cf sacc DE:
-\nUsing tpm
-\nLimma: 2021-11-30 04:20:53
-eBayes: 2021-11-30 04:21:06
-Index coef: PrimaryDxMDD
-1 coef, Return t-stats
-               <  0.05 <  0.01
-q_PrimaryDxMDD     264      68
-\nUsing tpm
-\nLimma: 2021-11-30 04:21:15
-eBayes: 2021-11-30 04:21:26
-Index coef: PrimaryDxBipolar
-1 coef, Return t-stats
-                   <  0.05 <  0.01
-q_PrimaryDxBipolar       1       0
-Writing csv files
-Running exp amyg DE:
-\nUsing tpm
-\nLimma: 2021-11-30 04:21:37
-eBayes: 2021-11-30 04:21:49
-Index coef: PrimaryDxMDD
-1 coef, Return t-stats
-               <  0.05 <  0.01
-q_PrimaryDxMDD       7       2
-\nUsing tpm
-\nLimma: 2021-11-30 04:21:57
-eBayes: 2021-11-30 04:22:05
-Index coef: PrimaryDxBipolar
-1 coef, Return t-stats
-                   <  0.05 <  0.01
-q_PrimaryDxBipolar       5       0
-Writing csv files
-Running exp sacc DE:
-\nUsing tpm
-\nLimma: 2021-11-30 04:22:15
-eBayes: 2021-11-30 04:22:26
-Index coef: PrimaryDxMDD
-1 coef, Return t-stats
-               <  0.05 <  0.01
-q_PrimaryDxMDD       0       0
-\nUsing tpm
-\nLimma: 2021-11-30 04:22:35
-eBayes: 2021-11-30 04:22:44
-Index coef: PrimaryDxBipolar
-1 coef, Return t-stats
-                   <  0.05 <  0.01
-q_PrimaryDxBipolar      12       0
-Writing csv files
-Running exp_cf amyg DE:
-\nUsing tpm
-\nLimma: 2021-11-30 04:22:54
-eBayes: 2021-11-30 04:23:07
-Index coef: PrimaryDxMDD
-1 coef, Return t-stats
-               <  0.05 <  0.01
-q_PrimaryDxMDD       4       1
-\nUsing tpm
-\nLimma: 2021-11-30 04:23:16
-eBayes: 2021-11-30 04:23:25
-Index coef: PrimaryDxBipolar
-1 coef, Return t-stats
-                   <  0.05 <  0.01
-q_PrimaryDxBipolar       0       0
-Writing csv files
-Running exp_cf sacc DE:
-\nUsing tpm
-\nLimma: 2021-11-30 04:23:37
-eBayes: 2021-11-30 04:23:51
-Index coef: PrimaryDxMDD
-1 coef, Return t-stats
-               <  0.05 <  0.01
-q_PrimaryDxMDD       1       0
-\nUsing tpm
-\nLimma: 2021-11-30 04:23:59
-eBayes: 2021-11-30 04:24:09
-Index coef: PrimaryDxBipolar
-1 coef, Return t-stats
-                   <  0.05 <  0.01
-q_PrimaryDxBipolar       1       0
-Writing csv files
-[1] "Reproducibility information:"
-[1] "2021-11-30 04:24:31 EST"
-     user    system   elapsed 
-54591.021  4252.848 58873.535 
-─ Session info  ──────────────────────────────────────────────────────────────────────────────────────────────────────
- hash: broom, flag: Egypt, man: light skin tone, curly hair
-
- setting  value
- version  R version 4.1.2 Patched (2021-11-04 r81138)
- os       CentOS Linux 7 (Core)
- system   x86_64, linux-gnu
- ui       X11
- language (EN)
- collate  en_US.UTF-8
- ctype    en_US.UTF-8
- tz       US/Eastern
- date     2021-11-30
+ date     2021-12-03
  pandoc   2.13 @ /jhpce/shared/jhpce/core/conda/miniconda3-4.6.14/envs/svnR-4.1.x/bin/pandoc
 
 ─ Packages ───────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -1944,14 +515,14 @@ Writing csv files
  dbplyr                 2.1.1    2021-04-06 [2] CRAN (R 4.1.0)
  DelayedArray           0.20.0   2021-10-26 [2] Bioconductor
  desc                   1.4.0    2021-09-28 [2] CRAN (R 4.1.2)
- devtools             * 2.4.2    2021-06-07 [2] CRAN (R 4.1.0)
+ devtools             * 2.4.3    2021-11-30 [2] CRAN (R 4.1.2)
  dplyr                * 1.0.7    2021-06-18 [2] CRAN (R 4.1.0)
  edgeR                * 3.36.0   2021-10-26 [2] Bioconductor
  ellipsis               0.3.2    2021-04-29 [2] CRAN (R 4.1.0)
  fansi                  0.5.0    2021-05-25 [2] CRAN (R 4.1.0)
  fastmap                1.1.0    2021-01-25 [2] CRAN (R 4.1.0)
  forcats              * 0.5.1    2021-01-27 [2] CRAN (R 4.1.0)
- fs                     1.5.0    2020-07-31 [2] CRAN (R 4.1.0)
+ fs                     1.5.1    2021-11-30 [2] CRAN (R 4.1.2)
  gargle                 1.2.0    2021-07-02 [2] CRAN (R 4.1.0)
  genefilter           * 1.76.0   2021-10-26 [2] Bioconductor
  generics               0.1.1    2021-10-25 [2] CRAN (R 4.1.2)
@@ -1959,7 +530,7 @@ Writing csv files
  GenomeInfoDbData       1.2.7    2021-11-01 [2] Bioconductor
  GenomicRanges        * 1.46.1   2021-11-18 [2] Bioconductor
  ggplot2              * 3.3.5    2021-06-25 [2] CRAN (R 4.1.0)
- glue                   1.5.0    2021-11-07 [2] CRAN (R 4.1.2)
+ glue                   1.5.1    2021-11-30 [2] CRAN (R 4.1.2)
  googledrive            2.0.0    2021-07-08 [2] CRAN (R 4.1.0)
  gtable                 0.3.0    2019-03-25 [2] CRAN (R 4.1.0)
  haven                  2.4.3    2021-08-04 [2] CRAN (R 4.1.1)
@@ -1985,9 +556,9 @@ Writing csv files
  munsell                0.5.0    2018-06-12 [2] CRAN (R 4.1.0)
  nlme                 * 3.1-153  2021-09-07 [3] CRAN (R 4.1.2)
  pillar                 1.6.4    2021-10-18 [1] CRAN (R 4.1.1)
- pkgbuild               1.2.0    2020-12-15 [2] CRAN (R 4.1.0)
+ pkgbuild               1.2.1    2021-11-30 [2] CRAN (R 4.1.2)
  pkgconfig              2.0.3    2019-09-22 [2] CRAN (R 4.1.0)
- pkgload                1.2.3    2021-10-13 [2] CRAN (R 4.1.2)
+ pkgload                1.2.4    2021-11-30 [2] CRAN (R 4.1.2)
  png                    0.1-7    2013-12-03 [2] CRAN (R 4.1.0)
  prettyunits            1.1.1    2020-01-24 [2] CRAN (R 4.1.0)
  processx               3.5.2    2021-04-30 [2] CRAN (R 4.1.0)
@@ -1998,9 +569,9 @@ Writing csv files
  RColorBrewer           1.1-2    2014-12-07 [2] CRAN (R 4.1.0)
  Rcpp                   1.0.7    2021-07-07 [2] CRAN (R 4.1.0)
  RCurl                  1.98-1.5 2021-09-17 [2] CRAN (R 4.1.2)
- readr                * 2.1.0    2021-11-11 [2] CRAN (R 4.1.2)
+ readr                * 2.1.1    2021-11-30 [2] CRAN (R 4.1.2)
  readxl               * 1.3.1    2019-03-13 [2] CRAN (R 4.1.0)
- remotes                2.4.1    2021-09-29 [2] CRAN (R 4.1.2)
+ remotes                2.4.2    2021-11-30 [2] CRAN (R 4.1.2)
  reprex                 2.0.1    2021-08-05 [2] CRAN (R 4.1.1)
  rlang                  0.4.12   2021-10-18 [2] CRAN (R 4.1.2)
  rprojroot              2.0.2    2020-11-15 [2] CRAN (R 4.1.0)
@@ -2025,10 +596,10 @@ Writing csv files
  usethis              * 2.1.3    2021-10-27 [2] CRAN (R 4.1.2)
  utf8                   1.2.2    2021-07-24 [2] CRAN (R 4.1.0)
  vctrs                  0.3.8    2021-04-29 [2] CRAN (R 4.1.0)
- vroom                  1.5.6    2021-11-10 [2] CRAN (R 4.1.2)
- withr                  2.4.2    2021-04-18 [2] CRAN (R 4.1.0)
+ vroom                  1.5.7    2021-11-30 [2] CRAN (R 4.1.2)
+ withr                  2.4.3    2021-11-30 [2] CRAN (R 4.1.2)
  XML                    3.99-0.8 2021-09-17 [2] CRAN (R 4.1.2)
- xml2                   1.3.2    2020-04-23 [2] CRAN (R 4.1.0)
+ xml2                   1.3.3    2021-11-30 [2] CRAN (R 4.1.2)
  xtable                 1.8-4    2019-04-21 [2] CRAN (R 4.1.0)
  XVector                0.34.0   2021-10-26 [2] Bioconductor
  zlibbioc               1.40.0   2021-10-26 [2] Bioconductor
@@ -2039,4 +610,4 @@ Writing csv files
 
 ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 **** Job ends ****
-Tue Nov 30 04:24:50 EST 2021
+Fri Dec  3 14:40:25 EST 2021

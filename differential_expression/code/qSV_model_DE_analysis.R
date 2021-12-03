@@ -126,31 +126,11 @@ modSep <- map(rse_gene_split, function(rse_region){
 })
 
 
-modExp <- map(rse_gene_split, function(rse_region){
-  map(rse_region, function(rse_dx){
-    qSV_split <- qSV_mat[colnames(rse_dx),]
-    mod <- model.matrix(~PrimaryDx + AgeDeath + Sex + Experiment +
-                          snpPC1 + snpPC2 + snpPC3 + snpPC4 + snpPC5 +
-                          mitoRate + rRNA_rate +totalAssignedGene + RIN + abs(ERCCsumLogErr), 
-                        data=colData(rse_dx))
-    mod <- cbind(mod, qSV_split)
-    return(mod)
-  })
-})
-
-map(modExp, ~map(.x, head))
-map(modExp, ~map(.x, colnames))
 
 ## Add cell fractions to model
 modSep_cf <- map2(rse_gene_split, modSep, function(rse_region, mod_region){
   map2(rse_region, mod_region, ~cbind(.y, colData(.x)[,c("Astro", "Endo", "Macro", "Micro", "Mural", "Oligo", "OPC", "Tcell", "Excit")]))
 })
-
-modExp_cf <- map2(rse_gene_split, modExp, function(rse_region, mod_region){
-  map2(rse_region, mod_region, ~cbind(.y, colData(.x)[,c("Astro", "Endo", "Macro", "Micro", "Mural", "Oligo", "OPC", "Tcell", "Excit")]))
-})
-
-# map(modSep_cf, ~map(.x, head))
 
 ## Save Models
 save(modSep, modSep_cf, file = here("differential_expression","data","differental_models.Rdata"))
@@ -158,7 +138,7 @@ save(modSep, modSep_cf, file = here("differential_expression","data","differenta
 #### RUN DE ####
 source(here("differential_expression","code","run_DE.R"))
 
-run_DE_models <- function(rse_split, model_list = list(sep = modSep, sep_cf = modSep_cf, exp = modExp, exp_cf = modExp_cf), run_voom = TRUE, csv_prefix){
+run_DE_models <- function(rse_split, model_list = list(sep = modSep, sep_cf = modSep_cf), run_voom = TRUE, csv_prefix){
   map2(model_list, names(model_list), function(mod, mod_name){
     pmap(list(rse = rse_split, mod = mod, region_name = names(rse_split)),
          function(rse, mod, region_name){
