@@ -23,6 +23,7 @@ options(stringsAsFactors = FALSE)
 
 load("../exprs_cutoff/rse_gene.Rdata", verbose = TRUE)
 load("../data/degradation_rse_MDDseq_BiPSeq_BothRegions.Rdata", verbose = TRUE)
+load(here("differential_expression","data","qSV_mat.Rdata"), verbose = TRUE)
 
 ## checks
 identical(colnames(rse_gene), colnames(cov_rse)) # TRUE
@@ -37,6 +38,9 @@ cov_rse <- cov_rse[, cov_rse$PrimaryDx %in% c("Control", "MDD")]
 table(rse_gene$PrimaryDx)
 # MDD Control Bipolar
 # 463     387       0
+
+qSV_mat
+
 
 rse_gene$Dx <- droplevels(rse_gene$PrimaryDx)
 cov_rse$Dx <- droplevels(cov_rse$PrimaryDx)
@@ -105,9 +109,17 @@ assays(rse_gene)$rpkm = recount::getRPKM(rse_gene, 'Length')
 ### removed ERCCsumLogErr term
 ### REPLACED ERCCsumLogErr term
 
-modJoint = model.matrix(~Dx*BrainRegion + AgeDeath + Sex + snpPC1 + snpPC2 + snpPC3 +
-	mitoRate + rRNA_rate + totalAssignedGene + RIN + ERCCsumLogErr,
+# modJoint = model.matrix(~Dx*BrainRegion + AgeDeath + Sex + snpPC1 + snpPC2 + snpPC3 +
+# 	mitoRate + rRNA_rate + totalAssignedGene + RIN + ERCCsumLogErr,
+# 	data=colData(rse_gene))
+
+#update to include abs ERCC
+
+modJoint = model.matrix(~Dx*BrainRegion + AgeDeath + Sex + snpPC1 + snpPC2 + snpPC3 + snpPC4 + snpPC5 +
+	mitoRate + rRNA_rate + totalAssignedGene + RIN + abs(ERCCsumLogErr),
 	data=colData(rse_gene))
+
+load(here("differential_expression","data","qSV_mat.Rdata"), verbose = TRUE)
 
 
 ### counts from degrafation into log2 scale
