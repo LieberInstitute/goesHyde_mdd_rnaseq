@@ -26,12 +26,18 @@ mod <- model.matrix(~PrimaryDx, pd)
 gExpr <- calcNormFactors(rse_gene)
 vobjGenes <- voom(gExpr, mod)
 
-form = ~PrimaryDx + AgeDeath + Sex + 
-  snpPC1 + snpPC2 + snpPC3 + snpPC4 + snpPC5 +
-  mitoRate + rRNA_rate + totalAssignedGene + RIN + abs(ERCCsumLogErr) 
+form = list(Sep = ~(1|PrimaryDx) + AgeDeath + (1|Sex) + 
+              snpPC1 + snpPC2 + snpPC3 + snpPC4 + snpPC5 +
+              mitoRate + rRNA_rate + totalAssignedGene + RIN + abs(ERCCsumLogErr),
+            
+            Sep_cf = ~(1|PrimaryDx) + AgeDeath + (1|Sex) + 
+              snpPC1 + snpPC2 + snpPC3 + snpPC4 + snpPC5 +
+              mitoRate + rRNA_rate + totalAssignedGene + RIN + abs(ERCCsumLogErr) +
+              Astro + Endo + Macro + Micro + Mural + Oligo + OPC + Tcell + Excit)
+
 
 message("VarPart Amyg")
-varPart <- fitExtractVarPartModel(exprObj = vobjGenes, formula = form, data = pd)
+varPart <- purrr::map(form, ~fitExtractVarPartModel(exprObj = vobjGenes, formula = .x, data = pd))
 save(varPart, file = here("differential_expression", "data","variance_partition", paste0("varPart_",test_region,"_",test_dx,".Rdata")))
 
 # sgejobs::job_single('variancePartition_exploration', create_shell = TRUE, queue= 'bluejay', memory = '150G', command = "Rscript variancePartition_exploration.R")
