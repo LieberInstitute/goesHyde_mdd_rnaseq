@@ -5,12 +5,16 @@ library(sessioninfo)
 library(here)
 
 ## Load and sort data
-load(here("differential_expression","data", "varPart.Rdata"), verbose = TRUE)
+files <- list.files(path = here("differential_expression","data","variance_partition"), full.names = TRUE)
+# results <- sapply(files, function(x) mget(load(x)), simplify = TRUE) 
+
+## for now
+load(files[[4]], verbose = TRUE)
 varPartSort <- map(varPart, sortCols)
 map(varPartSort, colnames)
 
 ## Violin Plots
-varPart_violin <- map2(varPartSort, names(varPartSort), ~plotVarPart(.x) + labs(title = paste("modJoint -",.y)))
+varPart_violin <- map2(varPartSort, names(varPartSort), ~plotVarPart(.x) + labs(title = paste("Model -",.y)))
 
 map2(varPart_violin, names(varPart_violin), 
      ~ggsave(.x, 
