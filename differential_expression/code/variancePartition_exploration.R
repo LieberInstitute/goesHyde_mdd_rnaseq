@@ -16,7 +16,7 @@ message(paste("Running", test_dx, "vs. Control -", test_region))
 #load objects
 load(here('exprs_cutoff','rse_gene.Rdata'), verbose=TRUE)
 load(here("differential_expression","data","qSV_mat.Rdata"), verbose = TRUE)
-cbind(colData(rse_gene),qSV_mat)
+colData(rse_gene) <- cbind(colData(rse_gene),qSV_mat)
 #### Var Partition with cell type props ####
 message("Subset data")
 rse_gene <- rse_gene[,rse_gene$BrainRegion == test_region & rse_gene$PrimaryDx %in% c("Control", test_dx)]
