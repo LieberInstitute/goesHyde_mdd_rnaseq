@@ -7,6 +7,7 @@ library(EnhancedVolcano)
 library(UpSetR)
 library(VariantAnnotation)
 library(pheatmap)
+library(VennDiagram)
 
 #### Load Data ####
 data_type <- c("gene","exon","jxn","tx")
@@ -100,7 +101,7 @@ model_counts[,1:9]
 
 write_csv(model_counts, here("differential_expression","data","model_counts.csv"))
 
-## test heatmaps
+#### heatmaps ####
 summary_pheat <- function(count){
   
   heat_data <- model_counts %>%
@@ -224,7 +225,25 @@ region_venn_tiles <- ggplot(region_venn_values, aes(x = name, y = Feature, fill 
 
 ggsave(region_venn_tiles, filename = here("differential_expression","plots", "venn_tiles_region.png"))
 
+#### Four Way Venns ####
+## 1 Venn for each Feature + Model
+signifFeat_venn_data <- map_depth(signifFeat, 2, my_flatten)
+map_depth(signifFeat_venn_data, 2, names)
 
+walk2(signifFeat_venn_data, names(signifFeat_venn_data), function(f_data, f_name){
+  walk2(f_data, names(f_data), function(m_data, m_name){
+    filename = paste0("venn_",f_name, "_", m_name,'.jpg')
+    message(filename)
+    
+    names(m_data) <- gsub("\\.", " ", names(m_data))
+    venn.diagram(m_data, here("differential_expression","plots", filename), 
+                 disable.logging = TRUE, 
+                 # main = f_name,  
+                 # sub= paste("model:", m_name)),
+                 fill = c("#999999", "#E69F00", "#56B4E9", "#009E73"))
+  })
+})
+  
 ## Graph t-stats
 allOut_model <- map(allOut, function(x) map(transpose(x), transpose))
 names(allOut_model$gene$amyg$MDD)
@@ -270,7 +289,7 @@ dev.off()
 ## Compare Dx or Region?
 
 #### Volcano Plots ####
-
+## need to fix Tx output!
 pdf(here("differential_expression","plots","qSV_model_volcano.pdf"))
 map2(allOut, c("Gene", "Exon", "Jxn", "Tx"), function(featOut, featName){
   map2(featOut, names(featOut), function(modelOut, modelName){
