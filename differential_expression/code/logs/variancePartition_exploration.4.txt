@@ -6,12 +6,12 @@ Loading LIBD module for rmate/1.5.9
 Loading LIBD module for ruby/2.6.4p104
 Loading conda_R/4.1.x
 **** Job starts ****
-Fri Dec  3 16:05:54 EST 2021
+Wed Dec 22 17:54:51 EST 2021
 **** JHPCE info ****
 User: lhuuki
-Job id: 7921552
+Job id: 8576468
 Job name: variancePartition_exploration
-Hostname: compute-100.cm.cluster
+Hostname: compute-097.cm.cluster
 Task id: 4
 Unloading conda_R/4.1.x
 Loading conda_R/4.1.x
@@ -119,29 +119,30 @@ here() starts at /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq
 Running MDD vs. Control - sACC
 Loading objects:
   rse_gene
+Loading objects:
+  qSV_mat
 Subset data
 [1] 25212   428
 Coefficients not estimable: PrimaryDxBipolar 
 Warning message:
 Partial NA coefficients for 25212 probe(s) 
 VarPart Amyg
-Loading required package: Matrix
+Dividing work into 110 chunks...
 
-Attaching package: ‘Matrix’
+Total:2644 s
+Dividing work into 110 chunks...
 
-The following object is masked from ‘package:S4Vectors’:
-
-    expand
-
-
-Total:230 s
+Total:3154 s
+Warning messages:
+1: Some predictor variables are on very different scales: consider rescaling 
+2: Some predictor variables are on very different scales: consider rescaling 
+3: Some predictor variables are on very different scales: consider rescaling 
+4: Some predictor variables are on very different scales: consider rescaling 
 [1] "Reproducibility information:"
-[1] "2021-12-03 16:10:41 EST"
-   user  system elapsed 
-272.234  11.181 285.074 
-─ Session info  ──────────────────────────────────────────────────────────────────────────────────────────────────────
- hash: person in tuxedo: dark skin tone, performing arts, light rail
-
+[1] "2021-12-22 19:32:27 EST"
+    user   system  elapsed 
+5523.173  329.825 5854.639 
+─ Session info ───────────────────────────────────────────────────────────────────────────────────────────────────────
  setting  value
  version  R version 4.1.2 Patched (2021-11-04 r81138)
  os       CentOS Linux 7 (Core)
@@ -151,16 +152,16 @@ Total:230 s
  collate  en_US.UTF-8
  ctype    en_US.UTF-8
  tz       US/Eastern
- date     2021-12-03
+ date     2021-12-22
  pandoc   2.13 @ /jhpce/shared/jhpce/core/conda/miniconda3-4.6.14/envs/svnR-4.1.x/bin/pandoc
 
 ─ Packages ───────────────────────────────────────────────────────────────────────────────────────────────────────────
  package              * version  date (UTC) lib source
  assertthat             0.2.1    2019-03-21 [2] CRAN (R 4.1.0)
- backports              1.4.0    2021-11-23 [2] CRAN (R 4.1.2)
+ backports              1.4.1    2021-12-13 [2] CRAN (R 4.1.2)
  Biobase              * 2.54.0   2021-10-26 [2] Bioconductor
  BiocGenerics         * 0.40.0   2021-10-26 [2] Bioconductor
- BiocParallel         * 1.28.2   2021-11-25 [2] Bioconductor
+ BiocParallel         * 1.28.3   2021-12-09 [2] Bioconductor
  bitops                 1.0-7    2021-04-24 [2] CRAN (R 4.1.0)
  boot                   1.3-28   2021-05-03 [3] CRAN (R 4.1.2)
  broom                  0.7.10   2021-10-31 [2] CRAN (R 4.1.2)
@@ -169,7 +170,7 @@ Total:230 s
  codetools              0.2-18   2020-11-04 [3] CRAN (R 4.1.2)
  colorspace             2.0-2    2021-06-24 [2] CRAN (R 4.1.0)
  crayon                 1.4.2    2021-10-29 [2] CRAN (R 4.1.2)
- DBI                    1.1.1    2021-01-15 [2] CRAN (R 4.1.0)
+ DBI                    1.1.2    2021-12-20 [2] CRAN (R 4.1.2)
  DelayedArray           0.20.0   2021-10-26 [2] Bioconductor
  doParallel             1.0.16   2020-10-16 [2] CRAN (R 4.1.0)
  dplyr                  1.0.7    2021-06-18 [2] CRAN (R 4.1.0)
@@ -177,14 +178,14 @@ Total:230 s
  ellipsis               0.3.2    2021-04-29 [2] CRAN (R 4.1.0)
  fansi                  0.5.0    2021-05-25 [2] CRAN (R 4.1.0)
  foreach                1.5.1    2020-10-15 [2] CRAN (R 4.1.0)
- fs                     1.5.1    2021-11-30 [2] CRAN (R 4.1.2)
+ fs                     1.5.2    2021-12-08 [2] CRAN (R 4.1.2)
  gargle                 1.2.0    2021-07-02 [2] CRAN (R 4.1.0)
  generics               0.1.1    2021-10-25 [2] CRAN (R 4.1.2)
  GenomeInfoDb         * 1.30.0   2021-10-26 [2] Bioconductor
  GenomeInfoDbData       1.2.7    2021-11-01 [2] Bioconductor
  GenomicRanges        * 1.46.1   2021-11-18 [2] Bioconductor
  ggplot2              * 3.3.5    2021-06-25 [2] CRAN (R 4.1.0)
- glue                   1.5.1    2021-11-30 [2] CRAN (R 4.1.2)
+ glue                   1.6.0    2021-12-17 [2] CRAN (R 4.1.2)
  googledrive            2.0.0    2021-07-08 [2] CRAN (R 4.1.0)
  gplots                 3.1.1    2020-11-28 [2] CRAN (R 4.1.0)
  gtable                 0.3.0    2019-03-25 [2] CRAN (R 4.1.0)
@@ -198,11 +199,11 @@ Total:230 s
  lattice                0.20-45  2021-09-22 [3] CRAN (R 4.1.2)
  lifecycle              1.0.1    2021-09-24 [1] CRAN (R 4.1.1)
  limma                * 3.50.0   2021-10-26 [2] Bioconductor
- lme4                 * 1.1-27.1 2021-06-22 [2] CRAN (R 4.1.0)
+ lme4                   1.1-27.1 2021-06-22 [2] CRAN (R 4.1.0)
  locfit                 1.5-9.4  2020-03-25 [2] CRAN (R 4.1.0)
  magrittr               2.0.1    2020-11-17 [2] CRAN (R 4.1.0)
  MASS                   7.3-54   2021-05-03 [3] CRAN (R 4.1.2)
- Matrix               * 1.3-4    2021-06-01 [3] CRAN (R 4.1.2)
+ Matrix                 1.4-0    2021-12-08 [3] CRAN (R 4.1.2)
  MatrixGenerics       * 1.6.0    2021-10-26 [2] Bioconductor
  matrixStats          * 0.61.0   2021-09-17 [2] CRAN (R 4.1.2)
  minqa                  1.2.4    2014-10-09 [2] CRAN (R 4.1.0)
@@ -227,7 +228,7 @@ Total:230 s
  S4Vectors            * 0.32.3   2021-11-21 [2] Bioconductor
  scales                 1.1.1    2020-05-11 [2] CRAN (R 4.1.0)
  segmented              1.3-4    2021-04-22 [1] CRAN (R 4.1.1)
- sessioninfo          * 1.2.1    2021-11-02 [2] CRAN (R 4.1.2)
+ sessioninfo          * 1.2.2    2021-12-06 [2] CRAN (R 4.1.2)
  stringi                1.7.6    2021-11-29 [2] CRAN (R 4.1.2)
  stringr                1.4.0    2019-02-10 [2] CRAN (R 4.1.0)
  SummarizedExperiment * 1.24.0   2021-10-26 [2] Bioconductor
@@ -247,4 +248,4 @@ Total:230 s
 
 ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 **** Job ends ****
-Fri Dec  3 16:10:42 EST 2021
+Wed Dec 22 19:32:28 EST 2021
