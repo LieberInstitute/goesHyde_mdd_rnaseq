@@ -18,163 +18,109 @@ options("width"=200)
 
 #load objects
 load(here('exprs_cutoff','rse_gene.Rdata'), verbose=TRUE)
-load(here('exprs_cutoff','rse_exon.Rdata'), verbose=TRUE)
-load(here('exprs_cutoff','rse_jxn.Rdata'), verbose=TRUE)
-load(here('exprs_cutoff','rse_tx.Rdata'), verbose=TRUE)
-
 pd = colData(rse_gene)
 
-table(pd$Experiment)
-# psychENCODE_MDD  psychENCODE_BP 
-# 588             503 
-
-table(pd$BrainRegion)
-# Amygdala     sACC 
-# 540      551
-
-table(pd$BrainRegion, pd$Sex)
+table(pd$BrainRegion, pd$Sex, pd$PrimaryDx)
+# , ,  = MDD
+# 
+# 
 # F   M
-# Amygdala 160 380
-# sACC     167 384
+# Amygdala  77 154
+# sACC      78 150
+# 
+# , ,  = Control
+# 
+# 
+# F   M
+# Amygdala  38 149
+# sACC      38 162
+# 
+# , ,  = Bipolar
+# 
+# 
+# F   M
+# Amygdala  45  77
+# sACC      51  72
 
-
-table(pd$Experiment, pd$PrimaryDx)
-#                 MDD Control Bipolar
-# psychENCODE_MDD 459     129       0
-# psychENCODE_BP    0     258     245
-
-table(pd$BrainRegion,pd$PrimaryDx)
-#           MDD Control Bipolar
-# Amygdala 231     187     122
-# sACC     228     200     123
-
-
-summary(pd$AgeDeath)
-# Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-# 17.37   34.62   47.21   46.58   55.86   95.27 
-
-#### Standardize rowData ####
-Reduce(intersect, map(list(rse_gene, rse_exon, rse_jxn, rse_tx), ~colnames(rowData(.x))))
-# [1] "meanExprs"    "passExprsCut"
 
 ## Add common_feature_id, common_gene_symbol, common_gene_ID
 rowData(rse_gene)$common_feature_id <- rowData(rse_gene)$gencodeID
 rowData(rse_gene)$common_gene_symbol <- rowData(rse_gene)$Symbol
 rowData(rse_gene)$common_gene_id <- rowData(rse_gene)$gencodeID
 
-rowData(rse_exon)$common_feature_id <- rowData(rse_exon)$exon_gencodeID
-rowData(rse_exon)$common_gene_symbol <- rowData(rse_exon)$Symbol
-rowData(rse_exon)$common_gene_id <- rowData(rse_exon)$gencodeID
-
-rowData(rse_jxn)$common_feature_id <- rownames(rse_jxn)
-rowData(rse_jxn)$common_gene_symbol <- rowData(rse_jxn)$Symbol
-rowData(rse_jxn)$common_gene_id <- rowData(rse_jxn)$gencodeGeneID
-rowData(rse_jxn)$gencodeTx <- unlist(lapply(rowData(rse_jxn)$gencodeTx, toString))
-  
-rowData(rse_tx)$common_feature_id <- rowData(rse_tx)$transcript_id
-rowData(rse_tx)$common_gene_symbol <- rowData(rse_tx)$gene_name
-rowData(rse_tx)$common_gene_id <- rowData(rse_tx)$gene_id
-
-Reduce(intersect, map(list(rse_gene, rse_exon, rse_jxn, rse_tx), ~colnames(rowData(.x))))
-# [1] "meanExprs"          "passExprsCut"       "common_feature_id"  "common_gene_symbol" "common_gene_id"
-
-#### Split By Dx  & Region ####
+#### Split By Dx, Region, and Sex ####
 split_samples <- function(rse){
+  ## split Region
   rse_split <- map(list(amyg = "Amygdala", sacc = "sACC"), function(region){
     rse_r <- rse[,rse$BrainRegion == region]
+    
+    ## split Dx
     rse_d <- map(list(MDD = "MDD", BPD = "Bipolar"), function(dx){
       rse_r <- rse_r[,rse_r$PrimaryDx == dx | rse_r$PrimaryDx == "Control"]
       ## fix levels
       rse_r$PrimaryDx <- droplevels(rse_r$PrimaryDx)
       rse_r$PrimaryDx <- relevel(rse_r$PrimaryDx, "Control")
+      
+      ## split Sex
+      rse_r <- map(list(`F` = "F", M = "M"), ~rse_r[,rse_r$Sex == .x])
+      
       return(rse_r)
     })
+    
     return(rse_d)
   })
   return(rse_split)
 }
 
 rse_gene_split <- split_samples(rse_gene)
-
-map(rse_gene_split, ~map_int(.x, ncol))
-# $amyg
-# MDD BPD 
-# 418 309 
-# 
-# $sacc
-# MDD BPD 
-# 428 323 
-
-rse_exon_split <- split_samples(rse_exon)
-rse_jxn_split <- split_samples(rse_jxn)
-rse_tx_split <- split_samples(rse_tx)
+map_depth(rse_gene_split, 3, ncol)
 
 #### Define Models ####
 # qSV_mat
 load(here("differential_expression","data","qSV_mat.Rdata"), verbose = TRUE)
 
-modSep <- map(rse_gene_split, function(rse_region){
-  map(rse_region, function(rse_dx){
-    qSV_split <- qSV_mat[colnames(rse_dx),]
-    mod <- model.matrix(~PrimaryDx + AgeDeath + Sex  + 
-                    snpPC1 + snpPC2 + snpPC3 + snpPC4 + snpPC5 +
-                    mitoRate + rRNA_rate +totalAssignedGene + RIN + abs(ERCCsumLogErr), 
-                  data=colData(rse_dx))
-    mod <- cbind(mod, qSV_split)
-    return(mod)
-  })
+## Same as modSep from full DE, but remove Sex
+
+modSep <- map_depth(rse_gene_split, 3, function(rse){
+  qSV_split <- qSV_mat[colnames(rse),]
+  mod <- model.matrix(~PrimaryDx + AgeDeath + 
+                        snpPC1 + snpPC2 + snpPC3 + snpPC4 + snpPC5 +
+                        mitoRate + rRNA_rate +totalAssignedGene + RIN + abs(ERCCsumLogErr), 
+                      data=colData(rse))
+  mod <- cbind(mod, qSV_split)
+  return(mod)
 })
 
-
-
-## Add cell fractions to model
-modSep_cf <- map2(rse_gene_split, modSep, function(rse_region, mod_region){
-  map2(rse_region, mod_region, ~cbind(.y, colData(.x)[,c("Astro", "Endo", "Macro", "Micro", "Mural", "Oligo", "OPC", "Tcell", "Excit")]))
-})
-
-## Save Models
-save(modSep, modSep_cf, file = here("differential_expression","data","differental_models.Rdata"))
+map_depth(modSep, 3, nrow)
 
 #### RUN DE ####
 source(here("differential_expression","code","run_DE.R"))
 
-run_DE_models <- function(rse_split, model_list = list(sep = modSep, sep_cf = modSep_cf), run_voom = TRUE, csv_prefix){
-  map2(model_list, names(model_list), function(mod, mod_name){
-    pmap(list(rse = rse_split, mod = mod, region_name = names(rse_split)),
-         function(rse, mod, region_name){
-           message("Running ", mod_name, " ", region_name, ' DE:')
-           outDE<- map2(rse, mod, ~run_DE(rse = .x, model = .y, coef = 2, run_voom = run_voom))
+run_DE_models <- function(rse_split, model, run_voom = TRUE, csv_prefix){
+    pmap(list(rse_region = rse_split, mod_region = model, region_name = names(rse_split)),
+         function(rse_region, mod_region, region_name){
            
-           message("Writing csv files")
-           map2(outDE, names(outDE),
-                ~write_csv(.x, file = here("differential_expression","data","DE_csv",
-                                                            paste0(csv_prefix,"_",region_name,"_",mod_name,"_",.y,".csv"))))
-           return(outDE)
+           pmap(list(rse_dx = rse_region, mod_dx = mod_region, dx_name = names(rse_region)),
+                function(rse_dx, mod_dx, dx_name){
+                  message("Region: ", region_name, " Dx: ", dx_name)
+                  outDE<- map2(rse_dx, mod_dx, ~run_DE(rse = .x, model = .y, coef = 2, run_voom = run_voom))
+
+                  message("Writing csv files")
+                  map2(outDE, names(outDE),
+                       ~write_csv(.x, file = here("differential_expression","data","DE_csv",
+                                                                   paste0(csv_prefix,"_",region_name,"_",.y,".csv"))))
+                  return(outDE)
+                })
          })
-  })
 }
 
+
 message("\n####  GENE  ####")
-outGene <- run_DE_models(rse_gene_split, csv_prefix = "qSVA_MDD_gene")
+outGene <- run_DE_models(rse_gene_split, modSep, csv_prefix = "qSVA_MDD_gene_sex")
 save(outGene, file = here("differential_expression","data","qSVA_MDD_gene_DEresults.rda"))
 
-message("\n####  EXON  ####")
-outExon <- run_DE_models(rse_exon_split, csv_prefix = "qSVA_MDD_exon")
-save(outExon, file = here("differential_expression","data","qSVA_MDD_exon_DEresults.rda"))
 
-message("\n####  JXN  ####")
-outJxn <- run_DE_models(rse_jxn_split, csv_prefix = "qSVA_MDD_jxn")
-save(outJxn, file = here("differential_expression","data","qSVA_MDD_jxn_DEresults.rda"))
-
-message("\n####  TX  ####")
-outTx <- run_DE_models(rse_tx_split, run_voom = FALSE, csv_prefix = "qSVA_MDD_tx")
-##need to add rowData 
-rd_tx <- rowData(rse_tx)[,c("common_feature_id","common_gene_symbol","common_gene_id")]
-outTx <- map_depth(outTx, 3, ~cbind(.x, rd_tx[rownames(.x),]))
-# map_depth(outTx, 3, head)
-save(outTx, file = here("differential_expression","data","qSVA_MDD_tx_DEresults.rda"))
-
-#sgejobs::job_single('qSV_model_DE_analysis', create_shell = TRUE, memory = '80G', command = "Rscript qSV_model_DE_analysis.R")
+#sgejobs::job_single('qSV_model_DE_analysis_sex', create_shell = TRUE, memory = '80G', command = "Rscript qSV_model_DE_analysis_sex.R")
 
 ## Reproducibility information
 print('Reproducibility information:')
