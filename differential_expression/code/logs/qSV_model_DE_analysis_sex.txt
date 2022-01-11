@@ -6,12 +6,12 @@ Loading LIBD module for rmate/1.5.9
 Loading LIBD module for ruby/2.6.4p104
 Loading conda_R/4.1.x
 **** Job starts ****
-Mon Jan 10 13:06:07 EST 2022
+Mon Jan 10 16:35:38 EST 2022
 **** JHPCE info ****
 User: lhuuki
-Job id: 8787117
+Job id: 8787376
 Job name: qSV_model_DE_analysis_sex
-Hostname: compute-063.cm.cluster
+Hostname: compute-076.cm.cluster
 Task id: undefined
 Unloading conda_R/4.1.x
 Loading conda_R/4.1.x
@@ -256,73 +256,73 @@ $sacc$BPD$M
 
 ####  GENE  ####
 Region: amyg Dx: MDD
-\nCalc Norm Factors: 2022-01-10 13:06:51
-\nLimma: 2022-01-10 13:07:03
-eBayes: 2022-01-10 13:07:23
+\nCalc Norm Factors: 2022-01-10 16:36:21
+\nLimma: 2022-01-10 16:36:32
+eBayes: 2022-01-10 16:36:52
 Index coef: PrimaryDxMDD
 1 coef, Return t-stats
                <  0.05 <  0.01
 q_PrimaryDxMDD       1       0
-\nCalc Norm Factors: 2022-01-10 13:07:25
-\nLimma: 2022-01-10 13:07:56
-eBayes: 2022-01-10 13:08:38
+\nCalc Norm Factors: 2022-01-10 16:36:53
+\nLimma: 2022-01-10 16:37:23
+eBayes: 2022-01-10 16:38:03
 Index coef: PrimaryDxMDD
 1 coef, Return t-stats
                <  0.05 <  0.01
 q_PrimaryDxMDD      10       0
 Writing csv files
 Region: amyg Dx: BPD
-\nCalc Norm Factors: 2022-01-10 13:08:42
-\nLimma: 2022-01-10 13:08:50
-eBayes: 2022-01-10 13:09:06
+\nCalc Norm Factors: 2022-01-10 16:38:08
+\nLimma: 2022-01-10 16:38:15
+eBayes: 2022-01-10 16:38:31
 Index coef: PrimaryDxBipolar
 1 coef, Return t-stats
                    <  0.05 <  0.01
 q_PrimaryDxBipolar       0       0
-\nCalc Norm Factors: 2022-01-10 13:09:07
-\nLimma: 2022-01-10 13:09:29
-eBayes: 2022-01-10 13:10:00
+\nCalc Norm Factors: 2022-01-10 16:38:32
+\nLimma: 2022-01-10 16:38:53
+eBayes: 2022-01-10 16:39:23
 Index coef: PrimaryDxBipolar
 1 coef, Return t-stats
                    <  0.05 <  0.01
 q_PrimaryDxBipolar      33       3
 Writing csv files
 Region: sacc Dx: MDD
-\nCalc Norm Factors: 2022-01-10 13:10:03
-\nLimma: 2022-01-10 13:10:14
-eBayes: 2022-01-10 13:10:33
+\nCalc Norm Factors: 2022-01-10 16:39:26
+\nLimma: 2022-01-10 16:39:37
+eBayes: 2022-01-10 16:39:56
 Index coef: PrimaryDxMDD
 1 coef, Return t-stats
                <  0.05 <  0.01
 q_PrimaryDxMDD       0       0
-\nCalc Norm Factors: 2022-01-10 13:10:35
-\nLimma: 2022-01-10 13:11:04
-eBayes: 2022-01-10 13:11:46
+\nCalc Norm Factors: 2022-01-10 16:39:57
+\nLimma: 2022-01-10 16:40:24
+eBayes: 2022-01-10 16:41:04
 Index coef: PrimaryDxMDD
 1 coef, Return t-stats
                <  0.05 <  0.01
 q_PrimaryDxMDD     461      73
 Writing csv files
 Region: sacc Dx: BPD
-\nCalc Norm Factors: 2022-01-10 13:11:50
-\nLimma: 2022-01-10 13:11:58
-eBayes: 2022-01-10 13:12:14
+\nCalc Norm Factors: 2022-01-10 16:41:08
+\nLimma: 2022-01-10 16:41:16
+eBayes: 2022-01-10 16:41:32
 Index coef: PrimaryDxBipolar
 1 coef, Return t-stats
                    <  0.05 <  0.01
 q_PrimaryDxBipolar       0       0
-\nCalc Norm Factors: 2022-01-10 13:12:16
-\nLimma: 2022-01-10 13:12:36
-eBayes: 2022-01-10 13:13:07
+\nCalc Norm Factors: 2022-01-10 16:41:33
+\nLimma: 2022-01-10 16:41:54
+eBayes: 2022-01-10 16:42:26
 Index coef: PrimaryDxBipolar
 1 coef, Return t-stats
                    <  0.05 <  0.01
 q_PrimaryDxBipolar      71      14
 Writing csv files
 [1] "Reproducibility information:"
-[1] "2022-01-10 13:13:15 EST"
+[1] "2022-01-10 16:42:35 EST"
    user  system elapsed 
-370.042  49.753 426.137 
+385.971  25.303 414.228 
 ─ Session info ───────────────────────────────────────────────────────────────────────────────────────────────────────
  setting  value
  version  R version 4.1.2 Patched (2021-11-04 r81138)
@@ -456,4 +456,4 @@ Writing csv files
 
 ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 **** Job ends ****
-Mon Jan 10 13:13:20 EST 2022
+Mon Jan 10 16:42:38 EST 2022

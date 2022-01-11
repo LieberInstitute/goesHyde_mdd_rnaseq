@@ -108,7 +108,7 @@ run_DE_models <- function(rse_split, model, run_voom = TRUE, csv_prefix){
                   message("Writing csv files")
                   map2(outDE, names(outDE),
                        ~write_csv(.x, file = here("differential_expression","data","DE_csv",
-                                                                   paste0(csv_prefix,"_",region_name,"_",.y,".csv"))))
+                                                                   paste0(csv_prefix,"_",region_name,"_",dx_name,"_",.y,".csv"))))
                   return(outDE)
                 })
          })
@@ -117,7 +117,7 @@ run_DE_models <- function(rse_split, model, run_voom = TRUE, csv_prefix){
 
 message("\n####  GENE  ####")
 outGene <- run_DE_models(rse_gene_split, modSep, csv_prefix = "qSVA_MDD_gene_sex")
-save(outGene, file = here("differential_expression","data","qSVA_MDD_gene_DEresults.rda"))
+save(outGene, file = here("differential_expression","data","qSVA_MDD_gene_sex_DEresults.rda"))
 
 
 #sgejobs::job_single('qSV_model_DE_analysis_sex', create_shell = TRUE, memory = '80G', command = "Rscript qSV_model_DE_analysis_sex.R")
