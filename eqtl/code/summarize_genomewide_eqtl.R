@@ -30,6 +30,7 @@ regions <- c(amyg = "Amygdala", sacc = "sACC")
 
 #### genomewide results ####
 ## load tables
+message("Loading tensorQTL results")
 eqtl_tensor <- map2(features, names(features), function(f, n){
     message(n , " ", Sys.time())
     eqtl <- map(c(amyg = "amyg", sacc = "sacc"), 
@@ -48,7 +49,7 @@ t(as.data.frame(map_depth(eqtl_tensor, 2, nrow)))
 
 ## most significant
 eqtl_tensor_top <- map_depth(eqtl_tensor, 2, ~.x %>% arrange(FDR) %>% head(1500))
-
+save(eqtl_tensor_top, file = here("eqtl", "data", "plot_data", "eqtl_tensor_top.Rdata"))
 
 ## top 1500
 # significant_snps <- map_depth(eqtl_tensor_top, 2, variant_id)
@@ -66,6 +67,7 @@ colnames(mod)
 
 ## calc or load residual expression
 if(!file.exists(here("eqtl", "data", "plot_data", "residual_expres.Rdata"))){
+    message("Calc Residual Expression:")
     resid_expres_split <- map2(c(gene = rse_gene, exon = rse_exon, jxn = rse_jxn, tx = rse_tx), features, function(rse, name){
         message(name, " ",  Sys.time())
         resid <- map(splitit(rse$BrainRegion), ~ get_resid_expres(rse[, .x], mod[.x, ], tpm = name == "tx"))
@@ -118,11 +120,6 @@ geno_long <- as.data.frame(geno(signif_vcf)$GT) %>%
     )
 
 #### Filter and Annotate eQTL ####
-test <- eqtl_tensor_top$gene$amyg %>%
-    left_join(rs_id)
-test %>% count(is.na(RS))
-
-
 eqtl_tensor_top$gene$amyg %>% count(gencodeID) %>% arrange(n) %>% left_join(rd)
 
 ## annotation for boxplots - order eqtl pairs by FDR
