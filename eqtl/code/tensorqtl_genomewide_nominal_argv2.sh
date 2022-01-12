@@ -24,7 +24,7 @@ conda activate hello
 module list
 
 ## get pair
-PAIR=$(awk "NR==${SGE_TASK_ID}" features_region.txt)
+PAIR=$(awk "NR==${SGE_TASK_ID}" features_region2.txt)
 echo "Processing pair: ${PAIR}"
 
 python tensorqtl_genomewide_nominal_argv.py ${PAIR}
