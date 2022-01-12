@@ -12,5 +12,5 @@ module load bcftools
 
 ## Locate file and ids
 
-bcftools view --include 'ID=@../data/signif_snps/significant_snps.txt' /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/genotype_data/mdd_bpd/maf01/mdd_bpd_01.vcf.gz > ../data/signif_snps/LIBD_Brain_merged_maf_005_topmed_051120_mdd_signif.vcf
+bcftools view --include 'ID=@../data/signif_snps/significant_snps.txt' /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/genotype_data/mdd_bpd/maf01/mdd_bpd_01.vcf.gz > ../data/signif_snps/LIBD_Brain_merged_maf_005_topmed_051120_mdd_signif.vcf.gz
 
