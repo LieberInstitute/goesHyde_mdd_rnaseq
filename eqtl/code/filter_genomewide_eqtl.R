@@ -15,16 +15,19 @@ parquet_files <- map(features,
                                                  pattern = paste0(f,'_',.x),
                                                  full.names = TRUE)))
 
+
 read_adj_filter <- function(parquet_files, cutoff = 0.01){
   
   eqtl_out <- do.call("rbind", map(parquet_files, parquet_read)) %>%
     mutate(FDR = p.adjust(pval_nominal, "fdr")) %>%
     filter(FDR < cutoff)
-  
+  # significant_snps <- c(significant_snps, eqt_outl$variant_id)
   return(eqtl_out)
 }
 
-parquet_files <- parquet_files[2]
+# parquet_files <- parquet_files['gene']
+
+# significant_snps <- c()
 eqtl_out_filtered <- map2(parquet_files, names(parquet_files), function(parq_feat, names_feat){
 
   map2(parq_feat, names(parq_feat), function(parq_region, names_region){
@@ -37,6 +40,9 @@ eqtl_out_filtered <- map2(parquet_files, names(parquet_files), function(parq_fea
                                              paste0(names_feat, "_",names_region,"_FDR01.csv")))
   })
 })
+# significant_snps <- unique(significant_snps)
+# length(significant_snps)
+# cat(significant_snps, sep = "\n", file = here("eqtl", "data", "signif_snps", "significant_snps.txt"))
 
 #sgejobs::job_single('filter_genomewide_eqtl', create_shell = TRUE, memory = '100G', command = "Rscript filter_genomewide_eqtl.R")
 ## Reproducibility information
