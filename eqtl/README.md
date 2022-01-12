@@ -25,9 +25,11 @@ VCF:  `../genotype_data/mdd_bpd/maf01/mdd_bpd_maf01.vcf.gz` ~11M SNPs
 ### Nominal - all results
 Using `cis.map_nominal()`
 tensorQTL code: `./code/tensorqtl_genomewide_nominal_argv.py`  
-Raw Output: `./data/tensorQTL_out/cis_genomewide_nominal`  
+Raw Output: `./data/tensorQTL_out/genomewide_nominal`  
 Summary counts: `./data/summary/cis_genomewide_FDR01.csv`  
 
 ### Cis - best SNP per feature
-Using `cis.map_cis()`
-tensorQTl code: `./code/tensorqtl_genomewide_cis.py` 
+Using `cis.map_cis()`  
+tensorQTl code: `./code/tensorqtl_genomewide_cis.py`  
+Raw Output: `./data/tensorQTL_out/genomewide_cis`  
+Summary counts: TODO  
