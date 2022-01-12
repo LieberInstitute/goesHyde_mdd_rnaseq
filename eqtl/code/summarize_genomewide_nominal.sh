@@ -23,7 +23,7 @@ module load conda_R
 module list
 
 ## Edit with your job command
-Rscript summarize_genomewide_eqtl.R
+Rscript summarize_genomewide_nominal.R
 
 echo "**** Job ends ****"
 date
