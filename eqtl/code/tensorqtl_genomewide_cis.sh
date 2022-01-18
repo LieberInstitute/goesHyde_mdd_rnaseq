@@ -2,8 +2,8 @@
 #$ -cwd
 #$ -l bluejay,mem_free=50G,h_vmem=50G,h_fsize=100G
 #$ -N tensorqtl_genomewide
-#$ -o logs/tensorqtl_genomewide.txt
-#$ -e logs/tensorqtl_genomewide.txt
+#$ -o logs/tensorqtl_genomewide_cis.txt
+#$ -e logs/tensorqtl_genomewide_cis.txt
 #$ -m e
 
 echo "**** Job starts ****"
@@ -22,7 +22,7 @@ echo "Task id: ${SGE_TASK_ID}"
 module list
 
 ## Edit with your job command
-python tensorqtl_genomewide.py
+python tensorqtl_genomewide_cis.py
 
 echo "**** Job ends ****"
 date
