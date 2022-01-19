@@ -12,7 +12,7 @@ source("utils.R")
 ## Load gene data
 load(here("exprs_cutoff", "rse_gene.Rdata"), verbose = TRUE)
 rd <- as.data.frame(rowData(rse_gene)) %>% select(gencodeID, Symbol)
-
+pd <- as.data.frame(colData(rse_gene))
 ## Cell fractions
 cell_fractions <- pd %>%
     dplyr::select(BrainRegion, genoSample, Astro, Endo, Macro, Micro, Mural, Oligo, OPC, Tcell, Excit, Inhib) %>%
@@ -185,27 +185,27 @@ walk(c("Amygdala", "sACC"), function(r) {
 #### MDD risk snps ####
 tensorqtl_fn_mdd <- list.files(here("eqtl", "data", "tensorQTL_out", "nominal_mdd_risk"), pattern = "*.csv", full.names = TRUE)
 
-tensorqtl_out_mdd <- map_dfr(tensorqtl_fn_mdd[2:21], ~ read.csv(.x) %>% mutate(fn = .x)) %>%
-    mutate(fn = gsub("/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/eqtl/data/tensorQTL_out/nominal_mdd_risk/", "", fn)) %>%
+tensorqtl_out_mdd <- map_dfr(tensorqtl_fn_mdd, ~ read.csv(.x) %>% mutate(fn = .x)) %>%
+    mutate(fn = basename(fn)) %>%
     separate(fn, into = c("feature", "region", "cell_type", NA)) %>%
     rename(gencodeID = phenotype_id)
 
 head(tensorqtl_out_mdd)
 summary(tensorqtl_out_mdd$tss_distance)
 
-## Test eign results
-tensorqtl_out_mdd_eigen <- read.csv(tensorqtl_fn_mdd[1]) %>%
-    select(gencodeID = phenotype_id, variant_id, pval_gi_eigen = pval_gi, b_gi_eigen = b_gi)
-
-dim(tensorqtl_out_mdd_eigen) #155
-
-eign_test <- tensorqtl_out_mdd %>% 
-    filter(region == "Amygdala", cell_type == "Astro") %>%
-    inner_join(tensorqtl_out_mdd_eigen)
-
-dim(eign_test)
-## seem to get 1:1 results, cool 
-eign_test %>% ggplot(aes(b_gi, b_gi_eigen)) + geom_point()
+# ## Test eign results
+# tensorqtl_out_mdd_eigen <- read.csv(tensorqtl_fn_mdd[1]) %>%
+#     select(gencodeID = phenotype_id, variant_id, pval_gi_eigen = pval_gi, b_gi_eigen = b_gi)
+# 
+# dim(tensorqtl_out_mdd_eigen) #155
+# 
+# eign_test <- tensorqtl_out_mdd %>% 
+#     filter(region == "Amygdala", cell_type == "Astro") %>%
+#     inner_join(tensorqtl_out_mdd_eigen)
+# 
+# dim(eign_test)
+# ## seem to get 1:1 results, cool 
+# eign_test %>% ggplot(aes(b_gi, b_gi_eigen)) + geom_point()
 
 
 ## Load SNP data
@@ -216,15 +216,16 @@ rs_id_mdd <- info(risk_vcf_mdd) %>%
     mutate(RS = paste0("rs", RS)) %>%
     rownames_to_column("variant_id")
 
-risk_snps_mdd <- read_delim(here("eqtl", "data", "risk_snps", "PGC_depression_genome-wide_significant_makers.txt"))
+risk_snps_mdd <- read_delim(here("eqtl", "data", "risk_snps", "PGC_MDD_genome-wide_significant_Jan2022.txt"))%>%
+    filter(!is.na(bp)) 
 
-table(risk_snps_mdd$markername %in% rs_id_mdd$RS)
+table(risk_snps_mdd$rsid %in% rs_id_mdd$RS)
 # FALSE  TRUE 
-# 2473  2152 
+# 4983  4667 
 
 risk_snps_mdd_detials <- risk_snps_mdd %>%
-    select(RS = markername, A1 = a1, A2 = a2, logor) %>%
-    mutate(OR = exp(logor)) %>%
+    select(RS = rsid, LogOR) %>%
+    mutate(OR = exp(LogOR)) %>%
     inner_join(rs_id_mdd) %>%
     mutate(
         risk_snp = ifelse(OR > 1, "ref", "alt"),
@@ -271,19 +272,23 @@ tensorqtl_adj_mdd %>%
     count(BrainRegion, gencodeID, variant_id) %>%
     arrange(-n)
 
+dim(tensorqtl_adj_mdd)
+# [1] 21580    11
 write_csv(tensorqtl_adj_mdd, file = here("eqtl", "data", "summary", "gene_MDD_risk_cell_fraction_interaction.csv"))
 
 ## Summarise number of significant
-interaction_summary_mdd <- tensorqtl_adj_mdd %>%
+(interaction_summary_mdd <- tensorqtl_adj_mdd %>%
     summarise(FDR_ct_sig = sum(FDR_gi < 0.05)) %>%
-    left_join(tensorqtl_adj_mdd %>% summarise(bonf_ct_sig = sum(p.bonf_gi < 0.05)))
+    left_join(tensorqtl_adj_mdd %>% summarise(bonf_ct_sig = sum(p.bonf_gi < 0.05))))
 
 write_csv(interaction_summary_mdd, file = here("eqtl", "data", "summary", "gene_MDD_risk_cell_fraction_interaction_summary.csv"))
 
 #### Prep MDD Data for Plotting ####
 ## Merge data
 tensorqtl_adj_mdd_anno <- tensorqtl_adj_mdd %>%
-    filter(FDR_gi < 0.05) %>%
+    filter(FDR_gi < 0.05 | 
+               (Symbol == "ZNF603P" & BrainRegion == "sACC" & RS == "rs7755442" & cell_type == "Mural") ## Bug fix, select 1 non-significant 
+           ) %>%
     dplyr::group_by(BrainRegion) %>%
     arrange(FDR_gi) %>%
     mutate(
@@ -309,6 +314,7 @@ express_geno_mdd_anno <- tensorqtl_adj_mdd_anno %>%
 
 #### PLOT ####
 tensorqtl_adj_mdd_anno %>% count(BrainRegion)
+# 2 sACC  61 * will create a page with 1 plot ERROR!
 
 walk(c("Amygdala", "sACC"), function(r) {
     message(r)
