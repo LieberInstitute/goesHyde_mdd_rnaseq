@@ -75,13 +75,13 @@ cat(mdd_snps$snpID, file = here("eqtl", "data", "risk_snps", "MDD_risk_snps.txt"
 risk_vcf <- readVcf(here("eqtl", "data", "risk_snps", "LIBD_maf01_gwas_MDD.vcf.gz"))
 dim(risk_vcf)
 # [1] 2152  616
-nrow(risk_vcf) / nrow(mdd_snps)
-# [1] 0.4652973
-table(mdd_snps$snpID %in% rownames(risk_vcf))
-# FALSE  TRUE
-# 2473  2152
+nrow(risk_vcf) / nrow(mdd_snps2)
+# [1] 0.4836269
+table(mdd_snps2$snpID %in% rownames(risk_vcf))
+# FALSE  TRUE 
+# 4983  4667 
 
 ## But No Unexpected SNPs
-table(rownames(risk_vcf) %in% mdd_snps$snpID)
-# TRUE
-# 2152
+table(rownames(risk_vcf) %in% mdd_snps2$snpID)
+# TRUE 
+# 4667 
