@@ -2,6 +2,7 @@ import my_tensorqtl_run
 from tensorqtl import cis
 import pandas as pd
 import os.path
+import statsmodels.stats.multitest
 
 # define paths to data
 
@@ -26,6 +27,8 @@ for region in ["Amygdala", "sACC"]:
                 group_s=None, maf_threshold=0, beta_approx=True, nperm=10000,
                 window=500000, random_tiebreak=False, logger=None, seed=118,
                verbose=True)
+    
+    cis_out['qval'] = statsmodels.stats.multitest.fdrcorrection(cis_out['pval_nominal'])[1]
 
     cis_out.to_csv(tag + ".csv")
 
