@@ -1,7 +1,7 @@
 #!/bin/bash
 #$ -cwd
 #$ -l bluejay,mem_free=50G,h_vmem=50G,h_fsize=100G
-#$ -N tensorqtl_genomewide
+#$ -N tensorqtl_genomewide_independent
 #$ -o logs/tensorqtl_genomewide_independent.txt
 #$ -e logs/tensorqtl_genomewide_independent.txt
 #$ -m e
