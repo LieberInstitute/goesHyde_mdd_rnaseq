@@ -36,7 +36,7 @@ eqtl_out_filtered <- map2(parquet_files, names(parquet_files), function(parq_fea
     
     eqtl_out_filtered <- read_adj_filter(parquet_files = parq_region)
 
-    write_csv(eqtl_out_filtered, file = here("eqtl", "data", "tensorQTL_out","cis_genomewide_nominal",
+    write_csv(eqtl_out_filtered, file = here("eqtl", "data", "tensorQTL_out","genomewide_nominal",
                                              paste0(names_feat, "_",names_region,"_FDR01.csv")))
   })
 })
