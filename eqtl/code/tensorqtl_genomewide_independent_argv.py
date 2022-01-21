@@ -2,6 +2,7 @@ import my_tensorqtl_run
 from tensorqtl import cis
 import pandas as pd
 import os.path
+import sys
 
 # define paths to data
 
@@ -32,10 +33,12 @@ tag = prefix +"/ind_gene_" + region + "_" + chrom + ".csv"
 print('**** STARTING tensorQTL ****')
 print("Saving output to: " + tag)
 
-##ind_out = cis.map_independent(genotype_df = genotype_df, variant_df = variant_df, cis_df = cis_out,
-##         phenotype_df = phenotype_df, phenotype_pos_df = phenotype_pos_df, covariates_df = covariates_df,
-##         group_s=None, maf_threshold=0, fdr=0.01, nperm=10000,window=500000, random_tiebreak=False, 
-##         logger=None, seed=121,verbose=True)
+ind_out = cis.map_independent(genotype_df = genotype_df, variant_df = variant_df, cis_df = cis_out,
+         phenotype_df = phenotype_df, phenotype_pos_df = phenotype_pos_df, covariates_df = covariates_df,
+         group_s=None, maf_threshold=0, fdr=0.01, nperm=10000,window=500000, random_tiebreak=False, 
+         logger=None, seed=121,verbose=True)
 
-##ind_out.to_csv(tag )
+ind_out.to_csv(tag)
+
+print("**** DONE ****")
 

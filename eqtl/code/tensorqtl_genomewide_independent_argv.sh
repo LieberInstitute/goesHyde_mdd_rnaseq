@@ -1,13 +1,12 @@
 #!/bin/bash
 #$ -cwd
-#$ -l bluejay,mem_free=10G,h_vmem=10G,h_fsize=100G
+#$ -l bluejay,mem_free=50G,h_vmem=50G,h_fsize=100G
 #$ -pe local 1
 #$ -N tensorqtl_genomewide_nominal_argv
 #$ -o logs/tensorqtl_genomewide_independent_argv.$TASK_ID.txt
 #$ -e logs/tensorqtl_genomewide_independent_argv.$TASK_ID.txt
-#$ -m e
 #$ -t 1-46
-#$ -tc 23
+#$ -tc 4
 
 echo "**** Job starts ****"
 date
