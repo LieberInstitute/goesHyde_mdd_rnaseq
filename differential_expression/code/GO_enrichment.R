@@ -1,45 +1,10 @@
 library(SummarizedExperiment)
-library(edgeR)
-library(limma)
-library(recount)
 library(jaffelab)
-library(IRanges)
 library(org.Hs.eg.db)
 library(clusterProfiler)
 library(purrr)
 library(here)
-
-# #load objects
-# load(here('exprs_cutoff','rse_gene.Rdata'), verbose=TRUE)
-# load(here('exprs_cutoff','rse_exon.Rdata'), verbose=TRUE)
-# load(here('exprs_cutoff','rse_jxn.Rdata'), verbose=TRUE)
-# load(here('exprs_cutoff','rse_tx.Rdata'), verbose=TRUE)
-# 
-# #### Build Expression Map ####
-# ## modify rowRanges
-# rowRanges(rse_gene)$Type <- "Gene"
-# rowRanges(rse_exon)$Type <- "Exon"
-# 
-# # jxn "newGeneID"     "newGeneSymbol"
-# colnames(mcols(rowRanges(rse_jxn)))[13:14] <- c("gencodeID", "Symbol")
-# rowRanges(rse_jxn)$Type <- "Junction"
-# 
-# # Exon "gene_id"   "gene_name"
-# colnames(mcols(rowRanges(rse_tx)))[c(5,8)] <- c("gencodeID", "Symbol")
-# rowRanges(rse_tx)$Class <- "InGen"
-# rowRanges(rse_tx)$Type <- "Transcript"
-# 
-# ## Expression Map
-# name <- c("gencodeID", "Symbol", "Type", "Class")
-# exprsMap <- rbind(as.data.frame(rowRanges(rse_gene))[,name],
-#                  as.data.frame(rowRanges(rse_exon))[,name],
-#                  as.data.frame(rowRanges(rse_jxn))[,name],
-#                  as.data.frame(rowRanges(rse_tx))[,name])
-# exprsMap <- DataFrame(exprsMap)
-# 
-# nrow(exprsMap)
-# # [1] 810029
-
+library(sessioninfo)
 
 #### Load DE results ####
 data_type <- c("gene", "exon", "jxn","tx")
@@ -55,7 +20,6 @@ allOut <- transpose(allOut)
 allOut <- allOut$sep
 
 map_depth(allOut, 3, nrow)
-map_depth(allOut, 3, colnames)
 
 ## Define Universe
 all_gencode <- map_depth(allOut, 3, "common_gene_id")
@@ -121,22 +85,32 @@ map_int(gene_sets, length)
 # amyg.MDD amyg.BPD sacc.MDD sacc.BPD 
 # 936      138     1668      264 
 
-map(gene_sets, class)
 
-ck <- compareCluster(geneCluster = gene_sets, 
-                     fun = enrichGO, 
-                     OrgDb = "org.Hs.eg.db", univ = u)
-dotplot(ck)
+ont <- c("BP", "CC", "MF", "ALL")
+names(ont) <- ont
 
-go = compareCluster(geneClusters = gene_sets, 
+enrichGO = map(ont, ~compareCluster(geneClusters = gene_sets, 
                     univ = u,
                     OrgDb = "org.Hs.eg.db", 
-                    # ont = "ALL",
-                    # readable = TRUE, 
-                    # pvalueCutoff = 1,
-                    # qvalueCutoff = 1,
-                    fun = enrichGO)
+                    fun = "enrichGO",
+                    ont = .x))
 
-dotplot(go)
 
-save(go, file = here("differential_expression", "data", "go.rda"))
+# clusterProfiler      * 4.2.0    2021-10-26 [1] Bioconductor
+KEGG_DATA <- clusterProfiler:::get_data_from_KEGG_db("hsa")
+enrichKEGG = compareCluster(geneClusters = gene_sets, 
+                            universe = u,
+                            organism = "hsa",
+                            fun = "enrichKEGG")
+
+k = enrichKEGG(gene_sets, species = 'hsa')
+
+pdf(file = here("differential_expression", "plots","enrichGO_dotplots.pdf"))
+walk2(enrichGO, names(enrichGO), ~dotplot(.x, title = .y))
+dev.off()
+# 
+# save(go, file = here("differential_expression", "data", "go_ontALL.rda"))
+# write.csv(go, file = here("differential_expression", "data", "go_ontALL.csv"))
+
+
+session_info()
