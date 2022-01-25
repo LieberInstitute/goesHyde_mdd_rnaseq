@@ -30,9 +30,9 @@ qc_boxplots <- ggplot(pd_long, aes(x = BrainRegion, y = value, fill = PrimaryDx,
 ggsave(qc_boxplots, file = here("differential_expression","plots","model_terms_boxplots.png"), width = 15)
 
 #### qSV plots ####
-qSV_long <- pd %>% select(PrimaryDx, Experiment, BrainRegion) %>%
+qSV_long <- pd %>% select(PrimaryDx, Experiment, BrainRegion, Sex) %>%
   cbind(qSV_mat) %>%
-  pivot_longer(!c(PrimaryDx, Experiment, BrainRegion), names_to = "qSV")
+  pivot_longer(!c(PrimaryDx, Experiment, BrainRegion, Sex), names_to = "qSV")
 
 qSV_long$qSV <- factor(qSV_long$qSV, levels = paste0("PC", 1:26))
 levels(qSV_long$qSV)
@@ -46,6 +46,26 @@ qSV_boxplots <- ggplot(qSV_long, aes(x = BrainRegion, y = value, fill = PrimaryD
   theme(text = element_text(size=15), legend.position="top") 
 
 ggsave(qSV_boxplots, file = here("differential_expression","plots","model_qSV_boxplots.png"), width = 20, height = 15)
+
+qSV_sex_boxplots <- ggplot(qSV_long, aes(x = Sex, y = value, fill = Sex)) +
+  geom_boxplot() +
+  facet_wrap(~qSV, scales = "free_y", nrow = 3) +
+  scale_fill_manual(values = mdd_Sex_colors) +
+  theme_bw() +
+  theme(text = element_text(size=15)) 
+
+ggsave(qSV_sex_boxplots, file = here("differential_expression","plots","model_qSV_boxplots_sex.png"), height = 10, width = 15)
+
+qSV_sex_boxplots <- ggplot(qSV_long, aes(x = Sex, y = value, fill = Sex)) +
+  geom_boxplot() +
+  facet_wrap(~qSV, scales = "free_y", nrow = 3) +
+  # scale_color_manual(values = c(psychENCODE_MDD = "black", psychENCODE_BP = "skyblue")) +
+  # scale_fill_manual(values = mdd_Dx_colors) +
+  theme_bw() +
+  theme(text = element_text(size=15)) 
+
+ggsave(qSV_sex_boxplots, file = here("differential_expression","plots","model_qSV_boxplots_sex.png"), height = 10, width = 15)
+
 
 #### qSVs vs. QC metrics ####
 pd_qsv <- pd_long %>% 
