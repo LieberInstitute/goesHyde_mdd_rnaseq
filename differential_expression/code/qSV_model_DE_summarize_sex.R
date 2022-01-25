@@ -3,10 +3,10 @@ library(SummarizedExperiment)
 library(tidyverse)
 library(sessioninfo)
 library(here)
-library(EnhancedVolcano)
-library(UpSetR)
+# library(EnhancedVolcano)
+# library(UpSetR)
 library(VariantAnnotation)
-library(pheatmap)
+# library(pheatmap)
 library(VennDiagram)
 
 #### Load Data ####
@@ -133,7 +133,7 @@ head(outGene_sex_compare$sacc$MDD)
 sig_colors <- c(RColorBrewer::brewer.pal(3, "Set1"),"dark grey")
 names(sig_colors) <- c("sig_Both", "sig_M", "sig_F", "None")
 
-model_compare_plot <- function(model_df, title){
+model_compare_plot <- function(model_df, title, save_png = FALSE, prefix = ""){
 
   t_cor <- model_df %>%
     summarize(cor = cor(M.t, F.t, method = "spearman")) %>%
@@ -153,12 +153,20 @@ model_compare_plot <- function(model_df, title){
     theme_bw()
   
   message(title)  
+  
+  if(save_png){
+    fn = here("differential_expression","plots",paste0(prefix,".png"))
+    ggsave(model_plot, filename = fn)              
+  }
   print(model_plot)
 }
 
 pdf(here("differential_expression","plots","sex_tstat_scatter.pdf"))
   walk2(outGene_sex_compare, c("Amygdala", "sACC"), function(region_df, region_name){
-    walk2(region_df, names(region_df), ~model_compare_plot(.x, title = paste(region_name,.y,"vs. Control")))
+    walk2(region_df, names(region_df), ~model_compare_plot(.x, 
+                                                           title = paste(region_name,.y,"vs. Control"),
+                                                           save_png = TRUE,
+                                                           prefix = paste("t-stat_MvF", region_name, .y, sep = "_")))
   })
 dev.off()
 
@@ -186,7 +194,7 @@ head(compare_sex_all$sacc$MDD)
 sig_colors <- c(RColorBrewer::brewer.pal(3, "Set1"),"dark grey")
 names(sig_colors) <- c("sig_Both", "sig_M", "sig_all", "None")
 
-M_compare_plot <- function(model_df, title){
+M_compare_plot <- function(model_df, title, save_png = FALSE, prefix = ""){
   
   t_cor <- model_df %>%
     summarize(cor = cor(t, M.t, method = "spearman")) %>%
@@ -205,13 +213,21 @@ M_compare_plot <- function(model_df, title){
     scale_color_manual(values = sig_colors)+
     theme_bw()
   
+  if(save_png){
+    fn = here("differential_expression","plots",paste0(prefix,".png"))
+    ggsave(model_plot, filename = fn)              
+  }
+  
   message(title)  
   print(model_plot)
 }
 
 pdf(here("differential_expression","plots","sexM_vs_All_tstat_scatter.pdf"))
 walk2(compare_sex_all, c("Amygdala", "sACC"), function(region_df, region_name){
-  walk2(region_df, names(region_df), ~M_compare_plot(.x, title = paste(region_name,.y,"vs. Control")))
+  walk2(region_df, names(region_df), ~M_compare_plot(.x, 
+                                                     title = paste(region_name,.y,"vs. Control"),
+                                                     save_png = TRUE,
+                                                     prefix = paste("t-stat_MvAll", region_name, .y, sep = "_")))
 })
 dev.off()
 
