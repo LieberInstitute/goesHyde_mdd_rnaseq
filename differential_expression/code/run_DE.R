@@ -49,19 +49,19 @@ run_DE <- function(rse, model, run_voom = TRUE, save_eBayes = FALSE, coef){
 get_eBayes <- function(rse, model, run_voom = TRUE){
   
   if(run_voom){
-    message("\\nCalc Norm Factors: ", Sys.time())
+    message("Calc Norm Factors: ", Sys.time())
     dge_out = DGEList(counts = assays(rse)$counts,
                       genes = rowData(rse))
     dge_norm = calcNormFactors(dge_out)
     voom_out = voom(dge_norm, model, plot=FALSE)
     
-    message("\\nLimma: ", Sys.time())
+    message("Limma: ", Sys.time())
     fit = lmFit(voom_out)
   } else {
-    message("\\nUsing tpm")
+    message("Using tpm")
     log_tmp = log2(assays(rse)$tpm + 1)
     
-    message("\\nLimma: ", Sys.time())
+    message("Limma: ", Sys.time())
     fit = lmFit(log_tmp, model)
   }
   
