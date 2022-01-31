@@ -6,10 +6,10 @@ Loading LIBD module for rmate/1.5.9
 Loading LIBD module for ruby/2.6.4p104
 Loading conda_R/4.1.x
 **** Job starts ****
-Mon Jan 10 16:35:38 EST 2022
+Fri Jan 28 16:46:50 EST 2022
 **** JHPCE info ****
 User: lhuuki
-Job id: 8787376
+Job id: 8984181
 Job name: qSV_model_DE_analysis_sex
 Hostname: compute-076.cm.cluster
 Task id: undefined
@@ -253,76 +253,3253 @@ $sacc$BPD$M
 
 
 
+, ,  = F
 
-####  GENE  ####
+          
+           MDD Control Bipolar
+  Amygdala  77      38      45
+  sACC      78      38      51
+
+, ,  = M
+
+          
+           MDD Control Bipolar
+  Amygdala 154     149      77
+  sACC     150     162      72
+
+Preforming M only Down sample: 
+
+#########################################
 Region: amyg Dx: MDD
-\nCalc Norm Factors: 2022-01-10 16:36:21
-\nLimma: 2022-01-10 16:36:32
-eBayes: 2022-01-10 16:36:52
+Down Sample down to:
+Control     MDD 
+     38      77 
+**** Rep: 1 ****
+Calc Norm Factors: 2022-01-28 16:47:36
+Limma: 2022-01-28 16:47:48
+eBayes: 2022-01-28 16:48:07
 Index coef: PrimaryDxMDD
 1 coef, Return t-stats
                <  0.05 <  0.01
-q_PrimaryDxMDD       1       0
-\nCalc Norm Factors: 2022-01-10 16:36:53
-\nLimma: 2022-01-10 16:37:23
-eBayes: 2022-01-10 16:38:03
-Index coef: PrimaryDxMDD
-1 coef, Return t-stats
-               <  0.05 <  0.01
-q_PrimaryDxMDD      10       0
-Writing csv files
-Region: amyg Dx: BPD
-\nCalc Norm Factors: 2022-01-10 16:38:08
-\nLimma: 2022-01-10 16:38:15
-eBayes: 2022-01-10 16:38:31
-Index coef: PrimaryDxBipolar
-1 coef, Return t-stats
-                   <  0.05 <  0.01
-q_PrimaryDxBipolar       0       0
-\nCalc Norm Factors: 2022-01-10 16:38:32
-\nLimma: 2022-01-10 16:38:53
-eBayes: 2022-01-10 16:39:23
-Index coef: PrimaryDxBipolar
-1 coef, Return t-stats
-                   <  0.05 <  0.01
-q_PrimaryDxBipolar      33       3
-Writing csv files
-Region: sacc Dx: MDD
-\nCalc Norm Factors: 2022-01-10 16:39:26
-\nLimma: 2022-01-10 16:39:37
-eBayes: 2022-01-10 16:39:56
+q_PrimaryDxMDD       1       1
+**** Rep: 2 ****
+Calc Norm Factors: 2022-01-28 16:48:09
+Limma: 2022-01-28 16:48:21
+eBayes: 2022-01-28 16:48:40
 Index coef: PrimaryDxMDD
 1 coef, Return t-stats
                <  0.05 <  0.01
 q_PrimaryDxMDD       0       0
-\nCalc Norm Factors: 2022-01-10 16:39:57
-\nLimma: 2022-01-10 16:40:24
-eBayes: 2022-01-10 16:41:04
+**** Rep: 3 ****
+Calc Norm Factors: 2022-01-28 16:48:41
+Limma: 2022-01-28 16:48:53
+eBayes: 2022-01-28 16:49:13
 Index coef: PrimaryDxMDD
 1 coef, Return t-stats
                <  0.05 <  0.01
-q_PrimaryDxMDD     461      73
+q_PrimaryDxMDD       2       2
+**** Rep: 4 ****
+Calc Norm Factors: 2022-01-28 16:49:15
+Limma: 2022-01-28 16:49:25
+eBayes: 2022-01-28 16:49:45
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 5 ****
+Calc Norm Factors: 2022-01-28 16:49:47
+Limma: 2022-01-28 16:49:57
+eBayes: 2022-01-28 16:50:17
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 6 ****
+Calc Norm Factors: 2022-01-28 16:50:19
+Limma: 2022-01-28 16:50:29
+eBayes: 2022-01-28 16:50:50
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 7 ****
+Calc Norm Factors: 2022-01-28 16:50:52
+Limma: 2022-01-28 16:51:02
+eBayes: 2022-01-28 16:51:22
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 8 ****
+Calc Norm Factors: 2022-01-28 16:51:24
+Limma: 2022-01-28 16:51:34
+eBayes: 2022-01-28 16:51:54
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 9 ****
+Calc Norm Factors: 2022-01-28 16:51:56
+Limma: 2022-01-28 16:52:06
+eBayes: 2022-01-28 16:52:26
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 10 ****
+Calc Norm Factors: 2022-01-28 16:52:28
+Limma: 2022-01-28 16:52:38
+eBayes: 2022-01-28 16:52:58
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 11 ****
+Calc Norm Factors: 2022-01-28 16:53:00
+Limma: 2022-01-28 16:53:10
+eBayes: 2022-01-28 16:53:30
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 12 ****
+Calc Norm Factors: 2022-01-28 16:53:32
+Limma: 2022-01-28 16:53:43
+eBayes: 2022-01-28 16:54:03
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 13 ****
+Calc Norm Factors: 2022-01-28 16:54:04
+Limma: 2022-01-28 16:54:15
+eBayes: 2022-01-28 16:54:35
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 14 ****
+Calc Norm Factors: 2022-01-28 16:54:37
+Limma: 2022-01-28 16:54:48
+eBayes: 2022-01-28 16:55:08
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 15 ****
+Calc Norm Factors: 2022-01-28 16:55:09
+Limma: 2022-01-28 16:55:21
+eBayes: 2022-01-28 16:55:40
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 16 ****
+Calc Norm Factors: 2022-01-28 16:55:42
+Limma: 2022-01-28 16:55:54
+eBayes: 2022-01-28 16:56:14
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 17 ****
+Calc Norm Factors: 2022-01-28 16:56:15
+Limma: 2022-01-28 16:56:26
+eBayes: 2022-01-28 16:56:45
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 18 ****
+Calc Norm Factors: 2022-01-28 16:56:47
+Limma: 2022-01-28 16:56:59
+eBayes: 2022-01-28 16:57:18
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 19 ****
+Calc Norm Factors: 2022-01-28 16:57:19
+Limma: 2022-01-28 16:57:31
+eBayes: 2022-01-28 16:57:51
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 20 ****
+Calc Norm Factors: 2022-01-28 16:57:52
+Limma: 2022-01-28 16:58:03
+eBayes: 2022-01-28 16:58:24
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       1       1
+**** Rep: 21 ****
+Calc Norm Factors: 2022-01-28 16:58:26
+Limma: 2022-01-28 16:58:38
+eBayes: 2022-01-28 16:59:00
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 22 ****
+Calc Norm Factors: 2022-01-28 16:59:02
+Limma: 2022-01-28 16:59:15
+eBayes: 2022-01-28 16:59:37
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 23 ****
+Calc Norm Factors: 2022-01-28 16:59:39
+Limma: 2022-01-28 16:59:50
+eBayes: 2022-01-28 17:00:12
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 24 ****
+Calc Norm Factors: 2022-01-28 17:00:13
+Limma: 2022-01-28 17:00:26
+eBayes: 2022-01-28 17:00:48
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 25 ****
+Calc Norm Factors: 2022-01-28 17:00:50
+Limma: 2022-01-28 17:01:02
+eBayes: 2022-01-28 17:01:25
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 26 ****
+Calc Norm Factors: 2022-01-28 17:01:27
+Limma: 2022-01-28 17:01:38
+eBayes: 2022-01-28 17:02:01
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 27 ****
+Calc Norm Factors: 2022-01-28 17:02:03
+Limma: 2022-01-28 17:02:14
+eBayes: 2022-01-28 17:02:38
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 28 ****
+Calc Norm Factors: 2022-01-28 17:02:39
+Limma: 2022-01-28 17:02:51
+eBayes: 2022-01-28 17:03:14
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 29 ****
+Calc Norm Factors: 2022-01-28 17:03:15
+Limma: 2022-01-28 17:03:27
+eBayes: 2022-01-28 17:03:50
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 30 ****
+Calc Norm Factors: 2022-01-28 17:03:52
+Limma: 2022-01-28 17:04:03
+eBayes: 2022-01-28 17:04:27
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 31 ****
+Calc Norm Factors: 2022-01-28 17:04:28
+Limma: 2022-01-28 17:04:40
+eBayes: 2022-01-28 17:05:03
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 32 ****
+Calc Norm Factors: 2022-01-28 17:05:05
+Limma: 2022-01-28 17:05:18
+eBayes: 2022-01-28 17:05:37
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 33 ****
+Calc Norm Factors: 2022-01-28 17:05:39
+Limma: 2022-01-28 17:05:49
+eBayes: 2022-01-28 17:06:08
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 34 ****
+Calc Norm Factors: 2022-01-28 17:06:10
+Limma: 2022-01-28 17:06:22
+eBayes: 2022-01-28 17:06:41
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 35 ****
+Calc Norm Factors: 2022-01-28 17:06:42
+Limma: 2022-01-28 17:06:54
+eBayes: 2022-01-28 17:07:13
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 36 ****
+Calc Norm Factors: 2022-01-28 17:07:14
+Limma: 2022-01-28 17:07:25
+eBayes: 2022-01-28 17:07:45
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 37 ****
+Calc Norm Factors: 2022-01-28 17:07:46
+Limma: 2022-01-28 17:07:57
+eBayes: 2022-01-28 17:08:16
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 38 ****
+Calc Norm Factors: 2022-01-28 17:08:17
+Limma: 2022-01-28 17:08:28
+eBayes: 2022-01-28 17:08:48
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 39 ****
+Calc Norm Factors: 2022-01-28 17:08:49
+Limma: 2022-01-28 17:08:59
+eBayes: 2022-01-28 17:09:18
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 40 ****
+Calc Norm Factors: 2022-01-28 17:09:20
+Limma: 2022-01-28 17:09:31
+eBayes: 2022-01-28 17:09:50
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 41 ****
+Calc Norm Factors: 2022-01-28 17:09:52
+Limma: 2022-01-28 17:10:02
+eBayes: 2022-01-28 17:10:21
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       9       0
+**** Rep: 42 ****
+Calc Norm Factors: 2022-01-28 17:10:23
+Limma: 2022-01-28 17:10:34
+eBayes: 2022-01-28 17:10:53
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 43 ****
+Calc Norm Factors: 2022-01-28 17:10:55
+Limma: 2022-01-28 17:11:05
+eBayes: 2022-01-28 17:11:24
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 44 ****
+Calc Norm Factors: 2022-01-28 17:11:26
+Limma: 2022-01-28 17:11:36
+eBayes: 2022-01-28 17:11:56
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 45 ****
+Calc Norm Factors: 2022-01-28 17:11:58
+Limma: 2022-01-28 17:12:08
+eBayes: 2022-01-28 17:12:27
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 46 ****
+Calc Norm Factors: 2022-01-28 17:12:29
+Limma: 2022-01-28 17:12:40
+eBayes: 2022-01-28 17:12:59
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 47 ****
+Calc Norm Factors: 2022-01-28 17:13:01
+Limma: 2022-01-28 17:13:11
+eBayes: 2022-01-28 17:13:30
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 48 ****
+Calc Norm Factors: 2022-01-28 17:13:32
+Limma: 2022-01-28 17:13:44
+eBayes: 2022-01-28 17:14:03
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 49 ****
+Calc Norm Factors: 2022-01-28 17:14:05
+Limma: 2022-01-28 17:14:15
+eBayes: 2022-01-28 17:14:34
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       3       0
+**** Rep: 50 ****
+Calc Norm Factors: 2022-01-28 17:14:36
+Limma: 2022-01-28 17:14:47
+eBayes: 2022-01-28 17:15:06
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 51 ****
+Calc Norm Factors: 2022-01-28 17:15:08
+Limma: 2022-01-28 17:15:18
+eBayes: 2022-01-28 17:15:37
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 52 ****
+Calc Norm Factors: 2022-01-28 17:15:39
+Limma: 2022-01-28 17:15:51
+eBayes: 2022-01-28 17:16:10
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 53 ****
+Calc Norm Factors: 2022-01-28 17:16:11
+Limma: 2022-01-28 17:16:21
+eBayes: 2022-01-28 17:16:42
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       1       0
+**** Rep: 54 ****
+Calc Norm Factors: 2022-01-28 17:16:43
+Limma: 2022-01-28 17:16:53
+eBayes: 2022-01-28 17:17:12
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       1       0
+**** Rep: 55 ****
+Calc Norm Factors: 2022-01-28 17:17:14
+Limma: 2022-01-28 17:17:26
+eBayes: 2022-01-28 17:17:45
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 56 ****
+Calc Norm Factors: 2022-01-28 17:17:46
+Limma: 2022-01-28 17:17:58
+eBayes: 2022-01-28 17:18:16
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 57 ****
+Calc Norm Factors: 2022-01-28 17:18:18
+Limma: 2022-01-28 17:18:29
+eBayes: 2022-01-28 17:18:48
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 58 ****
+Calc Norm Factors: 2022-01-28 17:18:50
+Limma: 2022-01-28 17:19:00
+eBayes: 2022-01-28 17:19:21
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       1       1
+**** Rep: 59 ****
+Calc Norm Factors: 2022-01-28 17:19:22
+Limma: 2022-01-28 17:19:33
+eBayes: 2022-01-28 17:19:53
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 60 ****
+Calc Norm Factors: 2022-01-28 17:19:54
+Limma: 2022-01-28 17:20:05
+eBayes: 2022-01-28 17:20:25
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 61 ****
+Calc Norm Factors: 2022-01-28 17:20:26
+Limma: 2022-01-28 17:20:37
+eBayes: 2022-01-28 17:20:57
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 62 ****
+Calc Norm Factors: 2022-01-28 17:20:58
+Limma: 2022-01-28 17:21:09
+eBayes: 2022-01-28 17:21:29
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       1       0
+**** Rep: 63 ****
+Calc Norm Factors: 2022-01-28 17:21:30
+Limma: 2022-01-28 17:21:40
+eBayes: 2022-01-28 17:22:00
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 64 ****
+Calc Norm Factors: 2022-01-28 17:22:02
+Limma: 2022-01-28 17:22:12
+eBayes: 2022-01-28 17:22:31
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       6       1
+**** Rep: 65 ****
+Calc Norm Factors: 2022-01-28 17:22:33
+Limma: 2022-01-28 17:22:44
+eBayes: 2022-01-28 17:23:04
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 66 ****
+Calc Norm Factors: 2022-01-28 17:23:05
+Limma: 2022-01-28 17:23:16
+eBayes: 2022-01-28 17:23:35
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 67 ****
+Calc Norm Factors: 2022-01-28 17:23:36
+Limma: 2022-01-28 17:23:47
+eBayes: 2022-01-28 17:24:07
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 68 ****
+Calc Norm Factors: 2022-01-28 17:24:09
+Limma: 2022-01-28 17:24:19
+eBayes: 2022-01-28 17:24:38
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 69 ****
+Calc Norm Factors: 2022-01-28 17:24:39
+Limma: 2022-01-28 17:24:50
+eBayes: 2022-01-28 17:25:10
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 70 ****
+Calc Norm Factors: 2022-01-28 17:25:12
+Limma: 2022-01-28 17:25:22
+eBayes: 2022-01-28 17:25:41
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 71 ****
+Calc Norm Factors: 2022-01-28 17:25:43
+Limma: 2022-01-28 17:25:53
+eBayes: 2022-01-28 17:26:12
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 72 ****
+Calc Norm Factors: 2022-01-28 17:26:14
+Limma: 2022-01-28 17:26:25
+eBayes: 2022-01-28 17:26:44
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 73 ****
+Calc Norm Factors: 2022-01-28 17:26:45
+Limma: 2022-01-28 17:26:57
+eBayes: 2022-01-28 17:27:16
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 74 ****
+Calc Norm Factors: 2022-01-28 17:27:18
+Limma: 2022-01-28 17:27:28
+eBayes: 2022-01-28 17:27:47
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 75 ****
+Calc Norm Factors: 2022-01-28 17:27:49
+Limma: 2022-01-28 17:27:59
+eBayes: 2022-01-28 17:28:18
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 76 ****
+Calc Norm Factors: 2022-01-28 17:28:20
+Limma: 2022-01-28 17:28:30
+eBayes: 2022-01-28 17:28:49
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 77 ****
+Calc Norm Factors: 2022-01-28 17:28:51
+Limma: 2022-01-28 17:29:03
+eBayes: 2022-01-28 17:29:22
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 78 ****
+Calc Norm Factors: 2022-01-28 17:29:24
+Limma: 2022-01-28 17:29:34
+eBayes: 2022-01-28 17:29:54
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 79 ****
+Calc Norm Factors: 2022-01-28 17:29:56
+Limma: 2022-01-28 17:30:06
+eBayes: 2022-01-28 17:30:25
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 80 ****
+Calc Norm Factors: 2022-01-28 17:30:27
+Limma: 2022-01-28 17:30:37
+eBayes: 2022-01-28 17:30:57
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 81 ****
+Calc Norm Factors: 2022-01-28 17:30:59
+Limma: 2022-01-28 17:31:09
+eBayes: 2022-01-28 17:31:30
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       1       0
+**** Rep: 82 ****
+Calc Norm Factors: 2022-01-28 17:31:31
+Limma: 2022-01-28 17:31:42
+eBayes: 2022-01-28 17:32:01
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 83 ****
+Calc Norm Factors: 2022-01-28 17:32:02
+Limma: 2022-01-28 17:32:13
+eBayes: 2022-01-28 17:32:33
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 84 ****
+Calc Norm Factors: 2022-01-28 17:32:35
+Limma: 2022-01-28 17:32:44
+eBayes: 2022-01-28 17:33:03
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 85 ****
+Calc Norm Factors: 2022-01-28 17:33:05
+Limma: 2022-01-28 17:33:15
+eBayes: 2022-01-28 17:33:35
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 86 ****
+Calc Norm Factors: 2022-01-28 17:33:37
+Limma: 2022-01-28 17:33:47
+eBayes: 2022-01-28 17:34:06
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 87 ****
+Calc Norm Factors: 2022-01-28 17:34:08
+Limma: 2022-01-28 17:34:20
+eBayes: 2022-01-28 17:34:39
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 88 ****
+Calc Norm Factors: 2022-01-28 17:34:41
+Limma: 2022-01-28 17:34:51
+eBayes: 2022-01-28 17:35:10
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       1       0
+**** Rep: 89 ****
+Calc Norm Factors: 2022-01-28 17:35:12
+Limma: 2022-01-28 17:35:23
+eBayes: 2022-01-28 17:35:42
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 90 ****
+Calc Norm Factors: 2022-01-28 17:35:44
+Limma: 2022-01-28 17:35:54
+eBayes: 2022-01-28 17:36:14
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 91 ****
+Calc Norm Factors: 2022-01-28 17:36:15
+Limma: 2022-01-28 17:36:27
+eBayes: 2022-01-28 17:36:46
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       2       0
+**** Rep: 92 ****
+Calc Norm Factors: 2022-01-28 17:36:48
+Limma: 2022-01-28 17:36:58
+eBayes: 2022-01-28 17:37:19
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       2       0
+**** Rep: 93 ****
+Calc Norm Factors: 2022-01-28 17:37:20
+Limma: 2022-01-28 17:37:31
+eBayes: 2022-01-28 17:37:50
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 94 ****
+Calc Norm Factors: 2022-01-28 17:37:51
+Limma: 2022-01-28 17:38:03
+eBayes: 2022-01-28 17:38:22
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 95 ****
+Calc Norm Factors: 2022-01-28 17:38:23
+Limma: 2022-01-28 17:38:34
+eBayes: 2022-01-28 17:38:54
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 96 ****
+Calc Norm Factors: 2022-01-28 17:38:56
+Limma: 2022-01-28 17:39:06
+eBayes: 2022-01-28 17:39:26
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       1       0
+**** Rep: 97 ****
+Calc Norm Factors: 2022-01-28 17:39:28
+Limma: 2022-01-28 17:39:38
+eBayes: 2022-01-28 17:39:57
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 98 ****
+Calc Norm Factors: 2022-01-28 17:39:58
+Limma: 2022-01-28 17:40:09
+eBayes: 2022-01-28 17:40:28
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 99 ****
+Calc Norm Factors: 2022-01-28 17:40:29
+Limma: 2022-01-28 17:40:40
+eBayes: 2022-01-28 17:41:00
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 100 ****
+Calc Norm Factors: 2022-01-28 17:41:02
+Limma: 2022-01-28 17:41:12
+eBayes: 2022-01-28 17:41:31
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
 Writing csv files
-Region: sacc Dx: BPD
-\nCalc Norm Factors: 2022-01-10 16:41:08
-\nLimma: 2022-01-10 16:41:16
-eBayes: 2022-01-10 16:41:32
+
+#########################################
+Region: amyg Dx: BPD
+Down Sample down to:
+Control Bipolar 
+     38      45 
+**** Rep: 1 ****
+Calc Norm Factors: 2022-01-28 17:43:09
+Limma: 2022-01-28 17:43:17
+eBayes: 2022-01-28 17:43:33
 Index coef: PrimaryDxBipolar
 1 coef, Return t-stats
                    <  0.05 <  0.01
 q_PrimaryDxBipolar       0       0
-\nCalc Norm Factors: 2022-01-10 16:41:33
-\nLimma: 2022-01-10 16:41:54
-eBayes: 2022-01-10 16:42:26
+**** Rep: 2 ****
+Calc Norm Factors: 2022-01-28 17:43:34
+Limma: 2022-01-28 17:43:42
+eBayes: 2022-01-28 17:43:57
 Index coef: PrimaryDxBipolar
 1 coef, Return t-stats
                    <  0.05 <  0.01
-q_PrimaryDxBipolar      71      14
+q_PrimaryDxBipolar       0       0
+**** Rep: 3 ****
+Calc Norm Factors: 2022-01-28 17:43:59
+Limma: 2022-01-28 17:44:08
+eBayes: 2022-01-28 17:44:24
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 4 ****
+Calc Norm Factors: 2022-01-28 17:44:25
+Limma: 2022-01-28 17:44:33
+eBayes: 2022-01-28 17:44:48
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 5 ****
+Calc Norm Factors: 2022-01-28 17:44:50
+Limma: 2022-01-28 17:44:57
+eBayes: 2022-01-28 17:45:13
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 6 ****
+Calc Norm Factors: 2022-01-28 17:45:14
+Limma: 2022-01-28 17:45:23
+eBayes: 2022-01-28 17:45:39
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 7 ****
+Calc Norm Factors: 2022-01-28 17:45:40
+Limma: 2022-01-28 17:45:48
+eBayes: 2022-01-28 17:46:03
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 8 ****
+Calc Norm Factors: 2022-01-28 17:46:05
+Limma: 2022-01-28 17:46:12
+eBayes: 2022-01-28 17:46:28
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 9 ****
+Calc Norm Factors: 2022-01-28 17:46:29
+Limma: 2022-01-28 17:46:37
+eBayes: 2022-01-28 17:46:52
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 10 ****
+Calc Norm Factors: 2022-01-28 17:46:54
+Limma: 2022-01-28 17:47:01
+eBayes: 2022-01-28 17:47:17
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 11 ****
+Calc Norm Factors: 2022-01-28 17:47:18
+Limma: 2022-01-28 17:47:28
+eBayes: 2022-01-28 17:47:43
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 12 ****
+Calc Norm Factors: 2022-01-28 17:47:45
+Limma: 2022-01-28 17:47:52
+eBayes: 2022-01-28 17:48:07
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 13 ****
+Calc Norm Factors: 2022-01-28 17:48:09
+Limma: 2022-01-28 17:48:17
+eBayes: 2022-01-28 17:48:32
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 14 ****
+Calc Norm Factors: 2022-01-28 17:48:34
+Limma: 2022-01-28 17:48:41
+eBayes: 2022-01-28 17:48:57
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 15 ****
+Calc Norm Factors: 2022-01-28 17:48:58
+Limma: 2022-01-28 17:49:08
+eBayes: 2022-01-28 17:49:23
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 16 ****
+Calc Norm Factors: 2022-01-28 17:49:25
+Limma: 2022-01-28 17:49:32
+eBayes: 2022-01-28 17:49:49
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 17 ****
+Calc Norm Factors: 2022-01-28 17:49:51
+Limma: 2022-01-28 17:49:59
+eBayes: 2022-01-28 17:50:14
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 18 ****
+Calc Norm Factors: 2022-01-28 17:50:15
+Limma: 2022-01-28 17:50:23
+eBayes: 2022-01-28 17:50:38
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 19 ****
+Calc Norm Factors: 2022-01-28 17:50:40
+Limma: 2022-01-28 17:50:47
+eBayes: 2022-01-28 17:51:03
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 20 ****
+Calc Norm Factors: 2022-01-28 17:51:04
+Limma: 2022-01-28 17:51:12
+eBayes: 2022-01-28 17:51:27
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 21 ****
+Calc Norm Factors: 2022-01-28 17:51:29
+Limma: 2022-01-28 17:51:38
+eBayes: 2022-01-28 17:51:54
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar      41       2
+**** Rep: 22 ****
+Calc Norm Factors: 2022-01-28 17:51:55
+Limma: 2022-01-28 17:52:03
+eBayes: 2022-01-28 17:52:18
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 23 ****
+Calc Norm Factors: 2022-01-28 17:52:20
+Limma: 2022-01-28 17:52:27
+eBayes: 2022-01-28 17:52:43
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       2       1
+**** Rep: 24 ****
+Calc Norm Factors: 2022-01-28 17:52:44
+Limma: 2022-01-28 17:52:52
+eBayes: 2022-01-28 17:53:07
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 25 ****
+Calc Norm Factors: 2022-01-28 17:53:09
+Limma: 2022-01-28 17:53:17
+eBayes: 2022-01-28 17:53:34
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 26 ****
+Calc Norm Factors: 2022-01-28 17:53:36
+Limma: 2022-01-28 17:53:43
+eBayes: 2022-01-28 17:53:58
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 27 ****
+Calc Norm Factors: 2022-01-28 17:54:00
+Limma: 2022-01-28 17:54:08
+eBayes: 2022-01-28 17:54:23
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 28 ****
+Calc Norm Factors: 2022-01-28 17:54:25
+Limma: 2022-01-28 17:54:32
+eBayes: 2022-01-28 17:54:49
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 29 ****
+Calc Norm Factors: 2022-01-28 17:54:51
+Limma: 2022-01-28 17:54:59
+eBayes: 2022-01-28 17:55:14
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 30 ****
+Calc Norm Factors: 2022-01-28 17:55:16
+Limma: 2022-01-28 17:55:23
+eBayes: 2022-01-28 17:55:39
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       1       0
+**** Rep: 31 ****
+Calc Norm Factors: 2022-01-28 17:55:40
+Limma: 2022-01-28 17:55:48
+eBayes: 2022-01-28 17:56:05
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 32 ****
+Calc Norm Factors: 2022-01-28 17:56:07
+Limma: 2022-01-28 17:56:14
+eBayes: 2022-01-28 17:56:30
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 33 ****
+Calc Norm Factors: 2022-01-28 17:56:31
+Limma: 2022-01-28 17:56:39
+eBayes: 2022-01-28 17:56:54
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 34 ****
+Calc Norm Factors: 2022-01-28 17:56:56
+Limma: 2022-01-28 17:57:05
+eBayes: 2022-01-28 17:57:20
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 35 ****
+Calc Norm Factors: 2022-01-28 17:57:22
+Limma: 2022-01-28 17:57:30
+eBayes: 2022-01-28 17:57:45
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 36 ****
+Calc Norm Factors: 2022-01-28 17:57:47
+Limma: 2022-01-28 17:57:54
+eBayes: 2022-01-28 17:58:10
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 37 ****
+Calc Norm Factors: 2022-01-28 17:58:11
+Limma: 2022-01-28 17:58:19
+eBayes: 2022-01-28 17:58:34
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 38 ****
+Calc Norm Factors: 2022-01-28 17:58:36
+Limma: 2022-01-28 17:58:44
+eBayes: 2022-01-28 17:59:01
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 39 ****
+Calc Norm Factors: 2022-01-28 17:59:02
+Limma: 2022-01-28 17:59:10
+eBayes: 2022-01-28 17:59:25
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 40 ****
+Calc Norm Factors: 2022-01-28 17:59:27
+Limma: 2022-01-28 17:59:34
+eBayes: 2022-01-28 17:59:51
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 41 ****
+Calc Norm Factors: 2022-01-28 17:59:53
+Limma: 2022-01-28 18:00:01
+eBayes: 2022-01-28 18:00:16
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 42 ****
+Calc Norm Factors: 2022-01-28 18:00:18
+Limma: 2022-01-28 18:00:25
+eBayes: 2022-01-28 18:00:42
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 43 ****
+Calc Norm Factors: 2022-01-28 18:00:44
+Limma: 2022-01-28 18:00:52
+eBayes: 2022-01-28 18:01:07
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 44 ****
+Calc Norm Factors: 2022-01-28 18:01:09
+Limma: 2022-01-28 18:01:16
+eBayes: 2022-01-28 18:01:32
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 45 ****
+Calc Norm Factors: 2022-01-28 18:01:33
+Limma: 2022-01-28 18:01:41
+eBayes: 2022-01-28 18:01:56
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 46 ****
+Calc Norm Factors: 2022-01-28 18:01:58
+Limma: 2022-01-28 18:02:05
+eBayes: 2022-01-28 18:02:21
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 47 ****
+Calc Norm Factors: 2022-01-28 18:02:22
+Limma: 2022-01-28 18:02:30
+eBayes: 2022-01-28 18:02:47
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 48 ****
+Calc Norm Factors: 2022-01-28 18:02:49
+Limma: 2022-01-28 18:02:57
+eBayes: 2022-01-28 18:03:12
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 49 ****
+Calc Norm Factors: 2022-01-28 18:03:13
+Limma: 2022-01-28 18:03:21
+eBayes: 2022-01-28 18:03:36
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 50 ****
+Calc Norm Factors: 2022-01-28 18:03:38
+Limma: 2022-01-28 18:03:46
+eBayes: 2022-01-28 18:04:01
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 51 ****
+Calc Norm Factors: 2022-01-28 18:04:03
+Limma: 2022-01-28 18:04:10
+eBayes: 2022-01-28 18:04:26
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 52 ****
+Calc Norm Factors: 2022-01-28 18:04:27
+Limma: 2022-01-28 18:04:35
+eBayes: 2022-01-28 18:04:50
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       1       0
+**** Rep: 53 ****
+Calc Norm Factors: 2022-01-28 18:04:52
+Limma: 2022-01-28 18:04:59
+eBayes: 2022-01-28 18:05:15
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 54 ****
+Calc Norm Factors: 2022-01-28 18:05:16
+Limma: 2022-01-28 18:05:24
+eBayes: 2022-01-28 18:05:41
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 55 ****
+Calc Norm Factors: 2022-01-28 18:05:43
+Limma: 2022-01-28 18:05:50
+eBayes: 2022-01-28 18:06:06
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 56 ****
+Calc Norm Factors: 2022-01-28 18:06:07
+Limma: 2022-01-28 18:06:15
+eBayes: 2022-01-28 18:06:30
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 57 ****
+Calc Norm Factors: 2022-01-28 18:06:32
+Limma: 2022-01-28 18:06:40
+eBayes: 2022-01-28 18:06:55
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 58 ****
+Calc Norm Factors: 2022-01-28 18:06:56
+Limma: 2022-01-28 18:07:04
+eBayes: 2022-01-28 18:07:19
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 59 ****
+Calc Norm Factors: 2022-01-28 18:07:21
+Limma: 2022-01-28 18:07:29
+eBayes: 2022-01-28 18:07:44
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 60 ****
+Calc Norm Factors: 2022-01-28 18:07:46
+Limma: 2022-01-28 18:07:53
+eBayes: 2022-01-28 18:08:09
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 61 ****
+Calc Norm Factors: 2022-01-28 18:08:10
+Limma: 2022-01-28 18:08:20
+eBayes: 2022-01-28 18:08:35
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 62 ****
+Calc Norm Factors: 2022-01-28 18:08:37
+Limma: 2022-01-28 18:08:45
+eBayes: 2022-01-28 18:09:02
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 63 ****
+Calc Norm Factors: 2022-01-28 18:09:03
+Limma: 2022-01-28 18:09:11
+eBayes: 2022-01-28 18:09:26
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 64 ****
+Calc Norm Factors: 2022-01-28 18:09:28
+Limma: 2022-01-28 18:09:35
+eBayes: 2022-01-28 18:09:51
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 65 ****
+Calc Norm Factors: 2022-01-28 18:09:53
+Limma: 2022-01-28 18:10:00
+eBayes: 2022-01-28 18:10:16
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 66 ****
+Calc Norm Factors: 2022-01-28 18:10:17
+Limma: 2022-01-28 18:10:25
+eBayes: 2022-01-28 18:10:42
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 67 ****
+Calc Norm Factors: 2022-01-28 18:10:44
+Limma: 2022-01-28 18:10:51
+eBayes: 2022-01-28 18:11:07
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 68 ****
+Calc Norm Factors: 2022-01-28 18:11:08
+Limma: 2022-01-28 18:11:16
+eBayes: 2022-01-28 18:11:31
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 69 ****
+Calc Norm Factors: 2022-01-28 18:11:33
+Limma: 2022-01-28 18:11:40
+eBayes: 2022-01-28 18:11:56
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 70 ****
+Calc Norm Factors: 2022-01-28 18:11:57
+Limma: 2022-01-28 18:12:07
+eBayes: 2022-01-28 18:12:22
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 71 ****
+Calc Norm Factors: 2022-01-28 18:12:23
+Limma: 2022-01-28 18:12:31
+eBayes: 2022-01-28 18:12:46
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 72 ****
+Calc Norm Factors: 2022-01-28 18:12:48
+Limma: 2022-01-28 18:12:56
+eBayes: 2022-01-28 18:13:11
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 73 ****
+Calc Norm Factors: 2022-01-28 18:13:13
+Limma: 2022-01-28 18:13:20
+eBayes: 2022-01-28 18:13:35
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 74 ****
+Calc Norm Factors: 2022-01-28 18:13:37
+Limma: 2022-01-28 18:13:45
+eBayes: 2022-01-28 18:14:02
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 75 ****
+Calc Norm Factors: 2022-01-28 18:14:03
+Limma: 2022-01-28 18:14:11
+eBayes: 2022-01-28 18:14:26
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 76 ****
+Calc Norm Factors: 2022-01-28 18:14:28
+Limma: 2022-01-28 18:14:36
+eBayes: 2022-01-28 18:14:53
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 77 ****
+Calc Norm Factors: 2022-01-28 18:14:55
+Limma: 2022-01-28 18:15:02
+eBayes: 2022-01-28 18:15:17
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 78 ****
+Calc Norm Factors: 2022-01-28 18:15:19
+Limma: 2022-01-28 18:15:27
+eBayes: 2022-01-28 18:15:42
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 79 ****
+Calc Norm Factors: 2022-01-28 18:15:44
+Limma: 2022-01-28 18:15:51
+eBayes: 2022-01-28 18:16:07
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 80 ****
+Calc Norm Factors: 2022-01-28 18:16:08
+Limma: 2022-01-28 18:16:18
+eBayes: 2022-01-28 18:16:33
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 81 ****
+Calc Norm Factors: 2022-01-28 18:16:35
+Limma: 2022-01-28 18:16:42
+eBayes: 2022-01-28 18:16:58
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 82 ****
+Calc Norm Factors: 2022-01-28 18:16:59
+Limma: 2022-01-28 18:17:07
+eBayes: 2022-01-28 18:17:24
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 83 ****
+Calc Norm Factors: 2022-01-28 18:17:26
+Limma: 2022-01-28 18:17:33
+eBayes: 2022-01-28 18:17:49
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 84 ****
+Calc Norm Factors: 2022-01-28 18:17:50
+Limma: 2022-01-28 18:17:58
+eBayes: 2022-01-28 18:18:13
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 85 ****
+Calc Norm Factors: 2022-01-28 18:18:15
+Limma: 2022-01-28 18:18:23
+eBayes: 2022-01-28 18:18:40
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 86 ****
+Calc Norm Factors: 2022-01-28 18:18:41
+Limma: 2022-01-28 18:18:49
+eBayes: 2022-01-28 18:19:04
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 87 ****
+Calc Norm Factors: 2022-01-28 18:19:06
+Limma: 2022-01-28 18:19:14
+eBayes: 2022-01-28 18:19:29
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 88 ****
+Calc Norm Factors: 2022-01-28 18:19:30
+Limma: 2022-01-28 18:19:38
+eBayes: 2022-01-28 18:19:55
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       1       1
+**** Rep: 89 ****
+Calc Norm Factors: 2022-01-28 18:19:57
+Limma: 2022-01-28 18:20:05
+eBayes: 2022-01-28 18:20:20
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 90 ****
+Calc Norm Factors: 2022-01-28 18:20:22
+Limma: 2022-01-28 18:20:29
+eBayes: 2022-01-28 18:20:46
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 91 ****
+Calc Norm Factors: 2022-01-28 18:20:48
+Limma: 2022-01-28 18:20:56
+eBayes: 2022-01-28 18:21:11
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 92 ****
+Calc Norm Factors: 2022-01-28 18:21:13
+Limma: 2022-01-28 18:21:21
+eBayes: 2022-01-28 18:21:36
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 93 ****
+Calc Norm Factors: 2022-01-28 18:21:38
+Limma: 2022-01-28 18:21:45
+eBayes: 2022-01-28 18:22:01
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       1       0
+**** Rep: 94 ****
+Calc Norm Factors: 2022-01-28 18:22:02
+Limma: 2022-01-28 18:22:10
+eBayes: 2022-01-28 18:22:25
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       2       0
+**** Rep: 95 ****
+Calc Norm Factors: 2022-01-28 18:22:27
+Limma: 2022-01-28 18:22:35
+eBayes: 2022-01-28 18:22:50
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       1       1
+**** Rep: 96 ****
+Calc Norm Factors: 2022-01-28 18:22:52
+Limma: 2022-01-28 18:22:59
+eBayes: 2022-01-28 18:23:15
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 97 ****
+Calc Norm Factors: 2022-01-28 18:23:16
+Limma: 2022-01-28 18:23:24
+eBayes: 2022-01-28 18:23:41
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 98 ****
+Calc Norm Factors: 2022-01-28 18:23:43
+Limma: 2022-01-28 18:23:51
+eBayes: 2022-01-28 18:24:06
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 99 ****
+Calc Norm Factors: 2022-01-28 18:24:07
+Limma: 2022-01-28 18:24:15
+eBayes: 2022-01-28 18:24:31
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       1       0
+**** Rep: 100 ****
+Calc Norm Factors: 2022-01-28 18:24:32
+Limma: 2022-01-28 18:24:40
+eBayes: 2022-01-28 18:24:55
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       1       0
+Writing csv files
+
+#########################################
+Region: sacc Dx: MDD
+Down Sample down to:
+Control     MDD 
+     38      78 
+**** Rep: 1 ****
+Calc Norm Factors: 2022-01-28 18:26:30
+Limma: 2022-01-28 18:26:41
+eBayes: 2022-01-28 18:27:00
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 2 ****
+Calc Norm Factors: 2022-01-28 18:27:01
+Limma: 2022-01-28 18:27:12
+eBayes: 2022-01-28 18:27:31
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       6       0
+**** Rep: 3 ****
+Calc Norm Factors: 2022-01-28 18:27:33
+Limma: 2022-01-28 18:27:43
+eBayes: 2022-01-28 18:28:02
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 4 ****
+Calc Norm Factors: 2022-01-28 18:28:04
+Limma: 2022-01-28 18:28:14
+eBayes: 2022-01-28 18:28:35
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       1       0
+**** Rep: 5 ****
+Calc Norm Factors: 2022-01-28 18:28:37
+Limma: 2022-01-28 18:28:47
+eBayes: 2022-01-28 18:29:06
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD      31       0
+**** Rep: 6 ****
+Calc Norm Factors: 2022-01-28 18:29:08
+Limma: 2022-01-28 18:29:19
+eBayes: 2022-01-28 18:29:40
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD      50       5
+**** Rep: 7 ****
+Calc Norm Factors: 2022-01-28 18:29:41
+Limma: 2022-01-28 18:29:52
+eBayes: 2022-01-28 18:30:11
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       2       0
+**** Rep: 8 ****
+Calc Norm Factors: 2022-01-28 18:30:12
+Limma: 2022-01-28 18:30:23
+eBayes: 2022-01-28 18:30:42
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 9 ****
+Calc Norm Factors: 2022-01-28 18:30:43
+Limma: 2022-01-28 18:30:54
+eBayes: 2022-01-28 18:31:13
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       3       0
+**** Rep: 10 ****
+Calc Norm Factors: 2022-01-28 18:31:15
+Limma: 2022-01-28 18:31:25
+eBayes: 2022-01-28 18:31:44
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 11 ****
+Calc Norm Factors: 2022-01-28 18:31:46
+Limma: 2022-01-28 18:31:56
+eBayes: 2022-01-28 18:32:15
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 12 ****
+Calc Norm Factors: 2022-01-28 18:32:17
+Limma: 2022-01-28 18:32:27
+eBayes: 2022-01-28 18:32:46
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 13 ****
+Calc Norm Factors: 2022-01-28 18:32:48
+Limma: 2022-01-28 18:32:59
+eBayes: 2022-01-28 18:33:18
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 14 ****
+Calc Norm Factors: 2022-01-28 18:33:19
+Limma: 2022-01-28 18:33:30
+eBayes: 2022-01-28 18:33:51
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 15 ****
+Calc Norm Factors: 2022-01-28 18:33:52
+Limma: 2022-01-28 18:34:03
+eBayes: 2022-01-28 18:34:22
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       3       1
+**** Rep: 16 ****
+Calc Norm Factors: 2022-01-28 18:34:24
+Limma: 2022-01-28 18:34:34
+eBayes: 2022-01-28 18:34:53
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 17 ****
+Calc Norm Factors: 2022-01-28 18:34:55
+Limma: 2022-01-28 18:35:05
+eBayes: 2022-01-28 18:35:24
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       2       0
+**** Rep: 18 ****
+Calc Norm Factors: 2022-01-28 18:35:26
+Limma: 2022-01-28 18:35:37
+eBayes: 2022-01-28 18:35:56
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 19 ****
+Calc Norm Factors: 2022-01-28 18:35:57
+Limma: 2022-01-28 18:36:08
+eBayes: 2022-01-28 18:36:29
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 20 ****
+Calc Norm Factors: 2022-01-28 18:36:31
+Limma: 2022-01-28 18:36:41
+eBayes: 2022-01-28 18:37:00
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 21 ****
+Calc Norm Factors: 2022-01-28 18:37:02
+Limma: 2022-01-28 18:37:13
+eBayes: 2022-01-28 18:37:32
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 22 ****
+Calc Norm Factors: 2022-01-28 18:37:33
+Limma: 2022-01-28 18:37:44
+eBayes: 2022-01-28 18:38:03
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD      11       3
+**** Rep: 23 ****
+Calc Norm Factors: 2022-01-28 18:38:05
+Limma: 2022-01-28 18:38:18
+eBayes: 2022-01-28 18:38:37
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 24 ****
+Calc Norm Factors: 2022-01-28 18:38:38
+Limma: 2022-01-28 18:38:49
+eBayes: 2022-01-28 18:39:08
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 25 ****
+Calc Norm Factors: 2022-01-28 18:39:10
+Limma: 2022-01-28 18:39:20
+eBayes: 2022-01-28 18:39:40
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       1       0
+**** Rep: 26 ****
+Calc Norm Factors: 2022-01-28 18:39:41
+Limma: 2022-01-28 18:39:52
+eBayes: 2022-01-28 18:40:11
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 27 ****
+Calc Norm Factors: 2022-01-28 18:40:13
+Limma: 2022-01-28 18:40:26
+eBayes: 2022-01-28 18:40:45
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       6       2
+**** Rep: 28 ****
+Calc Norm Factors: 2022-01-28 18:40:47
+Limma: 2022-01-28 18:40:57
+eBayes: 2022-01-28 18:41:19
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 29 ****
+Calc Norm Factors: 2022-01-28 18:41:20
+Limma: 2022-01-28 18:41:31
+eBayes: 2022-01-28 18:41:50
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD      32       4
+**** Rep: 30 ****
+Calc Norm Factors: 2022-01-28 18:41:52
+Limma: 2022-01-28 18:42:03
+eBayes: 2022-01-28 18:42:22
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       2       0
+**** Rep: 31 ****
+Calc Norm Factors: 2022-01-28 18:42:24
+Limma: 2022-01-28 18:42:34
+eBayes: 2022-01-28 18:42:56
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 32 ****
+Calc Norm Factors: 2022-01-28 18:42:58
+Limma: 2022-01-28 18:43:08
+eBayes: 2022-01-28 18:43:28
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 33 ****
+Calc Norm Factors: 2022-01-28 18:43:29
+Limma: 2022-01-28 18:43:40
+eBayes: 2022-01-28 18:43:59
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       1       0
+**** Rep: 34 ****
+Calc Norm Factors: 2022-01-28 18:44:01
+Limma: 2022-01-28 18:44:11
+eBayes: 2022-01-28 18:44:32
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 35 ****
+Calc Norm Factors: 2022-01-28 18:44:34
+Limma: 2022-01-28 18:44:45
+eBayes: 2022-01-28 18:45:04
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       2       0
+**** Rep: 36 ****
+Calc Norm Factors: 2022-01-28 18:45:05
+Limma: 2022-01-28 18:45:16
+eBayes: 2022-01-28 18:45:37
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 37 ****
+Calc Norm Factors: 2022-01-28 18:45:38
+Limma: 2022-01-28 18:45:48
+eBayes: 2022-01-28 18:46:07
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 38 ****
+Calc Norm Factors: 2022-01-28 18:46:08
+Limma: 2022-01-28 18:46:19
+eBayes: 2022-01-28 18:46:37
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD      21       0
+**** Rep: 39 ****
+Calc Norm Factors: 2022-01-28 18:46:38
+Limma: 2022-01-28 18:46:49
+eBayes: 2022-01-28 18:47:10
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 40 ****
+Calc Norm Factors: 2022-01-28 18:47:11
+Limma: 2022-01-28 18:47:22
+eBayes: 2022-01-28 18:47:40
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       8       1
+**** Rep: 41 ****
+Calc Norm Factors: 2022-01-28 18:47:42
+Limma: 2022-01-28 18:47:52
+eBayes: 2022-01-28 18:48:11
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 42 ****
+Calc Norm Factors: 2022-01-28 18:48:12
+Limma: 2022-01-28 18:48:23
+eBayes: 2022-01-28 18:48:41
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       2       1
+**** Rep: 43 ****
+Calc Norm Factors: 2022-01-28 18:48:43
+Limma: 2022-01-28 18:48:53
+eBayes: 2022-01-28 18:49:12
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 44 ****
+Calc Norm Factors: 2022-01-28 18:49:13
+Limma: 2022-01-28 18:49:26
+eBayes: 2022-01-28 18:49:44
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 45 ****
+Calc Norm Factors: 2022-01-28 18:49:46
+Limma: 2022-01-28 18:49:56
+eBayes: 2022-01-28 18:50:15
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 46 ****
+Calc Norm Factors: 2022-01-28 18:50:16
+Limma: 2022-01-28 18:50:27
+eBayes: 2022-01-28 18:50:46
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 47 ****
+Calc Norm Factors: 2022-01-28 18:50:47
+Limma: 2022-01-28 18:50:58
+eBayes: 2022-01-28 18:51:17
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 48 ****
+Calc Norm Factors: 2022-01-28 18:51:18
+Limma: 2022-01-28 18:51:29
+eBayes: 2022-01-28 18:51:47
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 49 ****
+Calc Norm Factors: 2022-01-28 18:51:49
+Limma: 2022-01-28 18:51:59
+eBayes: 2022-01-28 18:52:18
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 50 ****
+Calc Norm Factors: 2022-01-28 18:52:19
+Limma: 2022-01-28 18:52:30
+eBayes: 2022-01-28 18:52:49
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 51 ****
+Calc Norm Factors: 2022-01-28 18:52:50
+Limma: 2022-01-28 18:53:01
+eBayes: 2022-01-28 18:53:19
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 52 ****
+Calc Norm Factors: 2022-01-28 18:53:21
+Limma: 2022-01-28 18:53:31
+eBayes: 2022-01-28 18:53:49
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD      33       3
+**** Rep: 53 ****
+Calc Norm Factors: 2022-01-28 18:53:51
+Limma: 2022-01-28 18:54:02
+eBayes: 2022-01-28 18:54:22
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       1       0
+**** Rep: 54 ****
+Calc Norm Factors: 2022-01-28 18:54:24
+Limma: 2022-01-28 18:54:34
+eBayes: 2022-01-28 18:54:53
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 55 ****
+Calc Norm Factors: 2022-01-28 18:54:54
+Limma: 2022-01-28 18:55:05
+eBayes: 2022-01-28 18:55:24
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 56 ****
+Calc Norm Factors: 2022-01-28 18:55:25
+Limma: 2022-01-28 18:55:35
+eBayes: 2022-01-28 18:55:54
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       1       0
+**** Rep: 57 ****
+Calc Norm Factors: 2022-01-28 18:55:56
+Limma: 2022-01-28 18:56:06
+eBayes: 2022-01-28 18:56:25
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       2       0
+**** Rep: 58 ****
+Calc Norm Factors: 2022-01-28 18:56:26
+Limma: 2022-01-28 18:56:37
+eBayes: 2022-01-28 18:56:55
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 59 ****
+Calc Norm Factors: 2022-01-28 18:56:57
+Limma: 2022-01-28 18:57:07
+eBayes: 2022-01-28 18:57:26
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 60 ****
+Calc Norm Factors: 2022-01-28 18:57:27
+Limma: 2022-01-28 18:57:38
+eBayes: 2022-01-28 18:57:56
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 61 ****
+Calc Norm Factors: 2022-01-28 18:57:58
+Limma: 2022-01-28 18:58:08
+eBayes: 2022-01-28 18:58:27
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       5       2
+**** Rep: 62 ****
+Calc Norm Factors: 2022-01-28 18:58:28
+Limma: 2022-01-28 18:58:39
+eBayes: 2022-01-28 18:59:00
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       1       1
+**** Rep: 63 ****
+Calc Norm Factors: 2022-01-28 18:59:01
+Limma: 2022-01-28 18:59:12
+eBayes: 2022-01-28 18:59:30
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD      43       1
+**** Rep: 64 ****
+Calc Norm Factors: 2022-01-28 18:59:31
+Limma: 2022-01-28 18:59:42
+eBayes: 2022-01-28 19:00:01
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       1       1
+**** Rep: 65 ****
+Calc Norm Factors: 2022-01-28 19:00:02
+Limma: 2022-01-28 19:00:13
+eBayes: 2022-01-28 19:00:31
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 66 ****
+Calc Norm Factors: 2022-01-28 19:00:33
+Limma: 2022-01-28 19:00:43
+eBayes: 2022-01-28 19:01:02
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 67 ****
+Calc Norm Factors: 2022-01-28 19:01:03
+Limma: 2022-01-28 19:01:14
+eBayes: 2022-01-28 19:01:32
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 68 ****
+Calc Norm Factors: 2022-01-28 19:01:34
+Limma: 2022-01-28 19:01:45
+eBayes: 2022-01-28 19:02:03
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       8       0
+**** Rep: 69 ****
+Calc Norm Factors: 2022-01-28 19:02:04
+Limma: 2022-01-28 19:02:17
+eBayes: 2022-01-28 19:02:36
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       4       1
+**** Rep: 70 ****
+Calc Norm Factors: 2022-01-28 19:02:37
+Limma: 2022-01-28 19:02:48
+eBayes: 2022-01-28 19:03:06
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       1       1
+**** Rep: 71 ****
+Calc Norm Factors: 2022-01-28 19:03:08
+Limma: 2022-01-28 19:03:19
+eBayes: 2022-01-28 19:03:38
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 72 ****
+Calc Norm Factors: 2022-01-28 19:03:39
+Limma: 2022-01-28 19:03:50
+eBayes: 2022-01-28 19:04:08
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 73 ****
+Calc Norm Factors: 2022-01-28 19:04:10
+Limma: 2022-01-28 19:04:20
+eBayes: 2022-01-28 19:04:39
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 74 ****
+Calc Norm Factors: 2022-01-28 19:04:40
+Limma: 2022-01-28 19:04:50
+eBayes: 2022-01-28 19:05:09
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 75 ****
+Calc Norm Factors: 2022-01-28 19:05:10
+Limma: 2022-01-28 19:05:21
+eBayes: 2022-01-28 19:05:39
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD      27       0
+**** Rep: 76 ****
+Calc Norm Factors: 2022-01-28 19:05:41
+Limma: 2022-01-28 19:05:51
+eBayes: 2022-01-28 19:06:13
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 77 ****
+Calc Norm Factors: 2022-01-28 19:06:15
+Limma: 2022-01-28 19:06:25
+eBayes: 2022-01-28 19:06:43
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD      18       4
+**** Rep: 78 ****
+Calc Norm Factors: 2022-01-28 19:06:45
+Limma: 2022-01-28 19:06:55
+eBayes: 2022-01-28 19:07:14
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 79 ****
+Calc Norm Factors: 2022-01-28 19:07:15
+Limma: 2022-01-28 19:07:25
+eBayes: 2022-01-28 19:07:44
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD     197       7
+**** Rep: 80 ****
+Calc Norm Factors: 2022-01-28 19:07:46
+Limma: 2022-01-28 19:07:56
+eBayes: 2022-01-28 19:08:14
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 81 ****
+Calc Norm Factors: 2022-01-28 19:08:16
+Limma: 2022-01-28 19:08:29
+eBayes: 2022-01-28 19:08:47
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 82 ****
+Calc Norm Factors: 2022-01-28 19:08:49
+Limma: 2022-01-28 19:08:59
+eBayes: 2022-01-28 19:09:17
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 83 ****
+Calc Norm Factors: 2022-01-28 19:09:19
+Limma: 2022-01-28 19:09:29
+eBayes: 2022-01-28 19:09:50
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 84 ****
+Calc Norm Factors: 2022-01-28 19:09:52
+Limma: 2022-01-28 19:10:02
+eBayes: 2022-01-28 19:10:20
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 85 ****
+Calc Norm Factors: 2022-01-28 19:10:22
+Limma: 2022-01-28 19:10:32
+eBayes: 2022-01-28 19:10:50
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 86 ****
+Calc Norm Factors: 2022-01-28 19:10:52
+Limma: 2022-01-28 19:11:02
+eBayes: 2022-01-28 19:11:20
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 87 ****
+Calc Norm Factors: 2022-01-28 19:11:22
+Limma: 2022-01-28 19:11:32
+eBayes: 2022-01-28 19:11:53
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       2       1
+**** Rep: 88 ****
+Calc Norm Factors: 2022-01-28 19:11:55
+Limma: 2022-01-28 19:12:05
+eBayes: 2022-01-28 19:12:23
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD      15       0
+**** Rep: 89 ****
+Calc Norm Factors: 2022-01-28 19:12:25
+Limma: 2022-01-28 19:12:35
+eBayes: 2022-01-28 19:12:54
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 90 ****
+Calc Norm Factors: 2022-01-28 19:12:55
+Limma: 2022-01-28 19:13:05
+eBayes: 2022-01-28 19:13:24
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       5       0
+**** Rep: 91 ****
+Calc Norm Factors: 2022-01-28 19:13:25
+Limma: 2022-01-28 19:13:35
+eBayes: 2022-01-28 19:13:54
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD      23       1
+**** Rep: 92 ****
+Calc Norm Factors: 2022-01-28 19:13:56
+Limma: 2022-01-28 19:14:08
+eBayes: 2022-01-28 19:14:27
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD      19       0
+**** Rep: 93 ****
+Calc Norm Factors: 2022-01-28 19:14:28
+Limma: 2022-01-28 19:14:38
+eBayes: 2022-01-28 19:14:57
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       6       0
+**** Rep: 94 ****
+Calc Norm Factors: 2022-01-28 19:14:58
+Limma: 2022-01-28 19:15:09
+eBayes: 2022-01-28 19:15:27
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 95 ****
+Calc Norm Factors: 2022-01-28 19:15:29
+Limma: 2022-01-28 19:15:39
+eBayes: 2022-01-28 19:15:57
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 96 ****
+Calc Norm Factors: 2022-01-28 19:15:59
+Limma: 2022-01-28 19:16:09
+eBayes: 2022-01-28 19:16:27
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD      19       0
+**** Rep: 97 ****
+Calc Norm Factors: 2022-01-28 19:16:29
+Limma: 2022-01-28 19:16:39
+eBayes: 2022-01-28 19:16:58
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD      34       1
+**** Rep: 98 ****
+Calc Norm Factors: 2022-01-28 19:16:59
+Limma: 2022-01-28 19:17:10
+eBayes: 2022-01-28 19:17:28
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 99 ****
+Calc Norm Factors: 2022-01-28 19:17:30
+Limma: 2022-01-28 19:17:40
+eBayes: 2022-01-28 19:17:58
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD       0       0
+**** Rep: 100 ****
+Calc Norm Factors: 2022-01-28 19:18:00
+Limma: 2022-01-28 19:18:10
+eBayes: 2022-01-28 19:18:31
+Index coef: PrimaryDxMDD
+1 coef, Return t-stats
+               <  0.05 <  0.01
+q_PrimaryDxMDD      28       1
+Writing csv files
+
+#########################################
+Region: sacc Dx: BPD
+Down Sample down to:
+Control Bipolar 
+     38      51 
+**** Rep: 1 ****
+Calc Norm Factors: 2022-01-28 19:20:06
+Limma: 2022-01-28 19:20:14
+eBayes: 2022-01-28 19:20:30
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 2 ****
+Calc Norm Factors: 2022-01-28 19:20:31
+Limma: 2022-01-28 19:20:39
+eBayes: 2022-01-28 19:20:55
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 3 ****
+Calc Norm Factors: 2022-01-28 19:20:56
+Limma: 2022-01-28 19:21:04
+eBayes: 2022-01-28 19:21:23
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 4 ****
+Calc Norm Factors: 2022-01-28 19:21:24
+Limma: 2022-01-28 19:21:32
+eBayes: 2022-01-28 19:21:48
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 5 ****
+Calc Norm Factors: 2022-01-28 19:21:50
+Limma: 2022-01-28 19:21:57
+eBayes: 2022-01-28 19:22:13
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 6 ****
+Calc Norm Factors: 2022-01-28 19:22:15
+Limma: 2022-01-28 19:22:23
+eBayes: 2022-01-28 19:22:39
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 7 ****
+Calc Norm Factors: 2022-01-28 19:22:40
+Limma: 2022-01-28 19:22:48
+eBayes: 2022-01-28 19:23:07
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 8 ****
+Calc Norm Factors: 2022-01-28 19:23:08
+Limma: 2022-01-28 19:23:16
+eBayes: 2022-01-28 19:23:32
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       1       0
+**** Rep: 9 ****
+Calc Norm Factors: 2022-01-28 19:23:33
+Limma: 2022-01-28 19:23:41
+eBayes: 2022-01-28 19:23:57
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 10 ****
+Calc Norm Factors: 2022-01-28 19:23:59
+Limma: 2022-01-28 19:24:07
+eBayes: 2022-01-28 19:24:22
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 11 ****
+Calc Norm Factors: 2022-01-28 19:24:24
+Limma: 2022-01-28 19:24:32
+eBayes: 2022-01-28 19:24:47
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       1       1
+**** Rep: 12 ****
+Calc Norm Factors: 2022-01-28 19:24:49
+Limma: 2022-01-28 19:24:57
+eBayes: 2022-01-28 19:25:12
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 13 ****
+Calc Norm Factors: 2022-01-28 19:25:14
+Limma: 2022-01-28 19:25:22
+eBayes: 2022-01-28 19:25:41
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 14 ****
+Calc Norm Factors: 2022-01-28 19:25:42
+Limma: 2022-01-28 19:25:51
+eBayes: 2022-01-28 19:26:06
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       4       0
+**** Rep: 15 ****
+Calc Norm Factors: 2022-01-28 19:26:08
+Limma: 2022-01-28 19:26:16
+eBayes: 2022-01-28 19:26:32
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 16 ****
+Calc Norm Factors: 2022-01-28 19:26:34
+Limma: 2022-01-28 19:26:42
+eBayes: 2022-01-28 19:26:58
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       1       0
+**** Rep: 17 ****
+Calc Norm Factors: 2022-01-28 19:26:59
+Limma: 2022-01-28 19:27:08
+eBayes: 2022-01-28 19:27:24
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       1       1
+**** Rep: 18 ****
+Calc Norm Factors: 2022-01-28 19:27:25
+Limma: 2022-01-28 19:27:34
+eBayes: 2022-01-28 19:27:50
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 19 ****
+Calc Norm Factors: 2022-01-28 19:27:51
+Limma: 2022-01-28 19:27:59
+eBayes: 2022-01-28 19:28:18
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 20 ****
+Calc Norm Factors: 2022-01-28 19:28:20
+Limma: 2022-01-28 19:28:28
+eBayes: 2022-01-28 19:28:44
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 21 ****
+Calc Norm Factors: 2022-01-28 19:28:45
+Limma: 2022-01-28 19:28:54
+eBayes: 2022-01-28 19:29:09
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 22 ****
+Calc Norm Factors: 2022-01-28 19:29:11
+Limma: 2022-01-28 19:29:22
+eBayes: 2022-01-28 19:29:38
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 23 ****
+Calc Norm Factors: 2022-01-28 19:29:39
+Limma: 2022-01-28 19:29:48
+eBayes: 2022-01-28 19:30:03
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 24 ****
+Calc Norm Factors: 2022-01-28 19:30:05
+Limma: 2022-01-28 19:30:13
+eBayes: 2022-01-28 19:30:29
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 25 ****
+Calc Norm Factors: 2022-01-28 19:30:31
+Limma: 2022-01-28 19:30:39
+eBayes: 2022-01-28 19:30:55
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 26 ****
+Calc Norm Factors: 2022-01-28 19:30:56
+Limma: 2022-01-28 19:31:05
+eBayes: 2022-01-28 19:31:21
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 27 ****
+Calc Norm Factors: 2022-01-28 19:31:22
+Limma: 2022-01-28 19:31:30
+eBayes: 2022-01-28 19:31:46
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 28 ****
+Calc Norm Factors: 2022-01-28 19:31:48
+Limma: 2022-01-28 19:31:56
+eBayes: 2022-01-28 19:32:12
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 29 ****
+Calc Norm Factors: 2022-01-28 19:32:14
+Limma: 2022-01-28 19:32:22
+eBayes: 2022-01-28 19:32:37
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 30 ****
+Calc Norm Factors: 2022-01-28 19:32:39
+Limma: 2022-01-28 19:32:47
+eBayes: 2022-01-28 19:33:03
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 31 ****
+Calc Norm Factors: 2022-01-28 19:33:05
+Limma: 2022-01-28 19:33:13
+eBayes: 2022-01-28 19:33:29
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 32 ****
+Calc Norm Factors: 2022-01-28 19:33:31
+Limma: 2022-01-28 19:33:39
+eBayes: 2022-01-28 19:33:55
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 33 ****
+Calc Norm Factors: 2022-01-28 19:33:56
+Limma: 2022-01-28 19:34:05
+eBayes: 2022-01-28 19:34:20
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 34 ****
+Calc Norm Factors: 2022-01-28 19:34:22
+Limma: 2022-01-28 19:34:30
+eBayes: 2022-01-28 19:34:46
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 35 ****
+Calc Norm Factors: 2022-01-28 19:34:47
+Limma: 2022-01-28 19:34:56
+eBayes: 2022-01-28 19:35:11
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 36 ****
+Calc Norm Factors: 2022-01-28 19:35:13
+Limma: 2022-01-28 19:35:21
+eBayes: 2022-01-28 19:35:37
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 37 ****
+Calc Norm Factors: 2022-01-28 19:35:39
+Limma: 2022-01-28 19:35:47
+eBayes: 2022-01-28 19:36:03
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 38 ****
+Calc Norm Factors: 2022-01-28 19:36:04
+Limma: 2022-01-28 19:36:15
+eBayes: 2022-01-28 19:36:31
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 39 ****
+Calc Norm Factors: 2022-01-28 19:36:33
+Limma: 2022-01-28 19:36:41
+eBayes: 2022-01-28 19:36:57
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 40 ****
+Calc Norm Factors: 2022-01-28 19:36:59
+Limma: 2022-01-28 19:37:07
+eBayes: 2022-01-28 19:37:23
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 41 ****
+Calc Norm Factors: 2022-01-28 19:37:24
+Limma: 2022-01-28 19:37:32
+eBayes: 2022-01-28 19:37:48
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       8       1
+**** Rep: 42 ****
+Calc Norm Factors: 2022-01-28 19:37:50
+Limma: 2022-01-28 19:37:58
+eBayes: 2022-01-28 19:38:13
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 43 ****
+Calc Norm Factors: 2022-01-28 19:38:15
+Limma: 2022-01-28 19:38:23
+eBayes: 2022-01-28 19:38:39
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 44 ****
+Calc Norm Factors: 2022-01-28 19:38:40
+Limma: 2022-01-28 19:38:49
+eBayes: 2022-01-28 19:39:04
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 45 ****
+Calc Norm Factors: 2022-01-28 19:39:06
+Limma: 2022-01-28 19:39:14
+eBayes: 2022-01-28 19:39:30
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 46 ****
+Calc Norm Factors: 2022-01-28 19:39:31
+Limma: 2022-01-28 19:39:40
+eBayes: 2022-01-28 19:39:55
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 47 ****
+Calc Norm Factors: 2022-01-28 19:39:57
+Limma: 2022-01-28 19:40:05
+eBayes: 2022-01-28 19:40:21
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 48 ****
+Calc Norm Factors: 2022-01-28 19:40:22
+Limma: 2022-01-28 19:40:30
+eBayes: 2022-01-28 19:40:46
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 49 ****
+Calc Norm Factors: 2022-01-28 19:40:48
+Limma: 2022-01-28 19:40:56
+eBayes: 2022-01-28 19:41:14
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 50 ****
+Calc Norm Factors: 2022-01-28 19:41:16
+Limma: 2022-01-28 19:41:24
+eBayes: 2022-01-28 19:41:40
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 51 ****
+Calc Norm Factors: 2022-01-28 19:41:41
+Limma: 2022-01-28 19:41:50
+eBayes: 2022-01-28 19:42:05
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 52 ****
+Calc Norm Factors: 2022-01-28 19:42:07
+Limma: 2022-01-28 19:42:15
+eBayes: 2022-01-28 19:42:31
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 53 ****
+Calc Norm Factors: 2022-01-28 19:42:33
+Limma: 2022-01-28 19:42:41
+eBayes: 2022-01-28 19:42:56
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 54 ****
+Calc Norm Factors: 2022-01-28 19:42:58
+Limma: 2022-01-28 19:43:06
+eBayes: 2022-01-28 19:43:22
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 55 ****
+Calc Norm Factors: 2022-01-28 19:43:23
+Limma: 2022-01-28 19:43:32
+eBayes: 2022-01-28 19:43:47
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 56 ****
+Calc Norm Factors: 2022-01-28 19:43:49
+Limma: 2022-01-28 19:43:57
+eBayes: 2022-01-28 19:44:13
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 57 ****
+Calc Norm Factors: 2022-01-28 19:44:14
+Limma: 2022-01-28 19:44:23
+eBayes: 2022-01-28 19:44:38
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 58 ****
+Calc Norm Factors: 2022-01-28 19:44:40
+Limma: 2022-01-28 19:44:48
+eBayes: 2022-01-28 19:45:04
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 59 ****
+Calc Norm Factors: 2022-01-28 19:45:05
+Limma: 2022-01-28 19:45:13
+eBayes: 2022-01-28 19:45:29
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 60 ****
+Calc Norm Factors: 2022-01-28 19:45:30
+Limma: 2022-01-28 19:45:39
+eBayes: 2022-01-28 19:45:54
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 61 ****
+Calc Norm Factors: 2022-01-28 19:45:56
+Limma: 2022-01-28 19:46:07
+eBayes: 2022-01-28 19:46:23
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       3       3
+**** Rep: 62 ****
+Calc Norm Factors: 2022-01-28 19:46:24
+Limma: 2022-01-28 19:46:32
+eBayes: 2022-01-28 19:46:48
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       1       0
+**** Rep: 63 ****
+Calc Norm Factors: 2022-01-28 19:46:50
+Limma: 2022-01-28 19:46:58
+eBayes: 2022-01-28 19:47:14
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       1       0
+**** Rep: 64 ****
+Calc Norm Factors: 2022-01-28 19:47:15
+Limma: 2022-01-28 19:47:24
+eBayes: 2022-01-28 19:47:39
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 65 ****
+Calc Norm Factors: 2022-01-28 19:47:41
+Limma: 2022-01-28 19:47:49
+eBayes: 2022-01-28 19:48:05
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 66 ****
+Calc Norm Factors: 2022-01-28 19:48:06
+Limma: 2022-01-28 19:48:14
+eBayes: 2022-01-28 19:48:28
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 67 ****
+Calc Norm Factors: 2022-01-28 19:48:30
+Limma: 2022-01-28 19:48:37
+eBayes: 2022-01-28 19:48:52
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 68 ****
+Calc Norm Factors: 2022-01-28 19:48:53
+Limma: 2022-01-28 19:49:01
+eBayes: 2022-01-28 19:49:16
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 69 ****
+Calc Norm Factors: 2022-01-28 19:49:17
+Limma: 2022-01-28 19:49:25
+eBayes: 2022-01-28 19:49:39
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 70 ****
+Calc Norm Factors: 2022-01-28 19:49:41
+Limma: 2022-01-28 19:49:49
+eBayes: 2022-01-28 19:50:03
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 71 ****
+Calc Norm Factors: 2022-01-28 19:50:05
+Limma: 2022-01-28 19:50:12
+eBayes: 2022-01-28 19:50:27
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 72 ****
+Calc Norm Factors: 2022-01-28 19:50:29
+Limma: 2022-01-28 19:50:36
+eBayes: 2022-01-28 19:50:55
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 73 ****
+Calc Norm Factors: 2022-01-28 19:50:56
+Limma: 2022-01-28 19:51:04
+eBayes: 2022-01-28 19:51:20
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 74 ****
+Calc Norm Factors: 2022-01-28 19:51:22
+Limma: 2022-01-28 19:51:30
+eBayes: 2022-01-28 19:51:46
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 75 ****
+Calc Norm Factors: 2022-01-28 19:51:47
+Limma: 2022-01-28 19:51:55
+eBayes: 2022-01-28 19:52:11
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       6       0
+**** Rep: 76 ****
+Calc Norm Factors: 2022-01-28 19:52:13
+Limma: 2022-01-28 19:52:21
+eBayes: 2022-01-28 19:52:36
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       1       0
+**** Rep: 77 ****
+Calc Norm Factors: 2022-01-28 19:52:38
+Limma: 2022-01-28 19:52:46
+eBayes: 2022-01-28 19:53:02
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 78 ****
+Calc Norm Factors: 2022-01-28 19:53:03
+Limma: 2022-01-28 19:53:12
+eBayes: 2022-01-28 19:53:27
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 79 ****
+Calc Norm Factors: 2022-01-28 19:53:29
+Limma: 2022-01-28 19:53:37
+eBayes: 2022-01-28 19:53:56
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 80 ****
+Calc Norm Factors: 2022-01-28 19:53:57
+Limma: 2022-01-28 19:54:06
+eBayes: 2022-01-28 19:54:21
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 81 ****
+Calc Norm Factors: 2022-01-28 19:54:23
+Limma: 2022-01-28 19:54:31
+eBayes: 2022-01-28 19:54:47
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 82 ****
+Calc Norm Factors: 2022-01-28 19:54:48
+Limma: 2022-01-28 19:54:56
+eBayes: 2022-01-28 19:55:12
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 83 ****
+Calc Norm Factors: 2022-01-28 19:55:14
+Limma: 2022-01-28 19:55:22
+eBayes: 2022-01-28 19:55:41
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 84 ****
+Calc Norm Factors: 2022-01-28 19:55:42
+Limma: 2022-01-28 19:55:51
+eBayes: 2022-01-28 19:56:06
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       5       0
+**** Rep: 85 ****
+Calc Norm Factors: 2022-01-28 19:56:08
+Limma: 2022-01-28 19:56:16
+eBayes: 2022-01-28 19:56:32
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 86 ****
+Calc Norm Factors: 2022-01-28 19:56:33
+Limma: 2022-01-28 19:56:42
+eBayes: 2022-01-28 19:56:57
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       1       0
+**** Rep: 87 ****
+Calc Norm Factors: 2022-01-28 19:56:59
+Limma: 2022-01-28 19:57:07
+eBayes: 2022-01-28 19:57:23
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 88 ****
+Calc Norm Factors: 2022-01-28 19:57:25
+Limma: 2022-01-28 19:57:33
+eBayes: 2022-01-28 19:57:48
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 89 ****
+Calc Norm Factors: 2022-01-28 19:57:50
+Limma: 2022-01-28 19:57:58
+eBayes: 2022-01-28 19:58:14
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 90 ****
+Calc Norm Factors: 2022-01-28 19:58:15
+Limma: 2022-01-28 19:58:23
+eBayes: 2022-01-28 19:58:42
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 91 ****
+Calc Norm Factors: 2022-01-28 19:58:44
+Limma: 2022-01-28 19:58:52
+eBayes: 2022-01-28 19:59:08
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 92 ****
+Calc Norm Factors: 2022-01-28 19:59:09
+Limma: 2022-01-28 19:59:17
+eBayes: 2022-01-28 19:59:33
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 93 ****
+Calc Norm Factors: 2022-01-28 19:59:35
+Limma: 2022-01-28 19:59:43
+eBayes: 2022-01-28 19:59:59
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 94 ****
+Calc Norm Factors: 2022-01-28 20:00:00
+Limma: 2022-01-28 20:00:11
+eBayes: 2022-01-28 20:00:27
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 95 ****
+Calc Norm Factors: 2022-01-28 20:00:29
+Limma: 2022-01-28 20:00:37
+eBayes: 2022-01-28 20:00:53
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 96 ****
+Calc Norm Factors: 2022-01-28 20:00:54
+Limma: 2022-01-28 20:01:02
+eBayes: 2022-01-28 20:01:18
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 97 ****
+Calc Norm Factors: 2022-01-28 20:01:20
+Limma: 2022-01-28 20:01:28
+eBayes: 2022-01-28 20:01:44
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 98 ****
+Calc Norm Factors: 2022-01-28 20:01:45
+Limma: 2022-01-28 20:01:53
+eBayes: 2022-01-28 20:02:09
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       1       1
+**** Rep: 99 ****
+Calc Norm Factors: 2022-01-28 20:02:11
+Limma: 2022-01-28 20:02:19
+eBayes: 2022-01-28 20:02:35
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
+**** Rep: 100 ****
+Calc Norm Factors: 2022-01-28 20:02:36
+Limma: 2022-01-28 20:02:44
+eBayes: 2022-01-28 20:03:00
+Index coef: PrimaryDxBipolar
+1 coef, Return t-stats
+                   <  0.05 <  0.01
+q_PrimaryDxBipolar       0       0
 Writing csv files
 [1] "Reproducibility information:"
-[1] "2022-01-10 16:42:35 EST"
-   user  system elapsed 
-385.971  25.303 414.228 
+[1] "2022-01-28 20:08:58 EST"
+     user    system   elapsed 
+11639.740   444.106 12125.494 
 ─ Session info ───────────────────────────────────────────────────────────────────────────────────────────────────────
  setting  value
  version  R version 4.1.2 Patched (2021-11-04 r81138)
@@ -333,7 +3510,7 @@ Writing csv files
  collate  en_US.UTF-8
  ctype    en_US.UTF-8
  tz       US/Eastern
- date     2022-01-10
+ date     2022-01-28
  pandoc   2.13 @ /jhpce/shared/jhpce/core/conda/miniconda3-4.6.14/envs/svnR-4.1.x/bin/pandoc
 
 ─ Packages ───────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -350,11 +3527,12 @@ Writing csv files
  bit64                  4.0.5    2020-08-30 [2] CRAN (R 4.1.0)
  bitops                 1.0-7    2021-04-24 [2] CRAN (R 4.1.0)
  blob                   1.2.2    2021-07-23 [2] CRAN (R 4.1.0)
+ brio                   1.1.3    2021-11-30 [2] CRAN (R 4.1.2)
  broom                  0.7.11   2022-01-03 [2] CRAN (R 4.1.2)
  cachem                 1.0.6    2021-08-19 [2] CRAN (R 4.1.2)
  callr                  3.7.0    2021-04-20 [2] CRAN (R 4.1.0)
  cellranger             1.1.0    2016-07-27 [2] CRAN (R 4.1.0)
- cli                    3.1.0    2021-10-27 [2] CRAN (R 4.1.2)
+ cli                    3.1.1    2022-01-20 [2] CRAN (R 4.1.2)
  colorspace             2.0-2    2021-06-24 [2] CRAN (R 4.1.0)
  crayon                 1.4.2    2021-10-29 [2] CRAN (R 4.1.2)
  DBI                    1.1.2    2021-12-20 [2] CRAN (R 4.1.2)
@@ -365,7 +3543,7 @@ Writing csv files
  dplyr                * 1.0.7    2021-06-18 [2] CRAN (R 4.1.0)
  edgeR                * 3.36.0   2021-10-26 [2] Bioconductor
  ellipsis               0.3.2    2021-04-29 [2] CRAN (R 4.1.0)
- fansi                  1.0.0    2022-01-10 [2] CRAN (R 4.1.2)
+ fansi                  1.0.2    2022-01-14 [2] CRAN (R 4.1.2)
  fastmap                1.1.0    2021-01-25 [2] CRAN (R 4.1.0)
  forcats              * 0.5.1    2021-01-27 [2] CRAN (R 4.1.0)
  fs                     1.5.2    2021-12-08 [2] CRAN (R 4.1.2)
@@ -376,7 +3554,7 @@ Writing csv files
  GenomeInfoDbData       1.2.7    2021-11-01 [2] Bioconductor
  GenomicRanges        * 1.46.1   2021-11-18 [2] Bioconductor
  ggplot2              * 3.3.5    2021-06-25 [2] CRAN (R 4.1.0)
- glue                   1.6.0    2021-12-17 [2] CRAN (R 4.1.2)
+ glue                   1.6.1    2022-01-22 [2] CRAN (R 4.1.2)
  googledrive            2.0.0    2021-07-08 [2] CRAN (R 4.1.0)
  gtable                 0.3.0    2019-03-25 [2] CRAN (R 4.1.0)
  haven                  2.4.3    2021-08-04 [2] CRAN (R 4.1.1)
@@ -385,14 +3563,14 @@ Writing csv files
  httr                   1.4.2    2020-07-20 [2] CRAN (R 4.1.0)
  IRanges              * 2.28.0   2021-10-26 [2] Bioconductor
  jaffelab             * 0.99.31  2021-10-29 [1] Github (LieberInstitute/jaffelab@2cbd55a)
- jsonlite               1.7.2    2020-12-09 [2] CRAN (R 4.1.0)
+ jsonlite               1.7.3    2022-01-17 [2] CRAN (R 4.1.2)
  KEGGREST               1.34.0   2021-10-26 [2] Bioconductor
  lattice                0.20-45  2021-09-22 [3] CRAN (R 4.1.2)
  lifecycle              1.0.1    2021-09-24 [1] CRAN (R 4.1.1)
  limma                * 3.50.0   2021-10-26 [2] Bioconductor
  locfit                 1.5-9.4  2020-03-25 [2] CRAN (R 4.1.0)
  lubridate              1.8.0    2021-10-07 [2] CRAN (R 4.1.2)
- magrittr               2.0.1    2020-11-17 [2] CRAN (R 4.1.0)
+ magrittr               2.0.2    2022-01-26 [2] CRAN (R 4.1.2)
  Matrix                 1.4-0    2021-12-08 [3] CRAN (R 4.1.2)
  MatrixGenerics       * 1.6.0    2021-10-26 [2] Bioconductor
  matrixStats          * 0.61.0   2021-09-17 [2] CRAN (R 4.1.2)
@@ -400,7 +3578,7 @@ Writing csv files
  mgcv                 * 1.8-38   2021-10-06 [3] CRAN (R 4.1.2)
  modelr                 0.1.8    2020-05-19 [2] CRAN (R 4.1.0)
  munsell                0.5.0    2018-06-12 [2] CRAN (R 4.1.0)
- nlme                 * 3.1-153  2021-09-07 [3] CRAN (R 4.1.2)
+ nlme                 * 3.1-155  2022-01-13 [3] CRAN (R 4.1.2)
  pillar                 1.6.4    2021-10-18 [1] CRAN (R 4.1.1)
  pkgbuild               1.3.1    2021-12-20 [2] CRAN (R 4.1.2)
  pkgconfig              2.0.3    2019-09-22 [2] CRAN (R 4.1.0)
@@ -413,13 +3591,13 @@ Writing csv files
  R6                     2.5.1    2021-08-19 [1] CRAN (R 4.1.1)
  rafalib              * 1.0.0    2015-08-09 [1] CRAN (R 4.1.1)
  RColorBrewer           1.1-2    2014-12-07 [2] CRAN (R 4.1.0)
- Rcpp                   1.0.7    2021-07-07 [2] CRAN (R 4.1.0)
+ Rcpp                   1.0.8    2022-01-13 [2] CRAN (R 4.1.2)
  RCurl                  1.98-1.5 2021-09-17 [2] CRAN (R 4.1.2)
  readr                * 2.1.1    2021-11-30 [2] CRAN (R 4.1.2)
  readxl               * 1.3.1    2019-03-13 [2] CRAN (R 4.1.0)
  remotes                2.4.2    2021-11-30 [2] CRAN (R 4.1.2)
  reprex                 2.0.1    2021-08-05 [2] CRAN (R 4.1.1)
- rlang                  0.4.12   2021-10-18 [2] CRAN (R 4.1.2)
+ rlang                  1.0.0    2022-01-26 [2] CRAN (R 4.1.2)
  rprojroot              2.0.2    2020-11-15 [2] CRAN (R 4.1.0)
  RSQLite                2.2.9    2021-12-06 [2] CRAN (R 4.1.2)
  rstudioapi             0.13     2020-11-12 [2] CRAN (R 4.1.0)
@@ -433,7 +3611,7 @@ Writing csv files
  SummarizedExperiment * 1.24.0   2021-10-26 [2] Bioconductor
  survival               3.2-13   2021-08-24 [3] CRAN (R 4.1.2)
  sva                  * 3.42.0   2021-10-26 [2] Bioconductor
- testthat               3.1.1    2021-12-03 [2] CRAN (R 4.1.2)
+ testthat               3.1.2    2022-01-20 [2] CRAN (R 4.1.2)
  tibble               * 3.1.6    2021-11-07 [2] CRAN (R 4.1.2)
  tidyr                * 1.1.4    2021-09-27 [2] CRAN (R 4.1.2)
  tidyselect             1.1.1    2021-04-30 [2] CRAN (R 4.1.0)
@@ -456,4 +3634,4 @@ Writing csv files
 
 ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 **** Job ends ****
-Mon Jan 10 16:42:38 EST 2022
+Fri Jan 28 20:09:02 EST 2022

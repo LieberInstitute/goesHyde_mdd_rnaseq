@@ -1,6 +1,6 @@
 #!/bin/bash
 #$ -cwd
-#$ -l mem_free=80G,h_vmem=80G,h_fsize=100G
+#$ -l mem_free=25G,h_vmem=25G,h_fsize=100G
 #$ -N qSV_model_DE_analysis_sex
 #$ -o logs/qSV_model_DE_analysis_sex.txt
 #$ -e logs/qSV_model_DE_analysis_sex.txt
