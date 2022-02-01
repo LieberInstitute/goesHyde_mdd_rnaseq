@@ -36,6 +36,7 @@ length(risk_genes$gencodeID)
 ## Extract lists
 signifFeat <- map_depth(allOut, 4, get_signif)
 signifGene <- map_depth(allOut, 4, get_signif, colname = "common_gene_id", return_unique = TRUE)
+signifGeneRep <- map_depth(allOut, 4, get_signif, colname = "common_gene_id", return_unique = FALSE) ## non-unique genes to tabulate
 signifFC <- map_depth(allOut, 4, get_signif, colname = "logFC")
 signifSymb <- map_depth(allOut, 4, get_signif, colname = "common_gene_symbol")
 
@@ -168,6 +169,56 @@ summary_pheat <- function(count){
 }
 
 map(c("n_genes", "n_features", "Up", "Down", "n_risk_genes"), summary_pheat)
+
+#### How may significant features are from one genes? ###
+signifGeneRep <- map_depth(signifGeneRep, 4, table)
+map_depth(signifGeneRep, 4, max)
+map_depth(signifGeneRep, 4, ~sum(.x > 1)/length(.x))
+
+signifGeneRep2 <- transpose(signifGeneRep)$sep
+signifGeneRep_flat <- my_flatten(signifGeneRep2)
+names(signifGeneRep_flat)
+
+## Do heat map?
+signifGeneRep_df <- map2(signifGeneRep_flat, names(signifGeneRep_flat),function(t, name){
+  df <- as.data.frame(t)
+  df$Set <- name
+  return(df)
+})
+
+signifGeneRep_long <- do.call("rbind", signifGeneRep_df)
+rownames(signifGeneRep_long) <- NULL
+signifGeneRep_long %>% arrange(-Freq) %>% head
+
+signifGeneRep_tab <- signifGeneRep_long %>%
+  filter(Freq > 1) %>%
+  pivot_wider(values_from = "Freq", names_from = "Set") %>%
+  column_to_rownames("Var1")
+
+corner(signifGeneRep_tab)
+dim(signifGeneRep_tab)
+# [1] 2784   16
+
+signifGeneRep_tab0 <- signifGeneRep_tab
+signifGeneRep_tab0[is.na(signifGeneRep_tab0)]  <- 0
+# signifGeneRep_tab0[signifGeneRep_tab0 > 10 ]  <- 10
+
+png(here("differential_expression","plots","heat_gene_reps.png"), height = 800, width = 550)
+pheatmap(signifGeneRep_tab, show_rownames = FALSE, cluster_rows=FALSE, cluster_cols=FALSE)
+# pheatmap(signifGeneRep_tab0, show_rownames = FALSE)
+dev.off()
+
+## Density?
+gene_rep_denisty <- signifGeneRep_long %>%
+  filter(!grepl("gene", Set), Freq > 1) %>%
+  ggplot(aes(x = Freq, color = Set)) +
+  geom_density()
+
+ggsave(gene_rep_denisty, filename = here("differential_expression","plots","gene_rep_density.png"))
+
+signifGeneRep_long %>%
+  filter(!grepl("gene", Set), Freq > 1) %>%
+  count(Set)
 
 ##### Overlap Between Models ####
 signifFeat_flat <- map(signifFeat,my_flatten)
