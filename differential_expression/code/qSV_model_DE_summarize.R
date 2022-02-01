@@ -9,41 +9,30 @@ library(VariantAnnotation)
 library(pheatmap)
 library(VennDiagram)
 
+source(here("differential_expression","code", "utils.R"))
+
 #### Load Data ####
 data_type <- c("gene","exon","jxn","tx")
 names(data_type) <- data_type
 
 paths <- map(data_type, ~here("differential_expression","data",paste0("qSVA_MDD_", .x, "_DEresults.rda")))
 
-load(paths$gene, verbose = TRUE)
-load(paths$exon, verbose = TRUE)
-load(paths$jxn, verbose = TRUE)
-load(paths$tx, verbose = TRUE)
+allOut <- lapply(paths, function(x) get(load(x, verbose = TRUE)))
 
-allOut <- list(gene = outGene, exon = outExon, jxn = outJxn, tx = outTx)
+load(here('exprs_cutoff','rse_gene.Rdata'), verbose=TRUE)
 
 ## Annotate Risk allels ##
-load(here('exprs_cutoff','rse_gene.Rdata'), verbose=TRUE)
-table(rse_gene$PrimaryDx, rse_gene$Experiment)
-table(rse_gene$PrimaryDx, rse_gene$Experiment, rse_gene$BrainRegion)
 risk_vcf <- readVcf(here("eqtl", "data", "risk_snps", "LIBD_maf01_gwas_MDD.vcf.gz"))
-mdd_snps <- read.delim(here("eqtl", "data", "risk_snps", "PGC_depression_genome-wide_significant_makers.txt"))
-
+mdd_snps <- read.delim(here("eqtl", "data", "risk_snps", "PGC_MDD_genome-wide_significant_Jan2022.txt")) %>%
+  filter(!is.na(bp))
 ## find genes 1KB from risk snp
-risk_gr <- GRanges(seqnames = paste0("chr", mdd_snps$chr), IRanges(mdd_snps$bp, width = 1), feature_id = mdd_snps$markername)
+risk_gr <- GRanges(seqnames = mdd_snps$chr, IRanges(mdd_snps$bp, width = 1), feature_id = mdd_snps$markername)
 oo <- findOverlaps(risk_gr, rowRanges(rse_gene), maxgap = 100000)
 risk_genes <- unique(rowRanges(rse_gene)[subjectHits(oo),])
 length(risk_genes$gencodeID)
-##356
+# [1] 538
 
 #### Summarize Counts ####
-get_signif <- function(outFeature, colname = "common_feature_id", cutoff = 0.05, return_unique = FALSE){
-      signif <- outFeature[[colname]][outFeature$adj.P.Val < cutoff]
-      if(return_unique) signif <- unique(signif)
-      signif <- signif[!is.na(signif)]
-      return(signif)
-}
-
 ## Extract lists
 signifFeat <- map_depth(allOut, 4, get_signif)
 signifGene <- map_depth(allOut, 4, get_signif, colname = "common_gene_id", return_unique = TRUE)
@@ -93,13 +82,69 @@ signifRiskSymbol <- map_depth(signifSymb, 4, ~paste(unique(.x[.x %in% risk_genes
   as.data.frame() %>%
   rename(RiskGenes = V1)
 
-model_counts <- do.call("cbind",list(signifFeat_n, signifGene_n, signifGene_n_up, signifGene_n_down,signifRiskGene_n, signifRiskSymbol, signifSymbol)) %>%
+model_counts <- do.call("cbind",list(signifFeat_n, 
+                                     signifGene_n, 
+                                     signifGene_n_up, 
+                                     signifGene_n_down,
+                                     signifRiskGene_n, 
+                                     signifRiskSymbol, 
+                                     signifSymbol)) %>%
   rownames_to_column("data") %>%
   separate(data, into = c("Feature", "Model", "Region", "Dx"), sep = "\\.")
 
 model_counts[,1:9]
 
-write_csv(model_counts, here("differential_expression","data","model_counts.csv"))
+write_csv(model_counts, here("differential_expression","data","summary_tables","model_counts.csv"))
+# model_counts <- read_csv(here("differential_expression","data","summary_tables","model_counts.csv"))
+
+## Get Number of genes across features
+gene_counts <- model_counts %>% filter(Model == "sep") %>%
+  dplyr::select(Region, Dx, Feature, n_genes) %>%
+  arrange(Region, Dx)
+
+write.csv(gene_counts, file =  here("differential_expression","data","summary_tables","sep_gene_counts.csv"))
+
+unique_gene_counts <- model_counts %>% filter(Model == "sep") %>%
+  group_by(Region, Dx) %>%
+  summarize(non_unique_genes = sum(n_genes)) %>%
+  arrange(Region, Dx)
+
+
+## Unique genes by 
+# signifGene$gene$sep$amyg$MDD
+signifGene_flip <-map(transpose(transpose(signifGene)$sep), transpose)
+
+unique_genes <- my_flatten(map_depth(signifGene_flip, 2, ~unique(unlist(.x))))
+
+(unique_gene_counts <- unique_gene_counts %>%
+  left_join(t(map_dfc(unique_genes, length)) %>%
+  as.data.frame() %>%
+  rownames_to_column("group") %>%
+  separate(group, into = c("Region", "Dx")) %>%
+  rename(unique_genes = V1)))
+
+write.csv(unique_gene_counts, file =  here("differential_expression","data","summary_tables","sep_gene_counts_unique.csv"))
+
+## Venn Diagrams
+walk2(signifGene_flip, names(signifGene_flip), function(region_data, region_name){
+  walk2(region_data, names(region_data), function(dx_data, dx_name){
+    
+    filename = paste0("venn_unique_genes_", region_name, "_", dx_name,'.tiff')
+    message(filename)
+    
+    venn.diagram(dx_data, here("differential_expression","plots", filename), 
+                 disable.logging = TRUE, 
+                 main = "Overlapping Genes Between Features",
+                 sub = paste("Region:", region_name, "Dx:", dx_name),
+                 fill = c("#999999", "#E69F00", "#56B4E9", "#009E73"))
+  })
+})
+
+
+venn.diagram(unique_genes, here("differential_expression","plots", "venn_unique_genes_ALL.png"), 
+             disable.logging = TRUE, 
+             main = "Unique Genes",
+             fill = c("#999999", "#E69F00", "#56B4E9", "#009E73"))
 
 #### heatmaps ####
 summary_pheat <- function(count){
@@ -117,7 +162,7 @@ summary_pheat <- function(count){
            display_numbers = TRUE,
            number_format = "%i",
            fontsize = 20,
-           gaps_row = c(4, 8, 12),
+           gaps_row = c(2, 4, 6),
            main = count)
   dev.off()
 }
@@ -125,22 +170,6 @@ summary_pheat <- function(count){
 map(c("n_genes", "n_features", "Up", "Down", "n_risk_genes"), summary_pheat)
 
 ##### Overlap Between Models ####
-my_flatten <- function (x, use.names = TRUE, classes = "ANY") 
-{
-  #' Source taken from rlist::list.flatten
-  len <- sum(rapply(x, function(x) 1L, classes = classes))
-  y <- vector("list", len)
-  i <- 0L
-  items <- rapply(x, function(x) {
-    i <<- i + 1L
-    y[[i]] <<- x
-    TRUE
-  }, classes = classes)
-  if (use.names && !is.null(nm <- names(items))) 
-    names(y) <- nm
-  y
-}
-
 signifFeat_flat <- map(signifFeat,my_flatten)
 
 #### Using map causes bug?
