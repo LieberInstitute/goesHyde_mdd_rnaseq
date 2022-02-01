@@ -28,7 +28,6 @@ for region in ["Amygdala", "sACC"]:
                 window=500000, random_tiebreak=False, logger=None, seed=118,
                verbose=True)
     
-    cis_out['qval'] = statsmodels.stats.multitest.fdrcorrection(cis_out['pval_nominal'])[1]
-
+    cis_out['qval'] = statsmodels.stats.multitest.fdrcorrection(cis_out['pval_beta'])[1]
     cis_out.to_csv(tag + ".csv")
 
