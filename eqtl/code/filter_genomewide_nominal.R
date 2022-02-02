@@ -15,7 +15,7 @@ parquet_files <- map(
         map(
             regions,
             ~ list.files(
-                path = here("eqtl", "data", "tensorQTL_out", "cis_genomewide_nominal"),
+                path = here("eqtl", "data", "tensorQTL_out", "genomewide_nominal"),
                 pattern = paste0(f, "_", .x),
                 full.names = TRUE
             )
