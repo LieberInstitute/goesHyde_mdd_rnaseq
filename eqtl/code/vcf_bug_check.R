@@ -78,10 +78,10 @@ dim(risk_vcf)
 nrow(risk_vcf) / nrow(mdd_snps2)
 # [1] 0.4836269
 table(mdd_snps2$snpID %in% rownames(risk_vcf))
-# FALSE  TRUE 
-# 4983  4667 
+# FALSE  TRUE
+# 4983  4667
 
 ## But No Unexpected SNPs
 table(rownames(risk_vcf) %in% mdd_snps2$snpID)
-# TRUE 
-# 4667 
+# TRUE
+# 4667

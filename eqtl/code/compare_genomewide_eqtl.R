@@ -19,8 +19,9 @@ regions <- c(amyg = "Amygdala", sacc = "sACC")
 
 #### cis genomewide results ####
 cis_files <- list.files(here("eqtl", "data", "tensorQTL_out", "cis_genomewide_nominal"),
-                        pattern = ".csv", full.names = TRUE)
-names(cis_files) <- gsub("_FDR01.csv","",basename(cis_files))
+    pattern = ".csv", full.names = TRUE
+)
+names(cis_files) <- gsub("_FDR01.csv", "", basename(cis_files))
 
 cisEqtl_tensor <- map(cis_files, read.csv)
 count_summary <- map_dfr(cisEqtl_tensor, summarize_eqtl) %>%
@@ -101,7 +102,7 @@ summary(geneEqtl_matrix$FDR)
 # 0.0000  0.1322  0.3789  0.3323  0.5235  0.6184
 
 ## match up
-geneEqtl_methods <-  cisEqtl_tensor$gene_amyg %>%
+geneEqtl_methods <- cisEqtl_tensor$gene_amyg %>%
     select(snps = variant_id, gene = phenotype_id, statistic_tensor = slope, pval_tensorl = pval_nominal, FDR_tensor = FDR) %>%
     inner_join(as_tibble(geneEqtl_matrix) %>%
         rename(statistic_matrix = statistic, FDR_matrix = FDR))
@@ -111,7 +112,7 @@ nrow(geneEqtl_methods)
 
 method_scater <- geneEqtl_methods %>%
     ggplot(aes(FDR_matrix, FDR_tensor)) +
-    geom_point(size = 0.5, alpha = 0.5) 
+    geom_point(size = 0.5, alpha = 0.5)
 
 ggsave(method_scater, filename = here("eqtl", "plots", "compare_methods_genomewide.png"))
 

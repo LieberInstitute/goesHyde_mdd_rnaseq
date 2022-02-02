@@ -196,15 +196,15 @@ summary(tensorqtl_out_mdd$tss_distance)
 # ## Test eign results
 # tensorqtl_out_mdd_eigen <- read.csv(tensorqtl_fn_mdd[1]) %>%
 #     select(gencodeID = phenotype_id, variant_id, pval_gi_eigen = pval_gi, b_gi_eigen = b_gi)
-# 
+#
 # dim(tensorqtl_out_mdd_eigen) #155
-# 
-# eign_test <- tensorqtl_out_mdd %>% 
+#
+# eign_test <- tensorqtl_out_mdd %>%
 #     filter(region == "Amygdala", cell_type == "Astro") %>%
 #     inner_join(tensorqtl_out_mdd_eigen)
-# 
+#
 # dim(eign_test)
-# ## seem to get 1:1 results, cool 
+# ## seem to get 1:1 results, cool
 # eign_test %>% ggplot(aes(b_gi, b_gi_eigen)) + geom_point()
 
 
@@ -216,12 +216,12 @@ rs_id_mdd <- info(risk_vcf_mdd) %>%
     mutate(RS = paste0("rs", RS)) %>%
     rownames_to_column("variant_id")
 
-risk_snps_mdd <- read_delim(here("eqtl", "data", "risk_snps", "PGC_MDD_genome-wide_significant_Jan2022.txt"))%>%
-    filter(!is.na(bp)) 
+risk_snps_mdd <- read_delim(here("eqtl", "data", "risk_snps", "PGC_MDD_genome-wide_significant_Jan2022.txt")) %>%
+    filter(!is.na(bp))
 
 table(risk_snps_mdd$rsid %in% rs_id_mdd$RS)
-# FALSE  TRUE 
-# 4983  4667 
+# FALSE  TRUE
+# 4983  4667
 
 risk_snps_mdd_detials <- risk_snps_mdd %>%
     select(RS = rsid, LogOR) %>%
@@ -286,9 +286,10 @@ write_csv(interaction_summary_mdd, file = here("eqtl", "data", "summary", "gene_
 #### Prep MDD Data for Plotting ####
 ## Merge data
 tensorqtl_adj_mdd_anno <- tensorqtl_adj_mdd %>%
-    filter(FDR_gi < 0.05 | 
-               (Symbol == "ZNF603P" & BrainRegion == "sACC" & RS == "rs7755442" & cell_type == "Mural") ## Bug fix, select 1 non-significant 
-           ) %>%
+    filter(
+        FDR_gi < 0.05 |
+            (Symbol == "ZNF603P" & BrainRegion == "sACC" & RS == "rs7755442" & cell_type == "Mural") ## Bug fix, select 1 non-significant
+    ) %>%
     dplyr::group_by(BrainRegion) %>%
     arrange(FDR_gi) %>%
     mutate(
@@ -323,20 +324,19 @@ walk(c("Amygdala", "sACC"), function(r) {
         ggplot(aes(x = cell_fraction, y = expression)) +
         geom_point(aes(color = Genotype), alpha = 0.5, size = .5) +
         geom_smooth(aes(color = Genotype, fill = Genotype), method = lm)
-    
+
     required_n_pages <- n_pages(express_cf_sactter + facet_wrap_paginate(~ eqtl + cell_type, scales = "free", nrow = 2, ncol = 2))
     message(required_n_pages)
-    
+
     pdf(here("eqtl", "plots", paste0("eqtl_risk_MDD_cell_fraction_", r, ".pdf")), width = 10)
     for (i in 1:required_n_pages) {
         print(express_cf_sactter +
-                  facet_wrap_paginate(~ eqtl + cell_type, scales = "free", nrow = 2, ncol = 2, page = i)
-              +
-                  geom_text(
-                      data = filter(express_geno_mdd_anno, BrainRegion == r),
-                      aes(label = eqtl_anno), x = -Inf, y = Inf, vjust = "inward", hjust = "inward", size = 3
-                  ))
+            facet_wrap_paginate(~ eqtl + cell_type, scales = "free", nrow = 2, ncol = 2, page = i)
+            +
+            geom_text(
+                data = filter(express_geno_mdd_anno, BrainRegion == r),
+                aes(label = eqtl_anno), x = -Inf, y = Inf, vjust = "inward", hjust = "inward", size = 3
+            ))
     }
     dev.off()
 })
-
