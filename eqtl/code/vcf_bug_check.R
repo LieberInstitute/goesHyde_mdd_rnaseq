@@ -4,6 +4,9 @@ library(tidyverse)
 library(here)
 
 #### BPD Risk Data ####
+## Risk SNP details
+risk_snps_bpd <- read_csv(here("eqtl", "data", "risk_snps", "pgc3-supptable2.csv")) 
+
 ## Load SNP data
 risk_vcf <- readVcf(here("eqtl", "data", "risk_snps", "LIBD_maf01_gwas_BPD_bug.vcf.gz"))
 rs_id <- info(risk_vcf) %>%
@@ -12,12 +15,9 @@ rs_id <- info(risk_vcf) %>%
     mutate(RS = paste0("rs", RS)) %>%
     rownames_to_column("variant_id")
 
-## Risk SNP details
-risk_snps <- read_csv(here("eqtl", "data", "risk_snps", "pgc3-supptable2.csv"))
-
-risk_snps_detials <- risk_snps %>%
+risk_snps_bpd_detials <- risk_snps_bpd %>%
     separate(`A1/A2`, into = c("A1", "A2"), sep = "/") %>%
-    select(RS = SNP, A1, A2, OR = `OR (A1 allele)`) %>%
+    dplyr::select(RS = SNP, A1, A2, OR = `OR (A1 allele)`) %>%
     left_join(rs_id) %>%
     mutate(
         risk_snp = ifelse(OR > 1, "ref", "alt"),
@@ -25,10 +25,10 @@ risk_snps_detials <- risk_snps %>%
     )
 
 # missing 1 SNP -n we expect this!
-table(risk_snps$SNP %in% rs_id$RS)
+table(risk_snps_bpd$SNP %in% rs_id$RS)
 ## Extra SNPs?
-table(rs_id$RS %in% risk_snps$SNP)
-rs_id[!rs_id$RS %in% risk_snps$SNP, ]
+table(rs_id$RS %in% risk_snps_bpd$SNP)
+rs_id[!rs_id$RS %in% risk_snps_bpd$SNP, ]
 ## How did these SNPs end up in the VCF?
 #              variant_id          RS
 # 13   chr6:25759784:CT:C  rs67712859 *
@@ -36,13 +36,17 @@ rs_id[!rs_id$RS %in% risk_snps$SNP, ]
 # 27     chr2:4832797:C:T rs115694470
 # 59  chr13:65469547:A:AT  rs35306829
 
-good_rs <- intersect(rs_id$RS, risk_snps$SNP)
+good_rs <- intersect(rs_id$RS, risk_snps_bpd$SNP)
 length(good_rs)
 
-good_ids <- rs_id$variant_id[rs_id$RS %in% risk_snps$SNP]
+good_ids <- rs_id$variant_id[rs_id$RS %in% risk_snps_bpd$SNP]
 risk_vcf_good <- risk_vcf[good_ids, ]
 dim(risk_vcf_good)
 
+## save SNPs in txt file
+cat(good_ids, file = here("eqtl", "data", "risk_snps", "BPD_risk_snps.txt"), sep = "\n")
+
+## save updated VCF
 writeVcf(risk_vcf_good, here("eqtl", "data", "risk_snps", "LIBD_maf01_gwas_BPD.vcf"))
 # module load htslib
 # bgzip
@@ -68,7 +72,7 @@ mdd_snps2 <- mdd_snps %>%
 nrow(mdd_snps2)
 # [1] 9650
 
-cat(mdd_snps$snpID, file = here("eqtl", "data", "risk_snps", "MDD_risk_snps.txt"), sep = "\n")
+cat(mdd_snps2$snpID, file = here("eqtl", "data", "risk_snps", "MDD_risk_snps.txt"), sep = "\n")
 ## now subset VCF
 
 ## not all SNPs present
