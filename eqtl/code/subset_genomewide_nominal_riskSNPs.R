@@ -36,15 +36,6 @@ parquet_files <- map(
 )
 
 #### Filter Data ####
-read_eqtl <- function(parquet_files, cutoff = 0.01, snps) {
-  eqtl_out <- do.call("rbind", map(parquet_files, parquet_read)) %>%
-    filter(variant_id %in% snps) %>%
-    mutate(FDR = p.adjust(pval_nominal, "fdr"))
-  # %>%
-  #   filter(FDR < cutoff)
-  # significant_snps <- c(significant_snps, eqt_outl$variant_id)
-  return(eqtl_out)
-}
 
 walk2(parquet_files, names(parquet_files), function(parq_feat, names_feat) {
   walk2(parq_feat, names(parq_feat), function(parq_region, names_region) {
@@ -59,8 +50,8 @@ walk2(parquet_files, names(parquet_files), function(parq_feat, names_feat) {
       message("filtering ", dx_name, "SNPs")
       
       eqtl_out_filtered <- eqtl_out %>%
-        filter(variant_id %in% snps) %>%
-        mutate(FDR = p.adjust(pval_nominal, "fdr"))
+        mutate(FDR = p.adjust(pval_nominal, "fdr")) %>%
+        filter(variant_id %in% snps) 
       
       write_csv(eqtl_out_filtered, file = here(
         "eqtl", "data", "risk_snps_eqtl", 
