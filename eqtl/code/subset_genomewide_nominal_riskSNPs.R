@@ -38,16 +38,16 @@ parquet_files <- map(
 #### Filter Data ####
 
 walk2(parquet_files, names(parquet_files), function(parq_feat, names_feat) {
-  walk2(parq_feat, names(parq_feat), function(parq_region, names_region) {
+  walk2(parq_feat, names(parq_feat), function(parquet_region, names_region) {
     
     message(paste("Reading:", names_feat, names_region, "- "), Sys.time())
     
     ## Read and combine data across CHR
-    eqtl_out <- do.call("rbind", map(parquet_files, parquet_region))
+    eqtl_out <- do.call("rbind", map(parquet_region, parquet_read))
     
     ## Filter over lists of risk SNPs
     map2(risk_SNPs, dx, function(snps, dx_name){
-      message("filtering ", dx_name, "SNPs")
+      message("filtering ", dx_name, " SNPs")
       
       eqtl_out_filtered <- eqtl_out %>%
         mutate(FDR = p.adjust(pval_nominal, "fdr")) %>%
