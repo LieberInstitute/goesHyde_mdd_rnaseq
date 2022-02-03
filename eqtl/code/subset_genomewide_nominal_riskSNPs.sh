@@ -1,6 +1,6 @@
 #!/bin/bash
 #$ -cwd
-#$ -l mem_free=150G,h_vmem=150G,h_fsize=100G
+#$ -l mem_free=200G,h_vmem=200G,h_fsize=100G
 #$ -N subset_genomewide_nominal_riskSNPs
 #$ -o logs/subset_genomewide_nominal_riskSNPs.txt
 #$ -e logs/subset_genomewide_nominal_riskSNPs.txt

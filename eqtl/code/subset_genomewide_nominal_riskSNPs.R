@@ -15,7 +15,8 @@ map_int(risk_SNPs, length)
 map(risk_SNPs, head)
 
 #### List Parquet Data ####
-features <- c("gene", "exon", "jxn", "tx")
+# features <- c("gene", "exon", "jxn", "tx")
+features <- c("exon", "jxn", "tx") ## rerun with more mem w/o gene level
 names(features) <- features
 
 regions <- c(amyg = "Amygdala", sacc = "sACC")
