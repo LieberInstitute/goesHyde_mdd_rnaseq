@@ -34,6 +34,8 @@ Raw Output: `./data/tensorQTL_out/genomewide_nominal`
   * Contains parquet and FDR01 Summary csv files   
   * filtering code to make csv files: `./code/filter_genomewide_nominal.R`
 Summary counts: `./data/summary/cis_genomewide_FDR01.csv`  
+Risk SNP subsets: `./data/risk_snps_eqtl/` One csv for each risk SNP set 
+(MDD or BPD) + region + feature. Code to subset: `./code/subset_genomewide_nominal_riskSNPs.R`   
 
 ### Cis - best SNP per feature
 Using `cis.map_cis()`  
@@ -51,7 +53,7 @@ TODO: Run `cis.map_independent()`
 * Covaraite data  
 * Expression Data  
 * plink commands if needed  
-* Interaction aka cell fration data  
+* Interaction aka cell fraction data  
 
 
 ## NOTES:  
