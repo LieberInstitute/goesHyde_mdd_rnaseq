@@ -27,7 +27,7 @@ cis_out.shape
 
 genotype_df, variant_df, phenotype_df, phenotype_pos_df, covariates_df = my_tensorqtl_run.load_data(plink, expres, covar, add_chr = True)
 
-tag = prefix +"/ind_gene_" + region + "_" + chrom + ".csv"
+tag = prefix +"/ind_gene_" + region + "_" + chrom + "gpu.csv"
 
 ## Check dimensions
 print('**** STARTING tensorQTL ****')
