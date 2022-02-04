@@ -16,7 +16,7 @@ map(risk_SNPs, head)
 
 #### List Parquet Data ####
 # features <- c("gene", "exon", "jxn", "tx")
-features <- c("exon", "jxn", "tx") ## rerun with more mem w/o gene level
+features <- c("jxn", "tx") ## rerun with more mem w/o gene & exon level
 names(features) <- features
 
 regions <- c(amyg = "Amygdala", sacc = "sACC")
