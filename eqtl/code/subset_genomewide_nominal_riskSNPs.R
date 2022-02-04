@@ -44,14 +44,16 @@ walk2(parquet_files, names(parquet_files), function(parq_feat, names_feat) {
     message(paste("Reading:", names_feat, names_region, "- "), Sys.time())
     
     ## Read and combine data across CHR
-    eqtl_out <- do.call("rbind", map(parquet_region, parquet_read))
+    eqtl_out <- do.call("rbind", map(parquet_region, parquet_read)) %>%
+      mutate(FDR = p.adjust(pval_nominal, "fdr"))
+    
+    message("nrow: ", nrow(eqtl_out))
     
     ## Filter over lists of risk SNPs
     map2(risk_SNPs, dx, function(snps, dx_name){
       message("filtering ", dx_name, " SNPs")
       
-      eqtl_out_filtered <- eqtl_out %>%
-        mutate(FDR = p.adjust(pval_nominal, "fdr")) %>%
+      eqtl_out_filtered <- eqtl_out  %>%
         filter(variant_id %in% snps) 
       
       write_csv(eqtl_out_filtered, file = here(
