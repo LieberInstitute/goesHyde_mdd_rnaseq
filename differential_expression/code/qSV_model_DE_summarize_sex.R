@@ -9,31 +9,24 @@ library(VariantAnnotation)
 # library(pheatmap)
 library(VennDiagram)
 
+source(here("differential_expression","code","utils.R"))
+
 #### Load Data ####
 load(here("differential_expression","data","qSVA_MDD_gene_sex_DEresults.rda"), verbose = TRUE)
 
 # ## Annotate Risk allels ##
-load(here('exprs_cutoff','rse_gene.Rdata'), verbose=TRUE)
-table(rse_gene$PrimaryDx, rse_gene$Experiment)
-table(rse_gene$PrimaryDx, rse_gene$Experiment, rse_gene$BrainRegion)
 risk_vcf <- readVcf(here("eqtl", "data", "risk_snps", "LIBD_maf01_gwas_MDD.vcf.gz"))
-mdd_snps <- read.delim(here("eqtl", "data", "risk_snps", "PGC_depression_genome-wide_significant_makers.txt"))
+mdd_snps <- read.delim(here("eqtl", "data", "risk_snps", "PGC_MDD_genome-wide_significant_Jan2022.txt")) %>%
+  filter(!is.na(bp))
 
 ## find genes 1KB from risk snp
-risk_gr <- GRanges(seqnames = paste0("chr", mdd_snps$chr), IRanges(mdd_snps$bp, width = 1), feature_id = mdd_snps$markername)
+risk_gr <- GRanges(seqnames = paste0(mdd_snps$chr), IRanges(mdd_snps$bp, width = 1), feature_id = mdd_snps$markername)
 oo <- findOverlaps(risk_gr, rowRanges(rse_gene), maxgap = 100000)
 risk_genes <- unique(rowRanges(rse_gene)[subjectHits(oo),])
 length(risk_genes$gencodeID)
-##356
+# [1] 538
 
 #### Summarize Counts ####
-get_signif <- function(outFeature, colname = "common_feature_id", cutoff = 0.05, return_unique = FALSE){
-      signif <- outFeature[[colname]][outFeature$adj.P.Val < cutoff]
-      if(return_unique) signif <- unique(signif)
-      signif <- signif[!is.na(signif)]
-      return(signif)
-}
-
 ## Extract lists
 signifFeat <- map_depth(outGene, 3, get_signif)
 signifGene <- map_depth(outGene, 3, get_signif, colname = "common_gene_id", return_unique = TRUE)
@@ -231,6 +224,38 @@ walk2(compare_sex_all, c("Amygdala", "sACC"), function(region_df, region_name){
 })
 dev.off()
 
+#### T-stat distribution ####
+## compare M and F
+load(here("differential_expression","data","qSVA_MDD_gene_M_downsample_DEresults.rda"), verbose = TRUE)
+length(outGene_downsample$amyg$MDD)
+
+plot_t_density <- function(DE_main, DE_downsample, title){
+  
+  DE_main <- map2(DE_main,names(DE_main), ~.x %>% mutate(Sex = .y))
+  DE_main <- do.call("rbind", DE_main) 
+  
+  DE_downsample <- map2(DE_downsample,1:length(DE_downsample), ~.x %>% mutate(rep = .y))
+  DE_downsample <- do.call("rbind", DE_downsample) 
+
+  t_density <- ggplot() +
+    geom_density(data = DE_downsample, aes(x = t, group = rep), size=0.2, colour=alpha("dark grey", 0.3))+
+    geom_density(data = DE_main,  aes(x = t, color = Sex))+
+    labs(title = title) +
+    theme_bw() +
+    theme(text = element_text(size=15))
+
+  return(t_density)
+}
+
+
+pwalk(list(main_region = outGene_sex, ds_region = outGene_downsample, region_name = names(outGene_sex)),
+     function(main_region, ds_region, region_name){
+       pwalk(list(main_dx = main_region, ds_dx = ds_region, dx_name = names(main_region)),
+            function(main_dx, ds_dx, dx_name){
+              t_density <- plot_t_density(DE_main = main_dx, DE_downsample = ds_dx, title = paste(region_name, ":", dx_name, "vs. Control"))
+              ggsave(t_density, filename = here("differential_expression","plots", paste0("t_stats_distribution_sex-",region_name, "_",dx_name, ".png")))
+            })
+     })
 
 
 #sgejobs::job_single('qSV_model_DE_summarize', queue = 'bluejay', create_shell = TRUE, memory = '80G', command = "Rscript qSV_model_DE_summarize.R")
