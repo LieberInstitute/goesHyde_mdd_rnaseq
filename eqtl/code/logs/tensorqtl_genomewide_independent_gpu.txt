@@ -6,66 +6,27 @@ Loading LIBD module for rmate/1.5.9
 Loading LIBD module for ruby/2.6.4p104
 Loading conda_R/4.1.x
 **** Job starts ****
-Fri Feb  4 14:25:23 EST 2022
+Mon Feb  7 10:24:59 EST 2022
 **** JHPCE info ****
 User: lhuuki
-Job id: 9062160
+Job id: 9106147
 Job name: tensorqtl_genomewide_independent_gpu
 Hostname: compute-126.cm.cluster
 Task id: undefined
+Loading LIBD module for tensorQTL/1.0.6
+Unloading conda_R/4.1.x
+Loading conda_R/4.1.x
 
 Currently Loaded Modules:
   1) matlab/R2019a     6) COMMUNITY_CENTOS7_DEFAULT_ENV  11) ruby/2.6.4p104
   2) stata/17          7) JHPCE_CENTOS7_DEFAULT_ENV      12) rmate/1.5.9
   3) JHPCE_tools/1.0   8) git-status-size/github         13) conda/3-4.6.14
   4) sge/8.1.9         9) git/2.28.0                     14) conda_R/4.1.x
-  5) gcc/4.4.7        10) git-lfs/2.8.0
+  5) gcc/4.4.7        10) git-lfs/2.8.0                  15) tensorqtl/1.0.6
 
  
 
 Processing pair: Amygdala_chr21
-Warning: 'rfunc' cannot be imported. R and the 'rpy2' Python package are needed.
-PyTorch 1.9.0+cu102
-Pandas 1.3.3
-REGION = Amygdala
-CHR = chr21
-Reading Expression files: ../data/expression_bed/gene_Amygdala.bed.gz
-Phenotype dimensions:
-(25212, 540)
-....................
-Reading Plink files: /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/genotype_data/mdd_bpd/maf01/mdd_bpd_maf01
-Mapping files:   0%|          | 0/3 [00:00<?, ?it/s]Mapping files:  33%|███▎      | 1/3 [00:08<00:16,  8.08s/it]Mapping files:  67%|██████▋   | 2/3 [00:08<00:03,  3.79s/it]Mapping files: 100%|██████████| 3/3 [00:11<00:00,  3.16s/it]Mapping files: 100%|██████████| 3/3 [00:11<00:00,  3.76s/it]
-/users/lhuuki/.local/lib/python3.9/site-packages/torch/cuda/__init__.py:106: UserWarning: 
-NVIDIA A100 80GB PCIe with CUDA capability sm_80 is not compatible with the current PyTorch installation.
-The current PyTorch install supports CUDA capabilities sm_37 sm_50 sm_60 sm_70.
-If you want to use the NVIDIA A100 80GB PCIe GPU with PyTorch, please check the instructions at https://pytorch.org/get-started/locally/
-
-  warnings.warn(incompatible_device_warn.format(device_name, capability, " ".join(arch_list), device_name))
-Loading Genotypes...Genotype dimensions:(11031865, 616)
-Adding 'chr' to genotype positions
-Excluding phenotypes from these chromosomes:
-{'chrY', 'chrM'}
-Phenotypes with chr in variants: 
-True     25132
-False       80
-Name: chr, dtype: int64
-**** STARTING tensorQTL ****
-Saving output to: /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/eqtl/data/tensorQTL_out/genomewide_independent/ind_gene_Amygdala_chr21gpu.csv
-cis-QTL mapping: conditionally independent variants
-  * 540 samples
-  * 13/258 significant phenotypes
-  * 44 covariates
-  * 11031865 variants
-  * using seed 121
-  * checking phenotypes: 13/13
-  * computing independent QTLs
-    processing phenotype 1/13    processing phenotype 2/13    processing phenotype 3/13    processing phenotype 4/13    processing phenotype 5/13    processing phenotype 6/13    processing phenotype 7/13    processing phenotype 8/13Traceback (most recent call last):
-  File "/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/eqtl/code/tensorqtl_genomewide_independent_argv.py", line 36, in <module>
-    ind_out = cis.map_independent(genotype_df = genotype_df, variant_df = variant_df, cis_df = cis_out,
-  File "/users/lhuuki/.local/lib/python3.9/site-packages/tensorqtl/cis.py", line 716, in map_independent
-    genotypes_t = genotypes_t[:,genotype_ix_t]
-RuntimeError: CUDA error: no kernel image is available for execution on the device
-CUDA kernel errors might be asynchronously reported at some other API call,so the stacktrace below might be incorrect.
-For debugging consider passing CUDA_LAUNCH_BLOCKING=1.
+/cm/shared/apps/sge/sge-8.1.9//default/spool/compute-126/job_scripts/9106147: line 40: 24247 Segmentation fault      (core dumped) python tensorqtl_genomewide_independent_argv.py ${PAIR}
 **** Job ends ****
-Fri Feb  4 14:27:15 EST 2022
+Mon Feb  7 10:25:25 EST 2022
