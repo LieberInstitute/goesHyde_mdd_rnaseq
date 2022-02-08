@@ -15,29 +15,21 @@ options("width"=200)
 
 #load objects
 load(here('exprs_cutoff','rse_gene.Rdata'), verbose=TRUE)
-pd = colData(rse_gene)
+pd = colData(rse_gene) %>% as.data.frame()
 
-table(pd$BrainRegion, pd$Sex, pd$PrimaryDx)
-# , ,  = MDD
-# 
-# 
-# F   M
-# Amygdala  77 154
-# sACC      78 150
-# 
-# , ,  = Control
-# 
-# 
-# F   M
-# Amygdala  38 149
-# sACC      38 162
-# 
-# , ,  = Bipolar
-# 
-# 
-# F   M
-# Amygdala  45  77
-# sACC      51  72
+(sex_split <- pd %>% group_by(BrainRegion, PrimaryDx, Sex) %>%
+  count() %>%
+  pivot_wider(values_from = "n", names_from = "Sex"))
+
+#   BrainRegion PrimaryDx     F     M
+# 1 Amygdala    MDD          77   154
+# 2 Amygdala    Control      38   149
+# 3 Amygdala    Bipolar      45    77
+# 4 sACC        MDD          78   150
+# 5 sACC        Control      38   162
+# 6 sACC        Bipolar      51    72
+
+write_csv(sex_split, file = here("differential_expression","data", "summary_tables","sex_split.csv"))
 
 
 ## Add common_feature_id, common_gene_symbol, common_gene_ID
