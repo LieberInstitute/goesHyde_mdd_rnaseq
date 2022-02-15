@@ -6,6 +6,8 @@ library(purrr)
 library(here)
 library(sessioninfo)
 
+source(here("differential_expression","code", "utils.R"))
+
 #### Load DE results ####
 data_type <- c("gene", "exon", "jxn","tx")
 
@@ -40,29 +42,9 @@ nrow(all_entrez)
 u <- all_entrez$ENTREZ
 
 #### Functions for extracting gene sets ####
-get_signif <- function(outFeature, colname = "common_feature_id", cutoff = 0.05, return_unique = FALSE){
-  signif <- outFeature[[colname]][outFeature$adj.P.Val < cutoff]
-  if(return_unique) signif <- unique(signif)
-  signif <- signif[!is.na(signif)]
-  return(signif)
-}
-my_flatten <- function (x, use.names = TRUE, classes = "ANY") {
-  #' Source taken from rlist::list.flatten
-  len <- sum(rapply(x, function(x) 1L, classes = classes))
-  y <- vector("list", len)
-  i <- 0L
-  items <- rapply(x, function(x) {
-    i <<- i + 1L
-    y[[i]] <<- x
-    TRUE
-  }, classes = classes)
-  if (use.names && !is.null(nm <- names(items))) 
-    names(y) <- nm
-  y
-}
-
 my_get_entrez <- function(g){
   e <- unique(ss(g, "\\."))
+  # message(length(e))
   entrez <- bitr(e, fromType = "ENSEMBL", toType ="ENTREZID", OrgDb="org.Hs.eg.db")
   return(entrez$ENTREZ)
 }
@@ -87,6 +69,18 @@ gene_sets_af <- map(signif_genes_af_flat, my_get_entrez)
 map_int(gene_sets_af, length)
 # amyg.MDD amyg.BPD sacc.MDD sacc.BPD 
 # 936      138     1668      264 
+
+unique_gene_counts <- read.csv(here("differential_expression","data","summary_tables","sep_gene_counts_unique.csv"),
+                               row.names = 1)
+
+unique_gene_counts <-   t(map_dfc(gene_sets_af, length)) %>%
+  as.data.frame() %>%
+  rownames_to_column("group") %>%
+  separate(group, into = c("Region", "Dx")) %>%
+  rename(entrezIDs = V1) %>%
+  left_join(unique_gene_counts, .)
+
+write.csv(unique_gene_counts, file =  here("differential_expression","data","summary_tables","sep_gene_counts_unique.csv"))
 
 #### Feature specific for MDD only ####
 signif_genes_sf <- transpose(map(signif_genes, transpose))
