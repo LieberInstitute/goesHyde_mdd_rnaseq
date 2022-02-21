@@ -124,6 +124,7 @@ unique_genes <- my_flatten(map_depth(signifGene_flip, 2, ~unique(unlist(.x))))
   separate(group, into = c("Region", "Dx")) %>%
   rename(unique_genes = V1)))
 
+## Updates in GO_enrichment
 write.csv(unique_gene_counts, file =  here("differential_expression","data","summary_tables","sep_gene_counts_unique.csv"))
 
 ## Venn Diagrams

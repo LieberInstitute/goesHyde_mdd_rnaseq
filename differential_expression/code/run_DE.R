@@ -24,7 +24,7 @@ run_DE <- function(rse, model, run_voom = TRUE, save_eBayes = FALSE, coef){
     ## significance levels EXTRACT INDIVIDUAL COMPARISON P-VALUES THAT ARE NOT IN TOP TABLE
     pvalMat = as.matrix(eBayes_out$p.value)[,coef]
     qvalMat = pvalMat
-    qvalMat[,1:2] = p.adjust(pvalMat[,1:2],method="fdr")
+    qvalMat[,1:2] = p.adjust(pvalMat[,1:2],method="fdr") ## TODO fix 1:2 to stable names
     colnames(pvalMat) = paste0("P_",colnames(pvalMat))
     colnames(qvalMat) = paste0("q_",colnames(qvalMat))
     
