@@ -13,6 +13,29 @@ head(rd)
 rd %>%
   filter(grepl("HTR2",Symbol, ignore.case = TRUE))
 
+## Summary Table
+pd <- as.data.frame(colData(rse_gene))
+
+table(pd$PrimaryDx)
+table(pd$Race)
+summary(pd$AgeDeath)
+
+## Summary Table for MDD v Control
+mdd_info <- pd %>% 
+  filter(PrimaryDx != "Bipolar") %>%
+  group_by(BrainRegion, PrimaryDx)  %>%
+  summarise(n = n(),
+            n_Male = sum(Sex == "M"),
+            n_Female = sum(Sex == "F"),
+            min_age = min(AgeDeath),
+            mean_age = mean(AgeDeath),
+            median_age = median(AgeDeath),
+            max_age = max(AgeDeath))
+
+write.csv(mdd_info, 
+          file = here("differential_expression","data","check_gene","sample_info_MDDvControl.csv"),
+          row.names = FALSE)
+
 ## Just sep model
 outGene <- outGene$sep
 ## Just MDD
@@ -29,6 +52,6 @@ gene_data <- outGene_combined %>%
   select(Symbol, gencodeID,BrainRegion, logFC, t, P.Value, FDR = adj.P.Val)
   
 write.csv(gene_data, 
-          file = here("differential_expression","data","check_gene","HTR2A_MDDvControl.csv")
+          file = here("differential_expression","data","check_gene","HTR2A_MDDvControl.csv"),
           row.names = FALSE)
 
