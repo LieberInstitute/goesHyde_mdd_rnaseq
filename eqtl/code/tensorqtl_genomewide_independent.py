@@ -5,7 +5,7 @@ import os.path
 
 # define paths to data
 
-for region in ["Amygdala"]:
+for region in ["Amygdala", "sACC"]:
     expres, covar = my_tensorqtl_run.get_input_paths("gene", region)
     prefix = '/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/eqtl/data/tensorQTL_out/genomewide_independent'
     plink = "/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/genotype_data/mdd_bpd/maf01/mdd_bpd_maf01"
@@ -15,7 +15,7 @@ for region in ["Amygdala"]:
     
     genotype_df, variant_df, phenotype_df, phenotype_pos_df, covariates_df = my_tensorqtl_run.load_data(plink, expres, covar, add_chr = True)
     
-    tag = prefix +"/gene_" + region
+    output = prefix +"/gene_" + region + ".csv"
     
     ## Check dimensions
     print("Variant.df shape: ")
@@ -23,7 +23,7 @@ for region in ["Amygdala"]:
     genotype_df.shape[0] == phenotype_df.shape[1]
     
     print('**** STARTING tensorQTL ****')
-    print("Saving output to: " + tag)
+    print("Saving output to: " + output)
     
     ind_out = cis.map_independent(genotype_df = genotype_df, variant_df = variant_df, cis_df = cis_out,
                 phenotype_df = phenotype_df, phenotype_pos_df = phenotype_pos_df, covariates_df = covariates_df,
@@ -31,5 +31,5 @@ for region in ["Amygdala"]:
                 window=500000, random_tiebreak=False, logger=None, seed=119,
                verbose=True)
 
-    ind_out.to_csv(tag + ".csv")
+    ind_out.to_csv(output)
 
