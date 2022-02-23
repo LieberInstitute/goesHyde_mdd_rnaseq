@@ -6,10 +6,10 @@ Loading LIBD module for rmate/1.5.9
 Loading LIBD module for ruby/2.6.4p104
 Loading conda_R/4.1.x
 **** Job starts ****
-Mon Feb  7 10:24:59 EST 2022
+Fri Feb 11 14:18:54 EST 2022
 **** JHPCE info ****
 User: lhuuki
-Job id: 9106147
+Job id: 9157041
 Job name: tensorqtl_genomewide_independent_gpu
 Hostname: compute-126.cm.cluster
 Task id: undefined
@@ -27,6 +27,78 @@ Currently Loaded Modules:
  
 
 Processing pair: Amygdala_chr21
-/cm/shared/apps/sge/sge-8.1.9//default/spool/compute-126/job_scripts/9106147: line 40: 24247 Segmentation fault      (core dumped) python tensorqtl_genomewide_independent_argv.py ${PAIR}
+****************************
+** Hopkins NEWS and Notes **
+****************************
+
+News and updates for the R installation will be sent to bit-help, so consider subscribing
+
+An automatic user library has been created (in case it did not already exist) as
+    /users/lhuuki/R/4.1.x 
+install.packages and R CMD INSTALL will automatically install to this directory, so there is no need for a -l or a lib argument to these functions.
+
+Loading required package: utils
+The following packages are installed in both /users/lhuuki/R/4.1.x and system-wide
+    Package User_Version System_Version
+1  biocthis        1.5.0          1.4.0
+2     irlba        2.3.4          2.3.5
+3 lifecycle        1.0.1          1.0.1
+4    pillar        1.6.4          1.7.0
+5        R6        2.5.1          2.5.1
+User installed packages will override the system ones, irrespective of version
+******* End NEWS ***********
+PyTorch 1.8.2+cu111
+Pandas 1.4.0
+REGION = Amygdala
+CHR = chr21
+Reading Expression files: ../data/expression_bed/gene_Amygdala.bed.gz
+Phenotype dimensions:
+(25212, 540)
+....................
+Reading Plink files: /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/genotype_data/mdd_bpd/maf01/mdd_bpd_maf01
+Mapping files:   0%|          | 0/3 [00:00<?, ?it/s]Mapping files:  33%|███▎      | 1/3 [00:08<00:16,  8.44s/it]Mapping files:  67%|██████▋   | 2/3 [00:09<00:03,  3.84s/it]Mapping files: 100%|██████████| 3/3 [00:11<00:00,  3.31s/it]Mapping files: 100%|██████████| 3/3 [00:11<00:00,  3.91s/it]
+Loading Genotypes...Genotype dimensions:(11031865, 616)
+Adding 'chr' to genotype positions
+Excluding phenotypes from these chromosomes:
+{'chrY', 'chrM'}
+Phenotypes with chr in variants: 
+True     25132
+False       80
+Name: chr, dtype: int64
+**** STARTING tensorQTL ****
+Saving output to: /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/eqtl/data/tensorQTL_out/genomewide_independent/ind_gene_Amygdala_chr21gpu.csv
+cis-QTL mapping: conditionally independent variants
+  * 540 samples
+  * 13/258 significant phenotypes
+  * 44 covariates
+  * 11031865 variants
+  * using seed 121
+  * checking phenotypes: 13/13
+  * computing independent QTLs
+    processing phenotype 1/13    processing phenotype 2/13    processing phenotype 3/13    processing phenotype 4/13    processing phenotype 5/13    processing phenotype 6/13    processing phenotype 7/13    processing phenotype 8/13/jhpce/shared/jhpce/libd/tensorqtl/1.0.6/tensorqtl_venv/lib/python3.9/site-packages/tensorqtl/core.py:234: RuntimeWarning: invalid value encountered in sqrt
+  return 2*stats.t.cdf(-np.abs(np.sqrt(tstat2)), dof)
+WARNING: scipy.optimize.newton failed to converge (running scipy.optimize.minimize)
+    processing phenotype 9/13    processing phenotype 10/13    processing phenotype 11/13/jhpce/shared/jhpce/libd/tensorqtl/1.0.6/tensorqtl_venv/lib/python3.9/site-packages/tensorqtl/core.py:234: RuntimeWarning: invalid value encountered in sqrt
+  return 2*stats.t.cdf(-np.abs(np.sqrt(tstat2)), dof)
+WARNING: scipy.optimize.newton failed to converge (running scipy.optimize.minimize)
+    processing phenotype 12/13    processing phenotype 13/13
+/jhpce/shared/jhpce/libd/tensorqtl/1.0.6/tensorqtl_venv/lib/python3.9/site-packages/tensorqtl/core.py:234: RuntimeWarning: invalid value encountered in sqrt
+  return 2*stats.t.cdf(-np.abs(np.sqrt(tstat2)), dof)
+/jhpce/shared/jhpce/libd/tensorqtl/1.0.6/tensorqtl_venv/lib/python3.9/site-packages/tensorqtl/core.py:234: RuntimeWarning: invalid value encountered in sqrt
+  return 2*stats.t.cdf(-np.abs(np.sqrt(tstat2)), dof)
+/jhpce/shared/jhpce/libd/tensorqtl/1.0.6/tensorqtl_venv/lib/python3.9/site-packages/tensorqtl/core.py:234: RuntimeWarning: invalid value encountered in sqrt
+  return 2*stats.t.cdf(-np.abs(np.sqrt(tstat2)), dof)
+/jhpce/shared/jhpce/libd/tensorqtl/1.0.6/tensorqtl_venv/lib/python3.9/site-packages/tensorqtl/core.py:234: RuntimeWarning: invalid value encountered in sqrt
+  return 2*stats.t.cdf(-np.abs(np.sqrt(tstat2)), dof)
+/jhpce/shared/jhpce/libd/tensorqtl/1.0.6/tensorqtl_venv/lib/python3.9/site-packages/tensorqtl/core.py:234: RuntimeWarning: invalid value encountered in sqrt
+  return 2*stats.t.cdf(-np.abs(np.sqrt(tstat2)), dof)
+WARNING: scipy.optimize.newton failed to converge (running scipy.optimize.minimize)
+WARNING: scipy.optimize.newton failed to converge (running scipy.optimize.minimize)
+WARNING: scipy.optimize.newton failed to converge (running scipy.optimize.minimize)
+WARNING: scipy.optimize.newton failed to converge (running scipy.optimize.minimize)
+WARNING: scipy.optimize.newton failed to converge (running scipy.optimize.minimize)
+  Time elapsed: 0.08 min
+done.
+**** DONE ****
 **** Job ends ****
-Mon Feb  7 10:25:25 EST 2022
+Fri Feb 11 14:22:20 EST 2022

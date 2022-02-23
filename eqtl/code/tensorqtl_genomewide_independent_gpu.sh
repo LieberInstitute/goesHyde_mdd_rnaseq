@@ -15,7 +15,6 @@ echo "Job name: ${JOB_NAME}"
 echo "Hostname: ${HOSTNAME}"
 echo "Task id: ${SGE_TASK_ID}"
 
-conda activate hello 
 ## List current modules for reproducibility
 module load tensorqtl
 module list
