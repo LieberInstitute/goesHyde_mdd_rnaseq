@@ -72,13 +72,14 @@ mdd_snps2 <- mdd_snps %>%
 nrow(mdd_snps2)
 # [1] 9650
 
-cat(mdd_snps2$snpID, file = here("eqtl", "data", "risk_snps", "MDD_risk_snps.txt"), sep = "\n")
+## Write to txt file to subset vcf
+# cat(mdd_snps2$snpID, file = here("eqtl", "data", "risk_snps", "MDD_risk_snps.txt"), sep = "\n")
 ## now subset VCF
 
 ## not all SNPs present
 risk_vcf <- readVcf(here("eqtl", "data", "risk_snps", "LIBD_maf01_gwas_MDD.vcf.gz"))
 dim(risk_vcf)
-# [1] 2152  616
+# [1] 4667  616
 nrow(risk_vcf) / nrow(mdd_snps2)
 # [1] 0.4836269
 table(mdd_snps2$snpID %in% rownames(risk_vcf))
