@@ -19,10 +19,6 @@ echo "Task id: ${SGE_TASK_ID}"
 module load tensorqtl
 module list
 
-## get pair
-PAIR="Amygdala_chr21"
-echo "Processing pair: ${PAIR}"
-
 USAGE_CUTOFF=10
 NUM_GPUS=1
 
@@ -36,7 +32,7 @@ fi
 
 export CUDA_VISIBLE_DEVICES=$(echo "$avail_gpus" | head -n $NUM_GPUS | paste -sd ",")
 
-python tensorqtl_genomewide_independent_argv.py ${PAIR}
+python tensorqtl_genomewide_independent.py ${PAIR}
 
 echo "**** Job ends ****"
 date
