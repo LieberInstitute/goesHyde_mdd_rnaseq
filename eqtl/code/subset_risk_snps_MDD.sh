@@ -2,8 +2,8 @@
 #$ -cwd
 #$ -l bluejay,mem_free=12G,h_vmem=12G,h_fsize=200G
 #$ -N subset_signif_snps
-#$ -o logs/subset_signif_snps2.txt
-#$ -e logs/subset_signif_snps2.txt
+#$ -o logs/subset_signif_snps_MDD.txt
+#$ -e logs/subset_signif_snps_MDD.txt
 
 
 module load bcftools
