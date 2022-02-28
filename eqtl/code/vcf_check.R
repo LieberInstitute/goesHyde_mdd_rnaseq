@@ -66,27 +66,24 @@ mdd_snps %>% count(is.na(chr), is.na(bp), is.na(A1), is.na(A2))
 # 2      FALSE      TRUE     FALSE     FALSE   94
 
 mdd_snps2 <- mdd_snps %>%
-    filter(!is.na(bp)) %>%
-    mutate(snpID = paste0(chr, ":", bp, ":", A1, ":", A2))
+    filter(!is.na(bp)) 
+
+    # mutate(snpID = paste0(chr, ":", bp, ":", A1, ":", A2)) ## Results in fliped allels!
 
 nrow(mdd_snps2)
 # [1] 9650
 
+
 ## Write to txt file to subset vcf
-# cat(mdd_snps2$snpID, file = here("eqtl", "data", "risk_snps", "MDD_risk_snps.txt"), sep = "\n")
+## Exoprt chr_bp_ref_alt instead
+# cat(mdd_snps2$chr_bp_ref_alt, file = here("eqtl", "data", "risk_snps", "MDD_risk_snps.txt"), sep = "\n")
 ## now subset VCF
 
 ## not all SNPs present
 risk_vcf <- readVcf(here("eqtl", "data", "risk_snps", "LIBD_maf01_gwas_MDD.vcf.gz"))
 dim(risk_vcf)
-# [1] 4667  616
+# [1] 9650  616
 nrow(risk_vcf) / nrow(mdd_snps2)
-# [1] 0.4836269
-table(mdd_snps2$snpID %in% rownames(risk_vcf))
-# FALSE  TRUE
-# 4983  4667
-
-## But No Unexpected SNPs
-table(rownames(risk_vcf) %in% mdd_snps2$snpID)
-# TRUE
-# 4667
+# [1] 1 ## found all SNPs
+all(mdd_snps2$chr_bp_ref_alt %in% rownames(risk_vcf))
+# [1] TRUE
