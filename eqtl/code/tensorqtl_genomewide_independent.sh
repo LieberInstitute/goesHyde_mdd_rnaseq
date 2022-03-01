@@ -1,9 +1,9 @@
 #!/bin/bash
 #$ -cwd
 #$ -l caracol,mem_free=50G,h_vmem=50G,h_fsize=100G
-#$ -N tensorqtl_genomewide_independent_gpu
-#$ -o logs/tensorqtl_genomewide_independent_gpu.txt
-#$ -e logs/tensorqtl_genomewide_independent_gpu.txt
+#$ -N tensorqtl_genomewide_independent
+#$ -o logs/tensorqtl_genomewide_independent.txt
+#$ -e logs/tensorqtl_genomewide_independent.txt
 
 echo "**** Job starts ****"
 date
