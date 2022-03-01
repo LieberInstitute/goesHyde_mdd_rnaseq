@@ -3,3 +3,4 @@ data/expression_bed/*
 data/signif_snps/*
 data/tensorQTL_out/*
 *.vcf.gz
+Plots/test/*

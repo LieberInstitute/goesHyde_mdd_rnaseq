@@ -37,9 +37,10 @@ Summary counts: `./data/summary/cis_genomewide_FDR01.csv`
 
 Risk SNP subsets: `./data/risk_snps_eqtl/` One csv for each risk SNP set 
 (MDD or BPD) + region + feature.  
-Code to subset: `./code/subset_genomewide_nominal_riskSNPs.R`   
+Code to subset: `./code/subset_genomewide_nominal_riskSNPs.R`
+Summary counts: `./code/summarize_genomewide_nominal.R` 
 
-### Cis - best SNP per feature
+### Cis - best SNP per feature (gene)  
 Using `cis.map_cis()`  
 Ran Gene Only  
 Important p-val: "**pval_beta** - permutation p-value obtained via beta approximation." (FASTQTL docs)   
@@ -47,14 +48,17 @@ We advice to use this one in any downstream analysis."
 qval column: FDR corrected `pval_beta` added for map_independent run
 tensorQTl code: `./code/tensorqtl_genomewide_cis.py`  
 Raw Output: `./data/tensorQTL_out/genomewide_cis`  
-Summary counts: TODO  
+Summary counts: `./code/summarize_genomewide_cis.R`  
 
 ### Independent - conditionally independent cis-QTLs using the stepwise regression procedure  
 Using Run `cis.map_independent()`  
 Ran Gene Only  
-tensorQTl code: `./code/tensorqtl_genomewide_independent_gpu.py`  
+Window = 500 KB  
+Cis results are input, FDR cutoff 0.01  
+tensorQTl code: `./code/tensorqtl_genomewide_independent.sh`
+runs `./code/tensorqtl_genomewide_independent.py`  on the GPU!  
 Raw Output: `./data/tensorQTL_out/genomewide_independent`  
-Summary counts: TODO  
+Summary counts: `./code/summarize_genomewide_independent.R`  
 
 
 ## DataPrep  
