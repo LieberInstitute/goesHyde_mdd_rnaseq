@@ -6,104 +6,103 @@ library(ggforce)
 library(sessioninfo)
 library(here)
 
-source(here("eqtl", "code", "utils.R"))
-load(here("data", "MDD_colors.Rdata"), verbose = TRUE)
-
-summarize_eqtl <- function(eqtl_df) {
-    eqtl_stats <- list(
-        n_snp_feature_pairs = nrow(eqtl_df),
-        n_snps = length(unique(eqtl_df$variant_id)),
-        n_features = length(unique(eqtl_df$phenotype_id))
-    )
-    return(eqtl_stats)
-}
+# source(here("eqtl", "code", "utils.R"))
+# load(here("data", "MDD_colors.Rdata"), verbose = TRUE)
 
 #### load expression data ####
 load(here("exprs_cutoff", "rse_gene.Rdata"), verbose = TRUE)
-# load(here("exprs_cutoff", "rse_exon.Rdata"), verbose = TRUE)
-# load(here("exprs_cutoff", "rse_jxn.Rdata"), verbose = TRUE)
-# load(here("exprs_cutoff", "rse_tx.Rdata"), verbose = TRUE)
 
 rd <- as.data.frame(rowData(rse_gene)) %>% select(gencodeID, Symbol)
-
-features <- c("gene", "exon", "jxn", "tx")
-names(features) <- features
 regions <- c(amyg = "Amygdala", sacc = "sACC")
 
 #### genomewide results ####
 ## load tables
 message("Loading tensorQTL cis results")
 
-eqtl_tensor <- map(
-    c(amyg = "Amygdala", sacc = "sACC"),
-    ~ read.csv(here("eqtl", "data", "tensorQTL_out", "genomewide_cis", paste0("gene_", .x, ".csv"))) %>%
-        rename(
-            gencodeID = phenotype_id,
-            FDR = qval
-        ) %>%
-        separate(variant_id, into = c("chr", NA, NA, NA), sep = ":", remove = FALSE)
+eqtl_out <- map(
+    regions,
+    ~ read.csv(here("eqtl", "data", "tensorQTL_out", "genomewide_cis", paste0("cis_gene_", .x, ".csv"))) %>%
+        rename(FDR = qval)
+    # %>%
+    #     separate(variant_id, into = c("chr", NA, NA, NA), sep = ":", remove = FALSE)
 )
 
 
-head(eqtl_tensor$amyg)
-summary(eqtl_tensor$amyg$tss_distance)
-summary(eqtl_tensor$amyg$FDR)
+head(eqtl_out$amyg)
+summary(eqtl_out$amyg$tss_distance)
+summary(eqtl_out$amyg$FDR)
 
-map_int(eqtl_tensor, nrow)
+map_int(eqtl_out, nrow)
 # amyg  sacc
 # 25085 25085
 
-map(eqtl_tensor, ~ .x %>% count(FDR < 0.05))
-order <- map2(eqtl_tensor, c("sACC", "Amygdala"), ~ .x %>%
-    filter(FDR < 0.01) %>%
-    count(chr) %>%
-    mutate(region = .y))
-
-# order2 <- do.call("rbind", order) %>%
-#     arrange(n)
-#
-# cat(paste0(order2$region, "_", order2$chr), file = here("eqtl","code","region_chr.txt"), sep = "\n")
-# # $amyg
-# FDR < 0.01     n
-# 1      FALSE   321
-# 2       TRUE 24764
-#
-# $sacc
-# FDR < 0.01     n
-# 1      FALSE   263
-# 2       TRUE 24822
-
-## Remember one result per gene
-map_int(eqtl_tensor, ~ length(unique(.x$gencodeID)))
+## Remember one result per gene = 'phenotype_id'
+map_int(eqtl_out, ~ length(unique(.x$phenotype_id)))
 # amyg  sacc
 # 25085 25085
 
-map_int(eqtl_tensor, ~ length(unique(.x$variant_id)))
+map_int(eqtl_out, ~ length(unique(.x$variant_id)))
 # amyg  sacc
 # 16339 16027
 
-#### How many are risk SNPs? ####
+#### Extract and save FDR < 0.01 #### 
+eqtl_FDR01 <- map(eqtl_out, ~.x %>% filter(FDR < 0.01))
+map_int(eqtl_FDR01, nrow)
+# amyg sacc 
+# 1326 1367
+
+walk2(eqtl_FDR01, names(eqtl_FDR01), 
+      ~write.csv(.x, here("eqtl", "data", "tensorQTL_FDR01", "genomewide_cis", paste0("cis_gene_", .y, "_FDR01.csv"))))
+
+#### Combine Region Data and Mutate ####
+## combine regions
+eqtl_out <- map2(eqtl_out, regions, ~.x %>% mutate(BrainRegion = .y))
+
+## load risk SNP data
 mdd_snps <- read.delim(here("eqtl", "data", "risk_snps", "PGC_MDD_genome-wide_significant_Jan2022.txt")) %>%
     filter(!is.na(bp)) %>%
     rename(variant_id = chr_bp_ref_alt)
 
-mdd_snps %>% count(chr)
+## Most won't be in the table
+mdd_snps2 <- mdd_snps %>%
+    select(variant_id) %>%
+    mutate(MDD_riskSNP = TRUE)
 
-cis_risk <- map(eqtl_tensor, ~ .x %>% inner_join(mdd_snps))
-map_int(cis_risk, nrow)
+## Build one table for the cis data
+eqtl_cis <- do.call("rbind", eqtl_out) %>%
+    rename(gencodeID = phenotype_id) %>%
+    left_join(rd) %>%
+    left_join(mdd_snps2) %>%
+    replace_na(list(MDD_riskSNP = FALSE))
 
-cis_risk2 <- do.call("rbind", cis_risk) %>%
-    rownames_to_column("region") %>%
-    mutate(region = gsub("\\.[0-9]+", "", region))
+head(eqtl_cis)
 
-cis_risk2 %>%
-    count(variant_id) %>%
-    filter(n == 2)
-cis_risk2 %>%
-    count(gencodeID) %>%
-    filter(n == 2)
+## How many significant?
+eqtl_cis %>%
+    filter(FDR < 0.01) %>%
+    count(BrainRegion)
+# BrainRegion    n
+# 1    Amygdala 1326
+# 2        sACC 1367
+
+#### How many are risk SNPs? ####
+eqtl_cis %>%
+    count(MDD_riskSNP)
+
+eqtl_cis %>%
+    filter(FDR < 0.01, MDD_riskSNP)
 
 
+## Build summary
+(cis_summary <- eqtl_cis %>%
+        group_by(BrainRegion) %>%
+        summarize(n_tested = n(),
+                  n_FDR01 = sum(FDR < 0.01),
+                  risk_SNPs_tested = sum(MDD_riskSNP),
+                  risk_SNPs_FDR01 = sum(MDD_riskSNP & FDR < 0.01))
+)
+
+write.csv(cis_summary, file = here("eqtl", "data", "summary", "genomewide_cis_summary.csv"))
 
 #### Prep data for plotting ####
 load(here("eqtl", "data", "plot_data", "residual_expres.Rdata"), verbose = TRUE)
@@ -134,8 +133,8 @@ rs_id <- info(signif_vcf) %>%
     mutate(RS = paste0("rs", RS)) %>%
     rownames_to_column("variant_id")
 
-map_int(eqtl_tensor, ~ length(unique(.x$variant_id)))
-map_int(eqtl_tensor, ~ sum(unique(.x$variant_id) %in% rs_id$variant_id))
+map_int(eqtl_out, ~ length(unique(.x$variant_id)))
+map_int(eqtl_out, ~ sum(unique(.x$variant_id) %in% rs_id$variant_id))
 
 ## get genotype for samples in long format
 geno_long <- as.data.frame(geno(signif_vcf)$GT) %>%
@@ -151,13 +150,13 @@ geno_long <- as.data.frame(geno(signif_vcf)$GT) %>%
     )
 
 #### Filter and Annotate eQTL ####
-eqtl_tensor_top$gene$amyg %>%
+eqtl_out_top$gene$amyg %>%
     count(gencodeID) %>%
     arrange(n) %>%
     left_join(rd)
 
 ## annotation for boxplots - order eqtl pairs by FDR
-eqtl_tensor_anno <- map_depth(eqtl_tensor_top, 2, function(e) {
+eqtl_out_anno <- map_depth(eqtl_out_top, 2, function(e) {
     e_anno <- e %>%
         arrange(FDR) %>%
         left_join(rd) %>% ## add gene symbol
@@ -173,12 +172,12 @@ eqtl_tensor_anno <- map_depth(eqtl_tensor_top, 2, function(e) {
 
     return(e_anno)
 })
-map_depth(eqtl_tensor_anno, 2, head)
-map_depth(eqtl_tensor_anno, 2, nrow)
+map_depth(eqtl_out_anno, 2, head)
+map_depth(eqtl_out_anno, 2, nrow)
 
 ## merge genotype and expression data for boxplots
 express_geno <- map2(
-    eqtl_tensor_anno, resid_expres_split_long, function(eqtl, expres) {
+    eqtl_out_anno, resid_expres_split_long, function(eqtl, expres) {
         map2(eqtl, expres, ~ .x %>%
             inner_join(geno_long, by = "variant_id") %>%
             inner_join(.y, by = c("gencodeID", "genoSample")) %>%
@@ -187,7 +186,7 @@ express_geno <- map2(
 )
 
 pwalk(
-    list(expres = express_geno, anno = eqtl_tensor_anno, feat_name = names(express_geno)), function(expres, anno, feat_name) {
+    list(expres = express_geno, anno = eqtl_out_anno, feat_name = names(express_geno)), function(expres, anno, feat_name) {
         pwalk(
             list(expres2 = expres, anno2 = anno, region_name = names(expres)), function(expres2, anno2, region_name) {
                 label <- paste0(feat_name, "_", region_name)
