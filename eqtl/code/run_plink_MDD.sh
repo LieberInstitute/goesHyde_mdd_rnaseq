@@ -22,7 +22,7 @@ module load plink
 module list
 
 ## Edit with your job command
-plink --vcf ../data/risk_snps/LIBD_maf01_gwas_MDD.vcf.gz --make-bed --out ../data/risk_snps/LIBD_maf01_gwas_MDD
+plink2 --vcf ../data/risk_snps/LIBD_maf01_gwas_MDD.vcf.gz --make-bed --out ../data/risk_snps/LIBD_maf01_gwas_MDD
 
 echo "**** Job ends ****"
 date
