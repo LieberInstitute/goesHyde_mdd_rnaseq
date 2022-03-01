@@ -1,10 +1,9 @@
 #!/bin/bash
 #$ -cwd
-#$ -l bluejay,mem_free=50G,h_vmem=50G,h_fsize=100G
-#$ -N tensorqtl_genomewide_independent
-#$ -o logs/tensorqtl_genomewide_independent.txt
-#$ -e logs/tensorqtl_genomewide_independent.txt
-#$ -m e
+#$ -l caracol,mem_free=50G,h_vmem=50G,h_fsize=100G
+#$ -N tensorqtl_genomewide_independent_gpu
+#$ -o logs/tensorqtl_genomewide_independent_gpu.txt
+#$ -e logs/tensorqtl_genomewide_independent_gpu.txt
 
 echo "**** Job starts ****"
 date
@@ -16,16 +15,24 @@ echo "Job name: ${JOB_NAME}"
 echo "Hostname: ${HOSTNAME}"
 echo "Task id: ${SGE_TASK_ID}"
 
-## Load the R module (absent since the JHPCE upgrade to CentOS v7)
-
 ## List current modules for reproducibility
+module load tensorqtl
 module list
 
-## Edit with your job command
-python tensorqtl_genomewide_independent.py
+USAGE_CUTOFF=10
+NUM_GPUS=1
+
+avail_gpus=$(nvidia-smi --query-gpu=utilization.gpu --format=csv,noheader | cut -d " " -f 1 | awk -v usage="$USAGE_CUTOFF" '$1 < usage {print NR - 1}')
+
+#  Simply exit with an error if there are no GPUs left
+if [[ -z $avail_gpus ]]; then
+    echo "No GPUs are available."
+    exit 1
+fi
+
+export CUDA_VISIBLE_DEVICES=$(echo "$avail_gpus" | head -n $NUM_GPUS | paste -sd ",")
+
+python tensorqtl_genomewide_independent.py ${PAIR}
 
 echo "**** Job ends ****"
 date
-
-## This script was made using sgejobs version 0.99.1
-## available from http://research.libd.org/sgejobs/
