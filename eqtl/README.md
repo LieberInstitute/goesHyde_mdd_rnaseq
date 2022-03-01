@@ -48,7 +48,14 @@ qval column: FDR corrected `pval_beta` added for map_independent run
 tensorQTl code: `./code/tensorqtl_genomewide_cis.py`  
 Raw Output: `./data/tensorQTL_out/genomewide_cis`  
 Summary counts: TODO  
-TODO: Run `cis.map_independent()`
+
+### Independent - conditionally independent cis-QTLs using the stepwise regression procedure  
+Using Run `cis.map_independent()`  
+Ran Gene Only  
+tensorQTl code: `./code/tensorqtl_genomewide_independent_gpu.py`  
+Raw Output: `./data/tensorQTL_out/genomewide_independent`  
+Summary counts: TODO  
+
 
 ## DataPrep  
 `./code/convert_rdata.R`: convert data to tables needed for tensorQTL  
