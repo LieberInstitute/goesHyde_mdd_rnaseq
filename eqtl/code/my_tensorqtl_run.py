@@ -26,9 +26,9 @@ def load_data(plink_prefix_path, expression_bed, covariates_file, add_chr = Fals
     print(genotype_df.shape)
     
     ## Fix genoSample names
-    fam = pd.read_table(plink_prefix_path + '.fam', delimiter = " ", names = ["V" + str(i) for i in range(6)])
-    genoSamples = [str(v1) + "_" + str(v0) for (v0,v1) in zip(fam.V1, fam.V0)]
-    genotype_df.columns = genoSamples
+    ## fam = pd.read_table(plink_prefix_path + '.fam', delimiter = "\t", names = ["V" + str(i) for i in range(6)])
+    ## genoSamples = [str(v1) + "_" + str(v0) for (v0,v1) in zip(fam.V1, fam.V0)]
+    ## genotype_df.columns = genoSamples
     
     ## Fix chr names (maybe fix in plink?)
     if add_chr:
