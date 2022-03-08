@@ -11,7 +11,7 @@ for region in ["Amygdala", "sACC"]:
     plink = "../data/risk_snps/LIBD_maf01_gwas_MDD"
     genotype_df, variant_df, phenotype_df, phenotype_pos_df, covariates_df = my_tensorqtl_run.load_data(plink, express, covar, add_chr = True)
 
-    cell_fraction = pd.read_csv("../data/interaction/cell_fraction_"+ region +".csv", index_col = 0)
+    cell_fraction = pd.read_csv("../data/tensorQTL_input/interaction/cell_fraction_"+ region +".csv", index_col = 0)
     
     for cell_type in cell_fraction.columns:
         tag = 'gene_' + region +'_' + cell_type 

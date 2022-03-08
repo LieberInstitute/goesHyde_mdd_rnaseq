@@ -190,6 +190,8 @@ tensorqtl_out_mdd <- map_dfr(tensorqtl_fn_mdd, ~ read.csv(.x) %>% mutate(fn = .x
     separate(fn, into = c("feature", "region", "cell_type", NA)) %>%
     rename(gencodeID = phenotype_id)
 
+dim(tensorqtl_out_mdd)
+# [1] 24600    18
 head(tensorqtl_out_mdd)
 summary(tensorqtl_out_mdd$tss_distance)
 
@@ -220,8 +222,8 @@ risk_snps_mdd <- read_delim(here("eqtl", "data", "risk_snps", "PGC_MDD_genome-wi
     filter(!is.na(bp))
 
 table(risk_snps_mdd$rsid %in% rs_id_mdd$RS)
-# FALSE  TRUE
-# 4983  4667
+# TRUE 
+# 9650
 
 risk_snps_mdd_detials <- risk_snps_mdd %>%
     select(RS = rsid, LogOR) %>%
@@ -258,22 +260,29 @@ tensorqtl_adj_mdd <- tensorqtl_out_mdd %>%
 tensorqtl_adj_mdd %>%
     filter(FDR_gi < 0.05) %>%
     arrange(FDR_gi)
+
 tensorqtl_adj_mdd %>%
     filter(FDR_gi < 0.05) %>%
     ungroup() %>%
     dplyr::count(BrainRegion)
+
+# # A tibble: 2 × 2
+# BrainRegion     n
+# <chr>       <int>
+# 1 Amygdala       52
+# 2 sACC          118
+
 tensorqtl_adj_mdd %>%
     filter(FDR_gi < 0.05) %>%
     count() %>%
     arrange(-n)
+
 tensorqtl_adj_mdd %>%
     filter(FDR_gi < 0.05) %>%
     ungroup() %>%
     count(BrainRegion, gencodeID, variant_id) %>%
     arrange(-n)
 
-dim(tensorqtl_adj_mdd)
-# [1] 21580    11
 write_csv(tensorqtl_adj_mdd, file = here("eqtl", "data", "summary", "gene_MDD_risk_cell_fraction_interaction.csv"))
 
 ## Summarise number of significant
@@ -286,10 +295,7 @@ write_csv(interaction_summary_mdd, file = here("eqtl", "data", "summary", "gene_
 #### Prep MDD Data for Plotting ####
 ## Merge data
 tensorqtl_adj_mdd_anno <- tensorqtl_adj_mdd %>%
-    filter(
-        FDR_gi < 0.05 |
-            (Symbol == "ZNF603P" & BrainRegion == "sACC" & RS == "rs7755442" & cell_type == "Mural") ## Bug fix, select 1 non-significant
-    ) %>%
+    filter(FDR_gi < 0.05) %>%
     dplyr::group_by(BrainRegion) %>%
     arrange(FDR_gi) %>%
     mutate(
@@ -300,7 +306,7 @@ tensorqtl_adj_mdd_anno <- tensorqtl_adj_mdd %>%
 tensorqtl_adj_mdd_anno$eqtl <- factor(tensorqtl_adj_mdd_anno$eqtl)
 tensorqtl_adj_mdd_anno$eqtl <- fct_reorder(tensorqtl_adj_mdd_anno$eqtl, tensorqtl_adj_mdd_anno$FDR_gi, min)
 
-levels(tensorqtl_adj_mdd_anno$eqtl)
+head(levels(tensorqtl_adj_mdd_anno$eqtl))
 tensorqtl_adj_mdd_anno %>% count(eqtl)
 
 express_geno_mdd_cf <- tensorqtl_adj_mdd_anno %>%
@@ -314,8 +320,16 @@ express_geno_mdd_anno <- tensorqtl_adj_mdd_anno %>%
     mutate(eqtl_anno = paste0(eqtl_anno, "\n", risk_anno))
 
 #### PLOT ####
-tensorqtl_adj_mdd_anno %>% count(BrainRegion)
+## if n/4 %/%
 # 2 sACC  61 * will create a page with 1 plot ERROR!
+tensorqtl_adj_mdd_anno %>% 
+    count(BrainRegion) %>%
+    mutate(one_plot = n %% 4 == 1)
+
+# BrainRegion     n one_plot
+# <chr>          <int> <lgl>   
+# 1 Amygdala       52 FALSE   
+# 2 sACC          118 FALSE 
 
 walk(c("Amygdala", "sACC"), function(r) {
     message(r)
