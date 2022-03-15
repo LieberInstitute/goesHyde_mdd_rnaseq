@@ -31,14 +31,14 @@ Ran All 4 Features
 Important p-val: "**pval_nominal** - nominal p-value of association" (FASTQTL docs)  
 tensorQTL code: `./code/tensorqtl_genomewide_nominal_argv.py`  
 Raw Output: `./data/tensorQTL_out/genomewide_nominal`  
-  * Contains parquet and FDR01 Summary csv files   
-  * filtering code to make csv files: `./code/filter_genomewide_nominal.R`
-Summary counts: `./data/summary/cis_genomewide_FDR01.csv`  
+  * Contains parquet files   
+Filtering code to make FDR csv files: `./code/filter_genomewide_nominal.R`
+  * `.data/tensorQTL_FDR01/geomewide_nominal/`
 
 Risk SNP subsets: `./data/risk_snps_eqtl/` One csv for each risk SNP set 
 (MDD or BPD) + region + feature.  
 Code to subset: `./code/subset_genomewide_nominal_riskSNPs.R`
-Summary counts: `./code/summarize_genomewide_nominal.R` 
+Summary code: `./code/summarize_genomewide_nominal.R`  
 
 ### Cis - best SNP per feature (gene)  
 Using `cis.map_cis()`  
@@ -48,7 +48,7 @@ We advice to use this one in any downstream analysis."
 qval column: FDR corrected `pval_beta` added for map_independent run
 tensorQTl code: `./code/tensorqtl_genomewide_cis.py`  
 Raw Output: `./data/tensorQTL_out/genomewide_cis`  
-Summary counts: `./code/summarize_genomewide_cis.R`  
+Summary code: `./code/summarize_genomewide_cis.R`  
 
 ### Independent - conditionally independent cis-QTLs using the stepwise regression procedure  
 Using Run `cis.map_independent()`  
@@ -58,15 +58,17 @@ Cis results are input, FDR cutoff 0.01
 tensorQTl code: `./code/tensorqtl_genomewide_independent.sh`
 runs `./code/tensorqtl_genomewide_independent.py`  on the GPU!  
 Raw Output: `./data/tensorQTL_out/genomewide_independent`  
-Summary counts: `./code/summarize_genomewide_independent.R`  
+Summary code: `./code/summarize_genomewide_independent.R`  
 
 
 ## DataPrep  
 `./code/convert_rdata.R`: convert data to tables needed for tensorQTL  
-* Covaraite data  
-* Expression Data  
-* plink commands if needed  
-* Interaction aka cell fraction data  
+* also generates plink commands if needed
+
+## Input Data
+Covariate data (from the `colData`): `./data/tensorQTL_input/covariates_txt`  
+Expression data (from the `colData`): `./data/tensorQTL_input/expression_bed`  
+Interaction data (cell type proportion estimates): `./data/tensorQTL_input/covariates_txt`  
 
 
 ## NOTES:  
