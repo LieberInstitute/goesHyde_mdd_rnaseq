@@ -62,6 +62,17 @@ ggsave(FDR_scatter_all, filename = here("eqtl", "plots", "test", "FDR_scatter_al
 nom_chr10 <- parquet_read(here("eqtl","data","tensorQTL_out", "genomewide_nominal","gene_Amygdala.cis_qtl_pairs.chr10.parquet"))%>%
   mutate(FDR = p.adjust(pval_nominal, "fdr")) ## this is just for demo, use full genome for read FDR correction!
 
+summary(nom_chr10$slope)
+
+nom_chr10 %>% group_by(phenotype_id) %>% count()
+cis %>% filter(phenotype_id == "ENSG00000012779.10")
+nom_chr10 %>% filter(phenotype_id == "ENSG00000012779.10") %>% head(100)
+
+nom_chr10 %>% filter(abs(slope) > 1000)
+
+nom_chr10 %>% count(ma_count < 50, abs(slope) > 500)
+
+
 nom_all_example <- nom_chr10 %>%
   filter(phenotype_id == "ENSG00000067057.16")
 
