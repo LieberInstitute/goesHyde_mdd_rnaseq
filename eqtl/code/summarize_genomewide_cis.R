@@ -46,6 +46,15 @@ map_int(eqtl_out, ~ length(unique(.x$variant_id)))
 # 16339 16027
 
 #### Extract and save FDR < 0.01 #### 
+eqtl_FDR05 <- map(eqtl_out, ~.x %>% filter(FDR < 0.05))
+map_int(eqtl_FDR05, nrow)
+# amyg sacc 
+# 2080 2112
+
+walk2(eqtl_FDR05, names(eqtl_FDR05), 
+      ~write.csv(.x, here("eqtl", "data", "tensorQTL_FDR05", "genomewide_cis", paste0("cis_gene_", .y, "_FDR05.csv"))))
+
+#### Extract and save FDR < 0.01 #### 
 eqtl_FDR01 <- map(eqtl_out, ~.x %>% filter(FDR < 0.01))
 map_int(eqtl_FDR01, nrow)
 # amyg sacc 
@@ -95,11 +104,11 @@ eqtl_cis %>%
 
 ## Build summary
 (cis_summary <- eqtl_cis %>%
-        group_by(BrainRegion) %>%
-        summarize(n_tested = n(),
-                  n_FDR01 = sum(FDR < 0.01),
-                  risk_SNPs_tested = sum(MDD_riskSNP),
-                  risk_SNPs_FDR01 = sum(MDD_riskSNP & FDR < 0.01))
+    group_by(BrainRegion) %>%
+    summarize(total_variants = sum(num_var),
+              cis_eqtls = n(),
+              cis_FDR05 = sum(FDR < 0.05),
+              cis_FDR01 = sum(FDR < 0.01))
 )
 
 write.csv(cis_summary, file = here("eqtl", "data", "summary", "genomewide_cis_summary.csv"))

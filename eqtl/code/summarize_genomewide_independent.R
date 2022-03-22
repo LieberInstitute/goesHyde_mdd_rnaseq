@@ -1,8 +1,6 @@
 library(SummarizedExperiment)
-library(VariantAnnotation)
 library(tidyverse)
 library(jaffelab)
-library(ggforce)
 library(sessioninfo)
 library(here)
 
