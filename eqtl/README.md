@@ -47,7 +47,6 @@ Important p-val: "**pval_beta** - permutation p-value obtained via beta approxim
 We advice to use this one in any downstream analysis."  
 qval column: FDR corrected `pval_beta` added for map_independent run
 tensorQTl code: `./code/tensorqtl_genomewide_cis.py`  
-Raw Output: `./data/tensorQTL_out/genomewide_cis`  
 Summary code: `./code/summarize_genomewide_cis.R`  
 
 ### Independent - conditionally independent cis-QTLs using the stepwise regression procedure  
@@ -57,7 +56,6 @@ Window = 500 KB
 Cis results are input, FDR cutoff 0.01  
 tensorQTl code: `./code/tensorqtl_genomewide_independent.sh`
 runs `./code/tensorqtl_genomewide_independent.py`  on the GPU!  
-Raw Output: `./data/tensorQTL_out/genomewide_independent`  
 Summary code: `./code/summarize_genomewide_independent.R`  
 
 
@@ -70,6 +68,9 @@ Covariate data (from the `colData`): `./data/tensorQTL_input/covariates_txt`
 Expression data (from the `colData`): `./data/tensorQTL_input/expression_bed`  
 Interaction data (cell type proportion estimates): `./data/tensorQTL_input/covariates_txt`  
 
+## Output Data
+Raw output from tenosrQTL: `./data/tensorQTL_out`  
+Filtered output for FDR < 0.01: `./data/tensorQTL_FDR01`  
 
 ## NOTES:  
 Some reorganization may cause filenames to not match up perfectly...  
