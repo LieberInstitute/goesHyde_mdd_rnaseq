@@ -6,7 +6,8 @@ library(sessioninfo)
 library(miniparquet)
 
 #### Risk SNP Data ####
-dx <- c(mdd = "MDD", bpd = "BPD")
+# dx <- c(mdd = "MDD", bpd = "BPD")
+dx <- c(mdd = "MDD")
 
 risk_SNPs <- map(dx, ~readLines(here("eqtl", "data", "risk_snps", paste0(.x,"_risk_snps.txt"))))
 map_int(risk_SNPs, length)
@@ -15,8 +16,8 @@ map_int(risk_SNPs, length)
 map(risk_SNPs, head)
 
 #### List Parquet Data ####
-# features <- c("gene", "exon", "jxn", "tx")
-features <- c("jxn", "tx") ## rerun with more mem w/o gene & exon level
+features <- c("gene", "exon", "jxn", "tx")
+# features <- c("jxn", "tx") ## rerun with more mem w/o gene & exon level
 names(features) <- features
 
 regions <- c(amyg = "Amygdala", sacc = "sACC")
