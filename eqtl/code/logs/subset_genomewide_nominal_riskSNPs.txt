@@ -6,12 +6,12 @@ Loading LIBD module for rmate/1.5.9
 Loading LIBD module for ruby/2.6.4p104
 Loading conda_R/4.1.x
 **** Job starts ****
-Fri Feb  4 12:06:55 EST 2022
+Tue Mar 15 14:28:20 EDT 2022
 **** JHPCE info ****
 User: lhuuki
-Job id: 9062054
+Job id: 9563917
 Job name: subset_genomewide_nominal_riskSNPs
-Hostname: compute-124.cm.cluster
+Hostname: compute-127.cm.cluster
 Task id: undefined
 Unloading conda_R/4.1.x
 Loading conda_R/4.1.x
@@ -25,123 +25,33 @@ Currently Loaded Modules:
 
  
 
-WARNING: ignoring environment value of R_HOME
 ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.1 ──
 ✔ ggplot2 3.3.5     ✔ purrr   0.3.4
-✔ tibble  3.1.6     ✔ dplyr   1.0.7
+✔ tibble  3.1.6     ✔ dplyr   1.0.8
 ✔ tidyr   1.2.0     ✔ stringr 1.4.0
 ✔ readr   2.1.2     ✔ forcats 0.5.1
 ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
 ✖ dplyr::filter() masks stats::filter()
 ✖ dplyr::lag()    masks stats::lag()
 here() starts at /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq
- mdd  bpd 
-9650   63 
+ mdd 
+9650 
 $mdd
-[1] "chr1:8371547:T:C" "chr1:8416368:A:G" "chr1:8420956:T:G" "chr1:8422018:T:C"
-[5] "chr1:8424763:A:G" "chr1:8429242:T:C"
+[1] "chr1:8371547:C:T" "chr1:8416368:A:G" "chr1:8420956:T:G" "chr1:8422018:C:T"
+[5] "chr1:8424763:A:G" "chr1:8429242:C:T"
 
-$bpd
-[1] "chr5:7542798:G:A"   "chr5:79553682:G:T"  "chr5:81665250:G:A" 
-[4] "chr5:138376432:C:T" "chr5:169862202:T:C" "chr7:1981360:G:A"  
-
-Reading: jxn amyg - 2022-02-04 12:06:57
-nrow: 1106201707
+Reading: gene amyg - 2022-03-15 14:28:23
+nrow: 93476633
 filtering MDD SNPs
-filtering BPD SNPs
-Reading: jxn sacc - 2022-02-04 12:26:00
-nrow: 1106205014
+Reading: gene sacc - 2022-03-15 14:30:33
+nrow: 93476633
 filtering MDD SNPs
-filtering BPD SNPs
-Reading: tx amyg - 2022-02-04 12:45:44
-nrow: 292964476
+Reading: exon amyg - 2022-03-15 14:32:19
+nrow: 1468830872
 filtering MDD SNPs
-filtering BPD SNPs
-Reading: tx sacc - 2022-02-04 12:51:09
-nrow: 292964476
-filtering MDD SNPs
-filtering BPD SNPs
-[1] "Reproducibility information:"
-[1] "2022-02-04 12:55:34 EST"
-    user   system  elapsed 
-1825.947  961.824 2918.490 
-─ Session info ───────────────────────────────────────────────────────────────────────────────────────────────────────
- setting  value
- version  R version 4.1.2 Patched (2021-11-04 r81138)
- os       CentOS Linux 7 (Core)
- system   x86_64, linux-gnu
- ui       X11
- language (EN)
- collate  en_US.UTF-8
- ctype    en_US.UTF-8
- tz       US/Eastern
- date     2022-02-04
- pandoc   2.13 @ /jhpce/shared/jhpce/core/conda/miniconda3-4.6.14/envs/svnR-4.1.x/bin/pandoc
-
-─ Packages ───────────────────────────────────────────────────────────────────────────────────────────────────────────
- package     * version date (UTC) lib source
- assertthat    0.2.1   2019-03-21 [2] CRAN (R 4.1.0)
- backports     1.4.1   2021-12-13 [2] CRAN (R 4.1.2)
- bit           4.0.4   2020-08-04 [2] CRAN (R 4.1.0)
- bit64         4.0.5   2020-08-30 [2] CRAN (R 4.1.0)
- broom         0.7.12  2022-01-28 [2] CRAN (R 4.1.2)
- cellranger    1.1.0   2016-07-27 [2] CRAN (R 4.1.0)
- cli           3.1.1   2022-01-20 [2] CRAN (R 4.1.2)
- colorspace    2.0-2   2021-06-24 [2] CRAN (R 4.1.0)
- crayon        1.4.2   2021-10-29 [2] CRAN (R 4.1.2)
- DBI           1.1.2   2021-12-20 [2] CRAN (R 4.1.2)
- dbplyr        2.1.1   2021-04-06 [2] CRAN (R 4.1.0)
- dplyr       * 1.0.7   2021-06-18 [2] CRAN (R 4.1.0)
- ellipsis      0.3.2   2021-04-29 [2] CRAN (R 4.1.0)
- fansi         1.0.2   2022-01-14 [2] CRAN (R 4.1.2)
- forcats     * 0.5.1   2021-01-27 [2] CRAN (R 4.1.0)
- fs            1.5.2   2021-12-08 [2] CRAN (R 4.1.2)
- generics      0.1.2   2022-01-31 [2] CRAN (R 4.1.2)
- ggplot2     * 3.3.5   2021-06-25 [2] CRAN (R 4.1.0)
- glue          1.6.1   2022-01-22 [2] CRAN (R 4.1.2)
- gtable        0.3.0   2019-03-25 [2] CRAN (R 4.1.0)
- haven         2.4.3   2021-08-04 [2] CRAN (R 4.1.1)
- here        * 1.0.1   2020-12-13 [2] CRAN (R 4.1.2)
- hms           1.1.1   2021-09-26 [2] CRAN (R 4.1.2)
- httr          1.4.2   2020-07-20 [2] CRAN (R 4.1.0)
- jsonlite      1.7.3   2022-01-17 [2] CRAN (R 4.1.2)
- lifecycle     1.0.1   2021-09-24 [1] CRAN (R 4.1.1)
- lubridate     1.8.0   2021-10-07 [2] CRAN (R 4.1.2)
- magrittr      2.0.2   2022-01-26 [2] CRAN (R 4.1.2)
- miniparquet * 0.1.2   2022-02-02 [1] Github (hannesmuehleisen/miniparquet@3fa4631)
- modelr        0.1.8   2020-05-19 [2] CRAN (R 4.1.0)
- munsell       0.5.0   2018-06-12 [2] CRAN (R 4.1.0)
- pillar        1.6.4   2021-10-18 [1] CRAN (R 4.1.1)
- pkgconfig     2.0.3   2019-09-22 [2] CRAN (R 4.1.0)
- purrr       * 0.3.4   2020-04-17 [2] CRAN (R 4.1.0)
- R6            2.5.1   2021-08-19 [1] CRAN (R 4.1.1)
- Rcpp          1.0.8   2022-01-13 [2] CRAN (R 4.1.2)
- readr       * 2.1.2   2022-01-30 [2] CRAN (R 4.1.2)
- readxl        1.3.1   2019-03-13 [2] CRAN (R 4.1.0)
- reprex        2.0.1   2021-08-05 [2] CRAN (R 4.1.1)
- rlang         1.0.1   2022-02-03 [2] CRAN (R 4.1.2)
- rprojroot     2.0.2   2020-11-15 [2] CRAN (R 4.1.0)
- rstudioapi    0.13    2020-11-12 [2] CRAN (R 4.1.0)
- rvest         1.0.2   2021-10-16 [2] CRAN (R 4.1.2)
- scales        1.1.1   2020-05-11 [2] CRAN (R 4.1.0)
- sessioninfo * 1.2.2   2021-12-06 [2] CRAN (R 4.1.2)
- stringi       1.7.6   2021-11-29 [2] CRAN (R 4.1.2)
- stringr     * 1.4.0   2019-02-10 [2] CRAN (R 4.1.0)
- tibble      * 3.1.6   2021-11-07 [2] CRAN (R 4.1.2)
- tidyr       * 1.2.0   2022-02-01 [2] CRAN (R 4.1.2)
- tidyselect    1.1.1   2021-04-30 [2] CRAN (R 4.1.0)
- tidyverse   * 1.3.1   2021-04-15 [2] CRAN (R 4.1.0)
- tzdb          0.2.0   2021-10-27 [2] CRAN (R 4.1.2)
- utf8          1.2.2   2021-07-24 [2] CRAN (R 4.1.0)
- vctrs         0.3.8   2021-04-29 [2] CRAN (R 4.1.0)
- vroom         1.5.7   2021-11-30 [2] CRAN (R 4.1.2)
- withr         2.4.3   2021-11-30 [2] CRAN (R 4.1.2)
- xml2          1.3.3   2021-11-30 [2] CRAN (R 4.1.2)
-
- [1] /users/lhuuki/R/4.1.x
- [2] /jhpce/shared/jhpce/core/conda/miniconda3-4.6.14/envs/svnR-4.1.x/R/4.1.x/lib64/R/site-library
- [3] /jhpce/shared/jhpce/core/conda/miniconda3-4.6.14/envs/svnR-4.1.x/R/4.1.x/lib64/R/library
-
-──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+Reading: exon sacc - 2022-03-15 15:00:19
+Error in .f(.x[[i]], ...) : std::bad_alloc
+Calls: walk2 ... map2 -> .f -> %>% -> mutate -> do.call -> map -> .f
+Execution halted
 **** Job ends ****
-Fri Feb  4 12:55:55 EST 2022
+Tue Mar 15 15:06:33 EDT 2022
