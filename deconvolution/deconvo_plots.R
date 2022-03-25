@@ -88,24 +88,6 @@ prop_t_test_dx <- long_prop %>%
 
 prop_t_test_dx %>% count(group1, group2)
 
-# dx_df <- data.frame(n1 = dx[c("Control", "MDD","MDD")],
-#            n1 = dx[ c("Bipolar", "Bipolar", "Control")])
-# colnames(dx_df) <- c("group1","n1","group2","n2")
-# dx_df$df <- (dx_df$n1 + dx_df$n2 - 2)
-# 
-# prop_t_test_dx<- prop_t_test_dx %>% left_join(dx_df %>% select(-n1,-n2)) %>% mutate(t = qt(p, df))
-# 
-# summary(prop_t_test_dx$t)
-# Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-# -4.9128 -2.8452 -1.7731 -1.7150 -0.3765  1.9571 
-t_check <- long_prop %>% 
-  group_by(region_cell_type, cell_type, BrainRegion) %>% 
-  summarise(mean_prop = mean(prop)) %>%
-  left_join(prop_t_test_dx %>% select(region_cell_type, group1, group2, t))
-
-t_check_scatter <- t_check %>% ggplot(aes(mean_prop, t, color = cell_type, shape = BrainRegion)) + geom_point() + facet_grid(group1~group2)
-ggsave(t_check_scatter, filename = here("deconvolution", "plots","t_check_scatter.png"))
-
 prop_t_test_dx %>% count(p.bonf < 0.05)
 # `p.bonf < 0.05`     n
 # <lgl>           <int>
@@ -113,6 +95,9 @@ prop_t_test_dx %>% count(p.bonf < 0.05)
 # 2 TRUE               14
 
 prop_t_test_dx %>% filter(p.bonf < 0.05)
+
+prop_t_test_signif <- prop_t_test_dx %>% filter(p.bonf < 0.05) %>% separate(region_cell_type, into = c("BrainRegion", "cell_type"))
+prop_t_test_signif %>% count(BrainRegion, cell_type)
 
 dx_comparisons <- list( c("MDD", "Control"), c("Bipolar", "Control"), c("MDD", "Bipolar") )
 
@@ -126,6 +111,33 @@ ggbox <- ggboxplot(long_prop, x = "PrimaryDx", y = "prop", fill = "PrimaryDx", f
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 ggsave(ggbox, filename = here("deconvolution", "plots", "ggbox_t-test_Dx.png"), width = 16, height = 16)
+
+
+## poster plot 7
+long_prop_s_amyg <- long_prop %>% 
+  filter(cell_type %in% (prop_t_test_signif %>% filter(BrainRegion == "Amygdala") %>% pull(cell_type)),
+         BrainRegion == "Amygdala")
+
+ggbox_s_amyg <- ggboxplot(long_prop_s_amyg, x = "PrimaryDx", y = "prop", fill = "PrimaryDx", facet.by = "cell_type", scales = "free_y", nrow = 1) +
+  scale_fill_manual(values = mdd_Dx_colors)+
+  stat_pvalue_manual(prop_t_test_signif %>% filter(BrainRegion == "Amygdala"), label = "p.bonf.anno", color = "p.signif.bonf")+
+  theme(legend.position = "none", axis.text.x=element_blank(), axis.ticks.x=element_blank()) +
+  labs(title = "Amygdala")
+
+ggsave(ggbox_s_amyg, filename = here("deconvolution", "plots", "ggbox_t-test_Dx_s_Amyg.png"), width = 9, height = 5)
+
+long_prop_s_sacc <- long_prop %>% 
+  filter(cell_type %in% (prop_t_test_signif %>% filter(BrainRegion == "sACC") %>% pull(cell_type)),
+         BrainRegion == "sACC")
+
+ggbox_s_sacc <- ggboxplot(long_prop_s_sacc, x = "PrimaryDx", y = "prop", fill = "PrimaryDx", facet.by = "cell_type", scales = "free_y", nrow = 1) +
+  scale_fill_manual(values = mdd_Dx_colors)+
+  stat_pvalue_manual(prop_t_test_signif %>% filter(BrainRegion == "sACC"), label = "p.bonf.anno", color = "p.signif.bonf")+
+  theme(axis.text.x=element_blank(), axis.ticks.x=element_blank(), legend.position = "bottom")+
+  labs(title = "sACC")
+
+ggsave(ggbox_s_sacc, filename = here("deconvolution", "plots", "ggbox_t-test_Dx_s_sacc.png"), width = 11, height = 6)
+
 
 ## Sex
 prop_t_test_sex <- long_prop %>% group_by(region_cell_type) %>%
