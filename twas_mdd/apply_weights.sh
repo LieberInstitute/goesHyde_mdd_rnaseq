@@ -49,7 +49,7 @@ module list
 ## Choose the correct GWAS summary statistics file
 if [ "${summstats}" == "pgc" ]
 then
-    summstatsfile="/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/twas_both/PGC_UKB_23andMe_depression_genome-wide_CLEAN_hg38.txt"
+    summstatsfile="/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/twas_mdd/PGC_UKB_23andMe_depression_genome-wide_CLEAN_hg38.txt"
 else
     echo "Unexpected ${summstats} input"
 fi
@@ -69,9 +69,9 @@ do
 ## Create summarized analysis
 Rscript /jhpce/shared/jhpce/libd/fusion_twas/github/fusion_twas/FUSION.assoc_test.R \
     --sumstats \${summstatsfile} \
-    --weights /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/twas_both/${region}_${feature}/${region}_${feature}.pos \
-    --weights_dir /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/twas_both/${region}_${feature}/ \
-    --ref_ld_chr /dcl01/lieber/ajaffe/lab/brainseq_phase2/twas/reference_hg38/LDREF_hg38/1000G.EUR. \
+    --weights /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/twas_mdd/${region}_${feature}/${region}_${feature}.pos \
+    --weights_dir /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/twas_mdd/${region}_${feature}/ \
+    --ref_ld_chr /dcs04/lieber/lcolladotor/annotationFiles_LIBD001/fusion_twas_LDREF_hg38/1000G.EUR. \
     --chr \${chr} \
     --out ${region}_${feature}/${summstats}/${summstats}.\${chr}.dat
 
@@ -87,7 +87,7 @@ then
         --sumstats /\${summstatsfile} \
         --input ${region}_${feature}/${summstats}/${summstats}.\${chr}.dat \
         --out ${region}_${feature}/${summstats}/${summstats}.\${chr}.analysis \
-        --ref_ld_chr /dcl01/lieber/ajaffe/lab/brainseq_phase2/twas/reference_hg38/LDREF_hg38/1000G.EUR. \
+    	--ref_ld_chr /dcs04/lieber/lcolladotor/annotationFiles_LIBD001/fusion_twas_LDREF_hg38/1000G.EUR. \
         --chr \${chr} \
         --plot --locus_win 100000 --verbose 2 --plot_individual --plot_eqtl --plot_corr \
         --glist_path "/jhpce/shared/jhpce/libd/fusion_twas/github/fusion_twas/glist-hg38"
@@ -96,7 +96,7 @@ else
         --sumstats /\${summstatsfile} \
         --input ${region}_${feature}/${summstats}/${summstats}.\${chr}.dat \
         --out ${region}_${feature}/${summstats}/${summstats}.\${chr}.analysis \
-        --ref_ld_chr /dcl01/lieber/ajaffe/lab/brainseq_phase2/twas/reference_hg38/LDREF_hg38/1000G.EUR. \
+   	--ref_ld_chr /dcs04/lieber/lcolladotor/annotationFiles_LIBD001/fusion_twas_LDREF_hg38/1000G.EUR. \
         --chr \${chr} \
         --locus_win 100000 --verbose 2 --plot_corr
 fi
