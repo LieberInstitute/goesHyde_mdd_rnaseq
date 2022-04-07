@@ -1,10 +1,13 @@
 #!/bin/bash
 #$ -cwd
 #$ -l caracol,mem_free=50G,h_vmem=50G,h_fsize=100G
-#$ -N tensorqtl_genomewide_nominal_maf_test
-#$ -o logs/tensorqtl_genomewide_nominal_maf_test.txt
-#$ -e logs/tensorqtl_genomewide_nominal_maf_test.txt
-
+#$ -pe local 1
+#$ -N tensorqtl_genomewide_nominal_gpu
+#$ -o logs/tensorqtl_genomewide_nominal_gpu.$TASK_ID.txt
+#$ -e logs/tensorqtl_genomewide_nominal_gpu.$TASK_ID.txt
+#$ -m e
+#$ -t 1-8
+#$ -tc 4
 
 echo "**** Job starts ****"
 date
@@ -33,7 +36,10 @@ fi
 
 export CUDA_VISIBLE_DEVICES=$(echo "$avail_gpus" | head -n $NUM_GPUS | paste -sd ",")
 
+## get pair
+PAIR=$(awk "NR==${SGE_TASK_ID}" features_region.txt)
+echo "Processing pair: ${PAIR}"
 
-python tensorqtl_genomewide_nominal_maf_test.py
+python tensorqtl_genomewide_nominal.py ${PAIR}
 echo "**** Job ends ****"
 date

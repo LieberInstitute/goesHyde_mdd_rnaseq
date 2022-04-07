@@ -1,0 +1,108 @@
+Adding LIBD modules
+Loading git
+Loading LIBD module for git-status-size/github
+Loading LIBD module for git-lfs/2.8.0
+Loading LIBD module for rmate/1.5.9
+Loading LIBD module for ruby/2.6.4p104
+Loading conda_R/devel
+**** Job starts ****
+Thu Apr  7 12:45:09 EDT 2022
+**** JHPCE info ****
+User: lhuuki
+Job id: 9847703
+Job name: tensorqtl_genomewide_nominal_gpu
+Hostname: compute-126.cm.cluster
+Task id: 6
+Loading LIBD module for tensorQTL/1.0.6
+Unloading conda_R/devel
+Loading conda_R/4.1.x
+
+The following have been reloaded with a version change:
+  1) conda_R/devel => conda_R/4.1.x
+
+
+Currently Loaded Modules:
+  1) matlab/R2019a     6) COMMUNITY_CENTOS7_DEFAULT_ENV  11) ruby/2.6.4p104
+  2) stata/17          7) JHPCE_CENTOS7_DEFAULT_ENV      12) rmate/1.5.9
+  3) JHPCE_tools/1.0   8) git-status-size/github         13) conda/3-4.6.14
+  4) sge/8.1.9         9) git/2.28.0                     14) conda_R/4.1.x
+  5) gcc/4.4.7        10) git-lfs/2.8.0                  15) tensorqtl/1.0.6
+
+ 
+
+Processing pair: jxn_sACC
+****************************
+** Hopkins NEWS and Notes **
+****************************
+
+News and updates for the R installation will be sent to bit-help, so consider subscribing
+
+An automatic user library has been created (in case it did not already exist) as
+    /users/lhuuki/R/4.1.x 
+install.packages and R CMD INSTALL will automatically install to this directory, so there is no need for a -l or a lib argument to these functions.
+
+Loading required package: utils
+The following packages are installed in both /users/lhuuki/R/4.1.x and system-wide
+    Package User_Version System_Version
+1  biocthis        1.5.0          1.4.0
+2     irlba        2.3.5          2.3.5
+3 lifecycle        1.0.1          1.0.1
+4    pillar        1.7.0          1.7.0
+5        R6        2.5.1          2.5.1
+User installed packages will override the system ones, irrespective of version
+******* End NEWS ***********
+PyTorch 1.8.2+cu111
+Pandas 1.4.0
+FEATURE = jxn
+REGION = sACC
+Reading Expression files: ../data/tensorQTL_input/expression_bed/jxn_sACC.bed.gz
+Phenotype dimensions:
+(305558, 551)
+....................
+Reading Plink files: /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/genotype_data/mdd_bpd/maf01/mdd_bpd_maf01
+Mapping files:   0%|          | 0/3 [00:00<?, ?it/s]Mapping files:  33%|███▎      | 1/3 [00:07<00:15,  7.74s/it]Mapping files:  67%|██████▋   | 2/3 [00:08<00:03,  3.47s/it]Mapping files: 100%|██████████| 3/3 [00:10<00:00,  3.06s/it]Mapping files: 100%|██████████| 3/3 [00:10<00:00,  3.60s/it]
+Loading Genotypes...Genotype dimensions:(11031865, 616)
+Using fam to assign genoSample names
+Adding 'chr' to genotype positions
+Excluding phenotypes from these chromosomes:
+{'chrM', 'chrY'}
+Phenotypes with chr in variants: 
+True     304125
+False      1433
+Name: chr, dtype: int64
+
+**** STARTING tensorQTL ****
+Saving output to: /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/eqtl/data/tensorQTL_out/genomewide_nominal/jxn_sACC
+cis-QTL mapping: nominal associations for all variant-phenotype pairs
+  * 551 samples
+  * 304125 phenotypes
+  * 55 covariates
+  * 11031865 variants
+  * applying in-sample 0.05 MAF filter
+  * checking phenotypes: 1000/304125  * checking phenotypes: 2000/304125  * checking phenotypes: 3000/304125  * checking phenotypes: 4000/304125  * checking phenotypes: 5000/304125  * checking phenotypes: 6000/304125  * checking phenotypes: 7000/304125  * checking phenotypes: 8000/304125  * checking phenotypes: 9000/304125  * checking phenotypes: 10000/304125  * checking phenotypes: 11000/304125  * checking phenotypes: 12000/304125  * checking phenotypes: 13000/304125  * checking phenotypes: 14000/304125  * checking phenotypes: 15000/304125  * checking phenotypes: 16000/304125  * checking phenotypes: 17000/304125  * checking phenotypes: 18000/304125  * checking phenotypes: 19000/304125  * checking phenotypes: 20000/304125  * checking phenotypes: 21000/304125  * checking phenotypes: 22000/304125  * checking phenotypes: 23000/304125  * checking phenotypes: 24000/304125  * checking phenotypes: 25000/304125  * checking phenotypes: 26000/304125  * checking phenotypes: 27000/304125  * checking phenotypes: 28000/304125  * checking phenotypes: 29000/304125  * checking phenotypes: 30000/304125  * checking phenotypes: 31000/304125  * checking phenotypes: 32000/304125  * checking phenotypes: 33000/304125  * checking phenotypes: 34000/304125  * checking phenotypes: 35000/304125  * checking phenotypes: 36000/304125  * checking phenotypes: 37000/304125  * checking phenotypes: 38000/304125  * checking phenotypes: 39000/304125  * checking phenotypes: 40000/304125  * checking phenotypes: 41000/304125  * checking phenotypes: 42000/304125  * checking phenotypes: 43000/304125  * checking phenotypes: 44000/304125  * checking phenotypes: 45000/304125  * checking phenotypes: 46000/304125  * checking phenotypes: 47000/304125  * checking phenotypes: 48000/304125  * checking phenotypes: 49000/304125  * checking phenotypes: 50000/304125  * checking phenotypes: 51000/304125  * checking phenotypes: 52000/304125  * checking phenotypes: 53000/304125  * checking phenotypes: 54000/304125  * checking phenotypes: 55000/304125  * checking phenotypes: 56000/304125  * checking phenotypes: 57000/304125  * checking phenotypes: 58000/304125  * checking phenotypes: 59000/304125  * checking phenotypes: 60000/304125  * checking phenotypes: 61000/304125  * checking phenotypes: 62000/304125  * checking phenotypes: 63000/304125  * checking phenotypes: 64000/304125  * checking phenotypes: 65000/304125  * checking phenotypes: 66000/304125  * checking phenotypes: 67000/304125  * checking phenotypes: 68000/304125  * checking phenotypes: 69000/304125  * checking phenotypes: 70000/304125  * checking phenotypes: 71000/304125  * checking phenotypes: 72000/304125  * checking phenotypes: 73000/304125  * checking phenotypes: 74000/304125  * checking phenotypes: 75000/304125  * checking phenotypes: 76000/304125  * checking phenotypes: 77000/304125  * checking phenotypes: 78000/304125  * checking phenotypes: 79000/304125  * checking phenotypes: 80000/304125  * checking phenotypes: 81000/304125  * checking phenotypes: 82000/304125  * checking phenotypes: 83000/304125  * checking phenotypes: 84000/304125  * checking phenotypes: 85000/304125  * checking phenotypes: 86000/304125  * checking phenotypes: 87000/304125  * checking phenotypes: 88000/304125  * checking phenotypes: 89000/304125  * checking phenotypes: 90000/304125  * checking phenotypes: 91000/304125  * checking phenotypes: 92000/304125  * checking phenotypes: 93000/304125  * checking phenotypes: 94000/304125  * checking phenotypes: 95000/304125  * checking phenotypes: 96000/304125  * checking phenotypes: 97000/304125  * checking phenotypes: 98000/304125  * checking phenotypes: 99000/304125  * checking phenotypes: 100000/304125  * checking phenotypes: 101000/304125  * checking phenotypes: 102000/304125  * checking phenotypes: 103000/304125  * checking phenotypes: 104000/304125  * checking phenotypes: 105000/304125  * checking phenotypes: 106000/304125  * checking phenotypes: 107000/304125  * checking phenotypes: 108000/304125  * checking phenotypes: 109000/304125  * checking phenotypes: 110000/304125  * checking phenotypes: 111000/304125  * checking phenotypes: 112000/304125  * checking phenotypes: 113000/304125  * checking phenotypes: 114000/304125  * checking phenotypes: 115000/304125  * checking phenotypes: 116000/304125  * checking phenotypes: 117000/304125  * checking phenotypes: 118000/304125  * checking phenotypes: 119000/304125  * checking phenotypes: 120000/304125  * checking phenotypes: 121000/304125  * checking phenotypes: 122000/304125  * checking phenotypes: 123000/304125  * checking phenotypes: 124000/304125  * checking phenotypes: 125000/304125  * checking phenotypes: 126000/304125  * checking phenotypes: 127000/304125  * checking phenotypes: 128000/304125  * checking phenotypes: 129000/304125  * checking phenotypes: 130000/304125  * checking phenotypes: 131000/304125  * checking phenotypes: 132000/304125  * checking phenotypes: 133000/304125  * checking phenotypes: 134000/304125  * checking phenotypes: 135000/304125  * checking phenotypes: 136000/304125  * checking phenotypes: 137000/304125  * checking phenotypes: 138000/304125  * checking phenotypes: 139000/304125  * checking phenotypes: 140000/304125  * checking phenotypes: 141000/304125  * checking phenotypes: 142000/304125  * checking phenotypes: 143000/304125  * checking phenotypes: 144000/304125  * checking phenotypes: 145000/304125  * checking phenotypes: 146000/304125  * checking phenotypes: 147000/304125  * checking phenotypes: 148000/304125  * checking phenotypes: 149000/304125  * checking phenotypes: 150000/304125  * checking phenotypes: 151000/304125  * checking phenotypes: 152000/304125  * checking phenotypes: 153000/304125  * checking phenotypes: 154000/304125  * checking phenotypes: 155000/304125  * checking phenotypes: 156000/304125  * checking phenotypes: 157000/304125  * checking phenotypes: 158000/304125  * checking phenotypes: 159000/304125  * checking phenotypes: 160000/304125  * checking phenotypes: 161000/304125  * checking phenotypes: 162000/304125  * checking phenotypes: 163000/304125  * checking phenotypes: 164000/304125  * checking phenotypes: 165000/304125  * checking phenotypes: 166000/304125  * checking phenotypes: 167000/304125  * checking phenotypes: 168000/304125  * checking phenotypes: 169000/304125  * checking phenotypes: 170000/304125  * checking phenotypes: 171000/304125  * checking phenotypes: 172000/304125  * checking phenotypes: 173000/304125  * checking phenotypes: 174000/304125  * checking phenotypes: 175000/304125  * checking phenotypes: 176000/304125  * checking phenotypes: 177000/304125  * checking phenotypes: 178000/304125  * checking phenotypes: 179000/304125  * checking phenotypes: 180000/304125  * checking phenotypes: 181000/304125  * checking phenotypes: 182000/304125  * checking phenotypes: 183000/304125  * checking phenotypes: 184000/304125  * checking phenotypes: 185000/304125  * checking phenotypes: 186000/304125  * checking phenotypes: 187000/304125  * checking phenotypes: 188000/304125  * checking phenotypes: 189000/304125  * checking phenotypes: 190000/304125  * checking phenotypes: 191000/304125  * checking phenotypes: 192000/304125  * checking phenotypes: 193000/304125  * checking phenotypes: 194000/304125  * checking phenotypes: 195000/304125  * checking phenotypes: 196000/304125  * checking phenotypes: 197000/304125  * checking phenotypes: 198000/304125  * checking phenotypes: 199000/304125  * checking phenotypes: 200000/304125  * checking phenotypes: 201000/304125  * checking phenotypes: 202000/304125  * checking phenotypes: 203000/304125  * checking phenotypes: 204000/304125  * checking phenotypes: 205000/304125  * checking phenotypes: 206000/304125  * checking phenotypes: 207000/304125  * checking phenotypes: 208000/304125  * checking phenotypes: 209000/304125  * checking phenotypes: 210000/304125  * checking phenotypes: 211000/304125  * checking phenotypes: 212000/304125  * checking phenotypes: 213000/304125  * checking phenotypes: 214000/304125  * checking phenotypes: 215000/304125  * checking phenotypes: 216000/304125  * checking phenotypes: 217000/304125  * checking phenotypes: 218000/304125  * checking phenotypes: 219000/304125  * checking phenotypes: 220000/304125  * checking phenotypes: 221000/304125  * checking phenotypes: 222000/304125  * checking phenotypes: 223000/304125  * checking phenotypes: 224000/304125  * checking phenotypes: 225000/304125  * checking phenotypes: 226000/304125  * checking phenotypes: 227000/304125  * checking phenotypes: 228000/304125  * checking phenotypes: 229000/304125  * checking phenotypes: 230000/304125  * checking phenotypes: 231000/304125  * checking phenotypes: 232000/304125  * checking phenotypes: 233000/304125  * checking phenotypes: 234000/304125  * checking phenotypes: 235000/304125  * checking phenotypes: 236000/304125  * checking phenotypes: 237000/304125  * checking phenotypes: 238000/304125  * checking phenotypes: 239000/304125  * checking phenotypes: 240000/304125  * checking phenotypes: 241000/304125  * checking phenotypes: 242000/304125  * checking phenotypes: 243000/304125  * checking phenotypes: 244000/304125  * checking phenotypes: 245000/304125  * checking phenotypes: 246000/304125  * checking phenotypes: 247000/304125  * checking phenotypes: 248000/304125  * checking phenotypes: 249000/304125  * checking phenotypes: 250000/304125  * checking phenotypes: 251000/304125  * checking phenotypes: 252000/304125  * checking phenotypes: 253000/304125  * checking phenotypes: 254000/304125  * checking phenotypes: 255000/304125  * checking phenotypes: 256000/304125  * checking phenotypes: 257000/304125  * checking phenotypes: 258000/304125  * checking phenotypes: 259000/304125  * checking phenotypes: 260000/304125  * checking phenotypes: 261000/304125  * checking phenotypes: 262000/304125  * checking phenotypes: 263000/304125  * checking phenotypes: 264000/304125  * checking phenotypes: 265000/304125  * checking phenotypes: 266000/304125  * checking phenotypes: 267000/304125  * checking phenotypes: 268000/304125  * checking phenotypes: 269000/304125  * checking phenotypes: 270000/304125  * checking phenotypes: 271000/304125  * checking phenotypes: 272000/304125  * checking phenotypes: 273000/304125  * checking phenotypes: 274000/304125  * checking phenotypes: 275000/304125  * checking phenotypes: 276000/304125  * checking phenotypes: 277000/304125  * checking phenotypes: 278000/304125  * checking phenotypes: 279000/304125  * checking phenotypes: 280000/304125  * checking phenotypes: 281000/304125  * checking phenotypes: 282000/304125  * checking phenotypes: 283000/304125  * checking phenotypes: 284000/304125  * checking phenotypes: 285000/304125  * checking phenotypes: 286000/304125  * checking phenotypes: 287000/304125  * checking phenotypes: 288000/304125  * checking phenotypes: 289000/304125  * checking phenotypes: 290000/304125  * checking phenotypes: 291000/304125  * checking phenotypes: 292000/304125  * checking phenotypes: 293000/304125  * checking phenotypes: 294000/304125  * checking phenotypes: 295000/304125  * checking phenotypes: 296000/304125  * checking phenotypes: 297000/304125  * checking phenotypes: 298000/304125  * checking phenotypes: 299000/304125  * checking phenotypes: 300000/304125  * checking phenotypes: 301000/304125  * checking phenotypes: 302000/304125  * checking phenotypes: 303000/304125  * checking phenotypes: 304000/304125  * checking phenotypes: 304125/304125
+    ** dropping 2254 phenotypes without variants in cis-window
+  * Computing associations
+    Mapping chromosome chr1
+    time elapsed: 2.84 min
+Traceback (most recent call last):
+  File "/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/eqtl/code/tensorqtl_genomewide_nominal.py", line 24, in <module>
+    cis.map_nominal(genotype_df, variant_df, phenotype_df, phenotype_pos_df, prefix = tag, covariates_df= covariates_df,
+  File "/jhpce/shared/jhpce/libd/tensorqtl/1.0.6/tensorqtl_venv/lib/python3.9/site-packages/tensorqtl/cis.py", line 422, in map_nominal
+    chr_res_df = pd.DataFrame(chr_res)
+  File "/jhpce/shared/jhpce/libd/tensorqtl/1.0.6/tensorqtl_venv/lib/python3.9/site-packages/pandas/core/frame.py", line 637, in __init__
+    mgr = dict_to_mgr(data, index, columns, dtype=dtype, copy=copy, typ=manager)
+  File "/jhpce/shared/jhpce/libd/tensorqtl/1.0.6/tensorqtl_venv/lib/python3.9/site-packages/pandas/core/internals/construction.py", line 502, in dict_to_mgr
+    return arrays_to_mgr(arrays, columns, index, dtype=dtype, typ=typ, consolidate=copy)
+  File "/jhpce/shared/jhpce/libd/tensorqtl/1.0.6/tensorqtl_venv/lib/python3.9/site-packages/pandas/core/internals/construction.py", line 156, in arrays_to_mgr
+    return create_block_manager_from_column_arrays(
+  File "/jhpce/shared/jhpce/libd/tensorqtl/1.0.6/tensorqtl_venv/lib/python3.9/site-packages/pandas/core/internals/managers.py", line 1959, in create_block_manager_from_column_arrays
+    mgr._consolidate_inplace()
+  File "/jhpce/shared/jhpce/libd/tensorqtl/1.0.6/tensorqtl_venv/lib/python3.9/site-packages/pandas/core/internals/managers.py", line 1685, in _consolidate_inplace
+    self.blocks = tuple(_consolidate(self.blocks))
+  File "/jhpce/shared/jhpce/libd/tensorqtl/1.0.6/tensorqtl_venv/lib/python3.9/site-packages/pandas/core/internals/managers.py", line 2084, in _consolidate
+    merged_blocks = _merge_blocks(
+  File "/jhpce/shared/jhpce/libd/tensorqtl/1.0.6/tensorqtl_venv/lib/python3.9/site-packages/pandas/core/internals/managers.py", line 2118, in _merge_blocks
+    new_values = new_values[argsort]
+numpy.core._exceptions.MemoryError: Unable to allocate 632. MiB for an array with shape (3, 55197840) and data type float32
+**** Job ends ****
+Thu Apr  7 12:52:34 EDT 2022
