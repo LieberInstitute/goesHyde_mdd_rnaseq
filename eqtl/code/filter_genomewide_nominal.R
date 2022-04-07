@@ -24,9 +24,12 @@ parquet_files <- map(
 )
 
 
-read_adj_filter <- function(parquet_files, cutoff = 0.01) {
+read_adj_filter <- function(parquet_files, cutoff = 0.05) {
     eqtl_out <- do.call("rbind", map(parquet_files, parquet_read)) %>%
-        mutate(FDR = p.adjust(pval_nominal, "fdr")) %>%
+        mutate(FDR = p.adjust(pval_nominal, "fdr")) 
+    message("n_pairs:", nrow(eqtl_out))
+    ## filter 
+    eqtl_out <- eqtl_out %>%
         filter(FDR < cutoff)
     # significant_snps <- c(significant_snps, eqt_outl$variant_id)
     return(eqtl_out)
@@ -42,8 +45,8 @@ eqtl_out_filtered <- map2(parquet_files, names(parquet_files), function(parq_fea
         eqtl_out_filtered <- read_adj_filter(parquet_files = parq_region)
 
         write_csv(eqtl_out_filtered, file = here(
-            "eqtl", "data", "tensorQTL_out", "genomewide_nominal",
-            paste0(names_feat, "_", names_region, "_FDR01.csv")
+            "eqtl", "data", "tensorQTL_FDR05", "genomewide_nominal",
+            paste0(names_feat, "_", names_region, "_FDR05.csv")
         ))
     })
 })
