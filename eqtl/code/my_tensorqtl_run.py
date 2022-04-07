@@ -5,7 +5,7 @@ from tensorqtl import genotypeio, cis, trans
 print(f'PyTorch {torch.__version__}')
 print(f'Pandas {pd.__version__}')
 
-def load_data(plink_prefix_path, expression_bed, covariates_file, add_chr = False):
+def load_data(plink_prefix_path, expression_bed, covariates_file, add_chr = False, fix_geno_names = False):
     
     # load phenotypes and covariates
     print("Reading Expression files: " + expression_bed)
@@ -26,9 +26,11 @@ def load_data(plink_prefix_path, expression_bed, covariates_file, add_chr = Fals
     print(genotype_df.shape)
     
     ## Fix genoSample names
-    ## fam = pd.read_table(plink_prefix_path + '.fam', delimiter = "\t", names = ["V" + str(i) for i in range(6)])
-    ## genoSamples = [str(v1) + "_" + str(v0) for (v0,v1) in zip(fam.V1, fam.V0)]
-    ## genotype_df.columns = genoSamples
+    if fix_geno_names:
+        print("Using fam to assign genoSample names")
+        fam = pd.read_table(plink_prefix_path + '.fam', delimiter = " ", names = ["V" + str(i) for i in range(6)])
+        genoSamples = [str(v1) + "_" + str(v0) for (v0,v1) in zip(fam.V1, fam.V0)]
+        genotype_df.columns = genoSamples
     
     ## Fix chr names (maybe fix in plink?)
     if add_chr:
