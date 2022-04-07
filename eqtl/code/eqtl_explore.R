@@ -74,3 +74,35 @@ eqtl_all %>%
 # 1          FALSE           FALSE 4504453
 # 2          FALSE            TRUE       4
 # 3           TRUE            TRUE   50151
+
+#### Why 1230/9650 MDD risk SNPs?
+# dropping 22779 phenotypes without variants in cis-window
+
+risk_eqtl_out <- read.csv(here("eqtl", "data", "tensorQTL_out", "nominal_mdd_risk", "gene_Amygdala_Astro.csv"))
+dim(risk_eqtl_out)
+
+length(unique(risk_eqtl_out$variant_id))
+# [1] 437
+length(unique(risk_eqtl_out$phenotype_id))
+# [1] 1230 <- same length as output: reporting top only?
+
+risk_eqtl_out %>%
+  count(variant_id) 
+
+risk_vcf_mdd <- readVcf(here("eqtl", "data", "risk_snps", "LIBD_maf01_gwas_MDD.vcf.gz"))
+dim(risk_vcf_mdd)
+# [1] 9650  616
+
+test_eqtl_fn <- list.files(here("eqtl", "data", "tensorQTL_out","test"), full.names = TRUE)
+test_eqtl_out <- do.call("rbind", map(test_eqtl_fn, parquet_read))
+
+dim(test_eqtl_out)
+# [1] 84812     9
+
+head(test_eqtl_out)
+length(unique(test_eqtl_out$variant_id))
+# [1] 8128 
+length(unique(test_eqtl_out$phenotype_id))
+# [1] 1221 ?
+
+
