@@ -27,10 +27,11 @@ parquet_files <- map(
 read_adj_filter <- function(parquet_files, cutoff = 0.05) {
     eqtl_out <- do.call("rbind", map(parquet_files, parquet_read)) %>%
         mutate(FDR = p.adjust(pval_nominal, "fdr")) 
-    message("n_pairs:", nrow(eqtl_out))
+    message("n pairs: ", nrow(eqtl_out))
     ## filter 
     eqtl_out <- eqtl_out %>%
         filter(FDR < cutoff)
+    message("n pairs FDR<", cutoff, ": ", nrow(eqtl_out))
     # significant_snps <- c(significant_snps, eqt_outl$variant_id)
     return(eqtl_out)
 }
