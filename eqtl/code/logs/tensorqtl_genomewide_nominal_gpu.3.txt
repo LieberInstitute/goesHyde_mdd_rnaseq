@@ -6,10 +6,10 @@ Loading LIBD module for rmate/1.5.9
 Loading LIBD module for ruby/2.6.4p104
 Loading conda_R/devel
 **** Job starts ****
-Thu Apr  7 12:27:39 EDT 2022
+Tue Apr 19 08:44:39 EDT 2022
 **** JHPCE info ****
 User: lhuuki
-Job id: 9847703
+Job id: 9899912
 Job name: tensorqtl_genomewide_nominal_gpu
 Hostname: compute-126.cm.cluster
 Task id: 3
@@ -60,7 +60,7 @@ Phenotype dimensions:
 (399529, 540)
 ....................
 Reading Plink files: /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/genotype_data/mdd_bpd/maf01/mdd_bpd_maf01
-Mapping files:   0%|          | 0/3 [00:00<?, ?it/s]Mapping files:  33%|███▎      | 1/3 [00:07<00:15,  7.73s/it]Mapping files:  67%|██████▋   | 2/3 [00:08<00:03,  3.46s/it]Mapping files: 100%|██████████| 3/3 [00:10<00:00,  3.03s/it]Mapping files: 100%|██████████| 3/3 [00:10<00:00,  3.58s/it]
+Mapping files:   0%|          | 0/3 [00:00<?, ?it/s]Mapping files:  33%|███▎      | 1/3 [00:07<00:15,  7.73s/it]Mapping files:  67%|██████▋   | 2/3 [00:08<00:03,  3.47s/it]Mapping files: 100%|██████████| 3/3 [00:10<00:00,  3.05s/it]Mapping files: 100%|██████████| 3/3 [00:10<00:00,  3.59s/it]
 Loading Genotypes...Genotype dimensions:(11031865, 616)
 Using fam to assign genoSample names
 Adding 'chr' to genotype positions
@@ -83,25 +83,75 @@ cis-QTL mapping: nominal associations for all variant-phenotype pairs
     ** dropping 259 phenotypes without variants in cis-window
   * Computing associations
     Mapping chromosome chr1
-    time elapsed: 2.33 min
-Traceback (most recent call last):
-  File "/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/eqtl/code/tensorqtl_genomewide_nominal.py", line 24, in <module>
-    cis.map_nominal(genotype_df, variant_df, phenotype_df, phenotype_pos_df, prefix = tag, covariates_df= covariates_df,
-  File "/jhpce/shared/jhpce/libd/tensorqtl/1.0.6/tensorqtl_venv/lib/python3.9/site-packages/tensorqtl/cis.py", line 422, in map_nominal
-    chr_res_df = pd.DataFrame(chr_res)
-  File "/jhpce/shared/jhpce/libd/tensorqtl/1.0.6/tensorqtl_venv/lib/python3.9/site-packages/pandas/core/frame.py", line 637, in __init__
-    mgr = dict_to_mgr(data, index, columns, dtype=dtype, copy=copy, typ=manager)
-  File "/jhpce/shared/jhpce/libd/tensorqtl/1.0.6/tensorqtl_venv/lib/python3.9/site-packages/pandas/core/internals/construction.py", line 502, in dict_to_mgr
-    return arrays_to_mgr(arrays, columns, index, dtype=dtype, typ=typ, consolidate=copy)
-  File "/jhpce/shared/jhpce/libd/tensorqtl/1.0.6/tensorqtl_venv/lib/python3.9/site-packages/pandas/core/internals/construction.py", line 125, in arrays_to_mgr
-    arrays = _homogenize(arrays, index, dtype)
-  File "/jhpce/shared/jhpce/libd/tensorqtl/1.0.6/tensorqtl_venv/lib/python3.9/site-packages/pandas/core/internals/construction.py", line 625, in _homogenize
-    val = sanitize_array(
-  File "/jhpce/shared/jhpce/libd/tensorqtl/1.0.6/tensorqtl_venv/lib/python3.9/site-packages/pandas/core/construction.py", line 593, in sanitize_array
-    subarr = maybe_convert_platform(data)
-  File "/jhpce/shared/jhpce/libd/tensorqtl/1.0.6/tensorqtl_venv/lib/python3.9/site-packages/pandas/core/dtypes/cast.py", line 130, in maybe_convert_platform
-    arr = lib.maybe_convert_objects(arr)
-  File "pandas/_libs/lib.pyx", line 2457, in pandas._libs.lib.maybe_convert_objects
-numpy.core._exceptions.MemoryError: Unable to allocate 1.02 GiB for an array with shape (68753440,) and data type complex128
+    time elapsed: 3.52 min
+    * writing output
+    Mapping chromosome chr2
+    time elapsed: 7.16 min
+    * writing output
+    Mapping chromosome chr3
+    time elapsed: 10.40 min
+    * writing output
+    Mapping chromosome chr4
+    time elapsed: 12.56 min
+    * writing output
+    Mapping chromosome chr5
+    time elapsed: 14.80 min
+    * writing output
+    Mapping chromosome chr6
+    time elapsed: 17.13 min
+    * writing output
+    Mapping chromosome chr7
+    time elapsed: 19.56 min
+    * writing output
+    Mapping chromosome chr8
+    time elapsed: 21.52 min
+    * writing output
+    Mapping chromosome chr9
+    time elapsed: 23.40 min
+    * writing output
+    Mapping chromosome chr10
+    time elapsed: 25.20 min
+    * writing output
+    Mapping chromosome chr11
+    time elapsed: 27.90 min
+    * writing output
+    Mapping chromosome chr12
+    time elapsed: 30.82 min
+    * writing output
+    Mapping chromosome chr13
+    time elapsed: 31.97 min
+    * writing output
+    Mapping chromosome chr14
+    time elapsed: 33.56 min
+    * writing output
+    Mapping chromosome chr15
+    time elapsed: 35.40 min
+    * writing output
+    Mapping chromosome chr16
+    time elapsed: 37.34 min
+    * writing output
+    Mapping chromosome chr17
+    time elapsed: 39.45 min
+    * writing output
+    Mapping chromosome chr18
+    time elapsed: 40.45 min
+    * writing output
+    Mapping chromosome chr19
+    time elapsed: 42.43 min
+    * writing output
+    Mapping chromosome chr20
+    time elapsed: 43.62 min
+    * writing output
+    Mapping chromosome chr21
+    time elapsed: 44.08 min
+    * writing output
+    Mapping chromosome chr22
+    time elapsed: 44.79 min
+    * writing output
+    Mapping chromosome chrX
+    time elapsed: 45.59 min
+    * writing output
+done.
+ DONE !
 **** Job ends ****
-Thu Apr  7 12:35:16 EDT 2022
+Tue Apr 19 09:36:56 EDT 2022
