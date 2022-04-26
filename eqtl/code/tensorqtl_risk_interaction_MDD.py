@@ -4,7 +4,7 @@ import os
 from tensorqtl import genotypeio, cis, trans
 import pandas as pd
 
-out_path = "../data/tensorQTL_out/nominal_mdd_risk/"
+out_path = "../data/tensorQTL_out/risk_nominal_mdd/"
 
 for region in ["Amygdala", "sACC"]:
     express, covar = my_tensorqtl_run.get_input_paths("gene", region)
@@ -20,11 +20,9 @@ for region in ["Amygdala", "sACC"]:
         cf_interaction = pd.Series(cell_fraction[cell_type])
         
         nominal_out = cis.map_nominal(genotype_df, variant_df, phenotype_df, phenotype_pos_df,
-        prefix = tag, covariates_df=covariates_df, output_dir= out_path + "parquet_data/", 
-        interaction_s = cf_interaction, maf_threshold_interaction=0, group_s=None, window=500000, 
-        run_eigenmt=False, write_top = False)
+        prefix = tag, covariates_df=covariates_df, output_dir = out_path, 
+        interaction_s = cf_interaction, maf_threshold_interaction = 0.05, group_s = None, window = 500000, 
+        run_eigenmt = False, write_stats = True)
         
-        nominal_out.to_csv(out_path + tag + ".csv")
-    
     print("DONE " + region)
 
