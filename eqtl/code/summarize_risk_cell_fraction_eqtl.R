@@ -1,12 +1,83 @@
-library(SummarizedExperiment)
-library(VariantAnnotation)
-library(tidyverse)
-library(jaffelab)
-library(ggforce)
-library(sessioninfo)
-library(here)
+library("SummarizedExperiment")
+library("VariantAnnotation")
+library("tidyverse")
+library("jaffelab")
+library("ggforce")
+library("sessioninfo")
+library("here")
 
-source("utils.R")
+# source("utils.R")
+
+#### Read in csv files ####
+## loop over dx
+dx <- c("mdd", "bpd")
+names(dx) <- dx
+
+regions <- c(amyg = "Amygdala", sacc = "sACC")
+
+## get data from csv files
+combos <- cross2(dx, names(regions))
+names(combos) <- map_chr(cross2(dx, names(regions)),  ~paste0(.x[[1]],"_",.x[[2]]))
+
+eqtl_out_risk <- map(combos, function(f){
+    fn <- here("eqtl", "data", "tensorQTL_FDR05", paste0("risk_nominal_", f[[1]]),
+               paste0("risk_gene_",f[[2]],"_",f[[1]],"_FDRall.csv"))
+    
+    eqtl_out <- read.csv(fn) %>%
+        mutate(region = f[[2]],
+               Dx = f[[1]],
+               .before = "cell_type")
+    
+    return(eqtl_out)
+})
+
+map(eqtl_out_risk, head)
+
+map(eqtl_out_risk, ~.x %>% 
+        group_by(cell_type) %>% 
+        summarize(n_pairs = n(),
+                  n_FDR05 = sum(FDR < 0.05)))
+
+
+map(eqtl_out_risk, ~.x %>% 
+        group_by(cell_type, phenotype_id) %>% 
+        filter(FDR < 0.05) %>%
+        summarize(n_SNP = n(),
+                  ))
+
+## Combine in to one df
+eqtl_risk_all <- do.call("rbind", eqtl_out_risk)
+rownames(eqtl_risk_all) <- NULL
+
+risk_summary <- eqtl_risk_all %>%
+    filter(FDR < 0.05) %>%
+    group_by(region, Dx, cell_type) %>%
+    summarize(n_pairs = n(),
+              n_genes = length(unique(phenotype_id)),
+              n_SNPs = length(unique(variant_id))) %>%
+    mutate(anno = paste("pairs:", n_pairs, "\ngenes:",n_genes,"\nSNPs:",n_SNPs))
+
+risk_summary %>%
+    select(region, Dx, cell_type, n_pairs) %>%
+    pivot_wider(names_from = "cell_type", values_from = "n_pairs")
+
+risk_summary %>%
+    select(region, Dx, cell_type, n_genes) %>%
+    pivot_wider(names_from = "cell_type", values_from = "n_genes")
+
+risk_summary %>%
+    select(region, Dx, cell_type, n_SNPs) %>%
+    pivot_wider(names_from = "cell_type", values_from = "n_SNPs")
+
+tile_plot <- risk_summary %>%
+    ggplot(aes(x = region, y = cell_type, fill = n_pairs))+
+    geom_tile() +
+    geom_text(aes(label = anno), color = "gray") +
+    facet_wrap(~Dx) +
+    theme_bw() +
+    labs(title = "Risk SNP cell type interaction")
+
+ggsave(tile_plot, file = here("eqtl", "plots","eqtl_risk_n-pairs_tile.png"))
 
 #### Get Gene Residual Expression ####
 ## Load gene data
