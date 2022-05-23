@@ -1,9 +1,9 @@
 #!/bin/bash
 #$ -cwd
 #$ -l mem_free=10G,h_vmem=10G,h_fsize=100G
-#$ -N run_plink
-#$ -o logs/run_plink.txt
-#$ -e logs/run_plink.txt
+#$ -N reformat_junc
+#$ -o logs/reformat_junc.txt
+#$ -e logs/reformat_junc.txt
 
 echo "**** Job starts ****"
 date
@@ -16,8 +16,10 @@ echo "Hostname: ${HOSTNAME}"
 echo "Task id: ${SGE_TASK_ID}"
 
 for i in $(ls /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/preprocessed_data/Counts/junction/*.count); 
-	do python ../scripts/reformat_junc.py $i;
+	do python reformat_junc.py $i;
 done
+
+ls ../data/jucn/*.junc >> ../data/all_jxn_filenames.txt
 
 echo "**** Job ends ****"
 date
