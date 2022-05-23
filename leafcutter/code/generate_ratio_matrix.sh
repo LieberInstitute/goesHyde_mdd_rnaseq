@@ -30,12 +30,5 @@ python prepare_phenotype_table.py  ../data/BP_RNAseq_perind.counts.chrom.gz -p 1
 head -1 BP_RNAseq_perind.counts.chrom.gz.qqnorm_chr1 > BP_RNAseq_perind.counts.chrom.gz.qqnorm_all
 cat BP_RNAseq_perind.counts.chrom.gz.qqnorm_chr* | bedtools sort -i - >> BP_RNAseq_perind.counts.chrom.gz.qqnorm_all
 
-# Create file for Amygdala and sACC regions containing qqnorm'd data with Brain Numbers (BrNum) as column names
-Rscript extract_qqnorm_data.R
-
-# Loading data into R changes the '#' in the header line to 'X.', the following sed commands revert the change
-sed -i 's/X./#/' ../data/qqnorm/amygdala_qqnorm.txt
-sed -i 's/X./#/' ./data/qqnorm/sacc_qqnorm.txt
-
 echo "**** Job ends ****"
 date
