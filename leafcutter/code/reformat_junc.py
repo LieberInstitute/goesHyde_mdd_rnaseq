@@ -2,7 +2,7 @@
 import sys
 
 infile = sys.argv[1]
-outfile = "./"+infile.split('/')[-1].replace(".count",".junc")
+outfile = "../data/junc/"+infile.split('/')[-1].replace(".count",".junc")
 
 with open(infile, 'r') as inf, open(outfile, 'w') as out:
 	for line in inf.readlines():
