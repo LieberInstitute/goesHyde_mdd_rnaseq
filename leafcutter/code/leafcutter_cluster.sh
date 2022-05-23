@@ -15,7 +15,9 @@ echo "Job name: ${JOB_NAME}"
 echo "Hostname: ${HOSTNAME}"
 echo "Task id: ${SGE_TASK_ID}"
 
-python leafcutter_cluster.py -j ../data/all_jxn_filenames.txt -m 50 -o BP_RNAseq -l 500000
+module load python/2.7
+
+python leafcutter_cluster.py -j ../data/all_jxn_filenames.txt -m 50 -l 500000 -r ../data/clusters/
 
 echo "**** Job ends ****"
 date
