@@ -19,7 +19,7 @@ for i in $(ls /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/preprocessed_data/Cou
 	do python reformat_junc.py $i;
 done
 
-ls ../data/jucn/*.junc >> ../data/all_jxn_filenames.txt
+ls ../data/junc/*.junc > ../data/all_jxn_filenames.txt
 
 echo "**** Job ends ****"
 date
