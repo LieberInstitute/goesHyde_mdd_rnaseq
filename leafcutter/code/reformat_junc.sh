@@ -15,11 +15,13 @@ echo "Job name: ${JOB_NAME}"
 echo "Hostname: ${HOSTNAME}"
 echo "Task id: ${SGE_TASK_ID}"
 
-for i in $(ls /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/preprocessed_data/Counts/junction/*.count); 
-	do python reformat_junc.py $i;
+# create junc_count_files.txt with input_check.R
+
+cat ../data/junc_count_files.txt | while read line; 
+	do python reformat_junc.py $line;
 done
 
-ls ../data/junc/*.junc > ../data/all_jxn_filenames.txt
+ls ../data/junc/*.junc > ../data/all_junc_filenames.txt
 
 echo "**** Job ends ****"
 date
