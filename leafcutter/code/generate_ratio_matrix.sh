@@ -18,12 +18,16 @@ echo "Task id: ${SGE_TASK_ID}"
 module load python/2.7
 
 # Create a ratio file with only autosomes
- ../data/clusters/leafcutter_perind.counts.gz | grep -f  ../data/tokeep.txt | >  ../data/clusters/leafcutter_perind.counts.chrom
+echo "
+grep autosomes..."
+zgrep -f ../data/tokeep.txt ../data/clusters/leafcutter_perind.counts.gz > ../data/clusters/leafcutter_perind.counts.chrom
 
 # zip autosome ratio file 
-gzip  ../data/clusters/leafcutter_perind.chounts.chrom
+echo "zip autozome ratio file..."
+gzip ../data/clusters/leafcutter_perind.counts.chrom
 
 # Create qqnormed file for each autosome
+echo "build qqnorm file..."
 python prepare_phenotype_table.py  ../data/clusters/leafcutter_perind.counts.chrom.gz -p 10
 
 # Compile each autosome into a single file
