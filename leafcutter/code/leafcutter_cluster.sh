@@ -4,6 +4,7 @@
 #$ -N leafcutter_cluster
 #$ -o logs/leafcutter_cluster.txt
 #$ -e logs/leafcutter_cluster.txt
+#$ -hold_jid reformat_junc
 
 echo "**** Job starts ****"
 date
