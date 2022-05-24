@@ -18,17 +18,17 @@ echo "Task id: ${SGE_TASK_ID}"
 module load python/2.7
 
 # Create a ratio file with only autosomes
- ../data/BP_RNAseq_perind.counts.gz | grep -f  ../data/tokeep.txt | >  ../data/BP_RNAseq_perind.counts.chrom
+ ../data/clusters/leafcutter_perind.counts.gz | grep -f  ../data/tokeep.txt | >  ../data/clusters/leafcutter_perind.counts.chrom
 
 # zip autosome ratio file 
-gzip  ../data/BP_RNAseq_perind.chounts.chrom
+gzip  ../data/clusters/leafcutter_perind.chounts.chrom
 
 # Create qqnormed file for each autosome
-python prepare_phenotype_table.py  ../data/BP_RNAseq_perind.counts.chrom.gz -p 10
+python prepare_phenotype_table.py  ../data/clusters/leafcutter_perind.counts.chrom.gz -p 10
 
 # Compile each autosome into a single file
-head -1 BP_RNAseq_perind.counts.chrom.gz.qqnorm_chr1 > BP_RNAseq_perind.counts.chrom.gz.qqnorm_all
-cat BP_RNAseq_perind.counts.chrom.gz.qqnorm_chr* | bedtools sort -i - >> BP_RNAseq_perind.counts.chrom.gz.qqnorm_all
+# head -1 ../data/clusters/leafcutter_perind.counts.chrom.gz.qqnorm_chr1 > ../data/clusters/leafcutter_perind.counts.chrom.gz.qqnorm_all
+# cat leafcutter_perind.counts.chrom.gz.qqnorm_chr* | bedtools sort -i - >> leafcutter_perind.counts.chrom.gz.qqnorm_all
 
 echo "**** Job ends ****"
 date
