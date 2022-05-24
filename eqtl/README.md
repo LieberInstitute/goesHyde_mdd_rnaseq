@@ -16,7 +16,7 @@ Summary Output: `./data/summary/gene_BPD_risk_cell_fraction_interaction.csv` & `
 
 ### MDD Risk SNPs
 VCF: `./data/risk_snps/LIBD_maf01_gwas_MDD.vcf.gz`  
-Contains 2152/4625 SNPs from:`./data/risk_snps/PGC_depression_genome-wide_significant_makers.txt`  
+Contains 9650/9744 SNPs from:`./data/risk_snps/PGC_MDD_genome-wide_significant_Jan2022.txt` (ones missing had incomplete data) 
 tensorQTL code: `./code/tensorqtl_risk_interaction_MDD.py`
 Raw Output: `./data/tensorQTL_out/nominal_mdd_risk/`  csv file for each cell type
 Summary Output: `./data/summary/gene_MDD_risk_cell_fraction_interaction.csv` & `./data/summary/gene_MDD_risk_cell_fraction_interaction_summary.csv`  
@@ -33,7 +33,7 @@ tensorQTL code: `./code/tensorqtl_genomewide_nominal_argv.py`
 Raw Output: `./data/tensorQTL_out/genomewide_nominal`  
   * Contains parquet files   
 Filtering code to make FDR csv files: `./code/filter_genomewide_nominal.R`
-  * `.data/tensorQTL_FDR01/geomewide_nominal/`
+  * `.data/tensorQTL_FDR05/geomewide_nominal/`
 
 Risk SNP subsets: `./data/risk_snps_eqtl/` One csv for each risk SNP set 
 (MDD or BPD) + region + feature.  
@@ -70,7 +70,7 @@ Interaction data (cell type proportion estimates): `./data/tensorQTL_input/covar
 
 ## Output Data
 Raw output from tenosrQTL: `./data/tensorQTL_out`  
-Filtered output for FDR < 0.01: `./data/tensorQTL_FDR01`  
+Filtered output for FDR < 0.05: `./data/tensorQTL_FDR05`  
 
 ## NOTES:  
 Some reorganization may cause filenames to not match up perfectly...  
