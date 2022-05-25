@@ -17,7 +17,7 @@ echo "Task id: ${SGE_TASK_ID}"
 
 module load python/2.7
 
-# Create qqnormed file for each autosome
+# Create qqnormed file
 echo "build qqnorm file..."
 python prepare_phenotype_table.py  ../data/clusters/leafcutter_perind.counts.gz -p 10
 
