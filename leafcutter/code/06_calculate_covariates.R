@@ -1,76 +1,60 @@
 library("SummarizedExperiment")
 library("jaffelab")
-library("MatrixEQTL")
+library("purrr")
 library("sva")
 library("here")
 library("sessioninfo")
 
-## load
+## get region
+args <- commandArgs(trailingOnly = TRUE)
+region <- args[[1]]
+message("region = ",region)
+#### load data ####
 load(here('exprs_cutoff','rse_gene.Rdata'), verbose=TRUE)
-print("Loaded SACC dataframe")
-### make "Other" dx bipolar
-pd = colData(rse_gene)
-pd$PrimaryDx[pd$PrimaryDx=="Other"] = "Bipolar"
-print("Created Other dx bipolar dataframe")
-## load SNP data
-load("/dcl01/lieber/ajaffe/lab/zandiHyde_bipolar_rnaseq/genotype_data/zandiHyde_bipolar_Genotypes_n511.rda")
-snpMap$pos_hg19 = paste0(snpMap$CHR, ":", snpMap$POS)
-print("Loaded SNP data")
-## drop rs10708380:150158001:TG:T (missing info in snpMap (and dbSNP))
-snpInd = which(rownames(snpMap) == "rs10708380:150158001:TG:T")
-snpMap = snpMap[-snpInd,]
-snp = snp[-snpInd,]
 
-#####################
-# filter brain region
-# make mds and snp dimensions equal to N
-# (repeat rows or columns for BrNum replicates)
-mds = mds[pd$BrNum,]
-snp = snp[,pd$BrNum]
-rownames(mds) = colnames(snp) = pd$RNum
+rse_gene <- rse_gene[,rse_gene$BrainRegion == region]
+pd = as.data.frame(colData(rse_gene))
 
-## risk loci from PGC paper + rAggr proxy markers
-riskLoci = read.csv("/dcl01/lieber/ajaffe/lab/zandiHyde_bipolar_rnaseq/eqtl/raggr/rAggr_results_881.csv", stringsAsFactors=FALSE)	# 13,592 snps
-colnames(riskLoci) = gsub("\\.", "_", colnames(riskLoci))
-riskLoci$hg19POS = paste0(riskLoci$SNP2_Chr, ":", riskLoci$SNP2_Pos) 
 
-## keep SNPs from list
-keepIndex = which(snpMap$pos_hg19 %in% riskLoci$hg19POS)	# keep 10,777 snps
-snpMap = snpMap[keepIndex,]
-snp = snp[keepIndex,]
+covar_format <- function(data, rn) {
+  data <- as.data.frame(data)
+  rownames(data) <- rn
+  data <- t(data)
+  data <- as.data.frame(data) %>% tibble::rownames_to_column("id")
+  return(data)
+}
 
-snpMap$maf = rowSums(snp, na.rm=TRUE)/(2*rowSums(!is.na(snp))) 
-print("Filtered the brain region")
-######################
-# statistical model ##
-######################
-pd$PrimaryDx = factor(pd$PrimaryDx,
-	levels = c("Control", "Bipolar"))
+## define model
+mod <- model.matrix(~ PrimaryDx + Sex + snpPC1 + snpPC2 + snpPC3 + snpPC4 + snpPC5, data = pd)[, 2:9]
 
-mod = model.matrix(~PrimaryDx + Sex + as.matrix(mds[,1:5]), data = pd)
-colnames(mod)[4:8] = colnames(mds)[1:5]
-print("Generated statistical model")
-######################
-# create SNP objects #
-######################
+fn <- here("leafcutter", "data", "qqnorm", paste0("qqnorm_",region,".bed.gz"))
 
-theSnps = SlicedData$new(as.matrix(snp))
-theSnps$ResliceCombined(sliceSize = 50000)
+message("reading ", basename(fn), " - ", Sys.time())
+splice <- read.table(fn,sep='\t',comment.char='$',header=T)
 
-snpspos = snpMap[,c("SNP","chr_hg38","pos_hg38")]
-colnames(snpspos) = c("name","chr","pos")
-print("Created SNP object")
-#######################
-####### do PCA ########
-#######################
-
-# load the splice ratio file
-splice <- read.table("/users/schadinh/lieber/qqnorm/amy_qqnorm_20190329.txt.gz",sep='\t',comment.char='$',header=T)
-# drop meta data columns
-splice <- splice[,5:dim(splice)[2]]
-# run PCA
+## drop meta data columns
+splice <- splice[,5:ncol(splice)]
+  
+## run PCA
+message("running PCA - ", Sys.time())
 sPCA <- prcomp(t(splice))
+message("running num.sv - ", Sys.time())
 numPCs <- num.sv(splice, mod)
+message("k = ", numPCs)
 sPCs <- sPCA$x[,1:numPCs]
+
+
 covsSplice <- t(cbind(mod[,-1],sPCs))
-write.table(covsSplice,file="/users/schadinh/lieber/covariates/covariates_amygdala.txt",sep="\t",quote=F,col.names=T,row.names=F)
+covsSplice <- covar_format(covsSplice, rse_gene$genoSample)
+
+write.table(covsSplice,file= here("leafcutter", "data","covariates",paste0("covariates_",region,".txt")),
+            sep="\t",quote=F,col.names=T,row.names=F)
+
+# sgejobs::job_single('06_calculate_covariates', create_shell = TRUE, queue= 'bluejay', memory = '25G', command = "Rscript 06_calculate_covariates.R")
+
+## Reproducibility information
+print('Reproducibility information:')
+Sys.time()
+proc.time()
+options(width = 120)
+session_info()
