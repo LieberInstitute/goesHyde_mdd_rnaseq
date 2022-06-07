@@ -1,32 +1,38 @@
 library("SummarizedExperiment")
 library("here")
 library("jaffelab")
+library("purrr")
+library("sessioninfo")
 
 load(here('exprs_cutoff','rse_gene.Rdata'), verbose=TRUE)
+chr_fn <- list.files(here("leafcutter", "data", "clusters"), pattern = "qqnorm_chr.*\\.gz$",
+                     full.names = TRUE) 
 
-# all <- read.table(here("leafcutter", "data", "clusters", "leafcutter_perind.counts.gz"),
-#                   header=T,comment.char="?", row.names= 1)
+qqnorm_list <- map(chr_fn, ~read.table(.x, header=T,comment.char="?"))
+map_int(qqnorm_list, ncol)
+map_int(qqnorm_list, nrow)
 
-chr_fn <- list.files(here("leafcutter", "data", "clusters"), pattern = "qqnorm_chr*.gz") 
+## combine in to one table
+qqnorm_all <- do.call("rbind", qqnorm_list)
+dim(qqnorm_all)
+# [1] 210544   1095
 
-all <- read.table(here("leafcutter", "data", "clusters", "leafcutter_perind.counts.gz.qqnorm_chr1.gz"),
-                  header=T,comment.char="?")
+corner(qqnorm_all)
 
-colnames(all)[[1]] <- "Chr" 
-dim(all)
-# [1] 289778   1091
+colnames(qqnorm_all)[[1]] <- "Chr" 
 
-colnames(all) <- ss(colnames(all), "_")
-corner(all)
+colnames(qqnorm_all) <- ss(colnames(qqnorm_all), "_")
+corner(qqnorm_all)
 
-## fix end = start + 1
-all$end <- all$start + 1
-
-## Use genoSample as col names to match VCF
-pos <- all[,c("Chr", "start", "end", "ID")]
+## fix positions
+pos <- qqnorm_all[,c("Chr", "start", "end", "ID")]
+# fix end = start + 1
+pos$end <- pos$start + 1
 head(pos)
 
-counts <- all[,rse_gene$RNum]
+## Use genoSample as col names to match VCF
+counts <- qqnorm_all[,rse_gene$RNum]
+dim(counts)
 all(rse_gene$RNum == colnames(counts))
 colnames(counts) <- rse_gene$genoSample
 
@@ -36,24 +42,23 @@ corner(counts)
 region_idx <- splitit(rse_gene$BrainRegion)
 names(region_idx)
 
-amy <- counts[,region_idx$Amygdala]
-amy <- cbind(pos, counts)
-corner(amy)
-# [1]  10 540
-amy_fn <- here("leafcutter", "data", "qqnorm", "qqnorm_Amygdala_chr1.bed")
-write.table(amy, file= amy_fn,
-            quote=F, sep="\t", col.names=T, row.names=F)
-system(paste("gzip", amy_fn))
+walk2(region_idx, names(region_idx), function(idx, name){
+  
+  region_counts <- counts[,idx]
+  region_qqnorm <- cbind(pos, region_counts)
 
-sacc <- all[,region_idx$sACC]
-dim(sacc)
-# [1]  10 551
-sacc_fn <- here("leafcutter", "data", "qqnorm", "qqnorm_sACC.txt")
-write.table(sacc, file = sacc_fn,
-            quote=F, sep="\t", col.names=T, row.names=F)
-system(paste("gzip", sacc_fn))
+  fn <- here("leafcutter", "data", "qqnorm", paste0("qqnorm_",name,".bed"))
+  message("saving ", fn)
+  
+  write.table(region_qqnorm, file= fn,
+              quote=F, sep="\t", col.names=T, row.names=F)
+  message("gzip...")
+  system(paste("gzip", fn))
+  
+  
+})
 
-# sgejobs::job_single('extract_qqnorm_data', create_shell = TRUE, queue= 'bluejay', memory = '5G', command = "Rscript extract_qqnorm_data.R")
+# sgejobs::job_single('extract_qqnorm_data', create_shell = TRUE, queue= 'bluejay', memory = '25G', command = "Rscript 05_extract_qqnorm_data.R")
 
 ## Reproducibility information
 print('Reproducibility information:')
