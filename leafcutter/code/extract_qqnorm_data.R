@@ -4,24 +4,43 @@ library("jaffelab")
 
 load(here('exprs_cutoff','rse_gene.Rdata'), verbose=TRUE)
 
-all <- read.table(here("leafcutter", "data", "clusters", "leafcutter_perind.counts.gz.PCs"),
+# all <- read.table(here("leafcutter", "data", "clusters", "leafcutter_perind.counts.gz"),
+#                   header=T,comment.char="?", row.names= 1)
+
+chr_fn <- list.files(here("leafcutter", "data", "clusters"), pattern = "qqnorm_chr*.gz") 
+
+all <- read.table(here("leafcutter", "data", "clusters", "leafcutter_perind.counts.gz.qqnorm_chr1.gz"),
                   header=T,comment.char="?")
 
+colnames(all)[[1]] <- "Chr" 
+dim(all)
+# [1] 289778   1091
+
 colnames(all) <- ss(colnames(all), "_")
+corner(all)
+
+## fix end = start + 1
+all$end <- all$start + 1
 
 ## Use genoSample as col names to match VCF
-all <- all[,rse_gene$RNum]
-all(rse_gene$RNum == colnames(all))
-colnames(all) <- rse_gene$genoSample
+pos <- all[,c("Chr", "start", "end", "ID")]
+head(pos)
 
+counts <- all[,rse_gene$RNum]
+all(rse_gene$RNum == colnames(counts))
+colnames(counts) <- rse_gene$genoSample
+
+corner(counts)
+
+## separate regions and save
 region_idx <- splitit(rse_gene$BrainRegion)
 names(region_idx)
 
-## separate regions and save
-amy <- all[,region_idx$Amygdala]
-dim(amy)
+amy <- counts[,region_idx$Amygdala]
+amy <- cbind(pos, counts)
+corner(amy)
 # [1]  10 540
-amy_fn <- here("leafcutter", "data", "qqnorm", "qqnorm_Amygdala.txt")
+amy_fn <- here("leafcutter", "data", "qqnorm", "qqnorm_Amygdala_chr1.bed")
 write.table(amy, file= amy_fn,
             quote=F, sep="\t", col.names=T, row.names=F)
 system(paste("gzip", amy_fn))
@@ -42,3 +61,4 @@ Sys.time()
 proc.time()
 options(width = 120)
 session_info()
+
