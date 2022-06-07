@@ -21,5 +21,9 @@ module load python/2.7
 echo "build qqnorm file..."
 python prepare_phenotype_table.py  ../data/clusters/leafcutter_perind.counts.gz -p 10
 
+# prep files
+module load htslib
+sh ../data/clusters/leafcutter_perind.counts.gz_prepare.sh
+
 echo "**** Job ends ****"
 date
