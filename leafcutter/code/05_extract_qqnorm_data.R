@@ -58,7 +58,7 @@ walk2(region_idx, names(region_idx), function(idx, name){
   
 })
 
-# sgejobs::job_single('extract_qqnorm_data', create_shell = TRUE, queue= 'bluejay', memory = '25G', command = "Rscript 05_extract_qqnorm_data.R")
+# sgejobs::job_single('05_extract_qqnorm_data', create_shell = TRUE, queue= 'bluejay', memory = '25G', command = "Rscript 05_extract_qqnorm_data.R")
 
 ## Reproducibility information
 print('Reproducibility information:')
