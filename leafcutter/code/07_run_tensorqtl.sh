@@ -6,8 +6,8 @@
 #$ -o logs/tensorqtl_genomewide_nominal_gpu.$TASK_ID.txt
 #$ -e logs/tensorqtl_genomewide_nominal_gpu.$TASK_ID.txt
 #$ -m e
-#$ -t 1-8
-#$ -tc 4
+#$ -t 1-2
+#$ -tc 2
 
 echo "**** Job starts ****"
 date
@@ -36,10 +36,11 @@ fi
 
 export CUDA_VISIBLE_DEVICES=$(echo "$avail_gpus" | head -n $NUM_GPUS | paste -sd ",")
 
-## get pair
-PAIR=$(awk "NR==${SGE_TASK_ID}" features_region.txt)
-echo "Processing pair: ${PAIR}"
+## get region
+REGIONS=('Amygdala' 'sACC')
+region=${REGIONS[$SGE_TASK_ID-1]}
+echo "Processing Region: $region"
 
-python tensorqtl_genomewide_nominal.py ${PAIR}
+python tensorqtl_genomewide_nominal.py $region
 echo "**** Job ends ****"
 date
