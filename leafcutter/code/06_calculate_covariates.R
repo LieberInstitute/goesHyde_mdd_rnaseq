@@ -38,8 +38,11 @@ splice <- splice[,5:ncol(splice)]
 ## run PCA
 message("running PCA - ", Sys.time())
 sPCA <- prcomp(t(splice))
+
 message("running num.sv - ", Sys.time())
 numPCs <- num.sv(splice, mod)
+
+message("Done - ", Sys.time())
 message("k = ", numPCs)
 sPCs <- sPCA$x[,1:numPCs]
 
