@@ -25,7 +25,7 @@ covar_format <- function(data, rn) {
 }
 
 ## define model
-mod <- model.matrix(~ PrimaryDx + Sex + snpPC1 + snpPC2 + snpPC3 + snpPC4 + snpPC5, data = pd)[, 2:9]
+mod <- model.matrix(~ PrimaryDx + Sex + snpPC1 + snpPC2 + snpPC3 + snpPC4 + snpPC5, data = pd)
 
 fn <- here("leafcutter", "data", "qqnorm", paste0("qqnorm_",region,".bed.gz"))
 
@@ -47,7 +47,7 @@ message("k = ", numPCs)
 sPCs <- sPCA$x[,1:numPCs]
 
 
-covsSplice <- t(cbind(mod[,-1],sPCs))
+covsSplice <- cbind(mod[,-1],sPCs)
 covsSplice <- covar_format(covsSplice, rse_gene$genoSample)
 
 write.table(covsSplice,file= here("leafcutter", "data","covariates",paste0("covariates_",region,".txt")),
