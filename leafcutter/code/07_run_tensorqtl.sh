@@ -2,12 +2,13 @@
 #$ -cwd
 #$ -l caracol,mem_free=100G,h_vmem=100G,h_fsize=100G
 #$ -pe local 1
-#$ -N tensorqtl_genomewide_nominal_gpu
-#$ -o logs/tensorqtl_genomewide_nominal_gpu.$TASK_ID.txt
-#$ -e logs/tensorqtl_genomewide_nominal_gpu.$TASK_ID.txt
+#$ -N run_tensorqtl
+#$ -o logs/07_run_tensorqtl.$TASK_ID.txt
+#$ -e logs/07_run_tensorqtl.$TASK_ID.txt
 #$ -m e
 #$ -t 1-2
 #$ -tc 2
+#$ -hold_jid calculate_covariates
 
 echo "**** Job starts ****"
 date
@@ -41,6 +42,6 @@ REGIONS=('Amygdala' 'sACC')
 region=${REGIONS[$SGE_TASK_ID-1]}
 echo "Processing Region: $region"
 
-python tensorqtl_genomewide_nominal.py $region
+python 07_run_tensorqtl.py $region
 echo "**** Job ends ****"
 date
