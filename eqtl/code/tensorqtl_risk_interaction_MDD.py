@@ -8,7 +8,7 @@ out_path = "../data/tensorQTL_out/risk_nominal_mdd/"
 
 for region in ["Amygdala", "sACC"]:
     express, covar = my_tensorqtl_run.get_input_paths("gene", region)
-    plink = "../data/risk_snps/LIBD_maf01_gwas_MDD"
+    plink = "/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/genotype_data/mdd_bpd/maf01/mdd_bpd_maf01"
     genotype_df, variant_df, phenotype_df, phenotype_pos_df, covariates_df = my_tensorqtl_run.load_data(plink, express, covar, add_chr = True)
 
     cell_fraction = pd.read_csv("../data/tensorQTL_input/interaction/cell_fraction_"+ region +".csv", index_col = 0)
