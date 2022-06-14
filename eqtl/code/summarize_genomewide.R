@@ -8,7 +8,7 @@ library("sessioninfo")
 library("here")
 
 # source(here("eqtl", "code", "utils.R"))
-# load(here("data", "MDD_colors.Rdata"), verbose = TRUE)
+load(here("data", "MDD_colors.Rdata"), verbose = TRUE)
 
 #### load expression data ####
 load(here("exprs_cutoff", "rse_gene.Rdata"), verbose = TRUE)
@@ -29,6 +29,7 @@ phenotype <- map_dbl(nominal_log, ~parse_number(.x[grep("\\^* \\d+ phenotypes",.
 runtime <- map_dbl(nominal_log, ~max(parse_number(.x[grep("time elapsed: ",.x)])))
 
 filter_log <- readLines(here("eqtl","code", "logs", "filter_genomewide_nominal.txt"))
+
 n_pairs <- parse_number(filter_log[grep("n pairs:", filter_log)])
 n_pairs_FDR05 <- parse_number(gsub("n pairs FDR<0.05:","",filter_log[grep("n pairs FDR<0.05:", filter_log)]))
 
@@ -36,18 +37,28 @@ nominal_log_data <- tibble(data = names(runtime),
                        n_feat = phenotype,
                        runtime,
                        n_pairs,
-                       n_pairs_FDR05 )
+                       n_pairs_FDR05 ) %>%
+  separate(data,  into = c("feat","region"), remove = FALSE)
 
-# data          n_feat runtime   n_pairs n_pairs_FDR05
-# <chr>          <dbl>   <dbl>     <dbl>         <dbl>
-# 1 gene_Amygdala  25132    2.52  53637238        771221
-# 2 gene_sACC      25132    2.55  53403152        853567
-# 3 exon_Amygdala 399023   45.6  840508027       5960604
-# 4 exon_sACC     399023   45.6  836725998       7192434
-# 5 jxn_Amygdala  304125   37.0  633281109       9381590
-# 6 jxn_sACC      304125   36.9  630534075      10434226
-# 7 tx_Amygdala    79565    8.21 167717620       1684554
-# 8 tx_sACC        79565    8.22 166980983       1906150
+# feat   region   n_feat runtime   n_pairs n_pairs_FDR05
+# <chr>  <chr>     <dbl>   <dbl>     <dbl>         <dbl>
+#   1 gene   Amygdala  25132    2.52  53637238        771221
+# 2 gene   sACC      25132    2.55  53403152        853567
+# 3 exon   Amygdala 399023   45.6  840508027       5960604
+# 4 exon   sACC     399023   45.6  836725998       7192434
+# 5 jxn    Amygdala 304125   37.0  633281109       9381590
+# 6 jxn    sACC     304125   36.9  630534075      10434226
+# 7 tx     Amygdala  79565    8.21 167717620       1684554
+# 8 tx     sACC      79565    8.22 166980983       1906150
+# 9 Splice Amygdala 209476   19.2  451404371       7851177
+# 10 Splice sACC     209476   19.2  449487451       8324138
+
+sQTL_log_data <- read.csv(here("leafcutter","data", "LC_sQTL_summary.csv"), row.names = 1) %>%
+  mutate(data = paste0(feat, "_",region))
+
+nominal_log_data <- rbind(nominal_log_data, sQTL_log_data)
+
+nominal_log_data$feat <- factor(nominal_log_data$feat, levels = c("gene", "tx", "exon","jxn","Splice"))
 
 nominal_runtime_scatter <- ggplot(nominal_log_data, aes(x = n_pairs, y = runtime))+
   geom_point() +
@@ -94,7 +105,7 @@ n_signif <- nominal_log_data %>%
   select(data, n_pairs, n_pairs_ns, n_pairs_FDR05) %>%
   pivot_longer(!c(data, n_pairs), names_to = "Signif", values_to = "n", names_prefix ="n_pairs_")
 
-signif_barplot <- n_signif %>%
+pairs_barplot <- n_signif %>%
   ggplot(aes(x = data, fill = Signif)) +
   geom_col(aes(y = n)) +
   geom_text(aes(label= ifelse(Signif == "FDR05",
@@ -104,17 +115,18 @@ signif_barplot <- n_signif %>%
   theme_bw() + 
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
 
+ggsave(pairs_barplot, filename = here("eqtl", "plots", "pairs_barplot.png"))
+
+##
+signif_barplot <- nominal_log_data  %>%
+  ggplot(aes(x = feat, fill = region)) +
+  geom_col(aes(y = n_pairs_FDR05), position = "dodge") +
+  theme_bw() + 
+  scale_fill_manual(values = mdd_BrainRegion_colors) +
+  title("Nominal QTL Results")
+
 ggsave(signif_barplot, filename = here("eqtl", "plots", "signif_barplot.png"))
 
-signif_barplot_precent <- n_signif %>%
-  mutate(precent = 100*n/n_pairs) %>%
-  ggplot(aes(x = data, y = precent, fill = Signif)) +
-  geom_col() +
-  geom_text(aes(label= ifelse(Signif == "FDR05",paste0(round(precent,2),"%"),""), y = 100)) +
-  theme_bw() + 
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
-ggsave(signif_barplot_precent, filename = here("eqtl", "plots", "signif_barplot_precent.png"))
 
 ## load nominal files
 nom_fn <- list.files(here("eqtl", "data", "tensorQTL_FDR05","genomewide_nominal"), pattern = "*.csv", full.names = TRUE)
