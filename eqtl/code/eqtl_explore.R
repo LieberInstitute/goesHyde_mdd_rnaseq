@@ -1,7 +1,8 @@
-library(tidyverse)
-library(sessioninfo)
-library(here)
-library(miniparquet)
+library("tidyverse")
+library("sessioninfo")
+library("here")
+library("miniparquet")
+library("VariantAnnotation")
 
 ## Check out maf = 0 vs. maf = 0.05
 eqtl <- parquet_read(here("eqtl", "data", "tensorQTL_out","genomewide_nominal","gene_Amygdala.cis_qtl_pairs.chr1.parquet")) %>%
@@ -78,26 +79,69 @@ eqtl_all %>%
 #### Why 1230/9650 MDD risk SNPs?
 # dropping 22779 phenotypes without variants in cis-window
 
+#write_stats=True
 risk_eqtl_out <- read.csv(here("eqtl", "data", "tensorQTL_out", "nominal_mdd_risk", "gene_Amygdala_Astro.csv"))
 dim(risk_eqtl_out)
+# [1] 1230   15
+
+# write_stats=True, write_top = False
+risk_eqtl_out_debug <- read.csv(here("eqtl", "data", "tensorQTL_out", "nominal_mdd_risk", "gene_Amygdala_Astro.csv"))
+dim(risk_eqtl_out_debug)
+# [1] 1230   15
+
 
 length(unique(risk_eqtl_out$variant_id))
 # [1] 437
 length(unique(risk_eqtl_out$phenotype_id))
 # [1] 1230 <- same length as output: reporting top only?
 
-risk_eqtl_out %>%
-  count(variant_id) 
+all_equal(risk_eqtl_out, risk_eqtl_out_debug)
+# [1] TRUE
+
+summary(risk_eqtl_out$pval_gi - risk_eqtl_out_debug$pval_gi)
+
+## What about parquet files?
+risk_eqtl_chr1 <- parquet_read(here("eqtl", "data", "tensorQTL_out", "nominal_mdd_risk", "parquet_data", "gene_Amygdala_Astro.cis_qtl_pairs.chr1.parquet"))
+dim(risk_eqtl_chr1)
+# [1] 5505   15
+
+risk_eqtl_chr1_debug <- parquet_read(here("eqtl", "data", "tensorQTL_out", "nominal_mdd_risk_test", "parquet_data", "gene_Amygdala_Astro.cis_qtl_pairs.chr1.parquet"))
+dim(risk_eqtl_chr1_debug)
+all_equal(risk_eqtl_chr1, risk_eqtl_chr1_debug)
+
+
+risk_eqtl_chr1 %>%
+  dplyr::count(phenotype_id) %>%
+  head()
 
 risk_vcf_mdd <- readVcf(here("eqtl", "data", "risk_snps", "LIBD_maf01_gwas_MDD.vcf.gz"))
 dim(risk_vcf_mdd)
 # [1] 9650  616
 
+
+
+## check non-interaction run with same inputs
 test_eqtl_fn <- list.files(here("eqtl", "data", "tensorQTL_out","test"), full.names = TRUE)
 test_eqtl_out <- do.call("rbind", map(test_eqtl_fn, parquet_read))
 
 dim(test_eqtl_out)
 # [1] 84812     9
+
+test_eqtl_out %>%
+  dplyr::count(phenotype_id) %>%
+  summary()
+# phenotype_id             n         
+# Length:1221        Min.   :  1.00  
+# Class :character   1st Qu.:  4.00  
+# Mode  :character   Median : 20.00  
+#                    Mean   : 69.46  
+#                    3rd Qu.: 74.00  
+#                    Max.   :792.00
+
+test_eqtl_out %>% 
+  filter(grepl("chr1:", variant_id)) %>%
+  dplyr::count(phenotype_id) %>%
+  head()
 
 head(test_eqtl_out)
 length(unique(test_eqtl_out$variant_id))
