@@ -16,7 +16,6 @@ read_adj_filter <- function(parquet_files, cutoff = 0.05) {
   eqtl_out <- eqtl_out %>%
     filter(FDR < cutoff)
   message("n pairs FDR<", cutoff, ": ", nrow(eqtl_out))
-  # significant_snps <- c(significant_snps, eqt_outl$variant_id)
   return(eqtl_out)
 }
 
@@ -26,13 +25,13 @@ eqtl_out_filtered <- map2(parquet_files, regions, function(parq, region) {
     
     eqtl_out_filtered <- read_adj_filter(parquet_files = parq)
     
-    write_csv(eqtl_out_filtered, file = here(
-      "eqtl", "data", "tensorQTL_FDR05",
-      paste0("LC_nominal_", region, "_FDR05.csv")
-    ))
+    file_out <- paste0("LC_nominal_", region, "_FDR05.csv")
+    message(paste("writing:", region, "- "), Sys.time())
+    
+    write_csv(eqtl_out_filtered, file = here("leafcutter", "data", "tensorQTL_FDR05", file_out))
 })
 
-# sgejobs::job_single('filter_genomewide_eqtl', create_shell = TRUE, memory = '100G', command = "Rscript filter_genomewide_eqtl.R")
+# sgejobs::job_single('08_filter_sQTL', create_shell = TRUE, memory = '100G', command = "Rscript 08_filter_sQTL.R")
 ## Reproducibility information
 print("Reproducibility information:")
 Sys.time()
