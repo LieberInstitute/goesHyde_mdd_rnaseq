@@ -60,11 +60,13 @@ eqtl_out_filtered <- map2(parquet_files, names(parquet_files), function(parq_reg
         message(paste("Reading:", name_region, name_dx, "- "), Sys.time())
 
         eqtl_out_filtered <- read_adj_filter_ct(parquet_files = parq_dx)
+        
+        fn = here("eqtl", "data", "tensorQTL_FDR05", paste0("risk_nominal_",name_dx),
+          paste0("risk_gene_",name_region, "_",name_dx, "_FDR05.csv"))
+        
+        message("Saving: ", fn)
 
-        write_csv(eqtl_out_filtered, file = here(
-            "eqtl", "data", "tensorQTL_FDR05", paste0("risk_nominal_",name_dx),
-            paste0("risk_gene_",name_region, "_",name_dx, "_FDR05.csv")
-        ))
+        write_csv(eqtl_out_filtered, file = fn)
     })
 })
 # significant_snps <- unique(significant_snps)

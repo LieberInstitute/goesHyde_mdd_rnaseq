@@ -1,6 +1,6 @@
 #!/bin/bash
 #$ -cwd
-#$ -l mem_free=10G,h_vmem=10G,h_fsize=100G
+#$ -l mem_free=50G,h_vmem=50G,h_fsize=100G
 #$ -N filter_risk_nominal
 #$ -o logs/filter_risk_nominal.txt
 #$ -e logs/filter_risk_nominal.txt
