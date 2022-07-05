@@ -47,8 +47,8 @@ read_adj_filter_ct <- function(parquet_files, cutoff = 0.05){
 }
 
 ## test
-eqtl_out_test <- read_adj_filter_ct(parquet_files$amyg$mdd)
-head(eqtl_out_test)
+# eqtl_out_test <- read_adj_filter_ct(parquet_files$amyg$mdd)
+# head(eqtl_out_test)
 
 eqtl_out_test %>%
     group_by(cell_type) %>%

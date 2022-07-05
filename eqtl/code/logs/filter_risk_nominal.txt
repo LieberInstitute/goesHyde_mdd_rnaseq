@@ -6,12 +6,12 @@ Loading LIBD module for rmate/1.5.9
 Loading LIBD module for ruby/2.6.4p104
 Loading conda_R/devel
 **** Job starts ****
-Tue Apr 26 12:37:16 EDT 2022
+Tue Jul  5 12:48:11 EDT 2022
 **** JHPCE info ****
 User: lhuuki
-Job id: 9934206
+Job id: 1275591
 Job name: filter_risk_nominal
-Hostname: compute-091.cm.cluster
+Hostname: compute-103.cm.cluster
 Task id: undefined
 Unloading conda_R/devel
 Loading conda_R/4.1.x
@@ -30,8 +30,8 @@ Currently Loaded Modules:
  
 
 ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.1 ──
-✔ ggplot2 3.3.5     ✔ purrr   0.3.4
-✔ tibble  3.1.6     ✔ dplyr   1.0.8
+✔ ggplot2 3.3.6     ✔ purrr   0.3.4
+✔ tibble  3.1.7     ✔ dplyr   1.0.9
 ✔ tidyr   1.2.0     ✔ stringr 1.4.0
 ✔ readr   2.1.2     ✔ forcats 0.5.1
 ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
@@ -41,7 +41,7 @@ Loading required package: rafalib
 here() starts at /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq
 $amyg
 $amyg$mdd
-[1] 210
+[1] 230
 
 $amyg$bpd
 [1] 190
@@ -56,96 +56,101 @@ $sacc$bpd
 
 
 Astro
-n pairs: 84480
-n pairs FDR<0.05: 31
+n pairs: 52176795
+n pairs FDR<0.05: 6849
 Endo
-n pairs: 84761
-n pairs FDR<0.05: 0
+n pairs: 52242949
+n pairs FDR<0.05: 38615
 Excit
-n pairs: 84605
-n pairs FDR<0.05: 0
+n pairs: 52223544
+n pairs FDR<0.05: 1655
 Inhib
-n pairs: 84629
-n pairs FDR<0.05: 0
+n pairs: 52233430
+n pairs FDR<0.05: 13611
 Macro
-n pairs: 84604
-n pairs FDR<0.05: 3
+n pairs: 52240691
+n pairs FDR<0.05: 78108
 Micro
-n pairs: 84407
-n pairs FDR<0.05: 0
+n pairs: 52215197
+n pairs FDR<0.05: 1408
 Mural
-n pairs: 84605
-n pairs FDR<0.05: 95
+n pairs: 52192951
+n pairs FDR<0.05: 21290
 Oligo
-n pairs: 84629
-n pairs FDR<0.05: 71
+n pairs: 52171322
+n pairs FDR<0.05: 5558
 OPC
-n pairs: 84791
-n pairs FDR<0.05: 0
+n pairs: 52223468
+n pairs FDR<0.05: 1572
 Tcell
-n pairs: 84706
-n pairs FDR<0.05: 85
-  cell_type      phenotype_id         variant_id tss_distance        af
-1     Astro ENSG00000253008.2 chr2:207177857:C:A        67869 0.3046296
-2     Astro ENSG00000253008.2 chr2:207179189:T:C        69201 0.3037037
-3     Astro ENSG00000253008.2 chr2:207179746:G:A        69758 0.3037037
-4     Astro ENSG00000253008.2 chr2:207180223:C:T        70235 0.3435185
-5     Astro ENSG00000253008.2 chr2:207181537:G:A        71549 0.3453704
-6     Astro ENSG00000253008.2 chr2:207181588:G:A        71600 0.3055556
-  ma_samples ma_count       pval_g       b_g    b_g_se    pval_i       b_i
-1        278      329 1.249313e-04 -2.476879 0.6405008 0.8580350 -3.803826
-2        277      328 1.199463e-04 -2.480561 0.6397609 0.8649789 -3.609129
-3        277      328 1.199463e-04 -2.480561 0.6397609 0.8649789 -3.609129
-4        308      371 1.743147e-05 -2.756659 0.6354225 0.7100913 -7.997422
-5        309      373 3.321058e-05 -2.653903 0.6335402 0.7218001 -7.665518
-6        279      330 1.360853e-04 -2.460387 0.6398015 0.8544975 -3.892285
-    b_i_se      pval_gi     b_gi  b_gi_se        FDR
-1 21.25399 7.698664e-06 38.93822 8.611588 0.03423069
-2 21.21411 6.792478e-06 39.07227 8.588924 0.03187936
-3 21.21411 6.792478e-06 39.07227 8.588924 0.03187936
-4 21.50142 2.949583e-06 40.77361 8.621808 0.02414351
-5 21.51676 4.242718e-06 40.09933 8.620906 0.02560177
-6 21.21375 6.308648e-06 39.20971 8.588582 0.03187936
-# A tibble: 5 × 3
-  cell_type n_pairs n_FDR05
-  <chr>       <int>   <int>
-1 Astro          31      31
-2 Macro           3       3
-3 Mural          95      95
-4 Oligo          71      71
-5 Tcell          85      85
-Reading: amyg mdd - 2022-04-26 12:37:29
+n pairs: 52221191
+n pairs FDR<0.05: 100321
+  cell_type      phenotype_id       variant_id tss_distance         af
+1     Astro ENSG00000225972.1  chr1:770988:A:G       141925 0.48518518
+2     Astro ENSG00000225972.1  chr1:800302:G:C       171239 0.06666666
+3     Astro ENSG00000225972.1  chr1:931513:T:C       302450 0.40555555
+4     Astro ENSG00000225972.1 chr1:933548:A:AG       304485 0.38981479
+5     Astro ENSG00000225972.1  chr1:935954:G:T       306891 0.30370370
+6     Astro ENSG00000225972.1  chr1:938178:G:T       309115 0.31296295
+  ma_samples ma_count       pval_g       b_g    b_g_se       pval_i      b_i
+1        398      524 1.518421e-06  288.7069  59.30246 6.085053e-05 8341.846
+2         71       72 8.381399e-07 -557.7638 111.77106 5.937695e-01 1024.010
+3        354      438 3.716632e-05  259.5826  62.36251 5.512314e-04 7045.335
+4        337      421 1.526106e-05  275.5244  63.06965 4.478376e-04 7213.436
+5        274      328 2.655631e-05  282.3933  66.58183 9.771379e-04 6700.601
+6        283      338 1.756256e-05  284.5384  65.61326 8.488377e-04 6778.964
+    b_i_se      pval_gi      b_gi   b_gi_se          FDR
+1 2062.492 2.417093e-08 -4716.770  831.6596 1.214992e-03
+2 1918.592 1.517871e-10 10171.256 1554.5770 2.134707e-05
+3 2026.047 1.211867e-06 -4267.986  868.3735 1.629674e-02
+4 2041.116 1.450799e-06 -4448.181  911.9215 1.846744e-02
+5 2020.064 5.377945e-06 -4413.233  959.3726 4.339265e-02
+6 2019.328 3.484336e-06 -4442.627  946.5207 3.302232e-02
+# A tibble: 10 × 3
+   cell_type n_pairs n_FDR05
+   <chr>       <int>   <int>
+ 1 Astro        6849    6849
+ 2 Endo        38615   38615
+ 3 Excit        1655    1655
+ 4 Inhib       13611   13611
+ 5 Macro       78108   78108
+ 6 Micro        1408    1408
+ 7 Mural       21290   21290
+ 8 Oligo        5558    5558
+ 9 OPC          1572    1572
+10 Tcell      100321  100321
+Reading: amyg mdd - 2022-07-05 13:05:15
 Astro
-n pairs: 84480
-n pairs FDR<0.05: 31
+n pairs: 52176795
+n pairs FDR<0.05: 6849
 Endo
-n pairs: 84761
-n pairs FDR<0.05: 0
+n pairs: 52242949
+n pairs FDR<0.05: 38615
 Excit
-n pairs: 84605
-n pairs FDR<0.05: 0
+n pairs: 52223544
+n pairs FDR<0.05: 1655
 Inhib
-n pairs: 84629
-n pairs FDR<0.05: 0
+n pairs: 52233430
+n pairs FDR<0.05: 13611
 Macro
-n pairs: 84604
-n pairs FDR<0.05: 3
+n pairs: 52240691
+n pairs FDR<0.05: 78108
 Micro
-n pairs: 84407
-n pairs FDR<0.05: 0
+n pairs: 52215197
+n pairs FDR<0.05: 1408
 Mural
-n pairs: 84605
-n pairs FDR<0.05: 95
+n pairs: 52192951
+n pairs FDR<0.05: 21290
 Oligo
-n pairs: 84629
-n pairs FDR<0.05: 71
+n pairs: 52171322
+n pairs FDR<0.05: 5558
 OPC
-n pairs: 84791
-n pairs FDR<0.05: 0
+n pairs: 52223468
+n pairs FDR<0.05: 1572
 Tcell
-n pairs: 84706
-n pairs FDR<0.05: 85
-Reading: amyg bpd - 2022-04-26 12:37:32
+n pairs: 52221191
+n pairs FDR<0.05: 100321
+Reading: amyg bpd - 2022-07-05 13:18:54
 Astro
 n pairs: 908
 n pairs FDR<0.05: 0
@@ -176,7 +181,7 @@ n pairs FDR<0.05: 0
 Tcell
 n pairs: 910
 n pairs FDR<0.05: 2
-Reading: sacc mdd - 2022-04-26 12:37:32
+Reading: sacc mdd - 2022-07-05 13:18:59
 Astro
 n pairs: 84726
 n pairs FDR<0.05: 0
@@ -207,7 +212,7 @@ n pairs FDR<0.05: 0
 Tcell
 n pairs: 84614
 n pairs FDR<0.05: 0
-Reading: sacc bpd - 2022-04-26 12:37:35
+Reading: sacc bpd - 2022-07-05 13:19:09
 Astro
 n pairs: 908
 n pairs FDR<0.05: 0
@@ -239,9 +244,9 @@ Tcell
 n pairs: 908
 n pairs FDR<0.05: 9
 [1] "Reproducibility information:"
-[1] "2022-04-26 12:37:35 EDT"
-   user  system elapsed 
- 14.450   1.311  18.565 
+[1] "2022-07-05 13:19:18 EDT"
+    user   system  elapsed 
+1380.417  362.749 1865.376 
 ─ Session info ───────────────────────────────────────────────────────────────────────────────────────────────────────
  setting  value
  version  R version 4.1.2 Patched (2021-11-04 r81138)
@@ -252,7 +257,7 @@ n pairs FDR<0.05: 9
  collate  en_US.UTF-8
  ctype    en_US.UTF-8
  tz       US/Eastern
- date     2022-04-26
+ date     2022-07-05
  pandoc   2.13 @ /jhpce/shared/jhpce/core/conda/miniconda3-4.6.14/envs/svnR-4.1.x/bin/pandoc
 
 ─ Packages ───────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -264,15 +269,15 @@ n pairs FDR<0.05: 9
  bit                    4.0.4    2020-08-04 [2] CRAN (R 4.1.0)
  bit64                  4.0.5    2020-08-30 [2] CRAN (R 4.1.0)
  bitops                 1.0-7    2021-04-24 [2] CRAN (R 4.1.0)
- broom                  0.8.0    2022-04-13 [2] CRAN (R 4.1.2)
+ broom                  1.0.0    2022-07-01 [2] CRAN (R 4.1.2)
  cellranger             1.1.0    2016-07-27 [2] CRAN (R 4.1.0)
  cli                    3.3.0    2022-04-25 [2] CRAN (R 4.1.2)
  colorspace             2.0-3    2022-02-21 [2] CRAN (R 4.1.2)
  crayon                 1.5.1    2022-03-26 [2] CRAN (R 4.1.2)
- DBI                    1.1.2    2021-12-20 [2] CRAN (R 4.1.2)
- dbplyr                 2.1.1    2021-04-06 [2] CRAN (R 4.1.0)
+ DBI                    1.1.3    2022-06-18 [2] CRAN (R 4.1.2)
+ dbplyr                 2.2.1    2022-06-27 [2] CRAN (R 4.1.2)
  DelayedArray           0.20.0   2021-10-26 [2] Bioconductor
- dplyr                * 1.0.8    2022-02-08 [2] CRAN (R 4.1.2)
+ dplyr                * 1.0.9    2022-04-28 [2] CRAN (R 4.1.2)
  ellipsis               0.3.2    2021-04-29 [2] CRAN (R 4.1.0)
  fansi                  1.0.3    2022-03-24 [2] CRAN (R 4.1.2)
  forcats              * 0.5.1    2021-01-27 [2] CRAN (R 4.1.0)
@@ -282,14 +287,14 @@ n pairs FDR<0.05: 9
  GenomeInfoDb           1.30.1   2022-01-30 [2] Bioconductor
  GenomeInfoDbData       1.2.7    2021-11-01 [2] Bioconductor
  GenomicRanges          1.46.1   2021-11-18 [2] Bioconductor
- ggplot2              * 3.3.5    2021-06-25 [2] CRAN (R 4.1.0)
+ ggplot2              * 3.3.6    2022-05-03 [2] CRAN (R 4.1.2)
  glue                   1.6.2    2022-02-24 [2] CRAN (R 4.1.2)
  googledrive            2.0.0    2021-07-08 [2] CRAN (R 4.1.0)
  gtable                 0.3.0    2019-03-25 [2] CRAN (R 4.1.0)
  haven                  2.5.0    2022-04-15 [2] CRAN (R 4.1.2)
  here                 * 1.0.1    2020-12-13 [2] CRAN (R 4.1.2)
  hms                    1.1.1    2021-09-26 [2] CRAN (R 4.1.2)
- httr                   1.4.2    2020-07-20 [2] CRAN (R 4.1.0)
+ httr                   1.4.3    2022-05-04 [2] CRAN (R 4.1.2)
  IRanges                2.28.0   2021-10-26 [2] Bioconductor
  jaffelab             * 0.99.31  2021-10-29 [1] Github (LieberInstitute/jaffelab@2cbd55a)
  jsonlite               1.8.0    2022-02-22 [2] CRAN (R 4.1.2)
@@ -311,11 +316,11 @@ n pairs FDR<0.05: 9
  R6                     2.5.1    2021-08-19 [1] CRAN (R 4.1.1)
  rafalib              * 1.0.0    2015-08-09 [1] CRAN (R 4.1.1)
  RColorBrewer           1.1-3    2022-04-03 [2] CRAN (R 4.1.2)
- RCurl                  1.98-1.6 2022-02-08 [2] CRAN (R 4.1.2)
+ RCurl                  1.98-1.7 2022-06-09 [2] CRAN (R 4.1.2)
  readr                * 2.1.2    2022-01-30 [2] CRAN (R 4.1.2)
  readxl                 1.4.0    2022-03-28 [2] CRAN (R 4.1.2)
  reprex                 2.0.1    2021-08-05 [2] CRAN (R 4.1.1)
- rlang                  1.0.2    2022-03-04 [2] CRAN (R 4.1.2)
+ rlang                  1.0.3    2022-06-27 [2] CRAN (R 4.1.2)
  rprojroot              2.0.3    2022-04-02 [2] CRAN (R 4.1.2)
  rstudioapi             0.13     2020-11-12 [2] CRAN (R 4.1.0)
  rvest                  1.0.2    2021-10-16 [2] CRAN (R 4.1.2)
@@ -326,7 +331,7 @@ n pairs FDR<0.05: 9
  stringi                1.7.6    2021-11-29 [2] CRAN (R 4.1.2)
  stringr              * 1.4.0    2019-02-10 [2] CRAN (R 4.1.0)
  SummarizedExperiment   1.24.0   2021-10-26 [2] Bioconductor
- tibble               * 3.1.6    2021-11-07 [2] CRAN (R 4.1.2)
+ tibble               * 3.1.7    2022-05-03 [2] CRAN (R 4.1.2)
  tidyr                * 1.2.0    2022-02-01 [2] CRAN (R 4.1.2)
  tidyselect             1.1.2    2022-02-21 [2] CRAN (R 4.1.2)
  tidyverse            * 1.3.1    2021-04-15 [2] CRAN (R 4.1.0)
@@ -344,5 +349,7 @@ n pairs FDR<0.05: 9
  [3] /jhpce/shared/jhpce/core/conda/miniconda3-4.6.14/envs/svnR-4.1.x/R/4.1.x/lib64/R/library
 
 ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+Error in ime() : could not find function "ime"
+Execution halted
 **** Job ends ****
-Tue Apr 26 12:37:36 EDT 2022
+Tue Jul  5 13:19:21 EDT 2022
