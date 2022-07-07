@@ -4,10 +4,9 @@ library("miniparquet")
 library("sessioninfo")
 library("here")
 
-source("utils.R")
- 
+
 ## loop over dx
-dx <- c("mdd", "bpd")
+dx <- c("mdd")
 names(dx) <- dx
 
 regions <- c(amyg = "Amygdala", sacc = "sACC")
@@ -26,10 +25,24 @@ parquet_files <- map(
     }
 )
 
+
 map_depth(parquet_files, 2, length)
 
+
+read_adj_filter <- function(parquet_files, start, end) {
+    eqtl_out <- do.call("rbind", map(parquet_files, parquet_read)) %>%
+        mutate(FDR = p.adjust(pval_gi, "fdr")) 
+    message("n pairs: ", nrow(eqtl_out))
+    ## filter 
+    eqtl_out <- eqtl_out %>%
+        filter(tss_distance > start & tss_distance < end)
+    message("n pairs in locus", nrow(eqtl_out))
+    # significant_snps <- c(significant_snps, eqt_outl$variant_id)
+    return(eqtl_out)
+}
+
 ## use pval_gi is p-value for interaction
-read_adj_filter_ct <- function(parquet_files, cutoff = 0.05){
+read_adj_filter_ct <- function(parquet_files, start, end){
     ## get ct from file name
     cell_type <- ss(ss(basename(parquet_files),"\\."),"_",3)
     cell_type_i <- splitit(cell_type)
@@ -37,7 +50,7 @@ read_adj_filter_ct <- function(parquet_files, cutoff = 0.05){
     eqtl_out <- map2(cell_type_i, names(cell_type_i),function(cti, ctn){
         message(ctn)
         cell_type_parquets <- parquet_files[cti]
-        ct_eqtl_out <- read_adj_filter(cell_type_parquets, cutoff, pval_name = "pval_gi")
+        ct_eqtl_out <- read_adj_filter(cell_type_parquets, start, end)
         return(ct_eqtl_out %>% mutate(cell_type = ctn, .before = "phenotype_id"))
     })
     ## combine into one table
@@ -47,8 +60,9 @@ read_adj_filter_ct <- function(parquet_files, cutoff = 0.05){
 }
 
 ## test
-# eqtl_out_test <- read_adj_filter_ct(parquet_files$amyg$mdd)
-# head(eqtl_out_test)
+ eqtl_out_test <- read_adj_filter_ct(parquet_files$amyg$mdd, start = 100000, end = 200000)
+
+ # head(eqtl_out_test)
 
 eqtl_out_test %>%
     group_by(cell_type) %>%
