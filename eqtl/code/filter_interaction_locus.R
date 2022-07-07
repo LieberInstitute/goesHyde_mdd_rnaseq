@@ -49,18 +49,21 @@ read_adj_filter <- function(parquet_files, start, end, c) {
     eqtl_out <- eqtl_out %>%
         filter(bp > start & bp < end & chr == c)
     
-    message("n pairs in locus : ", nrow(eqtl_out))
+    message("n pairs in locus: ", nrow(eqtl_out))
     # significant_snps <- c(significant_snps, eqt_outl$variant_id)
     return(eqtl_out)
 }
 
 ## test
-eqtl_out_test <- read_adj_filter(parquet_files$amyg$mdd[1:2], start = 8e6, end = 8.5e6, c = "chr1")
+eqtl_out_test <- read_adj_filter(parquet_files$amyg$mdd[1:2], start = 7929242, end = 8929242, c = "chr1")
 summary(eqtl_out_test$bp)
 # Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
 # 8000381 8220775 8443875 8486633 8780243 8999779
 table(eqtl_out_test$chr)
 
+
+## loci 
+loci_list <- read.csv(here("eqtl","data","risk_snps","MDD_GWSig_loci_location_hg38.csv"))
 
 ## use pval_gi is p-value for interaction
 read_adj_filter_ct <- function(parquet_files, start, end, chr){
