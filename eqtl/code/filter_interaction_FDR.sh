@@ -2,8 +2,8 @@
 #$ -cwd
 #$ -l mem_free=50G,h_vmem=50G,h_fsize=100G
 #$ -N filter_risk_nominal
-#$ -o logs/filter_risk_nominal.txt
-#$ -e logs/filter_risk_nominal.txt
+#$ -o logs/filter_interaction_FDR.txt
+#$ -e logs/filter_interaction_FDR.txt
 #$ -m e
 
 echo "**** Job starts ****"
@@ -23,7 +23,7 @@ module load conda_R
 module list
 
 ## Edit with your job command
-Rscript filter_risk_nominal.R
+Rscript filter_interaction_FDR.R
 
 echo "**** Job ends ****"
 date
