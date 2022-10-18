@@ -3,6 +3,6 @@
 
 # JHPCE
 
-Location: `/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq`
+Location: `/dcs04/lieber/lcolladotor/hydeGoes_LIBD3010/goesHyde_mdd_rnaseq`
 
 
