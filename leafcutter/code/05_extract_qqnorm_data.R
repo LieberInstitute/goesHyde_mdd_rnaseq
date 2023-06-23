@@ -4,8 +4,11 @@ library("jaffelab")
 library("purrr")
 library("sessioninfo")
 
+
+options("width"=200)
+
 load(here('exprs_cutoff','rse_gene.Rdata'), verbose=TRUE)
-chr_fn <- list.files(here("leafcutter", "data", "clusters"), pattern = "qqnorm_chr.*\\.gz$",
+chr_fn <- list.files(here("leafcutter", "data", "clusters_m100"), pattern = "qqnorm_chr.*\\.gz$",
                      full.names = TRUE) 
 
 qqnorm_list <- map(chr_fn, ~read.table(.x, header=T,comment.char="?"))
@@ -16,7 +19,7 @@ map_int(qqnorm_list, nrow)
 qqnorm_all <- do.call("rbind", qqnorm_list)
 dim(qqnorm_all)
 # [1] 210544   1095
-
+#[1] 195044   1095
 corner(qqnorm_all)
 
 colnames(qqnorm_all)[[1]] <- "Chr" 
