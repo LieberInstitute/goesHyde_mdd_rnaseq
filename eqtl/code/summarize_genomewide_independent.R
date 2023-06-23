@@ -15,7 +15,7 @@ regions <- c(amyg = "Amygdala", sacc = "sACC")
 
 #### genomewide results ####
 ## load tables
-message("Loading tensorQTL cis results")
+message("Loading tensorQTL independent results")
 
 eqtl_out <- map(regions,
                 ~ read.csv(here("eqtl", "data", "tensorQTL_out", "genomewide_independent", paste0("independent_gene_", .x, ".csv")),
@@ -26,8 +26,15 @@ eqtl_out <- map(regions,
 
 head(eqtl_out$amyg)
 summary(eqtl_out$amyg$FDR)
+
+## w/ pval perm
 # Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
 # 0.0003007 0.0003007 0.0011720 0.0051624 0.0053224 0.0412959 
+
+# w/ pval_beta
+# Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
+# 0.000e+00 9.123e-06 2.979e-04 9.526e-04 1.653e-03 4.137e-03 
+
 summary(eqtl_out$amyg$pval_perm)
 
 map_int(eqtl_out, nrow)
@@ -36,12 +43,22 @@ map_int(eqtl_out, nrow)
 
 ## Not just one results per gene
 map_int(eqtl_out, ~ length(unique(.x$phenotype_id)))
-# amyg  sacc
-# 25085 25085
+# amyg sacc 
+# 2080 2112 
 
 map_int(eqtl_out, ~ length(unique(.x$variant_id)))
 # amyg sacc 
 # 1683 1773
+
+#### Extract and save FDR < 0.01 #### 
+eqtl_FDR05 <- map(eqtl_out, ~.x %>% filter(FDR > 0.05))
+map_int(eqtl_FDR05, nrow)  ## All Signif?
+# amyg sacc 
+# 1805 1880 
+
+walk2(eqtl_FDR01, names(eqtl_FDR01), 
+      ~write.csv(.x, here("eqtl", "data", "tensorQTL_FDR01", "genomewide_independent", paste0("independent_gene_", .y, "_FDR01.csv"))))
+
 
 #### Extract and save FDR < 0.01 #### 
 eqtl_FDR01 <- map(eqtl_out, ~.x %>% filter(FDR < 0.01))
@@ -97,13 +114,14 @@ eqtl_ind %>%
 ## Build summary
 (ind_summary <- eqtl_ind %>%
         group_by(BrainRegion) %>%
-        summarize(n_tested = n(),
-                  n_FDR01 = sum(FDR < 0.01),
-                  risk_SNPs_tested = sum(MDD_riskSNP),
-                  risk_SNPs_FDR01 = sum(MDD_riskSNP & FDR < 0.01))
+        summarize(ind_forward = n(),
+                  ind_FDR05 = sum(FDR < 0.05),
+                  ind_FDR01 = sum(FDR < 0.01))
 )
+
+cis_ind_summary <- left_join(cis_summary, ind_summary)
 #   BrainRegion n_tested n_FDR01 risk_SNPs_tested risk_SNPs_FDR01
 # 1 Amygdala        2225    1805                3               2
 # 2 sACC            2314    1880                4               4
 
-write.csv(ind_summary, file = here("eqtl", "data", "summary", "genomewide_independent_summary.csv"))
+write.csv(cis_ind_summary, file = here("eqtl", "data", "summary", "genomewide_independent_summary.csv"))
