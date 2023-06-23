@@ -21,6 +21,9 @@ tensorQTL code: `./code/tensorqtl_risk_interaction_MDD.py`
 Raw Output: `./data/tensorQTL_out/nominal_mdd_risk/`  csv file for each cell type
 Summary Output: `./data/summary/gene_MDD_risk_cell_fraction_interaction.csv` & `./data/summary/gene_MDD_risk_cell_fraction_interaction_summary.csv`  
 
+### Annotating
+Add gene annotation to each feature with `./code/annotate_risk_eqtl.R`
+
 
 ## Genomewide
 VCF:  `../genotype_data/mdd_bpd/maf01/mdd_bpd_maf01.vcf.gz` ~11M SNPs
