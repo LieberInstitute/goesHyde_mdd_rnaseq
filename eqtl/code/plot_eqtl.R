@@ -1,35 +1,33 @@
-library(SummarizedExperiment)
-library(VariantAnnotation)
-library(tidyverse)
-library(jaffelab)
+library("SummarizedExperiment")
+library("VariantAnnotation")
+library("tidyverse")
+library("jaffelab")
 # library(ggforce)
-library(sessioninfo)
-library(here)
+library("sessioninfo")
+library("here")
+# library("xlsx")
 
 source(here("eqtl", "code", "utils.R"))
 load(here("data", "MDD_colors.Rdata"), verbose = TRUE)
 
+# current_signif_snps <- readLines(here("eqtl", "data", "signif_snps",'significant_snps.txt'))
+# length(current_signif_snps)
+
+# twas_table <- read.xlsx(here("eqtl","data","plot_data","TWAS_sig_PP4_coloc08.xlsx"), sheetIndex = "Sheet1", header=TRUE)
+
+## read.xlsx thorws warning?
+# april_plots <- read.xlsx(here("eqtl","data","plot_data","Genes_for_boxplot_042622.xlsx"), sheetIndex = "eqtl", header=TRUE)
+
+april_plots <- readxl::read_excel(here("eqtl","data","plot_data","Genes_for_boxplot_042622.xlsx"), sheet = "eqtl")
+# all(april_plots$variant_id %in% current_signif_snps)
+# [1] FALSE
+
+
 #### load expression data ####
-load(here("exprs_cutoff", "rse_gene.Rdata"), verbose = TRUE)
-
-rd <- as.data.frame(rowData(rse_gene)) %>% select(gencodeID, Symbol)
-pd <- as.data.frame(colData(rse_gene))
-
-## build model
-mod <- model.matrix(~ PrimaryDx + Sex + snpPC1 + snpPC2 + snpPC3 + snpPC4 + snpPC5, data = pd)
-colnames(mod)
-
-## get residual expression by region
-gene_resid_expres_split <- map(splitit(rse_gene$BrainRegion), ~ get_resid_expres(rse_gene[, .x], mod[.x, ]))
-
-gene_resid_long <- map2(gene_resid_expres_split, names(gene_resid_expres_split),
-                        ~.x %>%
-                          as.data.frame() %>%
-                          rownames_to_column("gencodeID") %>%
-                          pivot_longer(!gencodeID, names_to = "genoSample", values_to = "expression") %>%
-                          mutate(BrainRegion = .y))
-
-gene_resid_long <- do.call("rbind", gene_resid_long)
+## move code to prep plot eqtl
+load(here("eqtl", "data", "plot_data", "residual_expres.Rdata"), verbose = TRUE)
+resid_expres_split <- resid_expres_split$gene
+names(resid_expres_split)
 
 #### load VCF ####
 # sftp://jhpce01.jhsph.edu/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/eqtl/data/signif_snps/LIBD_Brain_merged_maf_005_topmed_051120_mdd_signif.vcf.gz
