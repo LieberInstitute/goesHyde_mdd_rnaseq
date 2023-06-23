@@ -19,7 +19,7 @@ regions <- c(amyg = "Amygdala", sacc = "sACC")
 combos <- cross2(dx, names(regions))
 names(combos) <- map_chr(cross2(dx, names(regions)),  ~paste0(.x[[1]],"_",.x[[2]]))
 
-eqtl_out_risk <- map(combos, function(f){
+eqtl_FDR <- map(combos, function(f){
     fn <- here("eqtl", "data", "tensorQTL_FDR05", paste0("risk_nominal_", f[[1]]),
                paste0("risk_gene_",f[[2]],"_",f[[1]],"_FDR05.csv"))
     
@@ -32,32 +32,32 @@ eqtl_out_risk <- map(combos, function(f){
 })
 
 ## find total number of pairs from log file
-log_file <- readLines(here("eqtl","code","logs","filter_risk_nominal.txt"))
+FDR_log_file <- readLines(here("eqtl","code","logs","filter_interaction_FDR.txt"))
 
-n_pairs <- tibble(data = c(rep("test",10),rep(log_file[grep("Reading:", log_file)], each = 10)),
-       cell_type = log_file[grep("n pairs:", log_file) - 1],
-       n_pairs = parse_number(log_file[grep("n pairs:", log_file)])) %>%
-  filter(data != "test") %>%
+n_pairs <- tibble(data = c(rep(FDR_log_file[grep("Reading:", FDR_log_file)], each = 10)),
+                  cell_type = FDR_log_file[grep("n pairs:", FDR_log_file) - 1],
+                  n_pairs = parse_number(FDR_log_file[grep("n pairs:", FDR_log_file)])) %>%
   separate(data, into = c(NA, "region", "Dx"), sep = " ", extra = "drop")
 
 
-map(eqtl_out_risk, head)
+map(eqtl_FDR, head)
 
-map(eqtl_out_risk, ~.x %>% 
+map(eqtl_FDR, ~.x %>% 
         group_by(cell_type) %>% 
         summarize(n_FDR05 = sum(FDR < 0.05)))
 
 
-map(eqtl_out_risk, ~.x %>% 
+map(eqtl_FDR, ~.x %>% 
         group_by(cell_type, phenotype_id) %>% 
         summarize(n_SNP = n(),
                   ))
 
 ## Combine in to one df
-eqtl_risk_all <- do.call("rbind", eqtl_out_risk)
-rownames(eqtl_risk_all) <- NULL
+eqtl_interaction_FDR <- do.call("rbind", eqtl_FDR)
+rownames(eqtl_interaction_FDR) <- NULL
+eqtl_interaction_FDR %>% filter(Dx == "mdd") %>% count(region, cell_type)
 
-risk_summary <- eqtl_risk_all %>%
+interaction_summary <- eqtl_interaction_FDR %>%
     group_by(region, Dx, cell_type) %>%
     summarize(n_FDR05 = n(),
               n_genes = length(unique(phenotype_id)),
@@ -65,32 +65,60 @@ risk_summary <- eqtl_risk_all %>%
     right_join(n_pairs) %>%
     mutate(anno = paste("pairs:", n_pairs, "\nFDR < 05:", n_FDR05, "\ngenes:",n_genes,"\nSNPs:",n_SNPs)) 
 
-risk_summary %>%
+interaction_summary %>% select(-anno) %>% write_csv(here("eqtl", "data","summary","gene_cell_fraction_interaction.csv"))
+
+interaction_summary %>%
     select(region, Dx, cell_type, n_pairs) %>%
     pivot_wider(names_from = "cell_type", values_from = "n_pairs")
 
-risk_summary %>%
+interaction_summary %>%
   select(region, Dx, cell_type, n_FDR05) %>%
   pivot_wider(names_from = "cell_type", values_from = "n_FDR05")
 
-risk_summary %>%
+interaction_summary %>%
     select(region, Dx, cell_type, n_genes) %>%
     pivot_wider(names_from = "cell_type", values_from = "n_genes")
 
-risk_summary %>%
+interaction_summary %>%
     select(region, Dx, cell_type, n_SNPs) %>%
     pivot_wider(names_from = "cell_type", values_from = "n_SNPs")
 
 ## create tile plot
-tile_plot <- risk_summary %>%
+tile_plot <- interaction_summary %>%
+  filter(Dx == "mdd") %>% ## now all SNPs so all interactions
     ggplot(aes(x = region, y = cell_type, fill = n_FDR05))+
     geom_tile() +
     geom_text(aes(label = anno), color = "gray") +
-    facet_wrap(~Dx) +
     theme_bw() +
     labs(title = "Risk SNP cell type interaction")
 
-ggsave(tile_plot, file = here("eqtl", "plots","eqtl_risk_n-pairs_tile.png"), height = 10, width = 10)
+ggsave(tile_plot, file = here("eqtl", "plots","eqtl_risk_n-pairs_tile.png"), height = 10)
+
+## bar plot
+
+interaction_bar <- interaction_summary %>%
+  filter(Dx == "mdd") %>%
+  ggplot(aes(x = cell_type, y = n_FDR05, fill = region)) +
+  geom_col(position = "dodge") +
+  theme_bw() +
+  labs(title = "Signficant eQTL Cell Type Interactions", y = "Gene-SNP pairs FDR < 0.05", x = "Cell Type")
+  
+ggsave(interaction_bar, file = here("eqtl", "plots","eqtl_risk_n-pairs_bar.png"))
+
+interaction_bar_gene <- interaction_summary %>%
+  filter(Dx == "mdd") %>%
+  ggplot(aes(x = cell_type, y = n_genes, fill = region)) +
+  geom_col(position = "dodge") +
+  theme_bw() +
+  labs(title = "Signficant eQTL Cell Type Interactions", y = "Genes with FDR < 0.05", x = "Cell Type")
+
+ggsave(interaction_bar_gene, file = here("eqtl", "plots","eqtl_risk_n-genes_bar.png"))
+
+
+#### locus filtering ####
+
+locus
+
 
 #### Get Gene Residual Expression ####
 ## Load gene data
