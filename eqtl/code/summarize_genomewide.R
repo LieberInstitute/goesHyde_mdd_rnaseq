@@ -122,8 +122,8 @@ signif_barplot <- nominal_log_data  %>%
   ggplot(aes(x = feat, fill = region)) +
   geom_col(aes(y = n_pairs_FDR05), position = "dodge") +
   theme_bw() + 
-  scale_fill_manual(values = mdd_BrainRegion_colors) +
-  title("Nominal QTL Results")
+  # scale_fill_manual(values = mdd_BrainRegion_colors, drop = TRUE) +
+  labs(title = "Nominal QTL Results",subtitle = "FDR < 0.05", y = "Number of Pairs")
 
 ggsave(signif_barplot, filename = here("eqtl", "plots", "signif_barplot.png"))
 
