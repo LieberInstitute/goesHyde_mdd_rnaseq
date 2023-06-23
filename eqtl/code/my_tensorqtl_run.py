@@ -55,7 +55,7 @@ def load_data(plink_prefix_path, expression_bed, covariates_file, add_chr = Fals
     return(genotype_df, variant_df, phenotype_df, phenotype_pos_df, covariates_df)
     
 def get_input_paths(feature, region):
-    expression_bed = '../data/tensorQTL_input/expression_bed/' + feature + '_' + region + '.bed.gz'
+    expression_bed = '../data/tensorQTL_input/expression_bed/updated_TSS/' + feature + '_' + region + '.bed.gz'
     covariates_file = '../data/tensorQTL_input/covariates_txt/covariates_' + feature + '_' + region + '.txt'
     return expression_bed, covariates_file
 
