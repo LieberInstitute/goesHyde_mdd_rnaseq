@@ -6,3 +6,5 @@ data/tensorQTL_FDR01/genomewide_nominal/*
 *.vcf.gz
 Plots/test/*
 data/plot_data/residual_expres.Rdata
+gencode.v25.annotationGRCh38.gtf
+gencode.v25.annotation.gtf.gz
