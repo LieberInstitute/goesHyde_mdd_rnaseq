@@ -1,0 +1,87 @@
+Adding LIBD modules
+Loading git
+Loading LIBD module for git-status-size/github
+Loading LIBD module for git-lfs/2.8.0
+Loading LIBD module for rmate/1.5.9
+Loading LIBD module for ruby/2.6.4p104
+Loading conda_R/4.2.x
+**** Job starts ****
+Sat Apr  1 20:04:53 EDT 2023
+**** JHPCE info ****
+User: fgoes
+Job id: 3091003
+Job name: run_DS_sacc
+Hostname: compute-120.cm.cluster
+Task id: undefined
+Unloading conda_R/4.2.x
+Loading conda_R/4.2
+
+The following have been reloaded with a version change:
+  1) conda_R/4.2.x => conda_R/4.2
+
+
+Currently Loaded Modules:
+  1) matlab/R2019a     6) COMMUNITY_CENTOS7_DEFAULT_ENV  11) ruby/2.6.4p104
+  2) stata/17          7) JHPCE_CENTOS7_DEFAULT_ENV      12) rmate/1.5.9
+  3) JHPCE_tools/1.0   8) git-status-size/github         13) conda/3-4.11.0
+  4) sge/8.1.9         9) git/2.28.0                     14) conda_R/4.2
+  5) gcc/4.4.7        10) git-lfs/2.8.0
+
+ 
+
+Loading required package: Rcpp
+Loading counts from /dcs04/lieber/lcolladotor/hydeGoes_LIBD3010/goesHyde_mdd_rnaseq/leafcutter/data/clusters/leafcutter_perind_numers.counts.gz 
+Loading metadata from /dcs04/lieber/lcolladotor/hydeGoes_LIBD3010/goesHyde_mdd_rnaseq/leafcutter/data/DS/sACC_MDD_control_cov_group.txt 
+Encoding as Control =0, MDD =1
+Loading required package: doMC
+Loading required package: foreach
+Loading required package: iterators
+Loading required package: parallel
+Settings:
+$output_prefix
+[1] "leafcutter_ds"
+
+$max_cluster_size
+[1] Inf
+
+$min_samples_per_intron
+[1] 5
+
+$min_samples_per_group
+[1] 3
+
+$min_coverage
+[1] 20
+
+$timeout
+[1] 30
+
+$num_threads
+[1] 1
+
+$init
+[1] "smart"
+
+$seed
+[1] 12345
+
+$help
+[1] FALSE
+
+Running differential splicing analysis...
+Differential splicing summary:
+                                                                 statuses  Freq
+1                                              <=1 sample with coverage>0    92
+2                                   <=1 sample with coverage>min_coverage 27978
+3                     <2 introns used in >=min_samples_per_intron samples   284
+4 Error in sampler$call_sampler(c(args, dotlist)): Initialization failed.    14
+5                                                Not enough valid samples  4141
+6                                                                 Success 38344
+7                                                                 timeout  2286
+There were 50 or more warnings (use warnings() to see the first 50)
+Saving results...
+No exon_file provided.
+All done, exiting
+/cm/local/apps/sge/sge-8.1.9/default/spool/compute-120/job_scripts/3091003: line 41: --exon_file=/dcs04/lieber/lcolladotor/hydeGoes_LIBD3010/goesHyde_mdd_rnaseq/leafcutter/data/gencode.v25.txt.gz: No such file or directory
+**** Job ends ****
+Wed Apr  5 23:41:21 EDT 2023

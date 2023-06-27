@@ -1,0 +1,24 @@
+Adding LIBD modules
+Loading git
+**** Job starts ****
+Sun Jun 18 13:20:28 EDT 2023
+**** JHPCE info ****
+User: fgoes
+Job id: 3569801
+Job name: leafcutter_cluster
+Hostname: compute-127.cm.cluster
+Task id: undefined
+**** Job ends ****
+Sun Jun 18 13:20:37 EDT 2023
+Adding LIBD modules
+Loading git
+**** Job starts ****
+Sun Jun 18 15:47:53 EDT 2023
+**** JHPCE info ****
+User: fgoes
+Job id: 3569972
+Job name: leafcutter_cluster
+Hostname: compute-095.cm.cluster
+Task id: undefined
+**** Job ends ****
+Sun Jun 18 18:22:52 EDT 2023

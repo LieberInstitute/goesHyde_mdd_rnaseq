@@ -1,0 +1,113 @@
+Adding LIBD modules
+Loading git
+**** Job starts ****
+Wed Dec 28 10:53:32 EST 2022
+**** JHPCE info ****
+User: fgoes
+Job id: 1373184
+Job name: run_wgcna_combined
+Hostname: compute-119.cm.cluster
+Task id: undefined
+Fatal error: cannot open file 'run_wgcna_combined.R': No such file or directory
+**** Job ends ****
+Wed Dec 28 10:53:34 EST 2022
+Loading counts from /dcs04/lieber/lcolladotor/hydeGoes_LIBD3010/goesHyde_mdd_rnaseq/leafcutter/data/clusters/leafcutter_perind_numers.counts.gz 
+Loading metadata from /dcs04/lieber/lcolladotor/hydeGoes_LIBD3010/goesHyde_mdd_rnaseq/leafcutter/data/DS/sACC_MDD_control_cov_group.txt 
+Encoding as Control =0, MDD =1
+Settings:
+$output_prefix
+[1] "DS_sacc"
+
+$max_cluster_size
+[1] Inf
+
+$min_samples_per_intron
+[1] 5
+
+$min_samples_per_group
+[1] 3
+
+$min_coverage
+[1] 20
+
+$timeout
+[1] 30
+
+$num_threads
+[1] 4
+
+$exon_file
+[1] "gencode.v31.exons.txt"
+
+$init
+[1] "smart"
+
+$seed
+[1] 12345
+
+$help
+[1] FALSE
+
+Running differential splicing analysis...
+Adding LIBD modules
+Loading git
+**** Job starts ****
+Wed Dec 28 10:56:47 EST 2022
+**** JHPCE info ****
+User: fgoes
+Job id: 1373186
+Job name: run_wgcna_combined
+Hostname: compute-119.cm.cluster
+Task id: undefined
+Loading counts from /dcs04/lieber/lcolladotor/hydeGoes_LIBD3010/goesHyde_mdd_rnaseq/leafcutter/data/clusters/leafcutter_perind_numers.counts.gz 
+Loading metadata from /dcs04/lieber/lcolladotor/hydeGoes_LIBD3010/goesHyde_mdd_rnaseq/leafcutter/data/DS/sACC_MDD_control_cov_group.txt 
+Encoding as Control =0, MDD =1
+Settings:
+$output_prefix
+[1] "DS_sacc"
+
+$max_cluster_size
+[1] Inf
+
+$min_samples_per_intron
+[1] 5
+
+$min_samples_per_group
+[1] 3
+
+$min_coverage
+[1] 20
+
+$timeout
+[1] 30
+
+$num_threads
+[1] 4
+
+$exon_file
+[1] "gencode.v31.exons.txt"
+
+$init
+[1] "smart"
+
+$seed
+[1] 12345
+
+$help
+[1] FALSE
+
+Running differential splicing analysis...
+Differential splicing summary:
+                                                                 statuses  Freq
+1                                              <=1 sample with coverage>0    92
+2                                   <=1 sample with coverage>min_coverage 27978
+3                     <2 introns used in >=min_samples_per_intron samples   284
+4 Error in sampler$call_sampler(c(args, dotlist)): Initialization failed.    14
+5                                                Not enough valid samples  4141
+6                                                                 Success 28763
+7                                                                 timeout 11867
+Saving results...
+Loading exons from gencode.v31.exons.txt 
+All done, exiting
+**** Job ends ****
+Fri Dec 30 07:30:29 EST 2022

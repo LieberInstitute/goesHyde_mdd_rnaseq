@@ -1,0 +1,62 @@
+Adding LIBD modules
+Loading git
+**** Job starts ****
+Fri Dec 30 09:43:30 EST 2022
+**** JHPCE info ****
+User: fgoes
+Job id: 1376941
+Job name: run_DS_amyg
+Hostname: compute-142.cm.cluster
+Task id: undefined
+Loading counts from /dcs04/lieber/lcolladotor/hydeGoes_LIBD3010/goesHyde_mdd_rnaseq/leafcutter/data/clusters/leafcutter_perind_numers.counts.gz 
+Loading metadata from /dcs04/lieber/lcolladotor/hydeGoes_LIBD3010/goesHyde_mdd_rnaseq/leafcutter/data/DS/amyg_MDD_control_cov_group.txt 
+Encoding as Control =0, MDD =1
+Settings:
+$output_prefix
+[1] "DS_amyg"
+
+$max_cluster_size
+[1] Inf
+
+$min_samples_per_intron
+[1] 5
+
+$min_samples_per_group
+[1] 3
+
+$min_coverage
+[1] 20
+
+$timeout
+[1] 30
+
+$num_threads
+[1] 4
+
+$exon_file
+[1] "gencode.v31.exons.txt"
+
+$init
+[1] "smart"
+
+$seed
+[1] 12345
+
+$help
+[1] FALSE
+
+Running differential splicing analysis...
+Differential splicing summary:
+                                                                 statuses  Freq
+1                                              <=1 sample with coverage>0    89
+2                                   <=1 sample with coverage>min_coverage 27484
+3                     <2 introns used in >=min_samples_per_intron samples   287
+4 Error in sampler$call_sampler(c(args, dotlist)): Initialization failed.    20
+5                                                Not enough valid samples  4079
+6                                                                 Success 28780
+7                                                                 timeout 12400
+Saving results...
+Loading exons from gencode.v31.exons.txt 
+All done, exiting
+**** Job ends ****
+Sun Jan  1 07:21:37 EST 2023

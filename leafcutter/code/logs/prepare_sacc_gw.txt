@@ -1,0 +1,139 @@
+Adding LIBD modules
+Loading git
+Loading LIBD module for git-status-size/github
+Loading LIBD module for git-lfs/2.8.0
+Loading LIBD module for rmate/1.5.9
+Loading LIBD module for ruby/2.6.4p104
+Loading conda_R/4.2.x
+**** Job starts ****
+Mon Apr 10 20:08:31 EDT 2023
+**** JHPCE info ****
+User: fgoes
+Job id: 3113302
+Job name: run_DS_amyg
+Hostname: compute-072.cm.cluster
+Task id: undefined
+Unloading conda_R/4.2.x
+Loading conda_R/4.2
+
+The following have been reloaded with a version change:
+  1) conda_R/4.2.x => conda_R/4.2
+
+Usage: /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/leafcutter/code/leafcutter/leafviz/prepare_results.R [options] <name>_perind_numers.counts.gz <name>_cluster_significance.txt <name>_effect_sizes.txt annotation_code 
+The annotation_code should be something like annotation_codes/gencode_hg19/gencode_hg19.
+
+/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/leafcutter/code/leafcutter/leafviz/prepare_results.R: error: required at most 4 positional arguments, got 5
+**** Job ends ****
+Mon Apr 10 20:08:37 EDT 2023
+Adding LIBD modules
+Loading git
+Loading LIBD module for git-status-size/github
+Loading LIBD module for git-lfs/2.8.0
+Loading LIBD module for rmate/1.5.9
+Loading LIBD module for ruby/2.6.4p104
+Loading conda_R/4.2.x
+**** Job starts ****
+Mon Apr 10 20:11:10 EDT 2023
+**** JHPCE info ****
+User: fgoes
+Job id: 3113305
+Job name: run_DS_amyg
+Hostname: compute-072.cm.cluster
+Task id: undefined
+Unloading conda_R/4.2.x
+Loading conda_R/4.2
+
+The following have been reloaded with a version change:
+  1) conda_R/4.2.x => conda_R/4.2
+
+Usage: /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/leafcutter/code/leafcutter/leafviz/prepare_results.R [options] <name>_perind_numers.counts.gz <name>_cluster_significance.txt <name>_effect_sizes.txt annotation_code 
+The annotation_code should be something like annotation_codes/gencode_hg19/gencode_hg19.
+
+/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/leafcutter/code/leafcutter/leafviz/prepare_results.R: error: required at most 4 positional arguments, got 5
+**** Job ends ****
+Mon Apr 10 20:11:12 EDT 2023
+Adding LIBD modules
+Loading git
+Loading LIBD module for git-status-size/github
+Loading LIBD module for git-lfs/2.8.0
+Loading LIBD module for rmate/1.5.9
+Loading LIBD module for ruby/2.6.4p104
+Loading conda_R/4.2.x
+**** Job starts ****
+Mon Apr 10 20:16:22 EDT 2023
+**** JHPCE info ****
+User: fgoes
+Job id: 3113311
+Job name: run_DS_amyg
+Hostname: compute-072.cm.cluster
+Task id: undefined
+Unloading conda_R/4.2.x
+Loading conda_R/4.2
+
+The following have been reloaded with a version change:
+  1) conda_R/4.2.x => conda_R/4.2
+
+Loading required package: leafcutter
+Loading required package: Rcpp
+
+Attaching package: ‘dplyr’
+
+The following objects are masked from ‘package:data.table’:
+
+    between, first, last
+
+The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+Preparing for visualisation
+Results to be saved in: /dcs04/lieber/lcolladotor/hydeGoes_LIBD3010/goesHyde_mdd_rnaseq/leafcutter/data/DS/DS_sacc_gencodev25_p16_genome_wide.Rda 
+Using annotation at: /dcs04/lieber/lcolladotor/hydeGoes_LIBD3010/goesHyde_mdd_rnaseq/leafcutter/data/DS/leafviz/annotation_codes/gencode_v25/gencode_v25 
+Loading counts from /dcs04/lieber/lcolladotor/hydeGoes_LIBD3010/goesHyde_mdd_rnaseq/leafcutter/data/clusters/leafcutter_perind_numers.counts.gz 
+Loading metadata from /dcs04/lieber/lcolladotor/hydeGoes_LIBD3010/goesHyde_mdd_rnaseq/leafcutter/data/DS/sACC_MDD_control_group.txt 
+Loading exons from /dcs04/lieber/lcolladotor/hydeGoes_LIBD3010/goesHyde_mdd_rnaseq/leafcutter/data/DS/leafviz/annotation_codes/gencode_v25/gencode_v25_all_exons.txt.gz 
+Taking input= as a system command ('zless /dcs04/lieber/lcolladotor/hydeGoes_LIBD3010/goesHyde_mdd_rnaseq/leafcutter/data/DS/leafviz/annotation_codes/gencode_v25/gencode_v25_all_exons.txt.gz') and a variable has been used in the expression passed to `input=`. Please use fread(cmd=...). There is a security concern if you are creating an app, and the app could have a malicious user, and the app is not running in a secure environment; e.g. the app is running as root. Please read item 5 in the NEWS file for v1.11.6 for more information and for the option to suppress this message.
+Taking input= as a system command ('zcat < /dcs04/lieber/lcolladotor/hydeGoes_LIBD3010/goesHyde_mdd_rnaseq/leafcutter/data/DS/leafviz/annotation_codes/gencode_v25/gencode_v25_all_introns.bed.gz') and a variable has been used in the expression passed to `input=`. Please use fread(cmd=...). There is a security concern if you are creating an app, and the app could have a malicious user, and the app is not running in a secure environment; e.g. the app is running as root. Please read item 5 in the NEWS file for v1.11.6 for more information and for the option to suppress this message.
+Warning message:
+In left_join(., intron_db, by = c("chr", "start", "end")) :
+  Each row in `x` is expected to match at most 1 row in `y`.
+ℹ Row 2376 of `x` matches multiple rows.
+ℹ If multiple matches are expected, set `multiple = "all"` to silence this
+  warning.
+Taking input= as a system command ('zcat < /dcs04/lieber/lcolladotor/hydeGoes_LIBD3010/goesHyde_mdd_rnaseq/leafcutter/data/DS/leafviz/annotation_codes/gencode_v25/gencode_v25_threeprime.bed.gz') and a variable has been used in the expression passed to `input=`. Please use fread(cmd=...). There is a security concern if you are creating an app, and the app could have a malicious user, and the app is not running in a secure environment; e.g. the app is running as root. Please read item 5 in the NEWS file for v1.11.6 for more information and for the option to suppress this message.
+Warning message:
+In left_join(., threeprime_db, by = c("chr", "start")) :
+  Each row in `x` is expected to match at most 1 row in `y`.
+ℹ Row 35 of `x` matches multiple rows.
+ℹ If multiple matches are expected, set `multiple = "all"` to silence this
+  warning.
+Taking input= as a system command ('zcat < /dcs04/lieber/lcolladotor/hydeGoes_LIBD3010/goesHyde_mdd_rnaseq/leafcutter/data/DS/leafviz/annotation_codes/gencode_v25/gencode_v25_fiveprime.bed.gz') and a variable has been used in the expression passed to `input=`. Please use fread(cmd=...). There is a security concern if you are creating an app, and the app could have a malicious user, and the app is not running in a secure environment; e.g. the app is running as root. Please read item 5 in the NEWS file for v1.11.6 for more information and for the option to suppress this message.
+Warning message:
+In left_join(., fiveprime_db, by = c("chr", "start")) :
+  Each row in `x` is expected to match at most 1 row in `y`.
+ℹ Row 2376 of `x` matches multiple rows.
+ℹ If multiple matches are expected, set `multiple = "all"` to silence this
+  warning.
+[1] "Annotating junctions"
+There were 50 or more warnings (use warnings() to see the first 50)
+[1] "Preparing results"
+[1] "converting counts to ratios"
+`mutate_all()` ignored the following grouping variables:
+• Column `clu`
+ℹ Use `mutate_at(df, vars(-group_cols()), myoperation)` to silence the message.
+Warning message:
+`funs()` was deprecated in dplyr 0.8.0.
+ℹ Please use a list of either functions or lambdas:
+
+# Simple named list: list(mean = mean, median = median)
+
+# Auto named with `tibble::lst()`: tibble::lst(mean, median)
+
+# Using lambdas list(~ mean(., trim = .2), ~ median(., na.rm = TRUE)) 
+[1] "creating PCA"
+**** Job ends ****
+Tue Apr 11 00:15:34 EDT 2023
