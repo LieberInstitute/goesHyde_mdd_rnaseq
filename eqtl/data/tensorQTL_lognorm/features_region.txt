@@ -1,0 +1,8 @@
+gene_Amygdala
+gene_sACC
+exon_Amygdala
+exon_sACC
+jxn_Amygdala
+jxn_sACC
+tx_Amygdala
+tx_sACC
