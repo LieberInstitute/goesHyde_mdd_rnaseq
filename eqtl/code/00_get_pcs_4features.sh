@@ -17,13 +17,13 @@ echo "Hostname: ${HOSTNAME}"
 echo "Task id: ${SGE_TASK_ID}"
 
 ## Load the R module (absent since the JHPCE upgrade to CentOS v7)
-module load conda_R
+module load conda_R/4.3
 
 ## List current modules for reproducibility
 module list
 
 ## Edit with your job command
-Rscript get_pcs_4features.R
+Rscript 00_get_pcs_4features.R
 
 echo "**** Job ends ****"
 date
