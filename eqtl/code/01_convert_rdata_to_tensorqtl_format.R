@@ -15,6 +15,7 @@ load(here("exprs_cutoff", "rse_jxn.Rdata"), verbose = TRUE)
 load(here("exprs_cutoff", "rse_tx.Rdata"), verbose = TRUE)
 
 ## add logcounts
+message(Sys.time(), " - Calc Logcounts")
 assays(rse_gene)$logcounts <- log2(getRPKM(rse_gene, "Length")+1)
 assays(rse_exon)$logcounts <- log2(getRPKM(rse_exon, "Length")+1)
 assays(rse_jxn)$logcounts <- log2(getRPKM(rse_jxn, "Length")+1)
@@ -23,6 +24,7 @@ assays(rse_tx)$logcounts <- log2(assays(rse_tx)$tpm+1)
 ## Split gene data
 regions <- c(amyg = "Amygdala", sacc = "sACC")
 features <- c("gene", "exon", "jxn", "tx")
+# features <- c("gene") ##to test
 names(features) <- features
 
 rse_gene_split <- map(regions, ~ rse_gene[, rse_gene$BrainRegion == .x])
@@ -40,6 +42,7 @@ covar_format <- function(data, rn) {
     return(data)
 }
 
+message(Sys.time(), " - Format covariates")
 covars <- map2(
     pcs, features,
     function(pc, feat) {
@@ -54,8 +57,10 @@ covars <- map2(
             pc <- covar_format(pc, rse$genoSample)
             ## bind and save
             covars <- rbind(pd, pc)
+            fn = here("eqtl", "data", "tensorQTL_input", "covariates_txt", paste0("covariates_", feat, "_", region, ".txt"))
+            message(fn)
             write.table(covars,
-                file = here("eqtl", "data", "tensorQT_input", "covariates_txt", paste0("covariates_", feat, "_", region, ".txt")),
+                file = fn,
                 sep = "\t", quote = FALSE, row.names = FALSE
             )
             return(covars)
@@ -66,7 +71,8 @@ corner(covars$gene$amyg)
 
 
 #### Expression Data ####
-expression_fn <- map(features, function(feat) map(regions, ~ here("eqtl", "data", "tensorQT_input", "expression_bed", paste0(feat, "_", .x, ".bed"))))
+message(Sys.time(), " - logcounts to bed")
+expression_fn <- map(features, function(feat) map(regions, ~ here("eqtl", "data", "tensorQTL_input", "expression_bed", paste0(feat, "_", .x, ".bed"))))
 
 expression_bed <- map2(list(rse_gene, rse_exon, rse_jxn, rse_tx), features, function(rse, feat) {
     rse_split <- map(regions, ~ rse[, rse$BrainRegion == .x])
@@ -84,24 +90,25 @@ walk2(expression_bed, expression_fn, function(expr, fn) {
 ## Create shell script to zip data
 commands <- map(unlist(expression_fn), ~ paste0("bgzip ", .x, " && tabix -p bed ", .x, ".gz"))
 if (file.exists("02_bed_bgzip.sh")) file.remove("02_bed_bgzip.sh")
-sgejobs::job_single("bed_bgzip",
+sgejobs::job_single("02_bed_bgzip",
     create_shell = TRUE, memory = "100G",
     command = paste(commands, collapse = "\n")
 )
 ## Add "module load htslib"
 
 #### VCF ####
-risk_vcf <- readVcf(here("eqtl", "data", "risk_snps", "LIBD_maf01_gwas_BPD.vcf.gz"))
-risk_vcf
-risk_vcf_split <- map(rse_gene_split, ~ risk_vcf[, .x$genoSample])
-map(risk_vcf_split, dim)
-
-vcf_fn <- map(regions, ~ here("eqtl", "data", "risk_snps", paste0("LIBD_maf01_gwas_BPD_", .x, ".vcf.gz")))
-walk2(risk_vcf_split, vcf_fn, ~ writeVcf(.x, .y))
-
-## plink commands
-map(vcf_fn, ~ paste("plink --make-bed --output-chr chrM --vcf", .x, "--out", gsub(".vcf.gz", "", .x)))
-
+# message(Sys.time(), " - Split VCF")
+# risk_vcf <- readVcf(here("eqtl", "data", "risk_snps", "LIBD_maf01_gwas_BPD.vcf.gz"))
+# risk_vcf
+# risk_vcf_split <- map(rse_gene_split, ~ risk_vcf[, .x$genoSample])
+# map(risk_vcf_split, dim)
+# 
+# vcf_fn <- map(regions, ~ here("eqtl", "data", "risk_snps", paste0("LIBD_maf01_gwas_BPD_", .x, ".vcf.gz")))
+# walk2(risk_vcf_split, vcf_fn, ~ writeVcf(.x, .y))
+# 
+# ## plink commands
+# map(vcf_fn, ~ paste("plink --make-bed --output-chr chrM --vcf", .x, "--out", gsub(".vcf.gz", "", .x)))
+# 
 
 ## check
 
@@ -109,12 +116,13 @@ map(vcf_fn, ~ paste("plink --make-bed --output-chr chrM --vcf", .x, "--out", gsu
 # map2(bed, covars, ~ all(colnames(.x[, 5:ncol(.x)]) == colnames(.y[[1]][, 2:ncol(.y[[1]])])))
 
 
-## prep interaction csv
+#### prep interaction csv ####
+message(Sys.time(), " - Calc Logcounts")
 walk2(rse_gene_split, regions, function(rse, region) {
     cell_fractions <- colData(rse)[, c("Astro", "Endo", "Macro", "Micro", "Mural", "Oligo", "OPC", "Tcell", "Excit", "Inhib")]
     cell_fractions <- as.data.frame(cell_fractions)
     rownames(cell_fractions) <- rse$genoSample
-    write.csv(cell_fractions, file = here("eqtl", "data", "tensorQT_input", "interaction", paste0("cell_fraction_", region, ".csv")))
+    write.csv(cell_fractions, file = here("eqtl", "data", "tensorQTL_input", "interaction", paste0("cell_fraction_", region, ".csv")))
 })
 
 ## create shell commands ##
