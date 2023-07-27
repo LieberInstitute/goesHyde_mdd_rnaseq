@@ -1,9 +1,10 @@
-library(SummarizedExperiment)
-library(sessioninfo)
-library(tidyverse)
-library(VariantAnnotation)
-library(jaffelab)
-library(here)
+library("SummarizedExperiment")
+library("sessioninfo")
+library("tidyverse")
+library("VariantAnnotation")
+library("jaffelab")
+library("here")
+library("recount")
 
 source(here("eqtl", "code", "rse_to_bed.R"))
 
@@ -12,6 +13,12 @@ load(here("exprs_cutoff", "rse_gene.Rdata"), verbose = TRUE)
 load(here("exprs_cutoff", "rse_exon.Rdata"), verbose = TRUE)
 load(here("exprs_cutoff", "rse_jxn.Rdata"), verbose = TRUE)
 load(here("exprs_cutoff", "rse_tx.Rdata"), verbose = TRUE)
+
+## add logcounts
+assays(rse_gene)$logcounts <- log2(getRPKM(rse_gene, "Length")+1)
+assays(rse_exon)$logcounts <- log2(getRPKM(rse_exon, "Length")+1)
+assays(rse_jxn)$logcounts <- log2(getRPKM(rse_jxn, "Length")+1)
+assays(rse_tx)$logcounts <- log2(assays(rse_tx)$tpm+1)
 
 ## Split gene data
 regions <- c(amyg = "Amygdala", sacc = "sACC")
@@ -48,7 +55,7 @@ covars <- map2(
             ## bind and save
             covars <- rbind(pd, pc)
             write.table(covars,
-                file = here("eqtl", "data", "covariates_txt", paste0("covariates_", feat, "_", region, ".txt")),
+                file = here("eqtl", "data", "tensorQT_input", "covariates_txt", paste0("covariates_", feat, "_", region, ".txt")),
                 sep = "\t", quote = FALSE, row.names = FALSE
             )
             return(covars)
@@ -59,7 +66,7 @@ corner(covars$gene$amyg)
 
 
 #### Expression Data ####
-expression_fn <- map(features, function(feat) map(regions, ~ here("eqtl", "data", "expression_bed", paste0(feat, "_", .x, ".bed"))))
+expression_fn <- map(features, function(feat) map(regions, ~ here("eqtl", "data", "tensorQT_input", "expression_bed", paste0(feat, "_", .x, ".bed"))))
 
 expression_bed <- map2(list(rse_gene, rse_exon, rse_jxn, rse_tx), features, function(rse, feat) {
     rse_split <- map(regions, ~ rse[, rse$BrainRegion == .x])
@@ -98,8 +105,8 @@ map(vcf_fn, ~ paste("plink --make-bed --output-chr chrM --vcf", .x, "--out", gsu
 
 ## check
 
-map2(bed, risk_vcf_split, ~ all(colnames(.x[, 5:ncol(.x)]) == colnames(.y)))
-map2(bed, covars, ~ all(colnames(.x[, 5:ncol(.x)]) == colnames(.y[[1]][, 2:ncol(.y[[1]])])))
+# map2(bed, risk_vcf_split, ~ all(colnames(.x[, 5:ncol(.x)]) == colnames(.y)))
+# map2(bed, covars, ~ all(colnames(.x[, 5:ncol(.x)]) == colnames(.y[[1]][, 2:ncol(.y[[1]])])))
 
 
 ## prep interaction csv
@@ -107,11 +114,18 @@ walk2(rse_gene_split, regions, function(rse, region) {
     cell_fractions <- colData(rse)[, c("Astro", "Endo", "Macro", "Micro", "Mural", "Oligo", "OPC", "Tcell", "Excit", "Inhib")]
     cell_fractions <- as.data.frame(cell_fractions)
     rownames(cell_fractions) <- rse$genoSample
-    write.csv(cell_fractions, file = here("eqtl", "data", "interaction", paste0("cell_fraction_", region, ".csv")))
+    write.csv(cell_fractions, file = here("eqtl", "data", "tensorQT_input", "interaction", paste0("cell_fraction_", region, ".csv")))
 })
 
 ## create shell commands ##
-sgejobs::job_single("tensorqtl_risk_snps",
-    create_shell = TRUE, queue = "bluejay", memory = "50G",
-    command = "python tensorqtl_risk_snps.py"
-)
+# sgejobs::job_single("tensorqtl_risk_snps",
+#     create_shell = TRUE, queue = "bluejay", memory = "50G",
+#     command = "python tensorqtl_risk_snps.py"
+# )
+
+# sgejobs::job_single('01_convert_rdata_to_tensorqtl_format', create_shell = TRUE, memory = '50G', command = "Rscript 01_convert_rdata_to_tensorqtl_format.R")
+
+## Reproducibility information
+print("Reproducibility information:")
+options(width = 120)
+session_info()
