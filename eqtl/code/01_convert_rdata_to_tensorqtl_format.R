@@ -83,9 +83,9 @@ walk2(expression_bed, expression_fn, function(expr, fn) {
 
 ## Create shell script to zip data
 commands <- map(unlist(expression_fn), ~ paste0("bgzip ", .x, " && tabix -p bed ", .x, ".gz"))
-if (file.exists("bed_bgzip.sh")) file.remove("bed_bgzip.sh")
+if (file.exists("02_bed_bgzip.sh")) file.remove("02_bed_bgzip.sh")
 sgejobs::job_single("bed_bgzip",
-    create_shell = TRUE, queue = "bluejay", memory = "100G",
+    create_shell = TRUE, memory = "100G",
     command = paste(commands, collapse = "\n")
 )
 ## Add "module load htslib"
