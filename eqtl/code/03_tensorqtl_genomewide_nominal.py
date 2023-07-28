@@ -2,6 +2,7 @@ import my_tensorqtl_run
 from tensorqtl import cis
 import sys
 import pandas as pd
+import session_info
 
 pair = sys.argv[1].split("_")
 feature = pair[0]
@@ -27,3 +28,4 @@ cis.map_nominal(genotype_df, variant_df, phenotype_df, phenotype_pos_df, prefix 
 
 print(" DONE !")
 
+session_info.show()
