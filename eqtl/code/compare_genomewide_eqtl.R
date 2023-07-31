@@ -178,3 +178,12 @@ ggsave(slope_scater, filename = here("eqtl", "plots", "compare_methods_slope.png
 # )
 # 
 # walk2(genomewide_box, names(genomewide_box), ~ ggsave(.x, filename = here("eqtl", "plots", paste0("gene_genomewide_boxplot_", .y, ".png")), width = 12))
+
+# sgejobs::job_single("compare_genomewide_eqtl", memory = "25G",create_shell = TRUE, command = "Rscript compare_genomewide_eqtl.R")
+
+## Reproducibility information
+print("Reproducibility information:")
+Sys.time()
+proc.time()
+options(width = 120)
+session_info()
