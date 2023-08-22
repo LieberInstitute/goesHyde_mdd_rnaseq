@@ -40,6 +40,6 @@ export CUDA_VISIBLE_DEVICES=$(echo "$avail_gpus" | head -n $NUM_GPUS | paste -sd
 PAIR=$(awk "NR==${SGE_TASK_ID}" features_region.txt)
 echo "Processing pair: ${PAIR}"
 
-python tensorqtl_genomewide_nominal.py ${PAIR}
+python 03_tensorqtl_genomewide_nominal.py ${PAIR}
 echo "**** Job ends ****"
 date
