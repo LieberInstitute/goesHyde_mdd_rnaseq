@@ -37,7 +37,7 @@ fi
 export CUDA_VISIBLE_DEVICES=$(echo "$avail_gpus" | head -n $NUM_GPUS | paste -sd ",")
 
 ## run job
-python tensorqtl_genomewide_nominal.py gene_Amygdala
+python 03_tensorqtl_genomewide_nominal.py gene_Amygdala
 
 echo "**** Job ends ****"
 date
