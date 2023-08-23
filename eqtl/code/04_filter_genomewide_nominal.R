@@ -9,6 +9,10 @@ names(features) <- features
 
 regions <- c(amyg = "Amygdala", sacc = "sACC")
 
+## just for test
+features <- features["gene"]
+regions <- regions["amyg"]
+  
 parquet_files <- map(
     features,
     function(f) {
