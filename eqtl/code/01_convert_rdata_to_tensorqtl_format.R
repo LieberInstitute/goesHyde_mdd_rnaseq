@@ -5,6 +5,7 @@ library("VariantAnnotation")
 library("jaffelab")
 library("here")
 library("recount")
+library("data.table")
 
 source(here("eqtl", "code", "rse_to_bed.R"))
 
@@ -71,8 +72,17 @@ corner(covars$gene$amyg)
 
 
 #### Expression Data ####
+
+## test TSS fix 8/24/23
+# bed <- rse_to_bed(rse_gene_split$amyg)
+# corner(bed)
+# tail(colnames(bed))
+# bed |> filter(ID == "ENSG00000000003.14") |> dplyr::select(ID, `#Chr`, `start`, `end`)
+# ID #Chr     start       end
+# 1 ENSG00000000003.14 chrX 100639991 100639992
+
 message(Sys.time(), " - logcounts to bed")
-expression_fn <- map(features, function(feat) map(regions, ~ here("eqtl", "data", "tensorQTL_input", "expression_bed", paste0(feat, "_", .x, ".bed"))))
+expression_fn <- map(features, function(feat) map(regions, ~ here("eqtl", "data", "tensorQTL_input", "expression_bed", paste0(feat, "_", .x, ".bed.gz"))))
 
 expression_bed <- map2(list(rse_gene, rse_exon, rse_jxn, rse_tx), features, function(rse, feat) {
     rse_split <- map(regions, ~ rse[, rse$BrainRegion == .x])
@@ -81,20 +91,12 @@ expression_bed <- map2(list(rse_gene, rse_exon, rse_jxn, rse_tx), features, func
 })
 
 walk2(expression_bed, expression_fn, function(expr, fn) {
-    walk2(expr, fn, ~ write.table(.x, .y,
+    walk2(expr, fn, ~ data.table::fwrite(.x, .y,
         sep = "\t",
         quote = FALSE, row.names = FALSE
     ))
 })
 
-## Create shell script to zip data
-commands <- map(unlist(expression_fn), ~ paste0("bgzip ", .x, " && tabix -p bed ", .x, ".gz"))
-if (file.exists("02_bed_bgzip.sh")) file.remove("02_bed_bgzip.sh")
-sgejobs::job_single("02_bed_bgzip",
-    create_shell = TRUE, memory = "100G",
-    command = paste(commands, collapse = "\n")
-)
-## Add "module load htslib"
 
 #### VCF ####
 # message(Sys.time(), " - Split VCF")
