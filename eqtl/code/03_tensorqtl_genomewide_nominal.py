@@ -2,7 +2,7 @@ import my_tensorqtl_run
 from tensorqtl import cis
 import sys
 import pandas as pd
-# import session_info
+import session_info
 
 pair = sys.argv[1].split("_")
 feature = pair[0]
@@ -13,10 +13,15 @@ print("REGION = " + region)
 
 expres, covar = my_tensorqtl_run.get_input_paths(feature, region)
 
+##test geo input
+## expres = '../data/tensorQTL_lognorm/expression_bed/' + feature + '_' + region + '.bed.gz'
+
 prefix = '/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/eqtl/data/tensorQTL_out/genomewide_nominal'
 plink = "/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/genotype_data/mdd_bpd/maf01/mdd_bpd_maf01"
 
+
 genotype_df, variant_df, phenotype_df, phenotype_pos_df, covariates_df = my_tensorqtl_run.load_data(plink, expres, covar, add_chr = True, fix_geno_names = True)
+
 
 tag = prefix +"/" + feature + "_" + region
 print('\n**** STARTING tensorQTL ****')
@@ -28,4 +33,4 @@ cis.map_nominal(genotype_df, variant_df, phenotype_df, phenotype_pos_df, prefix 
 
 print(" DONE !")
 
-# session_info.show()
+session_info.show()
