@@ -90,6 +90,7 @@ expression_bed <- map2(list(rse_gene, rse_exon, rse_jxn, rse_tx), features, func
     return(expr_bed)
 })
 
+message(Sys.time(), " - Write bed tables to .bed.gz files")
 walk2(expression_bed, expression_fn, function(expr, fn) {
     walk2(expr, fn, ~ data.table::fwrite(.x, .y,
         sep = "\t",
@@ -119,7 +120,7 @@ walk2(expression_bed, expression_fn, function(expr, fn) {
 
 
 #### prep interaction csv ####
-message(Sys.time(), " - Calc Logcounts")
+message(Sys.time(), " - Prep interaction data")
 walk2(rse_gene_split, regions, function(rse, region) {
     cell_fractions <- colData(rse)[, c("Astro", "Endo", "Macro", "Micro", "Mural", "Oligo", "OPC", "Tcell", "Excit", "Inhib")]
     cell_fractions <- as.data.frame(cell_fractions)

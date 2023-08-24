@@ -17,7 +17,7 @@ rse_to_bed <- function(rse, assay_name = "logcounts") {
                   end = start + 1) |>
     dplyr::select(`#Chr` = seqnames, start, end, ID)
   
-  message(assay_name, " to bed format")
+  message(Sys.time(), "- Converting ", assay_name, " to bed format:", nrow(rse), "x", ncol(rse))
   counts <- SummarizedExperiment::assays(rse)[[assay_name]]
   colnames(counts) <- rse$genoSample
   
