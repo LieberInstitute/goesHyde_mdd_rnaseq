@@ -10,20 +10,23 @@
 #' @importFrom dplyr arrange mutate select left_join
 #' @importFrom SummarizedExperiment assays
 rse_to_bed <- function(rse, assay_name = "logcounts") {
+  
+  stopifnot(assay_name %in% assayNames(rse))
+  
   rr_df <- as.data.frame(rowRanges(rse_gene)) |>
     tibble::rownames_to_column("ID") |>
-    dplyr::arrange(seqnames, start) |>
     dplyr::mutate(start = ifelse(strand == "+", start, end),
                   end = start + 1) |>
+    dplyr::arrange(seqnames, start) |>
     dplyr::select(`#Chr` = seqnames, start, end, ID)
   
-  message(Sys.time(), "- Converting ", assay_name, " to bed format:", nrow(rse), "x", ncol(rse))
+  message(Sys.time(), " - Converting assay '", assay_name, "' to bed format: ", nrow(rse), "x", ncol(rse))
   counts <- SummarizedExperiment::assays(rse)[[assay_name]]
   colnames(counts) <- rse$genoSample
   
-  counts <- as.data.frame(counts) |>
-    tibble::rownames_to_column("ID") |>
-    dplyr::left_join(rr_df, ., by = "ID")
-  
+  counts <- rr_df |> 
+    dplyr::left_join(as.data.frame(counts) |> 
+                       tibble::rownames_to_column("ID"), 
+                     by = "ID")
   return(counts)
 }
