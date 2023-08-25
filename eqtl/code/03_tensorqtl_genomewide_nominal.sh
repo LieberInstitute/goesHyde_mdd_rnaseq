@@ -3,8 +3,8 @@
 #$ -l caracol,mem_free=100G,h_vmem=100G,h_fsize=100G
 #$ -pe local 1
 #$ -N tensorqtl_genomewide_nominal_gpu
-#$ -o logs/tensorqtl_genomewide_nominal_gpu.$TASK_ID.txt
-#$ -e logs/tensorqtl_genomewide_nominal_gpu.$TASK_ID.txt
+#$ -o logs/03_tensorqtl_genomewide_nominal_gpu.$TASK_ID.txt
+#$ -e logs/03_tensorqtl_genomewide_nominal_gpu.$TASK_ID.txt
 #$ -m e
 #$ -t 1-8
 #$ -tc 4
