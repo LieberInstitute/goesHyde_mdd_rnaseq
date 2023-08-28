@@ -25,7 +25,7 @@ assays(rse_tx)$logcounts <- log2(assays(rse_tx)$tpm+1)
 ## Split gene data
 regions <- c(amyg = "Amygdala", sacc = "sACC")
 features <- c("gene", "exon", "jxn", "tx")
-# features <- c("gene") ##to test
+# features <- c("gene","exon") ##to test
 names(features) <- features
 
 rse_gene_split <- map(regions, ~ rse_gene[, rse_gene$BrainRegion == .x])
@@ -85,10 +85,14 @@ message(Sys.time(), " - logcounts to bed")
 expression_fn <- map(features, function(feat) map(regions, ~ here("eqtl", "data", "tensorQTL_input", "expression_bed", paste0(feat, "_", .x, ".bed.gz"))))
 
 expression_bed <- map2(list(rse_gene, rse_exon, rse_jxn, rse_tx), features, function(rse, feat) {
+    message(Sys.time(), " - ", feat)
     rse_split <- map(regions, ~ rse[, rse$BrainRegion == .x])
     expr_bed <- map(rse_split, rse_to_bed)
     return(expr_bed)
 })
+
+## double check the output
+map_depth(expression_bed, 2, corner)
 
 message(Sys.time(), " - Write bed tables to .bed.gz files")
 walk2(expression_bed, expression_fn, function(expr, fn) {

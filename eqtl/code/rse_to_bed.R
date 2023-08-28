@@ -13,14 +13,14 @@ rse_to_bed <- function(rse, assay_name = "logcounts") {
   
   stopifnot(assay_name %in% assayNames(rse))
   
-  rr_df <- as.data.frame(rowRanges(rse_gene)) |>
+  rr_df <- as.data.frame(rowRanges(rse)) |>
     tibble::rownames_to_column("ID") |>
     dplyr::mutate(start = ifelse(strand == "+", start, end),
                   end = start + 1) |>
     dplyr::arrange(seqnames, start) |>
     dplyr::select(`#Chr` = seqnames, start, end, ID)
   
-  message(Sys.time(), " - Converting assay '", assay_name, "' to bed format: ", nrow(rse), "x", ncol(rse))
+  message(Sys.time(), " - Converting assay '", assay_name, "' to bed format: (", nrow(rse), ", ", ncol(rse),")")
   counts <- SummarizedExperiment::assays(rse)[[assay_name]]
   colnames(counts) <- rse$genoSample
   
