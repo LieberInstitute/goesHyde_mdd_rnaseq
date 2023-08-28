@@ -26,7 +26,7 @@ NUM_GPUS=1
 avail_gpus=
 
 #  Simply exit with an error if there are no GPUs left
-if [[ -z  ]]; then
+if [[ -z  $avail_gpus ]]; then
     echo "No GPUs are available."
     exit 1
 fi

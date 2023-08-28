@@ -23,15 +23,16 @@ module list
 USAGE_CUTOFF=10
 NUM_GPUS=1
 
-avail_gpus=
+avail_gpus=$(nvidia-smi --query-gpu=utilization.gpu --format=csv,noheader | cut -d " " -f 1 | awk -v usage="$USAGE_CUTOFF" '$1 < usage {print NR - 1}')
 
 #  Simply exit with an error if there are no GPUs left
-if [[ -z  ]]; then
+if [[ -z $avail_gpus ]]; then
     echo "No GPUs are available."
     exit 1
 fi
 
-export CUDA_VISIBLE_DEVICES=
+export CUDA_VISIBLE_DEVICES=$(echo "$avail_gpus" | head -n $NUM_GPUS | paste -sd ",")
+
 
 ## Run Python
 python 03_tensorqtl_genomewide_nominal.py exon_Amygdala

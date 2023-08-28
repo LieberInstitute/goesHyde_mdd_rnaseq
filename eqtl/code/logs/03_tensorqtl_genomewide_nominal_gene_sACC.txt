@@ -1,0 +1,161 @@
+Adding LIBD modules
+Loading git
+Loading LIBD module for git-status-size/github
+Loading LIBD module for git-lfs/2.8.0
+Loading LIBD module for rmate/1.5.9
+Loading LIBD module for ruby/2.6.4p104
+Loading conda_R/4.3
+**** Job starts ****
+Mon Aug 28 12:29:44 EDT 2023
+**** JHPCE info ****
+User: lhuuki
+Job id: 3695994
+Job name: tensorqtl_genomewide_nominal_gene_sACC
+Hostname: compute-126.cm.cluster
+Task id: undefined
+Loading LIBD module for tensorQTL/1.0.8
+Unloading conda_R/4.3
+Loading conda_R/4.3
+
+Currently Loaded Modules:
+  1) matlab/R2019a     6) COMMUNITY_CENTOS7_DEFAULT_ENV  11) ruby/2.6.4p104
+  2) stata/17          7) JHPCE_CENTOS7_DEFAULT_ENV      12) rmate/1.5.9
+  3) JHPCE_tools/1.0   8) git-status-size/github         13) conda/3-4.11.0
+  4) sge/8.1.9         9) git/2.28.0                     14) conda_R/4.3
+  5) gcc/4.4.7        10) git-lfs/2.8.0                  15) tensorqtl/1.0.8
+
+ 
+
+****************************
+** Hopkins NEWS and Notes **
+****************************
+
+News and updates for the R installation will be sent to bit-help, so consider subscribing
+
+An automatic user library has been created (in case it did not already exist) as
+    /users/lhuuki/R/4.3 
+install.packages and R CMD INSTALL will automatically install to this directory, so there is no need for a -l or a lib argument to these functions.
+
+Loading required package: utils
+The following packages are installed in both /users/lhuuki/R/4.3 and system-wide
+   Package User_Version System_Version
+1 biocthis       1.10.3         1.10.3
+User installed packages will override the system ones, irrespective of version
+******* End NEWS ***********
+PyTorch 1.11.0+cu113
+Pandas 2.0.2
+FEATURE = gene
+REGION = sACC
+Expression bed file: ../data/tensorQTL_input/expression_bed/gene_sACC.bed.gz
+Covar file: ../data/tensorQTL_input/covariates_txt/covariates_gene_sACC.txt
+Reading Expression files: ../data/tensorQTL_input/expression_bed/gene_sACC.bed.gz
+Phenotype dimensions:
+(25212, 551)
+....................
+Reading Plink files: /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/genotype_data/mdd_bpd/maf01/mdd_bpd_maf01
+Mapping files:   0%|          | 0/3 [00:00<?, ?it/s]Mapping files:  33%|███▎      | 1/3 [00:11<00:22, 11.29s/it]Mapping files:  67%|██████▋   | 2/3 [00:12<00:05,  5.33s/it]Mapping files: 100%|██████████| 3/3 [00:15<00:00,  4.17s/it]Mapping files: 100%|██████████| 3/3 [00:15<00:00,  5.08s/it]
+Loading Genotypes...Genotype dimensions:(11031865, 616)
+Using fam to assign genoSample names
+Adding 'chr' to genotype positions
+Excluding phenotypes from these chromosomes:
+{'chrM', 'chrY'}
+Phenotypes with chr in variants: 
+chr
+True     25132
+False       80
+Name: count, dtype: int64
+
+**** STARTING tensorQTL ****
+Saving output to: /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/eqtl/data/tensorQTL_out/genomewide_nominal/gene_sACC
+cis-QTL mapping: nominal associations for all variant-phenotype pairs
+  * 551 samples
+  * 25132 phenotypes
+  * 41 covariates
+  * 11031865 variants
+  * applying in-sample 0.05 MAF filter
+  * cis-window: ±500,000
+  * checking phenotypes: 1000/25132  * checking phenotypes: 2000/25132  * checking phenotypes: 3000/25132  * checking phenotypes: 4000/25132  * checking phenotypes: 5000/25132  * checking phenotypes: 6000/25132  * checking phenotypes: 7000/25132  * checking phenotypes: 8000/25132  * checking phenotypes: 9000/25132  * checking phenotypes: 10000/25132  * checking phenotypes: 11000/25132  * checking phenotypes: 12000/25132  * checking phenotypes: 13000/25132  * checking phenotypes: 14000/25132  * checking phenotypes: 15000/25132  * checking phenotypes: 16000/25132  * checking phenotypes: 17000/25132  * checking phenotypes: 18000/25132  * checking phenotypes: 19000/25132  * checking phenotypes: 20000/25132  * checking phenotypes: 21000/25132  * checking phenotypes: 22000/25132  * checking phenotypes: 23000/25132  * checking phenotypes: 24000/25132  * checking phenotypes: 25000/25132  * checking phenotypes: 25132/25132
+    ** dropping 47 phenotypes without variants in cis-window
+  * Computing associations
+    Mapping chromosome chr1
+    time elapsed: 0.20 min
+    * writing output
+    Mapping chromosome chr2
+    time elapsed: 0.43 min
+    * writing output
+    Mapping chromosome chr3
+    time elapsed: 0.61 min
+    * writing output
+    Mapping chromosome chr4
+    time elapsed: 0.76 min
+    * writing output
+    Mapping chromosome chr5
+    time elapsed: 0.91 min
+    * writing output
+    Mapping chromosome chr6
+    time elapsed: 1.09 min
+    * writing output
+    Mapping chromosome chr7
+    time elapsed: 1.25 min
+    * writing output
+    Mapping chromosome chr8
+    time elapsed: 1.39 min
+    * writing output
+    Mapping chromosome chr9
+    time elapsed: 1.51 min
+    * writing output
+    Mapping chromosome chr10
+    time elapsed: 1.66 min
+    * writing output
+    Mapping chromosome chr11
+    time elapsed: 1.81 min
+    * writing output
+    Mapping chromosome chr12
+    time elapsed: 1.98 min
+    * writing output
+    Mapping chromosome chr13
+    time elapsed: 2.08 min
+    * writing output
+    Mapping chromosome chr14
+    time elapsed: 2.18 min
+    * writing output
+    Mapping chromosome chr15
+    time elapsed: 2.30 min
+    * writing output
+    Mapping chromosome chr16
+    time elapsed: 2.44 min
+    * writing output
+    Mapping chromosome chr17
+    time elapsed: 2.60 min
+    * writing output
+    Mapping chromosome chr18
+    time elapsed: 2.69 min
+    * writing output
+    Mapping chromosome chr19
+    time elapsed: 2.86 min
+    * writing output
+    Mapping chromosome chr20
+    time elapsed: 2.98 min
+    * writing output
+    Mapping chromosome chr21
+    time elapsed: 3.03 min
+    * writing output
+    Mapping chromosome chr22
+    time elapsed: 3.09 min
+    * writing output
+    Mapping chromosome chrX
+    time elapsed: 3.17 min
+    * writing output
+done.
+-----
+cis                 NA
+my_tensorqtl_run    NA
+pandas              2.0.2
+session_info        1.0.0
+-----
+Python 3.10.10 | packaged by conda-forge | (main, Mar 24 2023, 20:08:06) [GCC 11.3.0]
+Linux-3.10.0-1160.el7.x86_64-x86_64-with-glibc2.17
+-----
+Session information updated at 2023-08-28 12:34
+**** Job ends ****
+Mon Aug 28 12:34:35 EDT 2023
