@@ -1,25 +1,39 @@
 #!/bin/bash
+
+## Usage:
+# sh 03_tensorqtl_genomewide_nominal.sh
+
+## Create the logs directory
+mkdir -p logs
+
+for feature_region in gene_Amygdala gene_sACC exon_Amygdala exon_sACC jxn_Amygdala jxn_sACC tx_Amygdala tx_sACC; do
+
+    ## Internal script name
+    SHORT="03_tensorqtl_genomewide_nominal_${feature_region}"
+    NAME="tensorqtl_genomewide_nominal_${feature_region}"
+
+    # Construct shell file
+    echo "Creating script 03_tensorqtl_genomewide_nominal_${feature_region}"
+    cat > .${SHORT}.sh <<EOF
+#!/bin/bash
 #$ -cwd
 #$ -l caracol,mem_free=100G,h_vmem=100G,h_fsize=100G
-#$ -pe local 1
-#$ -N tensorqtl_genomewide_nominal_gpu
-#$ -o logs/03_tensorqtl_genomewide_nominal_gpu.$TASK_ID.txt
-#$ -e logs/03_tensorqtl_genomewide_nominal_gpu.$TASK_ID.txt
+#$ -N ${NAME}
+#$ -o logs/${SHORT}.txt
+#$ -e logs/${SHORT}.txt
 #$ -m e
-#$ -t 1-8
-#$ -tc 4
 
 echo "**** Job starts ****"
 date
 
 echo "**** JHPCE info ****"
-echo "User: ${USER}"
-echo "Job id: ${JOB_ID}"
-echo "Job name: ${JOB_NAME}"
-echo "Hostname: ${HOSTNAME}"
-echo "Task id: ${SGE_TASK_ID}"
+echo "User: \${USER}"
+echo "Job id: \${JOB_ID}"
+echo "Job name: \${JOB_NAME}"
+echo "Hostname: \${HOSTNAME}"
+echo "Task id: \${SGE_TASK_ID}"
 
-## List current modules for reproducibility
+## Load the R module (absent since the JHPCE upgrade to CentOS v7)
 module load tensorqtl
 module list
 
@@ -36,10 +50,18 @@ fi
 
 export CUDA_VISIBLE_DEVICES=$(echo "$avail_gpus" | head -n $NUM_GPUS | paste -sd ",")
 
-## get pair
-PAIR=$(awk "NR==${SGE_TASK_ID}" features_region.txt)
-echo "Processing pair: ${PAIR}"
-
-python 03_tensorqtl_genomewide_nominal.py ${PAIR}
+## Run Python
+python 03_tensorqtl_genomewide_nominal.py ${feature_region}
 echo "**** Job ends ****"
 date
+
+## This script was made using sgejobs version 0.99.1
+## available from http://research.libd.org/sgejobs/
+
+
+EOF
+
+    call="qsub .${SHORT}.sh"
+    echo $call
+    $call
+done
