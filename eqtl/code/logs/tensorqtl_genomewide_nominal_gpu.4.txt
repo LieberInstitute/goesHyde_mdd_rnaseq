@@ -1,157 +1,0 @@
-Adding LIBD modules
-Loading git
-Loading LIBD module for git-status-size/github
-Loading LIBD module for git-lfs/2.8.0
-Loading LIBD module for rmate/1.5.9
-Loading LIBD module for ruby/2.6.4p104
-Loading conda_R/devel
-**** Job starts ****
-Tue Apr 19 08:44:39 EDT 2022
-**** JHPCE info ****
-User: lhuuki
-Job id: 9899912
-Job name: tensorqtl_genomewide_nominal_gpu
-Hostname: compute-126.cm.cluster
-Task id: 4
-Loading LIBD module for tensorQTL/1.0.6
-Unloading conda_R/devel
-Loading conda_R/4.1.x
-
-The following have been reloaded with a version change:
-  1) conda_R/devel => conda_R/4.1.x
-
-
-Currently Loaded Modules:
-  1) matlab/R2019a     6) COMMUNITY_CENTOS7_DEFAULT_ENV  11) ruby/2.6.4p104
-  2) stata/17          7) JHPCE_CENTOS7_DEFAULT_ENV      12) rmate/1.5.9
-  3) JHPCE_tools/1.0   8) git-status-size/github         13) conda/3-4.6.14
-  4) sge/8.1.9         9) git/2.28.0                     14) conda_R/4.1.x
-  5) gcc/4.4.7        10) git-lfs/2.8.0                  15) tensorqtl/1.0.6
-
- 
-
-Processing pair: exon_sACC
-****************************
-** Hopkins NEWS and Notes **
-****************************
-
-News and updates for the R installation will be sent to bit-help, so consider subscribing
-
-An automatic user library has been created (in case it did not already exist) as
-    /users/lhuuki/R/4.1.x 
-install.packages and R CMD INSTALL will automatically install to this directory, so there is no need for a -l or a lib argument to these functions.
-
-Loading required package: utils
-The following packages are installed in both /users/lhuuki/R/4.1.x and system-wide
-    Package User_Version System_Version
-1  biocthis        1.5.0          1.4.0
-2     irlba        2.3.5          2.3.5
-3 lifecycle        1.0.1          1.0.1
-4    pillar        1.7.0          1.7.0
-5        R6        2.5.1          2.5.1
-User installed packages will override the system ones, irrespective of version
-******* End NEWS ***********
-PyTorch 1.8.2+cu111
-Pandas 1.4.0
-FEATURE = exon
-REGION = sACC
-Reading Expression files: ../data/tensorQTL_input/expression_bed/exon_sACC.bed.gz
-Phenotype dimensions:
-(399529, 551)
-....................
-Reading Plink files: /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/genotype_data/mdd_bpd/maf01/mdd_bpd_maf01
-Mapping files:   0%|          | 0/3 [00:00<?, ?it/s]Mapping files:  33%|███▎      | 1/3 [00:07<00:15,  7.79s/it]Mapping files:  67%|██████▋   | 2/3 [00:08<00:03,  3.50s/it]Mapping files: 100%|██████████| 3/3 [00:10<00:00,  3.07s/it]Mapping files: 100%|██████████| 3/3 [00:10<00:00,  3.61s/it]
-Loading Genotypes...Genotype dimensions:(11031865, 616)
-Using fam to assign genoSample names
-Adding 'chr' to genotype positions
-Excluding phenotypes from these chromosomes:
-{'chrM', 'chrY'}
-Phenotypes with chr in variants: 
-True     399023
-False       506
-Name: chr, dtype: int64
-
-**** STARTING tensorQTL ****
-Saving output to: /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/eqtl/data/tensorQTL_out/genomewide_nominal/exon_sACC
-cis-QTL mapping: nominal associations for all variant-phenotype pairs
-  * 551 samples
-  * 399023 phenotypes
-  * 50 covariates
-  * 11031865 variants
-  * applying in-sample 0.05 MAF filter
-  * checking phenotypes: 1000/399023  * checking phenotypes: 2000/399023  * checking phenotypes: 3000/399023  * checking phenotypes: 4000/399023  * checking phenotypes: 5000/399023  * checking phenotypes: 6000/399023  * checking phenotypes: 7000/399023  * checking phenotypes: 8000/399023  * checking phenotypes: 9000/399023  * checking phenotypes: 10000/399023  * checking phenotypes: 11000/399023  * checking phenotypes: 12000/399023  * checking phenotypes: 13000/399023  * checking phenotypes: 14000/399023  * checking phenotypes: 15000/399023  * checking phenotypes: 16000/399023  * checking phenotypes: 17000/399023  * checking phenotypes: 18000/399023  * checking phenotypes: 19000/399023  * checking phenotypes: 20000/399023  * checking phenotypes: 21000/399023  * checking phenotypes: 22000/399023  * checking phenotypes: 23000/399023  * checking phenotypes: 24000/399023  * checking phenotypes: 25000/399023  * checking phenotypes: 26000/399023  * checking phenotypes: 27000/399023  * checking phenotypes: 28000/399023  * checking phenotypes: 29000/399023  * checking phenotypes: 30000/399023  * checking phenotypes: 31000/399023  * checking phenotypes: 32000/399023  * checking phenotypes: 33000/399023  * checking phenotypes: 34000/399023  * checking phenotypes: 35000/399023  * checking phenotypes: 36000/399023  * checking phenotypes: 37000/399023  * checking phenotypes: 38000/399023  * checking phenotypes: 39000/399023  * checking phenotypes: 40000/399023  * checking phenotypes: 41000/399023  * checking phenotypes: 42000/399023  * checking phenotypes: 43000/399023  * checking phenotypes: 44000/399023  * checking phenotypes: 45000/399023  * checking phenotypes: 46000/399023  * checking phenotypes: 47000/399023  * checking phenotypes: 48000/399023  * checking phenotypes: 49000/399023  * checking phenotypes: 50000/399023  * checking phenotypes: 51000/399023  * checking phenotypes: 52000/399023  * checking phenotypes: 53000/399023  * checking phenotypes: 54000/399023  * checking phenotypes: 55000/399023  * checking phenotypes: 56000/399023  * checking phenotypes: 57000/399023  * checking phenotypes: 58000/399023  * checking phenotypes: 59000/399023  * checking phenotypes: 60000/399023  * checking phenotypes: 61000/399023  * checking phenotypes: 62000/399023  * checking phenotypes: 63000/399023  * checking phenotypes: 64000/399023  * checking phenotypes: 65000/399023  * checking phenotypes: 66000/399023  * checking phenotypes: 67000/399023  * checking phenotypes: 68000/399023  * checking phenotypes: 69000/399023  * checking phenotypes: 70000/399023  * checking phenotypes: 71000/399023  * checking phenotypes: 72000/399023  * checking phenotypes: 73000/399023  * checking phenotypes: 74000/399023  * checking phenotypes: 75000/399023  * checking phenotypes: 76000/399023  * checking phenotypes: 77000/399023  * checking phenotypes: 78000/399023  * checking phenotypes: 79000/399023  * checking phenotypes: 80000/399023  * checking phenotypes: 81000/399023  * checking phenotypes: 82000/399023  * checking phenotypes: 83000/399023  * checking phenotypes: 84000/399023  * checking phenotypes: 85000/399023  * checking phenotypes: 86000/399023  * checking phenotypes: 87000/399023  * checking phenotypes: 88000/399023  * checking phenotypes: 89000/399023  * checking phenotypes: 90000/399023  * checking phenotypes: 91000/399023  * checking phenotypes: 92000/399023  * checking phenotypes: 93000/399023  * checking phenotypes: 94000/399023  * checking phenotypes: 95000/399023  * checking phenotypes: 96000/399023  * checking phenotypes: 97000/399023  * checking phenotypes: 98000/399023  * checking phenotypes: 99000/399023  * checking phenotypes: 100000/399023  * checking phenotypes: 101000/399023  * checking phenotypes: 102000/399023  * checking phenotypes: 103000/399023  * checking phenotypes: 104000/399023  * checking phenotypes: 105000/399023  * checking phenotypes: 106000/399023  * checking phenotypes: 107000/399023  * checking phenotypes: 108000/399023  * checking phenotypes: 109000/399023  * checking phenotypes: 110000/399023  * checking phenotypes: 111000/399023  * checking phenotypes: 112000/399023  * checking phenotypes: 113000/399023  * checking phenotypes: 114000/399023  * checking phenotypes: 115000/399023  * checking phenotypes: 116000/399023  * checking phenotypes: 117000/399023  * checking phenotypes: 118000/399023  * checking phenotypes: 119000/399023  * checking phenotypes: 120000/399023  * checking phenotypes: 121000/399023  * checking phenotypes: 122000/399023  * checking phenotypes: 123000/399023  * checking phenotypes: 124000/399023  * checking phenotypes: 125000/399023  * checking phenotypes: 126000/399023  * checking phenotypes: 127000/399023  * checking phenotypes: 128000/399023  * checking phenotypes: 129000/399023  * checking phenotypes: 130000/399023  * checking phenotypes: 131000/399023  * checking phenotypes: 132000/399023  * checking phenotypes: 133000/399023  * checking phenotypes: 134000/399023  * checking phenotypes: 135000/399023  * checking phenotypes: 136000/399023  * checking phenotypes: 137000/399023  * checking phenotypes: 138000/399023  * checking phenotypes: 139000/399023  * checking phenotypes: 140000/399023  * checking phenotypes: 141000/399023  * checking phenotypes: 142000/399023  * checking phenotypes: 143000/399023  * checking phenotypes: 144000/399023  * checking phenotypes: 145000/399023  * checking phenotypes: 146000/399023  * checking phenotypes: 147000/399023  * checking phenotypes: 148000/399023  * checking phenotypes: 149000/399023  * checking phenotypes: 150000/399023  * checking phenotypes: 151000/399023  * checking phenotypes: 152000/399023  * checking phenotypes: 153000/399023  * checking phenotypes: 154000/399023  * checking phenotypes: 155000/399023  * checking phenotypes: 156000/399023  * checking phenotypes: 157000/399023  * checking phenotypes: 158000/399023  * checking phenotypes: 159000/399023  * checking phenotypes: 160000/399023  * checking phenotypes: 161000/399023  * checking phenotypes: 162000/399023  * checking phenotypes: 163000/399023  * checking phenotypes: 164000/399023  * checking phenotypes: 165000/399023  * checking phenotypes: 166000/399023  * checking phenotypes: 167000/399023  * checking phenotypes: 168000/399023  * checking phenotypes: 169000/399023  * checking phenotypes: 170000/399023  * checking phenotypes: 171000/399023  * checking phenotypes: 172000/399023  * checking phenotypes: 173000/399023  * checking phenotypes: 174000/399023  * checking phenotypes: 175000/399023  * checking phenotypes: 176000/399023  * checking phenotypes: 177000/399023  * checking phenotypes: 178000/399023  * checking phenotypes: 179000/399023  * checking phenotypes: 180000/399023  * checking phenotypes: 181000/399023  * checking phenotypes: 182000/399023  * checking phenotypes: 183000/399023  * checking phenotypes: 184000/399023  * checking phenotypes: 185000/399023  * checking phenotypes: 186000/399023  * checking phenotypes: 187000/399023  * checking phenotypes: 188000/399023  * checking phenotypes: 189000/399023  * checking phenotypes: 190000/399023  * checking phenotypes: 191000/399023  * checking phenotypes: 192000/399023  * checking phenotypes: 193000/399023  * checking phenotypes: 194000/399023  * checking phenotypes: 195000/399023  * checking phenotypes: 196000/399023  * checking phenotypes: 197000/399023  * checking phenotypes: 198000/399023  * checking phenotypes: 199000/399023  * checking phenotypes: 200000/399023  * checking phenotypes: 201000/399023  * checking phenotypes: 202000/399023  * checking phenotypes: 203000/399023  * checking phenotypes: 204000/399023  * checking phenotypes: 205000/399023  * checking phenotypes: 206000/399023  * checking phenotypes: 207000/399023  * checking phenotypes: 208000/399023  * checking phenotypes: 209000/399023  * checking phenotypes: 210000/399023  * checking phenotypes: 211000/399023  * checking phenotypes: 212000/399023  * checking phenotypes: 213000/399023  * checking phenotypes: 214000/399023  * checking phenotypes: 215000/399023  * checking phenotypes: 216000/399023  * checking phenotypes: 217000/399023  * checking phenotypes: 218000/399023  * checking phenotypes: 219000/399023  * checking phenotypes: 220000/399023  * checking phenotypes: 221000/399023  * checking phenotypes: 222000/399023  * checking phenotypes: 223000/399023  * checking phenotypes: 224000/399023  * checking phenotypes: 225000/399023  * checking phenotypes: 226000/399023  * checking phenotypes: 227000/399023  * checking phenotypes: 228000/399023  * checking phenotypes: 229000/399023  * checking phenotypes: 230000/399023  * checking phenotypes: 231000/399023  * checking phenotypes: 232000/399023  * checking phenotypes: 233000/399023  * checking phenotypes: 234000/399023  * checking phenotypes: 235000/399023  * checking phenotypes: 236000/399023  * checking phenotypes: 237000/399023  * checking phenotypes: 238000/399023  * checking phenotypes: 239000/399023  * checking phenotypes: 240000/399023  * checking phenotypes: 241000/399023  * checking phenotypes: 242000/399023  * checking phenotypes: 243000/399023  * checking phenotypes: 244000/399023  * checking phenotypes: 245000/399023  * checking phenotypes: 246000/399023  * checking phenotypes: 247000/399023  * checking phenotypes: 248000/399023  * checking phenotypes: 249000/399023  * checking phenotypes: 250000/399023  * checking phenotypes: 251000/399023  * checking phenotypes: 252000/399023  * checking phenotypes: 253000/399023  * checking phenotypes: 254000/399023  * checking phenotypes: 255000/399023  * checking phenotypes: 256000/399023  * checking phenotypes: 257000/399023  * checking phenotypes: 258000/399023  * checking phenotypes: 259000/399023  * checking phenotypes: 260000/399023  * checking phenotypes: 261000/399023  * checking phenotypes: 262000/399023  * checking phenotypes: 263000/399023  * checking phenotypes: 264000/399023  * checking phenotypes: 265000/399023  * checking phenotypes: 266000/399023  * checking phenotypes: 267000/399023  * checking phenotypes: 268000/399023  * checking phenotypes: 269000/399023  * checking phenotypes: 270000/399023  * checking phenotypes: 271000/399023  * checking phenotypes: 272000/399023  * checking phenotypes: 273000/399023  * checking phenotypes: 274000/399023  * checking phenotypes: 275000/399023  * checking phenotypes: 276000/399023  * checking phenotypes: 277000/399023  * checking phenotypes: 278000/399023  * checking phenotypes: 279000/399023  * checking phenotypes: 280000/399023  * checking phenotypes: 281000/399023  * checking phenotypes: 282000/399023  * checking phenotypes: 283000/399023  * checking phenotypes: 284000/399023  * checking phenotypes: 285000/399023  * checking phenotypes: 286000/399023  * checking phenotypes: 287000/399023  * checking phenotypes: 288000/399023  * checking phenotypes: 289000/399023  * checking phenotypes: 290000/399023  * checking phenotypes: 291000/399023  * checking phenotypes: 292000/399023  * checking phenotypes: 293000/399023  * checking phenotypes: 294000/399023  * checking phenotypes: 295000/399023  * checking phenotypes: 296000/399023  * checking phenotypes: 297000/399023  * checking phenotypes: 298000/399023  * checking phenotypes: 299000/399023  * checking phenotypes: 300000/399023  * checking phenotypes: 301000/399023  * checking phenotypes: 302000/399023  * checking phenotypes: 303000/399023  * checking phenotypes: 304000/399023  * checking phenotypes: 305000/399023  * checking phenotypes: 306000/399023  * checking phenotypes: 307000/399023  * checking phenotypes: 308000/399023  * checking phenotypes: 309000/399023  * checking phenotypes: 310000/399023  * checking phenotypes: 311000/399023  * checking phenotypes: 312000/399023  * checking phenotypes: 313000/399023  * checking phenotypes: 314000/399023  * checking phenotypes: 315000/399023  * checking phenotypes: 316000/399023  * checking phenotypes: 317000/399023  * checking phenotypes: 318000/399023  * checking phenotypes: 319000/399023  * checking phenotypes: 320000/399023  * checking phenotypes: 321000/399023  * checking phenotypes: 322000/399023  * checking phenotypes: 323000/399023  * checking phenotypes: 324000/399023  * checking phenotypes: 325000/399023  * checking phenotypes: 326000/399023  * checking phenotypes: 327000/399023  * checking phenotypes: 328000/399023  * checking phenotypes: 329000/399023  * checking phenotypes: 330000/399023  * checking phenotypes: 331000/399023  * checking phenotypes: 332000/399023  * checking phenotypes: 333000/399023  * checking phenotypes: 334000/399023  * checking phenotypes: 335000/399023  * checking phenotypes: 336000/399023  * checking phenotypes: 337000/399023  * checking phenotypes: 338000/399023  * checking phenotypes: 339000/399023  * checking phenotypes: 340000/399023  * checking phenotypes: 341000/399023  * checking phenotypes: 342000/399023  * checking phenotypes: 343000/399023  * checking phenotypes: 344000/399023  * checking phenotypes: 345000/399023  * checking phenotypes: 346000/399023  * checking phenotypes: 347000/399023  * checking phenotypes: 348000/399023  * checking phenotypes: 349000/399023  * checking phenotypes: 350000/399023  * checking phenotypes: 351000/399023  * checking phenotypes: 352000/399023  * checking phenotypes: 353000/399023  * checking phenotypes: 354000/399023  * checking phenotypes: 355000/399023  * checking phenotypes: 356000/399023  * checking phenotypes: 357000/399023  * checking phenotypes: 358000/399023  * checking phenotypes: 359000/399023  * checking phenotypes: 360000/399023  * checking phenotypes: 361000/399023  * checking phenotypes: 362000/399023  * checking phenotypes: 363000/399023  * checking phenotypes: 364000/399023  * checking phenotypes: 365000/399023  * checking phenotypes: 366000/399023  * checking phenotypes: 367000/399023  * checking phenotypes: 368000/399023  * checking phenotypes: 369000/399023  * checking phenotypes: 370000/399023  * checking phenotypes: 371000/399023  * checking phenotypes: 372000/399023  * checking phenotypes: 373000/399023  * checking phenotypes: 374000/399023  * checking phenotypes: 375000/399023  * checking phenotypes: 376000/399023  * checking phenotypes: 377000/399023  * checking phenotypes: 378000/399023  * checking phenotypes: 379000/399023  * checking phenotypes: 380000/399023  * checking phenotypes: 381000/399023  * checking phenotypes: 382000/399023  * checking phenotypes: 383000/399023  * checking phenotypes: 384000/399023  * checking phenotypes: 385000/399023  * checking phenotypes: 386000/399023  * checking phenotypes: 387000/399023  * checking phenotypes: 388000/399023  * checking phenotypes: 389000/399023  * checking phenotypes: 390000/399023  * checking phenotypes: 391000/399023  * checking phenotypes: 392000/399023  * checking phenotypes: 393000/399023  * checking phenotypes: 394000/399023  * checking phenotypes: 395000/399023  * checking phenotypes: 396000/399023  * checking phenotypes: 397000/399023  * checking phenotypes: 398000/399023  * checking phenotypes: 399000/399023  * checking phenotypes: 399023/399023
-    ** dropping 259 phenotypes without variants in cis-window
-  * Computing associations
-    Mapping chromosome chr1
-    time elapsed: 3.52 min
-    * writing output
-    Mapping chromosome chr2
-    time elapsed: 7.14 min
-    * writing output
-    Mapping chromosome chr3
-    time elapsed: 10.38 min
-    * writing output
-    Mapping chromosome chr4
-    time elapsed: 12.51 min
-    * writing output
-    Mapping chromosome chr5
-    time elapsed: 14.73 min
-    * writing output
-    Mapping chromosome chr6
-    time elapsed: 17.04 min
-    * writing output
-    Mapping chromosome chr7
-    time elapsed: 19.48 min
-    * writing output
-    Mapping chromosome chr8
-    time elapsed: 21.47 min
-    * writing output
-    Mapping chromosome chr9
-    time elapsed: 23.36 min
-    * writing output
-    Mapping chromosome chr10
-    time elapsed: 25.14 min
-    * writing output
-    Mapping chromosome chr11
-    time elapsed: 27.82 min
-    * writing output
-    Mapping chromosome chr12
-    time elapsed: 30.77 min
-    * writing output
-    Mapping chromosome chr13
-    time elapsed: 31.93 min
-    * writing output
-    Mapping chromosome chr14
-    time elapsed: 33.53 min
-    * writing output
-    Mapping chromosome chr15
-    time elapsed: 35.36 min
-    * writing output
-    Mapping chromosome chr16
-    time elapsed: 37.30 min
-    * writing output
-    Mapping chromosome chr17
-    time elapsed: 39.42 min
-    * writing output
-    Mapping chromosome chr18
-    time elapsed: 40.42 min
-    * writing output
-    Mapping chromosome chr19
-    time elapsed: 42.41 min
-    * writing output
-    Mapping chromosome chr20
-    time elapsed: 43.61 min
-    * writing output
-    Mapping chromosome chr21
-    time elapsed: 44.07 min
-    * writing output
-    Mapping chromosome chr22
-    time elapsed: 44.78 min
-    * writing output
-    Mapping chromosome chrX
-    time elapsed: 45.57 min
-    * writing output
-done.
- DONE !
-**** Job ends ****
-Tue Apr 19 09:36:56 EDT 2022
