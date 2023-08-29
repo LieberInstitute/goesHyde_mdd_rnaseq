@@ -6,10 +6,10 @@ Loading LIBD module for rmate/1.5.9
 Loading LIBD module for ruby/2.6.4p104
 Loading conda_R/4.3
 **** Job starts ****
-Mon Aug 28 12:46:14 EDT 2023
+Tue Aug 29 15:11:55 EDT 2023
 **** JHPCE info ****
 User: lhuuki
-Job id: 3696001
+Job id: 3697237
 Job name: tensorqtl_genomewide_nominal_tx_sACC
 Hostname: compute-126.cm.cluster
 Task id: undefined
@@ -50,10 +50,10 @@ Expression bed file: ../data/tensorQTL_input/expression_bed/tx_sACC.bed.gz
 Covar file: ../data/tensorQTL_input/covariates_txt/covariates_tx_sACC.txt
 Reading Expression files: ../data/tensorQTL_input/expression_bed/tx_sACC.bed.gz
 Phenotype dimensions:
-(25212, 551)
+(79730, 551)
 ....................
 Reading Plink files: /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/genotype_data/mdd_bpd/maf01/mdd_bpd_maf01
-Mapping files:   0%|          | 0/3 [00:00<?, ?it/s]Mapping files:  33%|███▎      | 1/3 [00:10<00:21, 10.76s/it]Mapping files:  67%|██████▋   | 2/3 [00:11<00:05,  5.11s/it]Mapping files: 100%|██████████| 3/3 [00:14<00:00,  4.04s/it]Mapping files: 100%|██████████| 3/3 [00:14<00:00,  4.90s/it]
+Mapping files:   0%|          | 0/3 [00:00<?, ?it/s]Mapping files:  33%|███▎      | 1/3 [00:10<00:20, 10.48s/it]Mapping files:  67%|██████▋   | 2/3 [00:11<00:04,  4.91s/it]Mapping files: 100%|██████████| 3/3 [00:14<00:00,  3.92s/it]Mapping files: 100%|██████████| 3/3 [00:14<00:00,  4.74s/it]
 Loading Genotypes...Genotype dimensions:(11031865, 616)
 Using fam to assign genoSample names
 Adding 'chr' to genotype positions
@@ -61,90 +61,90 @@ Excluding phenotypes from these chromosomes:
 {'chrY', 'chrM'}
 Phenotypes with chr in variants: 
 chr
-True     25132
-False       80
+True     79565
+False      165
 Name: count, dtype: int64
 
 **** STARTING tensorQTL ****
 Saving output to: /dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/eqtl/data/tensorQTL_out/genomewide_nominal/tx_sACC
 cis-QTL mapping: nominal associations for all variant-phenotype pairs
   * 551 samples
-  * 25132 phenotypes
+  * 79565 phenotypes
   * 43 covariates
   * 11031865 variants
   * applying in-sample 0.05 MAF filter
   * cis-window: ±500,000
-  * checking phenotypes: 1000/25132  * checking phenotypes: 2000/25132  * checking phenotypes: 3000/25132  * checking phenotypes: 4000/25132  * checking phenotypes: 5000/25132  * checking phenotypes: 6000/25132  * checking phenotypes: 7000/25132  * checking phenotypes: 8000/25132  * checking phenotypes: 9000/25132  * checking phenotypes: 10000/25132  * checking phenotypes: 11000/25132  * checking phenotypes: 12000/25132  * checking phenotypes: 13000/25132  * checking phenotypes: 14000/25132  * checking phenotypes: 15000/25132  * checking phenotypes: 16000/25132  * checking phenotypes: 17000/25132  * checking phenotypes: 18000/25132  * checking phenotypes: 19000/25132  * checking phenotypes: 20000/25132  * checking phenotypes: 21000/25132  * checking phenotypes: 22000/25132  * checking phenotypes: 23000/25132  * checking phenotypes: 24000/25132  * checking phenotypes: 25000/25132  * checking phenotypes: 25132/25132
-    ** dropping 47 phenotypes without variants in cis-window
+  * checking phenotypes: 1000/79565  * checking phenotypes: 2000/79565  * checking phenotypes: 3000/79565  * checking phenotypes: 4000/79565  * checking phenotypes: 5000/79565  * checking phenotypes: 6000/79565  * checking phenotypes: 7000/79565  * checking phenotypes: 8000/79565  * checking phenotypes: 9000/79565  * checking phenotypes: 10000/79565  * checking phenotypes: 11000/79565  * checking phenotypes: 12000/79565  * checking phenotypes: 13000/79565  * checking phenotypes: 14000/79565  * checking phenotypes: 15000/79565  * checking phenotypes: 16000/79565  * checking phenotypes: 17000/79565  * checking phenotypes: 18000/79565  * checking phenotypes: 19000/79565  * checking phenotypes: 20000/79565  * checking phenotypes: 21000/79565  * checking phenotypes: 22000/79565  * checking phenotypes: 23000/79565  * checking phenotypes: 24000/79565  * checking phenotypes: 25000/79565  * checking phenotypes: 26000/79565  * checking phenotypes: 27000/79565  * checking phenotypes: 28000/79565  * checking phenotypes: 29000/79565  * checking phenotypes: 30000/79565  * checking phenotypes: 31000/79565  * checking phenotypes: 32000/79565  * checking phenotypes: 33000/79565  * checking phenotypes: 34000/79565  * checking phenotypes: 35000/79565  * checking phenotypes: 36000/79565  * checking phenotypes: 37000/79565  * checking phenotypes: 38000/79565  * checking phenotypes: 39000/79565  * checking phenotypes: 40000/79565  * checking phenotypes: 41000/79565  * checking phenotypes: 42000/79565  * checking phenotypes: 43000/79565  * checking phenotypes: 44000/79565  * checking phenotypes: 45000/79565  * checking phenotypes: 46000/79565  * checking phenotypes: 47000/79565  * checking phenotypes: 48000/79565  * checking phenotypes: 49000/79565  * checking phenotypes: 50000/79565  * checking phenotypes: 51000/79565  * checking phenotypes: 52000/79565  * checking phenotypes: 53000/79565  * checking phenotypes: 54000/79565  * checking phenotypes: 55000/79565  * checking phenotypes: 56000/79565  * checking phenotypes: 57000/79565  * checking phenotypes: 58000/79565  * checking phenotypes: 59000/79565  * checking phenotypes: 60000/79565  * checking phenotypes: 61000/79565  * checking phenotypes: 62000/79565  * checking phenotypes: 63000/79565  * checking phenotypes: 64000/79565  * checking phenotypes: 65000/79565  * checking phenotypes: 66000/79565  * checking phenotypes: 67000/79565  * checking phenotypes: 68000/79565  * checking phenotypes: 69000/79565  * checking phenotypes: 70000/79565  * checking phenotypes: 71000/79565  * checking phenotypes: 72000/79565  * checking phenotypes: 73000/79565  * checking phenotypes: 74000/79565  * checking phenotypes: 75000/79565  * checking phenotypes: 76000/79565  * checking phenotypes: 77000/79565  * checking phenotypes: 78000/79565  * checking phenotypes: 79000/79565  * checking phenotypes: 79565/79565
+    ** dropping 157 phenotypes without variants in cis-window
   * Computing associations
     Mapping chromosome chr1
-    time elapsed: 0.20 min
+    time elapsed: 0.57 min
     * writing output
     Mapping chromosome chr2
-    time elapsed: 0.39 min
+    time elapsed: 1.35 min
     * writing output
     Mapping chromosome chr3
-    time elapsed: 0.54 min
+    time elapsed: 2.07 min
     * writing output
     Mapping chromosome chr4
-    time elapsed: 0.66 min
+    time elapsed: 2.59 min
     * writing output
     Mapping chromosome chr5
-    time elapsed: 0.79 min
+    time elapsed: 3.15 min
     * writing output
     Mapping chromosome chr6
-    time elapsed: 0.95 min
+    time elapsed: 3.70 min
     * writing output
     Mapping chromosome chr7
-    time elapsed: 1.09 min
+    time elapsed: 4.24 min
     * writing output
     Mapping chromosome chr8
-    time elapsed: 1.20 min
+    time elapsed: 4.68 min
     * writing output
     Mapping chromosome chr9
-    time elapsed: 1.30 min
+    time elapsed: 5.04 min
     * writing output
     Mapping chromosome chr10
-    time elapsed: 1.41 min
+    time elapsed: 5.46 min
     * writing output
     Mapping chromosome chr11
-    time elapsed: 1.54 min
+    time elapsed: 6.05 min
     * writing output
     Mapping chromosome chr12
-    time elapsed: 1.69 min
+    time elapsed: 6.70 min
     * writing output
     Mapping chromosome chr13
-    time elapsed: 1.76 min
+    time elapsed: 7.02 min
     * writing output
     Mapping chromosome chr14
-    time elapsed: 1.86 min
+    time elapsed: 7.41 min
     * writing output
     Mapping chromosome chr15
-    time elapsed: 1.96 min
+    time elapsed: 7.82 min
     * writing output
     Mapping chromosome chr16
-    time elapsed: 2.08 min
+    time elapsed: 8.26 min
     * writing output
     Mapping chromosome chr17
-    time elapsed: 2.23 min
+    time elapsed: 8.86 min
     * writing output
     Mapping chromosome chr18
-    time elapsed: 2.29 min
+    time elapsed: 9.21 min
     * writing output
     Mapping chromosome chr19
-    time elapsed: 2.45 min
+    time elapsed: 9.81 min
     * writing output
     Mapping chromosome chr20
-    time elapsed: 2.54 min
+    time elapsed: 10.20 min
     * writing output
     Mapping chromosome chr21
-    time elapsed: 2.58 min
+    time elapsed: 10.36 min
     * writing output
     Mapping chromosome chr22
-    time elapsed: 2.64 min
+    time elapsed: 10.57 min
     * writing output
     Mapping chromosome chrX
-    time elapsed: 2.70 min
+    time elapsed: 10.75 min
     * writing output
 done.
 -----
@@ -156,6 +156,6 @@ session_info        1.0.0
 Python 3.10.10 | packaged by conda-forge | (main, Mar 24 2023, 20:08:06) [GCC 11.3.0]
 Linux-3.10.0-1160.el7.x86_64-x86_64-with-glibc2.17
 -----
-Session information updated at 2023-08-28 12:50
+Session information updated at 2023-08-29 15:24
 **** Job ends ****
-Mon Aug 28 12:50:32 EDT 2023
+Tue Aug 29 15:24:39 EDT 2023
