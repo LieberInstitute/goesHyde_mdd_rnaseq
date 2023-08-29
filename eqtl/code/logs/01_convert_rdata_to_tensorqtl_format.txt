@@ -6,12 +6,12 @@ Loading LIBD module for rmate/1.5.9
 Loading LIBD module for ruby/2.6.4p104
 Loading conda_R/4.3
 **** Job starts ****
-Thu Jul 27 14:55:06 EDT 2023
+Mon Aug 28 15:24:33 EDT 2023
 **** JHPCE info ****
 User: lhuuki
-Job id: 3650596
+Job id: 3696404
 Job name: convert_rdata_to_tensorqtl_format
-Hostname: compute-121.cm.cluster
+Hostname: compute-063.cm.cluster
 Task id: undefined
 Unloading conda_R/4.3
 Loading conda_R/4.3
@@ -102,9 +102,9 @@ The following objects are masked from ‘package:matrixStats’:
 ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
 ✔ dplyr     1.1.2     ✔ readr     2.1.4
 ✔ forcats   1.0.0     ✔ stringr   1.5.0
-✔ ggplot2   3.4.2     ✔ tibble    3.2.1
+✔ ggplot2   3.4.3     ✔ tibble    3.2.1
 ✔ lubridate 1.9.2     ✔ tidyr     1.3.0
-✔ purrr     1.0.1     
+✔ purrr     1.0.2     
 ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
 ✖ lubridate::%within%() masks IRanges::%within%()
 ✖ dplyr::collapse()     masks IRanges::collapse()
@@ -154,6 +154,38 @@ Loading required package: rafalib
 here() starts at /dcs04/lieber/lcolladotor/hydeGoes_LIBD3010/goesHyde_mdd_rnaseq
 Setting options('download.file.method.GEOquery'='auto')
 Setting options('GEOquery.inmemory.gpl'=FALSE)
+
+Attaching package: ‘data.table’
+
+The following objects are masked from ‘package:lubridate’:
+
+    hour, isoweek, mday, minute, month, quarter, second, wday, week,
+    yday, year
+
+The following objects are masked from ‘package:dplyr’:
+
+    between, first, last
+
+The following object is masked from ‘package:purrr’:
+
+    transpose
+
+The following object is masked from ‘package:SummarizedExperiment’:
+
+    shift
+
+The following object is masked from ‘package:GenomicRanges’:
+
+    shift
+
+The following object is masked from ‘package:IRanges’:
+
+    shift
+
+The following objects are masked from ‘package:S4Vectors’:
+
+    first, second
+
 Loading objects:
   rse_gene
 Loading objects:
@@ -162,7 +194,7 @@ Loading objects:
   rse_jxn
 Loading objects:
   rse_tx
-2023-07-27 14:56:07.458859 - Calc Logcounts
+2023-08-28 15:26:40.399369 - Calc Logcounts
                               PC1        PC2        PC3         PC4       PC5
 R13950_psychENCODE_MDD -28.998622  -6.580839   6.160401 -14.3377637 11.301424
 R13978_psychENCODE_MDD -33.156389  12.427631 -10.521566   5.5352222  3.994007
@@ -177,7 +209,7 @@ R14015_psychENCODE_MDD  6.686575
 R14031_psychENCODE_MDD 13.221899
 R14179_psychENCODE_MDD -1.114861
 R17480_psychENCODE_MDD  1.117717
-2023-07-27 14:57:06.52207 - Format covariates
+2023-08-28 15:29:16.439838 - Format covariates
 gene Amygdala
 /dcs04/lieber/lcolladotor/hydeGoes_LIBD3010/goesHyde_mdd_rnaseq/eqtl/data/tensorQTL_input/covariates_txt/covariates_gene_Amygdala.txt
 gene sACC
@@ -208,23 +240,105 @@ tx sACC
 4        0.00518343   0.00342445
 5        0.00445958  -0.00199719
 6        0.00368865  -0.00105026
-2023-07-27 14:57:07.263481 - logcounts to bed
-logcounts to bed format
-logcounts to bed format
-logcounts to bed format
-logcounts to bed format
-logcounts to bed format
-logcounts to bed format
-logcounts to bed format
-logcounts to bed format
-2023-07-27 15:14:55.281297 creating the logs directory at:  logs
-2023-07-27 15:14:55.285031 creating the shell file 02_bed_bgzip.sh
-To submit the job use: qsub 02_bed_bgzip.sh
-2023-07-27 15:14:55.288812 - Calc Logcounts
+2023-08-28 15:29:17.618917 - logcounts to bed
+2023-08-28 15:29:17.63315 - gene
+2023-08-28 15:29:19.171185 - Converting assay 'logcounts' to bed format: (25212, 540)
+2023-08-28 15:29:20.522516 - Converting assay 'logcounts' to bed format: (25212, 551)
+2023-08-28 15:29:21.813138 - exon
+2023-08-28 15:29:37.565807 - Converting assay 'logcounts' to bed format: (399529, 540)
+2023-08-28 15:30:05.152757 - Converting assay 'logcounts' to bed format: (399529, 551)
+2023-08-28 15:30:30.16437 - jxn
+2023-08-28 15:30:40.34833 - Converting assay 'logcounts' to bed format: (305558, 540)
+2023-08-28 15:31:02.123093 - Converting assay 'logcounts' to bed format: (305558, 551)
+2023-08-28 15:31:23.06142 - tx
+2023-08-28 15:31:27.25281 - Converting assay 'logcounts' to bed format: (79730, 540)
+2023-08-28 15:31:32.625453 - Converting assay 'logcounts' to bed format: (79730, 551)
+[[1]]
+[[1]]$amyg
+  #Chr  start    end                ID 4572348328_R01C01 4463344451_R01C01
+1 chr1  17436  17437 ENSG00000278267.1         2.3856668         2.3256612
+2 chr1  29570  29571 ENSG00000227232.5         1.3042573         1.4722679
+3 chr1 137965 137966 ENSG00000269981.1         0.7171121         0.4975277
+4 chr1 200322 200323 ENSG00000279457.3         1.5284666         1.0646086
+5 chr1 297502 297503 ENSG00000228463.9         1.0745017         0.7937086
+6 chr1 348366 348367 ENSG00000236679.2         1.9191413         1.7782541
+
+[[1]]$sacc
+  #Chr  start    end                ID 4463344452_R01C01 4463344439_R01C02
+1 chr1  17436  17437 ENSG00000278267.1         2.4575809          4.352167
+2 chr1  29570  29571 ENSG00000227232.5         1.8177356          2.121660
+3 chr1 137965 137966 ENSG00000269981.1         0.4421124          1.581673
+4 chr1 200322 200323 ENSG00000279457.3         1.8251487          1.923163
+5 chr1 297502 297503 ENSG00000228463.9         1.4068253          1.300869
+6 chr1 348366 348367 ENSG00000236679.2         1.5771990          1.786795
+
+
+[[2]]
+[[2]]$amyg
+  #Chr start   end  ID 4572348328_R01C01 4463344451_R01C01
+1 chr1 14501 14502 e20         1.1725820         1.2220845
+2 chr1 15038 15039 e19         1.5589937         2.0708765
+3 chr1 15947 15948 e18         0.8043803         1.2536705
+4 chr1 16765 16766 e17         0.3078308         0.3491750
+5 chr1 17055 17056 e16         1.0691741         0.8820031
+6 chr1 17368 17369 e15         1.4892593         1.2227578
+
+[[2]]$sacc
+  #Chr start   end  ID 4463344452_R01C01 4463344439_R01C02
+1 chr1 14501 14502 e20         0.6538229         1.9644456
+2 chr1 15038 15039 e19         2.1060430         3.5182827
+3 chr1 15947 15948 e18         0.7985036         1.4412062
+4 chr1 16765 16766 e17         0.1606510         0.5333243
+5 chr1 17055 17056 e16         0.9604382         1.2849013
+6 chr1 17368 17369 e15         1.4073769         1.9866288
+
+
+[[3]]
+[[3]]$amyg
+  #Chr start   end                  ID 4572348328_R01C01 4463344451_R01C01
+1 chr1 14969 14970 chr1:14830-14969(-)         4.3898162         4.5332845
+2 chr1 15795 15796 chr1:15039-15795(-)         3.5351749         3.2185210
+3 chr1 16606 16607 chr1:15948-16606(-)         0.4930538         0.6358826
+4 chr1 16857 16858 chr1:16766-16857(-)         0.4930538         3.0357198
+5 chr1 17232 17233 chr1:17056-17232(-)         4.8835945         4.4071430
+6 chr1 17525 17526 chr1:17369-17525(-)         0.4930538         0.0000000
+
+[[3]]$sacc
+  #Chr start   end                  ID 4463344452_R01C01 4463344439_R01C02
+1 chr1 14969 14970 chr1:14830-14969(-)          4.274952          5.447826
+2 chr1 15795 15796 chr1:15039-15795(-)          2.979060          4.310648
+3 chr1 16606 16607 chr1:15948-16606(-)          0.000000          0.000000
+4 chr1 16857 16858 chr1:16766-16857(-)          3.452147          3.448639
+5 chr1 17232 17233 chr1:17056-17232(-)          4.671238          5.603077
+6 chr1 17525 17526 chr1:17369-17525(-)          0.000000          0.000000
+
+
+[[4]]
+[[4]]$amyg
+  #Chr  start    end                ID 4572348328_R01C01 4463344451_R01C01
+1 chr1  29570  29571 ENST00000488147.1         1.7926430         1.0252415
+2 chr1  36073  36074 ENST00000461467.1         1.4889982         1.1466487
+3 chr1 120932 120933 ENST00000466430.5         0.8565436         0.7785787
+4 chr1 131025 131026 ENST00000442987.3         1.0335041         0.7411080
+5 chr1 135895 135896 ENST00000494149.2         0.5534519         0.1477964
+6 chr1 137965 137966 ENST00000595919.1         1.0331939         0.4990381
+
+[[4]]$sacc
+  #Chr  start    end                ID 4463344452_R01C01 4463344439_R01C02
+1 chr1  29570  29571 ENST00000488147.1         1.7281077         1.9755458
+2 chr1  36073  36074 ENST00000461467.1         1.1050008         1.0174659
+3 chr1 120932 120933 ENST00000466430.5         0.8131708         0.6780151
+4 chr1 131025 131026 ENST00000442987.3         0.9041534         1.2130424
+5 chr1 135895 135896 ENST00000494149.2         0.6459497         0.7585249
+6 chr1 137965 137966 ENST00000595919.1         0.2913030         0.4179697
+
+
+2023-08-28 15:31:37.207229 - Write bed tables to .bed.gz files
+2023-08-28 16:14:39.38988 - Prep interaction data
 [1] "Reproducibility information:"
 ─ Session info ───────────────────────────────────────────────────────────────────────────────────────────────────────
  setting  value
- version  R version 4.3.1 Patched (2023-07-27 r84760)
+ version  R version 4.3.1 Patched (2023-08-27 r85022)
  os       CentOS Linux 7 (Core)
  system   x86_64, linux-gnu
  ui       X11
@@ -232,7 +346,7 @@ To submit the job use: qsub 02_bed_bgzip.sh
  collate  en_US.UTF-8
  ctype    en_US.UTF-8
  tz       US/Eastern
- date     2023-07-27
+ date     2023-08-28
  pandoc   3.1.1 @ /jhpce/shared/jhpce/core/conda/miniconda3-4.11.0/envs/svnR-4.3/bin/ (via rmarkdown)
 
 ─ Packages ───────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -261,11 +375,11 @@ To submit the job use: qsub 02_bed_bgzip.sh
  codetools              0.2-19    2023-02-01 [3] CRAN (R 4.3.1)
  colorspace             2.1-0     2023-01-23 [2] CRAN (R 4.3.0)
  crayon                 1.5.2     2022-09-29 [2] CRAN (R 4.3.0)
- curl                   5.0.1     2023-06-07 [2] CRAN (R 4.3.1)
- data.table             1.14.8    2023-02-17 [2] CRAN (R 4.3.0)
+ curl                   5.0.2     2023-08-14 [2] CRAN (R 4.3.1)
+ data.table           * 1.14.8    2023-02-17 [2] CRAN (R 4.3.0)
  DBI                    1.1.3     2022-06-18 [2] CRAN (R 4.3.0)
  dbplyr                 2.3.3     2023-07-07 [2] CRAN (R 4.3.1)
- DelayedArray           0.26.6    2023-07-02 [2] Bioconductor
+ DelayedArray           0.26.7    2023-07-28 [2] Bioconductor
  derfinder              1.34.0    2023-04-25 [2] Bioconductor
  derfinderHelper        1.34.0    2023-04-25 [2] Bioconductor
  digest                 0.6.33    2023-07-07 [2] CRAN (R 4.3.1)
@@ -283,25 +397,25 @@ To submit the job use: qsub 02_bed_bgzip.sh
  fs                     1.6.3     2023-07-20 [2] CRAN (R 4.3.1)
  gargle                 1.5.2     2023-07-20 [2] CRAN (R 4.3.1)
  generics               0.1.3     2022-07-05 [2] CRAN (R 4.3.0)
- GenomeInfoDb         * 1.36.1    2023-06-21 [2] Bioconductor
+ GenomeInfoDb         * 1.36.2    2023-08-25 [2] Bioconductor
  GenomeInfoDbData       1.2.10    2023-04-11 [2] Bioconductor
  GenomicAlignments      1.36.0    2023-04-25 [2] Bioconductor
- GenomicFeatures        1.52.1    2023-06-22 [2] Bioconductor
+ GenomicFeatures        1.52.2    2023-08-25 [2] Bioconductor
  GenomicFiles           1.36.0    2023-04-25 [2] Bioconductor
  GenomicRanges        * 1.52.0    2023-04-25 [2] Bioconductor
  GEOquery               2.68.0    2023-04-25 [2] Bioconductor
- ggplot2              * 3.4.2     2023-04-03 [2] CRAN (R 4.3.0)
+ ggplot2              * 3.4.3     2023-08-14 [2] CRAN (R 4.3.1)
  glue                   1.6.2     2022-02-24 [2] CRAN (R 4.3.0)
  googledrive            2.1.1     2023-06-11 [2] CRAN (R 4.3.1)
  gridExtra              2.3       2017-09-09 [2] CRAN (R 4.3.0)
- gtable                 0.3.3     2023-03-21 [2] CRAN (R 4.3.0)
+ gtable                 0.3.4     2023-08-21 [2] CRAN (R 4.3.1)
  here                 * 1.0.1     2020-12-13 [2] CRAN (R 4.3.0)
  Hmisc                  5.1-0     2023-05-08 [2] CRAN (R 4.3.0)
  hms                    1.1.3     2023-03-21 [2] CRAN (R 4.3.0)
  htmlTable              2.4.1     2022-07-07 [2] CRAN (R 4.3.0)
- htmltools              0.5.5     2023-03-23 [2] CRAN (R 4.3.0)
+ htmltools              0.5.6     2023-08-10 [2] CRAN (R 4.3.1)
  htmlwidgets            1.6.2     2023-03-17 [2] CRAN (R 4.3.0)
- httr                   1.4.6     2023-05-08 [2] CRAN (R 4.3.0)
+ httr                   1.4.7     2023-08-15 [2] CRAN (R 4.3.1)
  IRanges              * 2.34.1    2023-06-22 [2] Bioconductor
  iterators              1.0.14    2022-02-05 [2] CRAN (R 4.3.0)
  jaffelab             * 0.99.32   2023-04-14 [1] Github (LieberInstitute/jaffelab@7b7afe3)
@@ -315,12 +429,12 @@ To submit the job use: qsub 02_bed_bgzip.sh
  lubridate            * 1.9.2     2023-02-10 [2] CRAN (R 4.3.0)
  magrittr               2.0.3     2022-03-30 [2] CRAN (R 4.3.0)
  MASS                   7.3-60    2023-05-04 [3] CRAN (R 4.3.1)
- Matrix                 1.6-0     2023-07-08 [3] CRAN (R 4.3.1)
- MatrixGenerics       * 1.12.2    2023-06-09 [2] Bioconductor
+ Matrix                 1.6-1     2023-08-14 [3] CRAN (R 4.3.1)
+ MatrixGenerics       * 1.12.3    2023-07-30 [2] Bioconductor
  matrixStats          * 1.0.0     2023-06-02 [2] CRAN (R 4.3.0)
  memoise                2.0.1     2021-11-26 [2] CRAN (R 4.3.0)
  munsell                0.5.0     2018-06-12 [2] CRAN (R 4.3.0)
- nlme                   3.1-162   2023-01-31 [3] CRAN (R 4.3.1)
+ nlme                   3.1-163   2023-08-09 [3] CRAN (R 4.3.1)
  nnet                   7.3-19    2023-05-03 [3] CRAN (R 4.3.1)
  pillar                 1.9.0     2023-03-22 [2] CRAN (R 4.3.0)
  pkgconfig              2.0.3     2019-09-22 [2] CRAN (R 4.3.0)
@@ -328,8 +442,7 @@ To submit the job use: qsub 02_bed_bgzip.sh
  png                    0.1-8     2022-11-29 [2] CRAN (R 4.3.0)
  prettyunits            1.1.1     2020-01-24 [2] CRAN (R 4.3.0)
  progress               1.2.2     2019-05-16 [2] CRAN (R 4.3.0)
- pryr                   0.1.6     2023-01-17 [2] CRAN (R 4.3.0)
- purrr                * 1.0.1     2023-01-10 [2] CRAN (R 4.3.0)
+ purrr                * 1.0.2     2023-08-10 [2] CRAN (R 4.3.1)
  qvalue                 2.32.0    2023-04-25 [2] Bioconductor
  R6                     2.5.1     2021-08-19 [2] CRAN (R 4.3.0)
  rafalib              * 1.0.0     2015-08-09 [1] CRAN (R 4.3.0)
@@ -344,20 +457,19 @@ To submit the job use: qsub 02_bed_bgzip.sh
  restfulr               0.0.15    2022-06-16 [2] CRAN (R 4.3.0)
  rjson                  0.2.21    2022-01-09 [2] CRAN (R 4.3.0)
  rlang                  1.1.1     2023-04-28 [2] CRAN (R 4.3.0)
- rmarkdown              2.23      2023-07-01 [2] CRAN (R 4.3.1)
+ rmarkdown              2.24      2023-08-14 [2] CRAN (R 4.3.1)
  rngtools               1.5.2     2021-09-20 [2] CRAN (R 4.3.0)
  rpart                  4.1.19    2022-10-21 [3] CRAN (R 4.3.1)
  rprojroot              2.0.3     2022-04-02 [2] CRAN (R 4.3.0)
  Rsamtools            * 2.16.0    2023-04-25 [2] Bioconductor
  RSQLite                2.3.1     2023-04-03 [2] CRAN (R 4.3.0)
  rstudioapi             0.15.0    2023-07-07 [2] CRAN (R 4.3.1)
- rtracklayer            1.60.0    2023-04-25 [2] Bioconductor
+ rtracklayer            1.60.1    2023-08-15 [2] Bioconductor
  S4Arrays               1.0.5     2023-07-24 [2] Bioconductor
  S4Vectors            * 0.38.1    2023-05-02 [2] Bioconductor
  scales                 1.2.1     2022-08-20 [2] CRAN (R 4.3.0)
  segmented              1.6-4     2023-04-13 [1] CRAN (R 4.3.0)
  sessioninfo          * 1.2.2     2021-12-06 [2] CRAN (R 4.3.0)
- sgejobs                0.99.1    2023-04-14 [1] Github (LieberInstitute/sgejobs@f5ab0ca)
  stringi                1.7.12    2023-01-11 [2] CRAN (R 4.3.0)
  stringr              * 1.5.0     2022-12-02 [2] CRAN (R 4.3.0)
  SummarizedExperiment * 1.30.2    2023-06-06 [2] Bioconductor
@@ -371,7 +483,7 @@ To submit the job use: qsub 02_bed_bgzip.sh
  VariantAnnotation    * 1.46.0    2023-04-25 [2] Bioconductor
  vctrs                  0.6.3     2023-06-14 [2] CRAN (R 4.3.1)
  withr                  2.5.0     2022-03-03 [2] CRAN (R 4.3.0)
- xfun                   0.39      2023-04-20 [2] CRAN (R 4.3.0)
+ xfun                   0.40      2023-08-09 [2] CRAN (R 4.3.1)
  XML                    3.99-0.14 2023-03-19 [2] CRAN (R 4.3.0)
  xml2                   1.3.5     2023-07-06 [2] CRAN (R 4.3.1)
  XVector              * 0.40.0    2023-04-25 [2] Bioconductor
@@ -384,4 +496,4 @@ To submit the job use: qsub 02_bed_bgzip.sh
 
 ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 **** Job ends ****
-Thu Jul 27 15:15:04 EDT 2023
+Mon Aug 28 16:15:01 EDT 2023
