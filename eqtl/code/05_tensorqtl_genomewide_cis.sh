@@ -1,9 +1,9 @@
 #!/bin/bash
 #$ -cwd
 #$ -l bluejay,mem_free=50G,h_vmem=50G,h_fsize=100G
-#$ -N tensorqtl_genomewide
-#$ -o logs/tensorqtl_genomewide_cis.txt
-#$ -e logs/tensorqtl_genomewide_cis.txt
+#$ -N tensorqtl_genomewide_cis
+#$ -o logs/05_tensorqtl_genomewide_cis.txt
+#$ -e logs/05_tensorqtl_genomewide_cis.txt
 #$ -m e
 
 echo "**** Job starts ****"
@@ -17,12 +17,13 @@ echo "Hostname: ${HOSTNAME}"
 echo "Task id: ${SGE_TASK_ID}"
 
 ## Load the R module (absent since the JHPCE upgrade to CentOS v7)
+module load tensorqtl
 
 ## List current modules for reproducibility
 module list
 
 ## Edit with your job command
-python tensorqtl_genomewide_cis.py
+python 05_tensorqtl_genomewide_cis.py
 
 echo "**** Job ends ****"
 date
