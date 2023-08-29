@@ -35,7 +35,6 @@ read_adj_filter <- function(parquet_files, cutoff = 0.05) {
     eqtl_out <- eqtl_out %>%
         filter(FDR < cutoff)
     message("n pairs FDR<", cutoff, ": ", nrow(eqtl_out))
-    significant_snps <- c(significant_snps, eqt_outl$variant_id)
     return(eqtl_out)
 }
 

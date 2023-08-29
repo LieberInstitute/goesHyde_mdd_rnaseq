@@ -1,6 +1,6 @@
 #!/bin/bash
 #$ -cwd
-#$ -l mem_free=50G,h_vmem=50G,h_fsize=100G
+#$ -l mem_free=200G,h_vmem=200G,h_fsize=100G
 #$ -N filter_genomewide_nominal
 #$ -o logs/04_filter_genomewide_nominal.txt
 #$ -e logs/04_filter_genomewide_nominal.txt
