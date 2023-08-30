@@ -21,7 +21,7 @@ for region in ["Amygdala", "sACC"]:
         
         nominal_out = cis.map_nominal(genotype_df, variant_df, phenotype_df, phenotype_pos_df,
         prefix = tag, covariates_df=covariates_df, output_dir = out_path, 
-        interaction_s = cf_interaction, maf_threshold_interaction = 0.05, group_s = None, window = 500000, 
+        interaction_df = cf_interaction, maf_threshold_interaction = 0.05, group_s = None, window = 500000, 
         run_eigenmt = False, write_stats = True)
         
     print("DONE " + region)
