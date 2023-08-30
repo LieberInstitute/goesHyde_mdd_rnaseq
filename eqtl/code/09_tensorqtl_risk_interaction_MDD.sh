@@ -1,9 +1,10 @@
 #!/bin/bash
 #$ -cwd
-#$ -l caracol,mem_free=50G,h_vmem=50G,h_fsize=100G
-#$ -N tensorqtl_genomewide_independent
-#$ -o logs/tensorqtl_genomewide_independent.txt
-#$ -e logs/tensorqtl_genomewide_independent.txt
+#$ -l caracol,mem_free=100G,h_vmem=100G,h_fsize=100G
+#$ -N tensorqtl_risk_interaction
+#$ -o logs/09_tensorqtl_risk_interaction_MDD.txt
+#$ -e logs/09_tensorqtl_risk_interaction_MDD.txt
+#$ -m e
 
 echo "**** Job starts ****"
 date
@@ -19,6 +20,7 @@ echo "Task id: ${SGE_TASK_ID}"
 module load tensorqtl
 module list
 
+## check for GPU space
 USAGE_CUTOFF=10
 NUM_GPUS=1
 
@@ -32,7 +34,9 @@ fi
 
 export CUDA_VISIBLE_DEVICES=$(echo "$avail_gpus" | head -n $NUM_GPUS | paste -sd ",")
 
-python tensorqtl_genomewide_independent.py ${PAIR}
-
+python 09_tensorqtl_risk_interaction_MDD.py
 echo "**** Job ends ****"
 date
+
+## This script was made using sgejobs version 0.99.1
+## available from http://research.libd.org/sgejobs/

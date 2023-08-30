@@ -1,9 +1,9 @@
 #!/bin/bash
 #$ -cwd
-#$ -l caracol,mem_free=100G,h_vmem=100G,h_fsize=100G
+#$ -l caracol,mem_free=50G,h_vmem=50G,h_fsize=100G
 #$ -N tensorqtl_risk_interaction
-#$ -o logs/tensorqtl_risk_interaction_MDD.txt
-#$ -e logs/tensorqtl_risk_interaction_MDD.txt
+#$ -o logs/10_tensorqtl_risk_interaction_BPD.txt
+#$ -e logs/10_tensorqtl_risk_interaction_BPD.txt
 #$ -m e
 
 echo "**** Job starts ****"
@@ -34,7 +34,7 @@ fi
 
 export CUDA_VISIBLE_DEVICES=$(echo "$avail_gpus" | head -n $NUM_GPUS | paste -sd ",")
 
-python tensorqtl_risk_interaction_MDD.py
+python 10_tensorqtl_risk_interaction_BPD.py
 echo "**** Job ends ****"
 date
 
