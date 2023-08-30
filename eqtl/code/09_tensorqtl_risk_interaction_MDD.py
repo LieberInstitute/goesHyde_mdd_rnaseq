@@ -17,7 +17,7 @@ for region in ["Amygdala", "sACC"]:
         tag = 'gene_' + region +'_' + cell_type 
         print(tag)
         
-        cf_interaction = pd.Series(cell_fraction[cell_type])
+        cf_interaction = cell_fraction[[cell_type]]
         
         nominal_out = cis.map_nominal(genotype_df, variant_df, phenotype_df, phenotype_pos_df,
         prefix = tag, covariates_df=covariates_df, output_dir = out_path, 
