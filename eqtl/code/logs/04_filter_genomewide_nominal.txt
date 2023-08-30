@@ -6,12 +6,12 @@ Loading LIBD module for rmate/1.5.9
 Loading LIBD module for ruby/2.6.4p104
 Loading conda_R/4.3
 **** Job starts ****
-Wed Aug 23 11:26:39 EDT 2023
+Tue Aug 29 16:03:30 EDT 2023
 **** JHPCE info ****
 User: lhuuki
-Job id: 3691301
+Job id: 3697299
 Job name: filter_genomewide_nominal
-Hostname: compute-057.cm.cluster
+Hostname: compute-065.cm.cluster
 Task id: undefined
 Unloading conda_R/4.3
 Loading conda_R/4.1
@@ -39,15 +39,37 @@ Currently Loaded Modules:
 ✖ dplyr::lag()    masks stats::lag()
 Loading required package: rafalib
 here() starts at /dcs04/lieber/lcolladotor/hydeGoes_LIBD3010/goesHyde_mdd_rnaseq
-Reading: gene amyg - 2023-08-23 11:27:10
+qs 0.25.5
+Reading: gene amyg - 2023-08-29 16:03:47
 n pairs: 53612673
-n pairs FDR<0.05: 776313
+n pairs FDR<0.05: 3458339
+Reading: gene sacc - 2023-08-29 16:06:30
+n pairs: 53378411
+n pairs FDR<0.05: 3954947
+Reading: exon amyg - 2023-08-29 16:08:48
+n pairs: 840506632
+n pairs FDR<0.05: 23022118
+Reading: exon sacc - 2023-08-29 16:47:26
+n pairs: 836724951
+n pairs FDR<0.05: 25747139
+Reading: jxn amyg - 2023-08-29 17:24:43
+n pairs: 633234817
+n pairs FDR<0.05: 13610433
+Reading: jxn sacc - 2023-08-29 17:52:03
+n pairs: 630489045
+n pairs FDR<0.05: 14818600
+Reading: tx amyg - 2023-08-29 18:20:57
+n pairs: 167664181
+n pairs FDR<0.05: 4830908
+Reading: tx sacc - 2023-08-29 18:28:17
+n pairs: 166926292
+n pairs FDR<0.05: 5239002
 [1] "Reproducibility information:"
-[1] "2023-08-23 11:29:53 EDT"
-   user  system elapsed 
-127.657  30.401 190.438 
+[1] "2023-08-29 18:35:46 EDT"
+    user   system  elapsed 
+5162.474 3591.194 9133.652 
 ─ Session info  ──────────────────────────────────────────────────────────────────────────────────────────────────────
- hash: pineapple, woman and man holding hands: dark skin tone, handbag
+ hash: speak-no-evil monkey, hollow red circle, flag: Western Sahara
 
  setting  value
  version  R version 4.1.0 Patched (2021-05-18 r80330)
@@ -58,7 +80,7 @@ n pairs FDR<0.05: 776313
  collate  en_US.UTF-8
  ctype    en_US.UTF-8
  tz       US/Eastern
- date     2023-08-23
+ date     2023-08-29
  pandoc   2.12 @ /jhpce/shared/jhpce/core/conda/miniconda3-4.6.14/envs/svnR-4.1/bin/pandoc
 
 ─ Packages ───────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -113,10 +135,13 @@ n pairs FDR<0.05: 776313
  pillar                 1.6.4    2021-10-18 [1] CRAN (R 4.1.0)
  pkgconfig              2.0.3    2019-09-22 [2] CRAN (R 4.1.0)
  purrr                * 0.3.4    2020-04-17 [2] CRAN (R 4.1.0)
+ qs                   * 0.25.5   2023-02-22 [1] CRAN (R 4.1.0)
  R6                     2.5.1    2021-08-19 [1] CRAN (R 4.1.0)
  rafalib              * 1.0.0    2015-08-09 [1] CRAN (R 4.1.0)
+ RApiSerialize          0.1.2    2022-08-25 [1] CRAN (R 4.1.0)
  RColorBrewer           1.1-2    2014-12-07 [2] CRAN (R 4.1.0)
  Rcpp                   1.0.7    2021-07-07 [2] CRAN (R 4.1.0)
+ RcppParallel           5.1.4    2021-05-04 [2] CRAN (R 4.1.0)
  RCurl                  1.98-1.5 2021-09-17 [2] CRAN (R 4.1.0)
  readr                * 2.0.2    2021-09-27 [2] CRAN (R 4.1.0)
  readxl                 1.3.1    2019-03-13 [2] CRAN (R 4.1.0)
@@ -129,6 +154,7 @@ n pairs FDR<0.05: 776313
  scales                 1.1.1    2020-05-11 [2] CRAN (R 4.1.0)
  segmented              1.3-4    2021-04-22 [1] CRAN (R 4.1.0)
  sessioninfo          * 1.2.1    2021-11-02 [2] CRAN (R 4.1.0)
+ stringfish             0.15.8   2023-05-30 [1] CRAN (R 4.1.0)
  stringi                1.7.5    2021-10-04 [2] CRAN (R 4.1.0)
  stringr              * 1.4.0    2019-02-10 [2] CRAN (R 4.1.0)
  SummarizedExperiment   1.24.0   2021-10-26 [1] Bioconductor
@@ -151,4 +177,4 @@ n pairs FDR<0.05: 776313
 
 ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 **** Job ends ****
-Wed Aug 23 11:29:57 EDT 2023
+Tue Aug 29 18:36:36 EDT 2023
