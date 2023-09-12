@@ -18,7 +18,7 @@ for feature in ["tx"]:
         cell_fraction = pd.read_csv("../data/tensorQTL_input/interaction/cell_fraction_"+ region +".csv", index_col = 0)
         
         for cell_type in cell_fraction.columns:
-            tag = feature '_' + region +'_' + cell_type 
+            tag = feature + '_' + region +'_' + cell_type 
             print(tag)
             
             cf_interaction = cell_fraction[[cell_type]]
