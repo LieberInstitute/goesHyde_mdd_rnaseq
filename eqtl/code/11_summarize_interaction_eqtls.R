@@ -10,7 +10,8 @@ library("here")
 
 #### Read in csv files ####
 ## loop over dx
-dx <- c("mdd", "bpd")
+# dx <- c("mdd", "bpd")
+dx <- c("mdd")
 names(dx) <- dx
 
 regions <- c(amyg = "Amygdala", sacc = "sACC")
@@ -32,7 +33,7 @@ eqtl_FDR <- map(combos, function(f){
 })
 
 ## find total number of pairs from log file
-FDR_log_file <- readLines(here("eqtl","code","logs","filter_interaction_FDR.txt"))
+FDR_log_file <- readLines(here("eqtl","code","logs","tensorqtl_risk_interaction.txt"))
 
 n_pairs <- tibble(data = c(rep(FDR_log_file[grep("Reading:", FDR_log_file)], each = 10)),
                   cell_type = FDR_log_file[grep("n pairs:", FDR_log_file) - 1],
@@ -62,14 +63,13 @@ interaction_summary <- eqtl_interaction_FDR %>%
     summarize(n_FDR05 = n(),
               n_genes = length(unique(phenotype_id)),
               n_SNPs = length(unique(variant_id))) %>%
-    right_join(n_pairs) %>%
-    mutate(anno = paste("pairs:", n_pairs, "\nFDR < 05:", n_FDR05, "\ngenes:",n_genes,"\nSNPs:",n_SNPs)) 
+    mutate(anno = paste("nFDR < 05:", n_FDR05, "\ngenes:",n_genes,"\nSNPs:",n_SNPs)) 
 
 interaction_summary %>% select(-anno) %>% write_csv(here("eqtl", "data","summary","gene_cell_fraction_interaction.csv"))
 
-interaction_summary %>%
-    select(region, Dx, cell_type, n_pairs) %>%
-    pivot_wider(names_from = "cell_type", values_from = "n_pairs")
+# interaction_summary %>%
+#     select(region, Dx, cell_type, n_pairs) %>%
+#     pivot_wider(names_from = "cell_type", values_from = "n_pairs")
 
 interaction_summary %>%
   select(region, Dx, cell_type, n_FDR05) %>%
@@ -121,6 +121,7 @@ locus
 
 
 #### Get Gene Residual Expression ####
+source("utils.R")
 ## Load gene data
 load(here("exprs_cutoff", "rse_gene.Rdata"), verbose = TRUE)
 rd <- as.data.frame(rowData(rse_gene)) %>% select(gencodeID, Symbol)
