@@ -7,7 +7,8 @@ library("here")
 source("utils.R")
  
 ## loop over dx
-dx <- c("mdd", "bpd")
+# dx <- c("mdd", "bpd")
+dx <- c("mdd")
 names(dx) <- dx
 
 regions <- c(amyg = "Amygdala", sacc = "sACC")
