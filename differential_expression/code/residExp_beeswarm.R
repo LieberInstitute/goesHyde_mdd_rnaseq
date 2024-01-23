@@ -2,7 +2,7 @@ library(ggplot2)
 library(ggbeeswarm)
 library(here)
 
-source(here("main_colors.R"))
+source(here("data","MDD_colors.R"))
 
 make_expDx_table <- function(exprs, i, pd){
   exprs_i <- as.data.frame(exprs[i,])
