@@ -1,8 +1,6 @@
 
 library("SummarizedExperiment")
 library("SingleCellExperiment")
-# library("jaffelab")
-# library("xbioc")
 library("BisqueRNA")
 library("tidyverse")
 library("DeconvoBuddies")
@@ -14,147 +12,103 @@ library("sessioninfo")
 load(here("exprs_cutoff", "rse_gene.Rdata"), verbose = TRUE)
 rownames(rse_gene) <- rowData(rse_gene)$ensemblID
 
+rse_gene_region <-  map(c(sacc = "sACC", amy = "Amygdala"), ~rse_gene[,rse_gene$BrainRegion == .x])
+map_int(rse_gene_region, ncol)
+# sacc  amy 
+# 551  540 
+
 ## sce Data
 load("/dcs04/lieber/lcolladotor/deconvolution_LIBD4030/deconvolution_bsp2/data/sce_pan.v2.Rdata", verbose = TRUE)
 
-# 119 cell types
-table(sce_pan$cellType)
-table(sce_pan$cellType, sce_pan$cellType.Broad)
-table(sce_pan$cellType.Broad)
-table(is.na(sce_pan$cellType.Broad))
-# Astro  Endo Macro Micro Mural Oligo   OPC Tcell Excit Inhib 
-# 5596    31    32  3958   100 28165  4449    66  7617 20513 
+sce_region <- map(c(sacc = "sacc", amy = "amy"), function(r){
+  sce <- sce_pan[,sce_pan$region == r]
+  sce$cellType <- droplevels(sce$cellType)
+  return(sce)
+})
+rm(sce_pan)
 
-#sACC & Amyg both have 5 donors (>4 min for Bisque)
-table(sce_pan$donor, sce_pan$region)
-#         amy dlpfc  hpc  nac sacc
-# br5161 3269  4215 4352 2039 3159
-# br5182    0     0    0 4209    0
-# br5207    0  5294    0 4402    0
-# br5212 3246  1693 3899 1753 3863
-# br5276 2257     0    0 2522  588
-# br5287    0     0 1853  669    0
-# br5400 1736     0    0 4017 3930
-# br5701 3498     0    0  281 3783
+map(sce_region, ~table(.x$cellType))
 
 ## 24 cell type for sACC (18 neurons)
-table(droplevels(sce_pan[,sce_pan$region == "sacc"]$cellType))
+# 
 # sacc_Astro_A sacc_Astro_B sacc_Excit_A sacc_Excit_B sacc_Excit_C sacc_Excit_D sacc_Excit_E sacc_Excit_F sacc_Excit_G 
 # 747          160          856          575         1735          311          428          228           30 
 # sacc_Inhib_A sacc_Inhib_B sacc_Inhib_C sacc_Inhib_D sacc_Inhib_E sacc_Inhib_F sacc_Inhib_G sacc_Inhib_H sacc_Inhib_I 
 # 842          912          465          384          330          521          206          208           39 
 # sacc_Inhib_J sacc_Inhib_K   sacc_Micro sacc_Oligo_A sacc_Oligo_B     sacc_OPC 
 # 42           25          784         4389          195          911 
-
+# 
 ## 19 cell types for Amyg (11 neurons)
-table(droplevels(sce_pan[,sce_pan$region == "amy"]$cellType))
+# 
 # amy_Astro_A amy_Astro_B    amy_Endo amy_Excit_A amy_Excit_B amy_Excit_C amy_Inhib_A amy_Inhib_B amy_Inhib_C amy_Inhib_D 
 # 1555          83          31         344          44          55         728         541         525         555 
 # amy_Inhib_E amy_Inhib_F amy_Inhib_G amy_Inhib_H   amy_Micro   amy_Mural   amy_Oligo     amy_OPC   amy_Tcell 
-# 414         216          86          52        1168          39        6080        1459          31
+# 414         216          86          52        1168          39        6080        1459          31 
 
+load(here('deconvolution', "data", "revis", "marker_stats_fine.Rdata"), verbose = TRUE)
 
-ratios <- get_mean_ratio2(sce_pan)
-####
+marker_stats_filter <- map(marker_stats_fine, ~.x |>
+  dplyr::filter(gene %in% rownames(rse_gene) & marker_gene))
 
-
-marker_stats %>%
-  filter(rank_ratio <= 25, gene %in% rownames(rse_gene)) %>%
-  count(cellType.target)
-
-# # A tibble: 10 × 2
-# cellType.target     n
-# <fct>           <int>
-#   1 Astro              25
-# 2 Endo               25
-# 3 Macro              21
-# 4 Micro              25
-# 5 Mural              24
-# 6 Oligo              25
-# 7 OPC                23
-# 8 Tcell              14
-# 9 Excit              25
-# 10 Inhib              24
-
-marker_stats2 <- marker_stats %>%
-  filter(gene %in% rownames(rse_gene)) %>%
-  filter(cellType.target != "Macro" | (cellType.target == "Macro" & rank_ratio <= 23)) %>%
-  group_by(cellType.target) %>%
-  mutate(rank_ratio = row_number())
-
-marker_stats2%>%
-  filter(rank_ratio <= 25) %>% 
-  dplyr::count(cellType.target)
-
-# # Groups:   cellType.target [10]
-# cellType.target     n
-# <fct>           <int>
-#   1 Astro              25
-# 2 Endo               25
-# 3 Macro              18
-# ...
-
-marker_genes <- marker_stats2 %>%
-  filter(rank_ratio <= 25) %>%
-  pull(gene)
-
-length(marker_genes)
-# [1] 243
+map(marker_stats_filter, ~.x |>
+  dplyr::count(cellType.target) |>
+  arrange(n))
 
 ## save table of marker genes
-## marker stats
-rd <- as.data.frame(rowData(rse_gene)[marker_genes,]) %>% select(ensemblID, gencodeID)
+walk2(marker_stats_filter, names(marker_stats_filter), ~write_csv(.x, file = here('deconvolution', "data", "revis",paste0("MDDseq-deconvolution-markers_fine_",.y,".csv"))))
 
-marker_table <- marker_stats2 %>% filter(rank_ratio <= 25) %>%
-  select(ensemblID = gene, `Cell Type` = cellType.target, Symbol) %>%
-  left_join(rd) %>%
-  select(gencodeID, `Cell Type`, Symbol)
+## pull list for deconvolution
+marker_genes <- map(marker_stats_filter, ~.x |> pull(gene))
+map_int(marker_genes, length)
+# sacc  amy 
+# 548  404 
 
-write_csv(marker_table, file = here("deconvolution","data","MDDseq-deconvolution-markers.csv"))
-
-#### create expression set ####
-exp_set_bulk <- ExpressionSet(assayData = assays(rse_gene)$counts,
-                              phenoData=AnnotatedDataFrame(
-                                as.data.frame(colData(rse_gene))[c("BrNum")]))
-
-exp_set_sce <- ExpressionSet(assayData = as.matrix(assays(sce_pan)$counts),
-                             phenoData=AnnotatedDataFrame(
-                               as.data.frame(colData(sce_pan))[c("cellType.Broad", "cellType", "uniqueID","donor")]))
-
-
-exp_set_sce <- exp_set_sce[marker_genes,]
-zero_cell_filter <- colSums(exprs(exp_set_sce)) != 0
-message("Exclude ",sum(!zero_cell_filter), " cells")
-# Exclude 2 cells
-
-exp_set_sce <- exp_set_sce[,zero_cell_filter]
-
-  #### Run Bisque ####
-est_prop <- ReferenceBasedDecomposition(bulk.eset = exp_set_bulk,
-                                        sc.eset = exp_set_sce,
-                                        cell.types = "cellType.Broad",
-                                        subject.names = "donor",
-                                        use.overlap = FALSE)
-
-est_prop$bulk.props <- t(est_prop$bulk.props)
-
-est_prop$Est.prop.long <- est_prop$bulk.props %>%
-  as.data.frame() %>%
-  rownames_to_column("Sample")%>%
-  pivot_longer(!Sample, names_to = "cell_type", values_to = "prop")
-
-# est_prop$ilr <- ilr(est_prop$bulk.props)
-# colnames(est_prop$ilr) <- paste0("ilr_",1:ncol(est_prop$ilr))
+#### Run Bisque ####
+est_prop_bisque <- pmap(list(rse = rse_gene_region, sce = sce_region, markers = marker_genes), 
+                        function(rse, sce, markers){
+                          
+                          exp_set_bulk <- ExpressionSet(assayData = assays(rse)$counts,
+                                                        phenoData=AnnotatedDataFrame(
+                                                          as.data.frame(colData(rse))[c("BrNum")]))
+                          
+                          exp_set_sce <- ExpressionSet(assayData = as.matrix(assays(sce)$counts),
+                                                       phenoData=AnnotatedDataFrame(
+                                                         as.data.frame(colData(sce))[c("cellType", "uniqueID","donor")]))
+                          
+                          
+                          exp_set_sce <- exp_set_sce[markers,]
+                          zero_cell_filter <- colSums(exprs(exp_set_sce)) != 0
+                          message("Exclude ",sum(!zero_cell_filter), " cells")
+                          # Exclude 2 cells
+                          
+                          exp_set_sce <- exp_set_sce[,zero_cell_filter]
+                          
+                          #### Run Bisque ####
+                          est_prop <- ReferenceBasedDecomposition(bulk.eset = exp_set_bulk,
+                                                                  sc.eset = exp_set_sce,
+                                                                  cell.types = "cellType",
+                                                                  subject.names = "donor",
+                                                                  use.overlap = FALSE)
+                          
+                          est_prop$bulk.props <- t(est_prop$bulk.props)
+                          
+                          est_prop$Est.prop.long <- est_prop$bulk.props |>
+                            as.data.frame() |>
+                            rownames_to_column("Sample")|>
+                            pivot_longer(!Sample, names_to = "cell_type", values_to = "prop")
+                          
+                          return(est_prop)
+                          
+                        })
 
 ## Add long data and save
-round(colMeans(est_prop$bulk.props), 3)
-# Astro  Endo Macro Micro Mural Oligo   OPC Tcell Excit Inhib 
-# 0.066 0.003 0.005 0.046 0.010 0.351 0.062 0.010 0.095 0.352 
+map(est_prop_bisque, ~round(colMeans(.x$bulk.props), 3))
 
-est_prop_bisque <- est_prop
-save(est_prop_bisque, file = here("deconvolution","data","est_prop_Bisque.Rdata"))
+## save
+save(est_prop_bisque, file = here("deconvolution","data" ,"revis","est_prop_Bisque_fine.Rdata"))
 
-# sgejobs::job_single('deconvo_Bisque', create_shell = TRUE, queue= 'bluejay', memory = '10G', command = "Rscript deconvo_Bisque.R")
+# slurmjobs::job_single('revis02_deconvo_Bisque_fine', create_shell = TRUE, memory = '25G', command = "Rscript revis02_deconvo_Bisque_fine.R")
+
 ## Reproducibility information
 print("Reproducibility information:")
 Sys.time()
