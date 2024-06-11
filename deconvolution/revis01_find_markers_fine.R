@@ -23,6 +23,24 @@ map(sce_region, ~table(.x$cellType))
 map_int(sce_region, ~length(levels((.x$cellType))))
 # sacc  amy 
 # 24   19
+
+cell_type_prop <- map(sce_region, function(sce){
+  pd <- as.data.frame(colData(sce)[,c("sampleID", "donor", "region", "cellType")])
+  
+  prop_sample <- pd |> 
+    count(sampleID, donor,region, cellType) |>
+    group_by(sampleID, donor, region) |>
+    mutate(prop = n/sum(n))
+  
+  prop_global <- pd |> 
+    count(region, cellType) |>
+    mutate(prop = n/sum(n))
+  
+  return(list(sample = prop_sample, prop_global = prop_global))
+})
+
+save(cell_type_prop, file = here('deconvolution', "data", "revis", "Tran_cell_type_prop.Rdata"))
+
 marker_stats_fine <- map(sce_region, ~get_mean_ratio(.x, 
                                cellType_col = "cellType",
                                gene_ensembl = "gene_id",
