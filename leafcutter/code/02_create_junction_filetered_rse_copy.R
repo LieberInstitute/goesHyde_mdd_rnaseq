@@ -36,7 +36,7 @@ counts[(counts$Start == 5e+05), c("R13950", "Start", "End")]  ## confirm Start i
 
 
 #LOOP to create new junction files based on filtered rse_object 
-
+extract_and_save <- function(name){
   subset_counts <- counts[, c("Chr", "Start", "End", "point", name, "Strand")]
   names(subset_counts)[5] <- "names"
   file_name <- paste0("/dcl01/lieber/ajaffe/lab/goesHyde_mdd_rnaseq/leafcutter/data/junc_post_processing/", name, ".txt")
