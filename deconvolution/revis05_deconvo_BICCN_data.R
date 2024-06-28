@@ -1,6 +1,7 @@
 
 library("SingleCellExperiment")
-library("SpatialLIBD")
+library("spatialLIBD")
+library("Seurat")
 library("hspe")
 library("tidyverse")
 library("DeconvoBuddies")
