@@ -1,0 +1,26 @@
+"","region_cell_type",".y.","group1","group2","p","p.adj","p.format","p.signif","method","FDR","p.bonf","p.signif.bonf","p.bonf.anno","cell_type"
+"1","Amygdala Amygdala_excitatory","prop","MDD","Control",0.823642469833278,1,"0.82364","ns","T-test",0.837625671820079,1,"","1",NA
+"2","Amygdala Astrocyte","prop","MDD","Control",0.0790377859980748,1,"0.07904","ns","T-test",0.164662054162656,1,"","1",NA
+"3","Amygdala CGE_interneuron","prop","MDD","Control",0.545156977566578,1,"0.54516","ns","T-test",0.717311812587603,1,"","1",NA
+"4","Amygdala Deep_layer_corticothalamic_and_6b","prop","MDD","Control",0.0461563841364008,1,"0.04616","*","T-test",0.119970217263269,1,"","1",NA
+"5","Amygdala Deep_layer_intratelencephalic","prop","MDD","Control",0.1633542005484,1,"0.16335","ns","T-test",0.272257000914,1,"","1",NA
+"6","Amygdala Eccentric_medium_spiny_neuron","prop","MDD","Control",0.750188752386218,1,"0.75019","ns","T-test",0.837625671820079,1,"","1",NA
+"7","Amygdala LAMP5_LHX6_and_Chandelier","prop","MDD","Control",0.19963242369085,1,"0.19963","ns","T-test",0.311925662016953,1,"","1",NA
+"8","Amygdala Medium_spiny_neuron","prop","MDD","Control",0.773248632007014,1,"0.77325","ns","T-test",0.837625671820079,1,"","1",NA
+"9","Amygdala MGE_interneuron","prop","MDD","Control",0.104805268264883,1,"0.10481","ns","T-test",0.187646993598776,1,"","1",NA
+"10","Amygdala Microglia","prop","MDD","Control",7.14584932687391e-07,1.8e-05,"7.1e-07","****","T-test",8.93231165859239e-06,1.78646233171848e-05,"***","0***",NA
+"11","Amygdala Oligodendrocyte","prop","MDD","Control",0.0479880869053075,1,"0.04799","*","T-test",0.119970217263269,1,"","1",NA
+"12","Amygdala Oligodendrocyte_precursor","prop","MDD","Control",0.000193254441810778,0.0048,"0.00019","***","T-test",0.00120784026131736,0.00483136104526946,"***","0.005***",NA
+"13","Amygdala Upper_layer_intratelencephalic","prop","MDD","Control",0.72574471936533,1,"0.72574","ns","T-test",0.837625671820079,1,"","1",NA
+"14","sACC Amygdala_excitatory","prop","MDD","Control",0.00574352964246864,0.14,"0.00574","**","T-test",0.0287176482123432,0.143588241061716,"","0.144",NA
+"15","sACC Astrocyte","prop","MDD","Control",0.598188154883506,1,"0.59819","ns","T-test",0.747735193604382,1,"","1",NA
+"16","sACC CGE_interneuron","prop","MDD","Control",0.305861028264043,1,"0.30586","ns","T-test",0.449795629800063,1,"","1",NA
+"17","sACC Deep_layer_corticothalamic_and_6b","prop","MDD","Control",0.0697103576587747,1,"0.06971","ns","T-test",0.15843263104267,1,"","1",NA
+"18","sACC Deep_layer_intratelencephalic","prop","MDD","Control",0.0230094556228181,0.58,"0.02301","*","T-test",0.0821766272243504,0.575236390570453,"","0.575",NA
+"19","sACC Deep_layer_near_projecting","prop","MDD","Control",0.00873251690816765,0.22,"0.00873","**","T-test",0.0363854871173652,0.218312922704191,"","0.218",NA
+"20","sACC LAMP5_LHX6_and_Chandelier","prop","MDD","Control",1.43271631443079e-06,3.6e-05,"1.4e-06","****","T-test",1.19393026202566e-05,3.58179078607697e-05,"***","0***",NA
+"21","sACC MGE_interneuron","prop","MDD","Control",0.105082316415315,1,"0.10508","ns","T-test",0.187646993598776,1,"","1",NA
+"22","sACC Microglia","prop","MDD","Control",1.00924030399665e-07,2.5e-06,"1.0e-07","****","T-test",2.52310075999162e-06,2.52310075999162e-06,"***","0***",NA
+"23","sACC Oligodendrocyte","prop","MDD","Control",0.0316221559145565,0.79,"0.03162","*","T-test",0.098819237232989,0.790553897863912,"","0.791",NA
+"24","sACC Oligodendrocyte_precursor","prop","MDD","Control",0.440551543979346,1,"0.44055","ns","T-test",0.611877144415758,1,"","1",NA
+"25","sACC Upper_layer_intratelencephalic","prop","MDD","Control",0.837625671820079,1,"0.83763","ns","T-test",0.837625671820079,1,"","1",NA
