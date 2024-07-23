@@ -49,6 +49,14 @@ sce$supercluster_term <- droplevels(sce$supercluster_term)
 ## make cell type names syntactically valid
 sce$supercluster <- factor(gsub(" |-", "_", sce$supercluster_term))
 
+## save cell type proportions 
+
+sce_cell_type_prop <- as.data.frame(colData(sce)) |>
+  count(donor_id, supercluster) |>
+  group_by(donor_id) |>
+  mutate(prop = n/sum(n))
+
+write.csv(sce_cell_type_prop, file = here("deconvolution", "BICCN_data", paste0("cell_type_prop_", region, ".csv")), row.names = FALSE)
 
 ## filter to common genes
 common_genes <- intersect(rownames(rse_gene), rownames(sce))
