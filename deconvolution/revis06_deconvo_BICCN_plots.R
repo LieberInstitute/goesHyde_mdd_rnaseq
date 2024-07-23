@@ -91,16 +91,17 @@ ggsave(boxplot_dx, filename = here(plot_dir,"cellType_boxplot_Dx.png"), width = 
 
 #### Composition plots ####
 
-composition_bar_bisque <- plot_composition_bar(
+composition_bar_Dx <- plot_composition_bar(
   prop_long, 
   sample_col = "Sample",
   x_col = "region_dx",
   min_prop_text = 0.02
 ) + 
   # scale_fill_manual(values = cell_type_colors) +
-  theme_bw()
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, hjust=1))
 
-ggsave(composition_bar_bisque, filename = here(plot_dir, "compostion_bar.png"))
+ggsave(composition_bar_Dx, filename = here(plot_dir, "BICCN_est_prop_compostion_bar.png"))
 
 ## Preform t-tests
 y_position <- prop_long %>%
@@ -140,7 +141,6 @@ write.csv(prop_t_test_dx |>
             select(-y.position),
           file = here("deconvolution","BICCN_data","deconvolution_t_test_BICCN.csv"))
 
-## TODO mutate with region
 prop_t_test_signif <- prop_t_test_dx |> filter(p.bonf < 0.05) |> mutate()
 prop_t_test_signif |> count(region_cell_type)
 
@@ -205,21 +205,54 @@ ggbox_s_sacc <- ggboxplot(prop_long_s_sacc,
 
 ggsave(ggbox_s_sacc, filename = here(plot_dir,  "ggbox_t-test_Dx_s_sacc.png"), width = 12, height = 6)
 
+#### Input data proportion plots ####
 
-## Sex
-prop_t_test_sex <- prop_long |> group_by(region_cell_type) |>
-  do(compare_means(prop ~ Sex, data = ., method = "t.test")) |>
-  ungroup() |>
-  mutate(FDR = p.adjust(p, "fdr"),
-         p.bonf = p.adjust(p, "bonf"),
-         p.bonf.anno = paste0(round(p.bonf,3), ifelse(p.bonf < 0.05, "*",""))) |>
-  left_join(y_position)
+biccn_ct_prop <- read.csv(here("deconvolution", "BICCN_data", "cell_type_prop_Amygdala.csv")) |>
+  mutate(BrainRegion = "Amygdala") |>
+  bind_rows(read.csv(here("deconvolution", "BICCN_data", "cell_type_prop_sACC.csv")) |>
+              mutate(BrainRegion = "sACC") ) |>
+  mutate(cell_type = factor(supercluster, levels = cell_type_levels))
 
-prop_t_test_sex |> count(p.bonf < 0.05)
-# `p.bonf < 0.05`     n
-# <lgl>           <int>
-# 1 FALSE              39
-# 2 TRUE                4
+
+# composition_bar_input <- plot_composition_bar(
+#   biccn_ct_prop, 
+#   sample_col = "donor_id",
+#   x_col = "BrainRegion",
+#   ct_col = "supercluster",
+#   min_prop_text = 0.02
+# ) + 
+#   # scale_fill_manual(values = cell_type_colors) +
+#   theme_bw() +
+#   theme(axis.text.x = element_text(angle = 45, hjust=1))
+
+composition_bar_input_sample <-  biccn_ct_prop |>
+  ggplot(aes(x = donor_id, y = prop, fill = cell_type)) +
+  geom_col() +
+  geom_text(aes(label = ifelse(prop > 0.02,format(round(prop, 3), 3),"")),
+                position = ggplot2::position_stack(vjust = 0.5)) +
+  facet_wrap(~BrainRegion) +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, hjust=1))
+
+ggsave(composition_bar_input_sample, filename = here(plot_dir, "BICCN_input_sample_compostion_bar.png"))
+
+
+biccn_ct_prop_region <- biccn_ct_prop |>
+  group_by(BrainRegion, cell_type) |>
+  summarise(mean_prop = mean(prop),
+            n= sum(n)) |>
+  group_by(BrainRegion) |>
+  mutate(prop = n/sum(n))
+
+composition_bar_input<-  biccn_ct_prop_region |>
+  ggplot(aes(x = BrainRegion, y = prop, fill = cell_type)) +
+  geom_col() +
+  geom_text(aes(label = ifelse(prop > 0.02,format(round(prop, 3), 3),"")),
+            position = ggplot2::position_stack(vjust = 0.5)) +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, hjust=1))
+
+ggsave(composition_bar_input, filename = here(plot_dir, "BICCN_input_compostion_bar.png"))
 
 
 
