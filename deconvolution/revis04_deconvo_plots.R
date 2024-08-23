@@ -109,6 +109,12 @@ prop_long  |>
 # 3 hspe   amy    0.368
 # 4 hspe   sacc   0.517
 
+#### Export for Supp Table ####
+
+prop_long |>
+  select(Sample, RNum, BrNum, BrainRegion, cell_type, method, prop) |>
+  pivot_wider(names_from = "method", values_from = "prop", names_prefix = "est_prop_")
+
 #### colors ####
 
 cell_type_colors <- c(Astro_A=	"#d63468",
@@ -346,6 +352,7 @@ prop_t_test_sex |> count(p.bonf < 0.05)
 # 1 FALSE              39
 # 2 TRUE                4
 
+#### 
 
 
 ## Reproducibility information
