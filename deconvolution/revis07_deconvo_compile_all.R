@@ -2,6 +2,8 @@
 # compile and plot all deconvolution results for MDDseq revisions
 
 library("tidyverse")
+library("broom")
+library("ggpubr")
 library("here")
 library("SummarizedExperiment")
 library("sessioninfo")
@@ -81,6 +83,27 @@ map(est_prop, ~.x |> select(RNum, BrNum, cell_type, method, refrence_dataset))
 
 ## write data to xlsx
 write_xlsx(est_prop, here("deconvolution", "data", "MDDseq_deconvolution_est_prop.xlsx"))
+
+#### t-test ####
+
+prop_t_test <- map(est_prop, ~.x |> 
+                     mutate(region_cell_type = paste(BrainRegion, cell_type)) |>
+                     do(compare_means(prop ~ PrimaryDx, data = ., method = "t.test", p.adjust.method = "bonferroni", group.by = "region_cell_type")) |>
+                     ungroup() |>
+                     mutate(FDR = p.adjust(p, "fdr"),
+                            p.bonf = p.adjust(p, "bonf"),
+                            p.signif.bonf = case_when(p.bonf < 0.005 ~ "***",
+                                                      p.bonf < 0.01 ~"**",
+                                                      p.bonf < 0.05 ~"*",
+                                                      TRUE~""),
+                            p.bonf.anno = paste0(round(p.bonf, 3),p.signif.bonf)
+                     ) |>
+                     separate(region_cell_type, into = c("BrainRegion", "cell_type"), sep = " ")
+                   )
+
+map(prop_t_test, ~.x |> filter(p.bonf < 0.05))
+
+write_xlsx(prop_t_test, here("deconvolution", "data", "MDDseq_deconvolution_t-test.xlsx"))
 
 #### Plot composition bar plots ####
 plot_dir = here("deconvolution", "plots", "revis_ALL")
